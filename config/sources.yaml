@@ -1,0 +1,72 @@
+# Data sources for the business-graph ingestion pipeline.
+# Adding or refreshing a source is a config change, NOT a code change.
+# The ingestion job reads this file, pulls each enabled source, and writes
+# nodes/edges with a fresh `as_of_date`. Re-running overwrites stale facts.
+
+# Seed entities to build the slice around. Adding a company is ONE line: the
+# ticker. The pipeline resolves the SEC CIK (from SEC's ticker map) and the
+# GLEIF LEI (by name search) automatically, so you grow the graph bit by bit
+# without hunting down identifiers.
+seeds:
+  - TSLA      # Tesla
+  - AAPL      # Apple
+  - MSFT      # Microsoft
+  - NVDA      # NVIDIA
+  - AMD       # AMD
+  - QCOM      # Qualcomm
+  - F         # Ford
+  - GM        # General Motors
+  - JPM       # JPMorgan Chase
+  - GS        # Goldman Sachs
+  - BLK       # BlackRock
+
+sources:
+  gleif:
+    enabled: true
+    # Free, no API key, no registration. ~60 requests/minute.
+    base_url: "https://api.gleif.org/api/v1"
+    # Level 2 = "who owns whom" (direct parents and children).
+    fetch:
+      - lei_record          # the entity itself
+      - direct_parents      # OWNS edges (parent -> seed)
+      - direct_children     # OWNS edges (seed -> child)
+    rate_limit_per_min: 55
+
+  sec_edgar:
+    enabled: true
+    # Free, no API key. SEC requires a descriptive User-Agent with contact email.
+    base_url: "https://data.sec.gov"
+    user_agent: "BusinessGraph/0.1 (veratori@veratori.com)"
+    fetch:
+      - submissions         # company facts, filings index
+    rate_limit_per_sec: 8   # SEC fair-use ceiling is 10/sec; stay under it.
+
+  usaspending:
+    enabled: true
+    # Free public API. Used by refresh_gov_contracts.py to turn seeded
+    # government-contractor relationships into current FY obligation totals.
+    base_url: "https://api.usaspending.gov/api/v2"
+    refresh_script: "refresh_gov_contracts.py"
+
+  news:
+    enabled: true
+    # Optional UI cache. News is context, not graph truth; structural edges still
+    # need filings, official registries, contracts, or clearly cited sources.
+    provider: "google_news_rss"
+    base_url: "https://news.google.com/rss/search"
+    lookback_days: 14
+    max_items_per_entity: 80
+    refresh_script: "refresh_news.py"
+
+output:
+  # Write the graph as line-delimited JSON so you can load it anywhere.
+  # Swap this block for a Neo4j sink later without touching ingest logic.
+  format: "jsonl"
+  nodes_path: "data/nodes.jsonl"
+  edges_path: "data/edges.jsonl"
+
+schedule:
+  # The scheduler (cron / Airflow / Dagster) reads this. Refresh = re-run.
+  cron: "0 3 * * *"         # every day at 03:00
+  suggested_commands:
+    - "python3 refresh_all.py"

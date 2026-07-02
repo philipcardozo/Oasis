@@ -1,0 +1,100 @@
+{"canonical_id":"XTSE:ATD","name":"Alimentation Couche-Tard Inc.","country":"Canada","exchange":"XTSE","sector_or_sic":"Consumer Discretionary","ticker":"ATD","sub":"Specialty Retail","hq":"Laval"}
+{"canonical_id":"XLON:GLEN","name":"Glencore plc","country":"Switzerland","exchange":"XLON","sector_or_sic":"Materials","ticker":"GLEN","sub":"Other Industrial Metals & Mining","hq":"Baar"}
+{"canonical_id":"XLON:SBRY","name":"J Sainsbury plc","country":"United Kingdom","exchange":"XLON","sector_or_sic":"Consumer Staples","ticker":"SBRY","sub":"Grocery Stores","hq":"London"}
+{"canonical_id":"XLON:SSE","name":"SSE plc","country":"United Kingdom","exchange":"XLON","sector_or_sic":"Utilities","ticker":"SSE","sub":"Utilities - Diversified","hq":"Perth"}
+{"canonical_id":"XPAR:CAP","name":"Capgemini SE","country":"France","exchange":"XPAR","sector_or_sic":"Information Technology","ticker":"CAP","sub":"Information Technology Services","hq":"Paris"}
+{"canonical_id":"XPAR:VIE","name":"Veolia Environnement SA","country":"France","exchange":"XPAR","sector_or_sic":"Industrials","ticker":"VIE","sub":"Waste Management","hq":"Aubervilliers"}
+{"canonical_id":"XPAR:RI","name":"Pernod Ricard SA","country":"France","exchange":"XPAR","sector_or_sic":"Consumer Staples","ticker":"RI","sub":"Beverages - Wineries & Distilleries","hq":"Paris"}
+{"canonical_id":"XPAR:ENGI","name":"Engie SA","country":"France","exchange":"XPAR","sector_or_sic":"Utilities","ticker":"ENGI","sub":"Utilities - Diversified","hq":"La Garenne-Colombes"}
+{"canonical_id":"XPAR:PUB","name":"Publicis Groupe S.A.","country":"France","exchange":"XPAR","sector_or_sic":"Communication Services","ticker":"PUB","sub":"Advertising Agencies","hq":"Paris"}
+{"canonical_id":"XPAR:HO","name":"Thales S.A.","country":"France","exchange":"XPAR","sector_or_sic":"Industrials","ticker":"HO","sub":"Aerospace & Defense","hq":"Meudon"}
+{"canonical_id":"XETR:RWE","name":"RWE AG                        I","country":"Germany","exchange":"XETR","sector_or_sic":"Utilities","ticker":"RWE","sub":"Utilities - Diversified","hq":"Essen"}
+{"canonical_id":"XETR:HEN3","name":"Henkel AG & Co. KGaA","country":"Germany","exchange":"XETR","sector_or_sic":"Consumer Staples","ticker":"HEN3","sub":"Household & Personal Products","hq":"D\u00fcsseldorf"}
+{"canonical_id":"XETR:BEI","name":"Beiersdorf Aktiengesellschaft","country":"Germany","exchange":"XETR","sector_or_sic":"Consumer Staples","ticker":"BEI","sub":"Household & Personal Products","hq":"Hamburg"}
+{"canonical_id":"XETR:DHL","name":"Deutsche Post AG","country":"Germany","exchange":"XETR","sector_or_sic":"Industrials","ticker":"DHL","sub":"Integrated Freight & Logistics","hq":"Bonn"}
+{"canonical_id":"XAMS:KPN","name":"Koninklijke KPN N.V.","country":"Netherlands","exchange":"XAMS","sector_or_sic":"Communication Services","ticker":"KPN","sub":"Telecom Services","hq":"Rotterdam"}
+{"canonical_id":"XAMS:ABN","name":"ABN AMRO Bank N.V.","country":"Netherlands","exchange":"XAMS","sector_or_sic":"Financials","ticker":"ABN","sub":"Banks - Diversified","hq":"Amsterdam"}
+{"canonical_id":"XSWX:LONN","name":"Lonza Group AG","country":"Switzerland","exchange":"XSWX","sector_or_sic":"Health Care","ticker":"LONN","sub":"Diagnostics & Research","hq":"Basel"}
+{"canonical_id":"XSWX:GEBN","name":"Geberit AG","country":"Switzerland","exchange":"XSWX","sector_or_sic":"Industrials","ticker":"GEBN","sub":"Building Products & Equipment","hq":"Rapperswil-Jona"}
+{"canonical_id":"XSWX:SLHN","name":"Swiss Life Holding AG","country":"Switzerland","exchange":"XSWX","sector_or_sic":"Financials","ticker":"SLHN","sub":"Insurance - Diversified","hq":"Zurich"}
+{"canonical_id":"XSWX:PGHN","name":"Partners Group Holding AG","country":"Switzerland","exchange":"XSWX","sector_or_sic":"Financials","ticker":"PGHN","sub":"Asset Management","hq":"Baar"}
+{"canonical_id":"XTKS:8001","name":"ITOCHU Corporation","country":"Japan","exchange":"XTKS","sector_or_sic":"Industrials","ticker":"8001","sub":"Conglomerates","hq":"Tokyo"}
+{"canonical_id":"XTKS:8031","name":"Mitsui & Co., Ltd.","country":"Japan","exchange":"XTKS","sector_or_sic":"Industrials","ticker":"8031","sub":"Conglomerates","hq":"Chiyoda"}
+{"canonical_id":"XTKS:4502","name":"Takeda Pharmaceutical Company Limited","country":"Japan","exchange":"XTKS","sector_or_sic":"Health Care","ticker":"4502","sub":"Drug Manufacturers - Specialty & Generic","hq":"Chuo"}
+{"canonical_id":"XTKS:4568","name":"Daiichi Sankyo Company, Limited","country":"Japan","exchange":"XTKS","sector_or_sic":"Health Care","ticker":"4568","sub":"Drug Manufacturers - General","hq":"Chuo"}
+{"canonical_id":"XTKS:2914","name":"Japan Tobacco Inc.","country":"Japan","exchange":"XTKS","sector_or_sic":"Consumer Staples","ticker":"2914","sub":"Tobacco","hq":"Tokyo"}
+{"canonical_id":"XTKS:7741","name":"HOYA Corporation","country":"Japan","exchange":"XTKS","sector_or_sic":"Health Care","ticker":"7741","sub":"Medical Instruments & Supplies","hq":"Shinjuku"}
+{"canonical_id":"XTKS:4519","name":"Chugai Pharmaceutical Co., Ltd.","country":"Japan","exchange":"XTKS","sector_or_sic":"Health Care","ticker":"4519","sub":"Drug Manufacturers - General","hq":"Chuo"}
+{"canonical_id":"XTKS:8766","name":"Tokio Marine Holdings, Inc.","country":"Japan","exchange":"XTKS","sector_or_sic":"Financials","ticker":"8766","sub":"Insurance - Property & Casualty","hq":"Chiyoda"}
+{"canonical_id":"XTKS:4661","name":"Oriental Land Co., Ltd.","country":"Japan","exchange":"XTKS","sector_or_sic":"Consumer Discretionary","ticker":"4661","sub":"Leisure","hq":"Urayasu"}
+{"canonical_id":"XTKS:3382","name":"Seven & i Holdings Co., Ltd.","country":"Japan","exchange":"XTKS","sector_or_sic":"Consumer Staples","ticker":"3382","sub":"Grocery Stores","hq":"Chiyoda"}
+{"canonical_id":"XTKS:6702","name":"Fujitsu Limited","country":"Japan","exchange":"XTKS","sector_or_sic":"Information Technology","ticker":"6702","sub":"Information Technology Services","hq":"Kawasaki"}
+{"canonical_id":"XTKS:9020","name":"East Japan Railway Company","country":"Japan","exchange":"XTKS","sector_or_sic":"Industrials","ticker":"9020","sub":"Railroads","hq":"Tokyo"}
+{"canonical_id":"XTKS:9022","name":"Central Japan Railway Company","country":"Japan","exchange":"XTKS","sector_or_sic":"Industrials","ticker":"9022","sub":"Railroads","hq":"Tokyo"}
+{"canonical_id":"XTKS:9021","name":"West Japan Railway Company","country":"Japan","exchange":"XTKS","sector_or_sic":"Industrials","ticker":"9021","sub":"Railroads","hq":"Kita"}
+{"canonical_id":"XTKS:8802","name":"Mitsubishi Estate Co., Ltd.","country":"Japan","exchange":"XTKS","sector_or_sic":"Real Estate","ticker":"8802","sub":"Real Estate - Diversified","hq":"Tokyo"}
+{"canonical_id":"XTKS:8801","name":"Mitsui Fudosan Co., Ltd.","country":"Japan","exchange":"XTKS","sector_or_sic":"Real Estate","ticker":"8801","sub":"Real Estate - Diversified","hq":"Chuo"}
+{"canonical_id":"XTKS:4901","name":"FUJIFILM Holdings Corporation","country":"Japan","exchange":"XTKS","sector_or_sic":"Industrials","ticker":"4901","sub":"Conglomerates","hq":"Minato"}
+{"canonical_id":"XTKS:5108","name":"Bridgestone Corporation","country":"Japan","exchange":"XTKS","sector_or_sic":"Consumer Discretionary","ticker":"5108","sub":"Auto Parts","hq":"Chuo"}
+{"canonical_id":"XTKS:5802","name":"Sumitomo Electric Industries, Ltd.","country":"Japan","exchange":"XTKS","sector_or_sic":"Consumer Discretionary","ticker":"5802","sub":"Auto Parts","hq":"Chuo"}
+{"canonical_id":"XTKS:6752","name":"Panasonic Holdings Corporation","country":"Japan","exchange":"XTKS","sector_or_sic":"Information Technology","ticker":"6752","sub":"Consumer Electronics","hq":"Kadoma"}
+{"canonical_id":"XTKS:6503","name":"Mitsubishi Electric Corporation","country":"Japan","exchange":"XTKS","sector_or_sic":"Industrials","ticker":"6503","sub":"Electrical Equipment & Parts","hq":"Chiyoda"}
+{"canonical_id":"XTKS:6981","name":"Murata Manufacturing Co., Ltd.","country":"Japan","exchange":"XTKS","sector_or_sic":"Information Technology","ticker":"6981","sub":"Electronic Components","hq":"Nagaokakyo"}
+{"canonical_id":"XTKS:6273","name":"SMC Corporation","country":"Japan","exchange":"XTKS","sector_or_sic":"Industrials","ticker":"6273","sub":"Specialty Industrial Machinery","hq":"Chuo"}
+{"canonical_id":"XTKS:6301","name":"Komatsu Ltd.","country":"Japan","exchange":"XTKS","sector_or_sic":"Industrials","ticker":"6301","sub":"Farm & Heavy Construction Machinery","hq":"Tokyo"}
+{"canonical_id":"XTKS:6902","name":"DENSO Corporation","country":"Japan","exchange":"XTKS","sector_or_sic":"Consumer Discretionary","ticker":"6902","sub":"Auto Parts","hq":"Kariya"}
+{"canonical_id":"XTKS:7011","name":"Mitsubishi Heavy Industries, Ltd.","country":"Japan","exchange":"XTKS","sector_or_sic":"Industrials","ticker":"7011","sub":"Specialty Industrial Machinery","hq":"Chiyoda"}
+{"canonical_id":"XTKS:7012","name":"Kawasaki Heavy Industries, Ltd.","country":"Japan","exchange":"XTKS","sector_or_sic":"Industrials","ticker":"7012","sub":"Specialty Industrial Machinery","hq":"Tokyo"}
+{"canonical_id":"XTKS:3402","name":"Toray Industries, Inc.","country":"Japan","exchange":"XTKS","sector_or_sic":"Consumer Discretionary","ticker":"3402","sub":"Textile Manufacturing","hq":"Chuo"}
+{"canonical_id":"XHKG:1211","name":"BYD Company Limited","country":"China","exchange":"XHKG","sector_or_sic":"Consumer Discretionary","ticker":"1211","sub":"Auto Manufacturers","hq":"Shenzhen"}
+{"canonical_id":"XHKG:1024","name":"Kuaishou Technology","country":"China","exchange":"XHKG","sector_or_sic":"Communication Services","ticker":"1024","sub":"Internet Content & Information","hq":"Beijing"}
+{"canonical_id":"XHKG:2269","name":"WuXi Biologics (Cayman) Inc.","country":"China","exchange":"XHKG","sector_or_sic":"Health Care","ticker":"2269","sub":"Biotechnology","hq":"Wuxi"}
+{"canonical_id":"XHKG:2020","name":"ANTA Sports Products Limited","country":"China","exchange":"XHKG","sector_or_sic":"Consumer Discretionary","ticker":"2020","sub":"Leisure","hq":"Jinjiang"}
+{"canonical_id":"XHKG:0267","name":"CITIC Limited","country":"Hong Kong","exchange":"XHKG","sector_or_sic":"Industrials","ticker":"0267","sub":"Conglomerates","hq":"Central"}
+{"canonical_id":"XHKG:1109","name":"China Resources Land Limited","country":"Hong Kong","exchange":"XHKG","sector_or_sic":"Real Estate","ticker":"1109","sub":"Real Estate - Development","hq":"Wan Chai"}
+{"canonical_id":"XHKG:2319","name":"China Mengniu Dairy Company Limited","country":"Hong Kong","exchange":"XHKG","sector_or_sic":"Consumer Staples","ticker":"2319","sub":"Packaged Foods","hq":"Causeway Bay"}
+{"canonical_id":"XHKG:0669","name":"Techtronic Industries Company Limited","country":"Hong Kong","exchange":"XHKG","sector_or_sic":"Industrials","ticker":"0669","sub":"Tools & Accessories","hq":"Kwai Chung"}
+{"canonical_id":"XHKG:0688","name":"China Overseas Land & Investment Limited","country":"Hong Kong","exchange":"XHKG","sector_or_sic":"Real Estate","ticker":"0688","sub":"Real Estate - Development","hq":"Central"}
+{"canonical_id":"XHKG:0762","name":"China Unicom (Hong Kong) Limited","country":"Hong Kong","exchange":"XHKG","sector_or_sic":"Communication Services","ticker":"0762","sub":"Telecom Services","hq":"Central"}
+{"canonical_id":"XHKG:0823","name":"Link Real Estate Investment Trust","country":"Hong Kong","exchange":"XHKG","sector_or_sic":"Real Estate","ticker":"0823","sub":"REIT - Retail","hq":"Kowloon City"}
+{"canonical_id":"XHKG:1113","name":"CK Asset Holdings Limited","country":"Hong Kong","exchange":"XHKG","sector_or_sic":"Real Estate","ticker":"1113","sub":"Real Estate - Development","hq":"Central"}
+{"canonical_id":"XHKG:1928","name":"Sands China Ltd.","country":"Macau","exchange":"XHKG","sector_or_sic":"Consumer Discretionary","ticker":"1928","sub":"Resorts & Casinos","hq":"Macau"}
+{"canonical_id":"XHKG:1997","name":"Wharf Real Estate Investment Company Limited","country":"Hong Kong","exchange":"XHKG","sector_or_sic":"Real Estate","ticker":"1997","sub":"Real Estate Services","hq":"Kowloon"}
+{"canonical_id":"XHKG:2382","name":"Sunny Optical Technology (Group) Company Limited","country":"China","exchange":"XHKG","sector_or_sic":"Information Technology","ticker":"2382","sub":"Electronic Components","hq":"Yuyao"}
+{"canonical_id":"XHKG:2899","name":"Zijin Mining Group Company Limited","country":"China","exchange":"XHKG","sector_or_sic":"Materials","ticker":"2899","sub":"Gold","hq":"Longyan"}
+{"canonical_id":"XHKG:3968","name":"China Merchants Bank Co., Ltd.","country":"China","exchange":"XHKG","sector_or_sic":"Financials","ticker":"3968","sub":"Banks - Regional","hq":"Shenzhen"}
+{"canonical_id":"XHKG:6862","name":"Haidilao International Holding Ltd.","country":"China","exchange":"XHKG","sector_or_sic":"Consumer Discretionary","ticker":"6862","sub":"Restaurants","hq":"Beijing"}
+{"canonical_id":"XHKG:0968","name":"Xinyi Solar Holdings Limited","country":"China","exchange":"XHKG","sector_or_sic":"Information Technology","ticker":"0968","sub":"Solar","hq":"Wuhu"}
+{"canonical_id":"XHKG:1093","name":"CSPC Pharmaceutical Group Limited","country":"China","exchange":"XHKG","sector_or_sic":"Health Care","ticker":"1093","sub":"Drug Manufacturers - General","hq":"Shijiazhuang"}
+{"canonical_id":"XHKG:1209","name":"China Resources Mixc Lifestyle Services Limited","country":"China","exchange":"XHKG","sector_or_sic":"Real Estate","ticker":"1209","sub":"Real Estate Services","hq":"Shenzhen"}
+{"canonical_id":"XHKG:2331","name":"Li Ning Company Limited","country":"China","exchange":"XHKG","sector_or_sic":"Consumer Discretionary","ticker":"2331","sub":"Leisure","hq":"Beijing"}
+{"canonical_id":"XNSE:HCLTECH","name":"HCL Technologies Limited","country":"India","exchange":"XNSE","sector_or_sic":"Information Technology","ticker":"HCLTECH","sub":"Information Technology Services","hq":"Noida"}
+{"canonical_id":"XNSE:WIPRO","name":"Wipro Limited","country":"India","exchange":"XNSE","sector_or_sic":"Information Technology","ticker":"WIPRO","sub":"Information Technology Services","hq":"Bengaluru"}
+{"canonical_id":"XNSE:ULTRACEMCO","name":"UltraTech Cement Limited","country":"India","exchange":"XNSE","sector_or_sic":"Materials","ticker":"ULTRACEMCO","sub":"Building Materials","hq":"Mumbai"}
+{"canonical_id":"XNSE:TITAN","name":"Titan Company Limited","country":"India","exchange":"XNSE","sector_or_sic":"Consumer Discretionary","ticker":"TITAN","sub":"Luxury Goods","hq":"Bengaluru"}
+{"canonical_id":"XNSE:ASIANPAINT","name":"Asian Paints Limited","country":"India","exchange":"XNSE","sector_or_sic":"Materials","ticker":"ASIANPAINT","sub":"Specialty Chemicals","hq":"Mumbai"}
+{"canonical_id":"XNSE:DMART","name":"Avenue Supermarts Limited","country":"India","exchange":"XNSE","sector_or_sic":"Consumer Staples","ticker":"DMART","sub":"Discount Stores","hq":"Mumbai"}
+{"canonical_id":"XNSE:POWERGRID","name":"Power Grid Corporation of India Limited","country":"India","exchange":"XNSE","sector_or_sic":"Utilities","ticker":"POWERGRID","sub":"Utilities - Regulated Electric","hq":"Gurugram"}
+{"canonical_id":"XNSE:NTPC","name":"NTPC Limited","country":"India","exchange":"XNSE","sector_or_sic":"Utilities","ticker":"NTPC","sub":"Utilities - Regulated Electric","hq":"New Delhi"}
+{"canonical_id":"XNSE:COALINDIA","name":"Coal India Limited","country":"India","exchange":"XNSE","sector_or_sic":"Energy","ticker":"COALINDIA","sub":"Thermal Coal","hq":"Kolkata"}
+{"canonical_id":"XNSE:NESTLEIND","name":"Nestl\u00e9 India Limited","country":"India","exchange":"XNSE","sector_or_sic":"Consumer Staples","ticker":"NESTLEIND","sub":"Packaged Foods","hq":"Gurugram"}
+{"canonical_id":"XNSE:ONGC","name":"Oil and Natural Gas Corporation Limited","country":"India","exchange":"XNSE","sector_or_sic":"Energy","ticker":"ONGC","sub":"Oil & Gas Integrated","hq":"New Delhi"}
+{"canonical_id":"XNSE:M&M","name":"Mahindra & Mahindra Limited","country":"India","exchange":"XNSE","sector_or_sic":"Consumer Discretionary","ticker":"M&M","sub":"Auto Manufacturers","hq":"Mumbai"}
+{"canonical_id":"XNSE:JSWSTEEL","name":"JSW Steel Limited","country":"India","exchange":"XNSE","sector_or_sic":"Materials","ticker":"JSWSTEEL","sub":"Steel","hq":"Mumbai"}
+{"canonical_id":"XNSE:TATASTEEL","name":"Tata Steel Limited","country":"India","exchange":"XNSE","sector_or_sic":"Materials","ticker":"TATASTEEL","sub":"Steel","hq":"Mumbai"}
+{"canonical_id":"XNSE:ADANIENT","name":"Adani Enterprises Limited","country":"India","exchange":"XNSE","sector_or_sic":"Energy","ticker":"ADANIENT","sub":"Thermal Coal","hq":"Ahmedabad"}
+{"canonical_id":"XNSE:ADANIPORTS","name":"Adani Ports and Special Economic Zone Limited","country":"India","exchange":"XNSE","sector_or_sic":"Industrials","ticker":"ADANIPORTS","sub":"Marine Shipping","hq":"Ahmedabad"}
+{"canonical_id":"XNSE:HINDALCO","name":"Hindalco Industries Limited","country":"India","exchange":"XNSE","sector_or_sic":"Materials","ticker":"HINDALCO","sub":"Aluminum","hq":"Mumbai"}
+{"canonical_id":"XNSE:TECHM","name":"Tech Mahindra Limited","country":"India","exchange":"XNSE","sector_or_sic":"Information Technology","ticker":"TECHM","sub":"Information Technology Services","hq":"Pune"}
+{"canonical_id":"XNSE:GRASIM","name":"Grasim Industries Limited","country":"India","exchange":"XNSE","sector_or_sic":"Materials","ticker":"GRASIM","sub":"Building Materials","hq":"Mumbai"}
+{"canonical_id":"XNSE:CIPLA","name":"Cipla Limited","country":"India","exchange":"XNSE","sector_or_sic":"Health Care","ticker":"CIPLA","sub":"Drug Manufacturers - Specialty & Generic","hq":"Mumbai"}
+{"canonical_id":"XNSE:DRREDDY","name":"Dr. Reddy's Laboratories Limited","country":"India","exchange":"XNSE","sector_or_sic":"Health Care","ticker":"DRREDDY","sub":"Drug Manufacturers - Specialty & Generic","hq":"Hyderabad"}
+{"canonical_id":"XNSE:EICHERMOT","name":"Eicher Motors Limited","country":"India","exchange":"XNSE","sector_or_sic":"Consumer Discretionary","ticker":"EICHERMOT","sub":"Auto Manufacturers","hq":"Chennai"}
+{"canonical_id":"XKRX:012330","name":"Hyundai Mobis Co.,Ltd","country":"South Korea","exchange":"XKRX","sector_or_sic":"Consumer Discretionary","ticker":"012330","sub":"Auto Parts","hq":"Seoul"}
+{"canonical_id":"XKRX:096770","name":"SK Innovation Co., Ltd.","country":"South Korea","exchange":"XKRX","sector_or_sic":"Energy","ticker":"096770","sub":"Oil & Gas Refining & Marketing","hq":"Seoul"}
+{"canonical_id":"XKRX:373220","name":"LG Energy Solution, Ltd.","country":"South Korea","exchange":"XKRX","sector_or_sic":"Industrials","ticker":"373220","sub":"Electrical Equipment & Parts","hq":"Seoul"}
+{"canonical_id":"XKRX:034730","name":"SK Inc.","country":"South Korea","exchange":"XKRX","sector_or_sic":"Industrials","ticker":"034730","sub":"Conglomerates","hq":"Seoul"}
+{"canonical_id":"XKRX:015760","name":"Korea Electric Power Corporation","country":"South Korea","exchange":"XKRX","sector_or_sic":"Utilities","ticker":"015760","sub":"Utilities - Regulated Electric","hq":"Naju-Si"}
+{"canonical_id":"XKRX:086790","name":"Hana Financial Group Inc.","country":"South Korea","exchange":"XKRX","sector_or_sic":"Financials","ticker":"086790","sub":"Banks - Regional","hq":"Seoul"}
+{"canonical_id":"XKRX:032830","name":"Samsung Life Insurance Co., Ltd.","country":"South Korea","exchange":"XKRX","sector_or_sic":"Financials","ticker":"032830","sub":"Insurance - Life","hq":"Seoul"}
+{"canonical_id":"XKRX:003670","name":"Posco Future M Co., Ltd.","country":"South Korea","exchange":"XKRX","sector_or_sic":"Industrials","ticker":"003670","sub":"Electrical Equipment & Parts","hq":"Pohang"}

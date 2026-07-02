@@ -1,0 +1,306 @@
+[
+  {
+    "agency_id": "GOV_US_DOD",
+    "recipient_id": "LMT",
+    "recipient_name": "Lockheed Martin",
+    "agency": "Department of Defense",
+    "keywords": [
+      "LOCKHEED MARTIN",
+      "SIKORSKY"
+    ],
+    "start": "1947-09-18",
+    "confidence": 0.95,
+    "detail": "Defense contract exposure; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_US_DOD",
+    "recipient_id": "RTX",
+    "recipient_name": "RTX / Raytheon",
+    "agency": "Department of Defense",
+    "keywords": [
+      "RTX",
+      "RAYTHEON"
+    ],
+    "start": "1947-09-18",
+    "confidence": 0.95,
+    "detail": "Defense contract exposure; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_US_DOD",
+    "recipient_id": "NOC",
+    "recipient_name": "Northrop Grumman",
+    "agency": "Department of Defense",
+    "keywords": [
+      "NORTHROP GRUMMAN"
+    ],
+    "start": "1947-09-18",
+    "confidence": 0.95,
+    "detail": "Defense contract exposure; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_US_DOD",
+    "recipient_id": "GD",
+    "recipient_name": "General Dynamics",
+    "agency": "Department of Defense",
+    "keywords": [
+      "GENERAL DYNAMICS",
+      "ELECTRIC BOAT"
+    ],
+    "start": "1947-09-18",
+    "confidence": 0.95,
+    "detail": "Defense contract exposure; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_US_DOD",
+    "recipient_id": "BA",
+    "recipient_name": "Boeing",
+    "agency": "Department of Defense",
+    "keywords": [
+      "BOEING"
+    ],
+    "start": "1947-09-18",
+    "confidence": 0.9,
+    "detail": "Defense aerospace awards; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_US_DOD",
+    "recipient_id": "HII",
+    "recipient_name": "Huntington Ingalls",
+    "agency": "Department of Defense",
+    "keywords": [
+      "HUNTINGTON INGALLS",
+      "INGALLS SHIPBUILDING",
+      "NEWPORT NEWS SHIPBUILDING"
+    ],
+    "start": "2011-03-31",
+    "confidence": 0.9,
+    "detail": "Shipbuilding and defense awards; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_US_DOD",
+    "recipient_id": "PLTR",
+    "recipient_name": "Palantir",
+    "agency": "Department of Defense",
+    "keywords": [
+      "PALANTIR"
+    ],
+    "start": "2003-01-01",
+    "confidence": 0.9,
+    "detail": "Defense software and data-platform awards; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_US_DOD",
+    "recipient_id": "PVT_SPACEX",
+    "recipient_name": "SpaceX",
+    "agency": "Department of Defense",
+    "keywords": [
+      "SPACE EXPLORATION TECHNOLOGIES",
+      "SPACEX"
+    ],
+    "start": "2002-03-14",
+    "confidence": 0.9,
+    "detail": "Launch, satellite, and defense network awards; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_NASA",
+    "recipient_id": "PVT_SPACEX",
+    "recipient_name": "SpaceX",
+    "agency": "National Aeronautics and Space Administration",
+    "keywords": [
+      "SPACE EXPLORATION TECHNOLOGIES",
+      "SPACEX"
+    ],
+    "start": "2002-03-14",
+    "confidence": 0.9,
+    "detail": "Launch and crew/cargo services; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_US_DHS",
+    "recipient_id": "PVT_ANDURIL",
+    "recipient_name": "Anduril",
+    "agency": "Department of Homeland Security",
+    "keywords": [
+      "ANDURIL"
+    ],
+    "start": "2017-01-01",
+    "confidence": 0.85,
+    "detail": "Border/security systems exposure; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_US_DOD",
+    "recipient_id": "HUM",
+    "recipient_name": "Humana",
+    "agency": "Department of Defense",
+    "keywords": [
+      "HUMANA",
+      "HUMANA GOVERNMENT BUSINESS"
+    ],
+    "start": "1961-08-18",
+    "confidence": 0.85,
+    "detail": "Military health benefits awards; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_US_DOD",
+    "recipient_id": "COR",
+    "recipient_name": "Cencora / AmerisourceBergen",
+    "agency": "Department of Defense",
+    "keywords": [
+      "CENCORA",
+      "AMERISOURCEBERGEN"
+    ],
+    "start": "2001-08-29",
+    "confidence": 0.85,
+    "detail": "Defense pharmaceutical distribution awards; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_US_DOD",
+    "recipient_id": "LHX",
+    "recipient_name": "L3Harris / Aerojet Rocketdyne",
+    "agency": "Department of Defense",
+    "keywords": [
+      "L3HARRIS",
+      "L3 HARRIS",
+      "AEROJET ROCKETDYNE"
+    ],
+    "start": "2019-06-29",
+    "confidence": 0.85,
+    "detail": "Defense electronics, communications, and propulsion awards; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_US_DOD",
+    "recipient_id": "SAIC",
+    "recipient_name": "Science Applications International",
+    "agency": "Department of Defense",
+    "keywords": [
+      "SCIENCE APPLICATIONS INTERNATIONAL",
+      "SAIC"
+    ],
+    "start": "2013-09-27",
+    "confidence": 0.85,
+    "detail": "Defense IT and mission-support awards; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_US_DOD",
+    "recipient_id": "BAH",
+    "recipient_name": "Booz Allen Hamilton",
+    "agency": "Department of Defense",
+    "keywords": [
+      "BOOZ ALLEN",
+      "BOOZ ALLEN HAMILTON"
+    ],
+    "start": "1914-01-01",
+    "confidence": 0.85,
+    "detail": "Defense consulting, analytics, and technology awards; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_NASA",
+    "recipient_id": "BA",
+    "recipient_name": "Boeing",
+    "agency": "National Aeronautics and Space Administration",
+    "keywords": [
+      "BOEING"
+    ],
+    "start": "1958-07-29",
+    "confidence": 0.85,
+    "detail": "NASA space systems and services; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_NASA",
+    "recipient_id": "LMT",
+    "recipient_name": "Lockheed Martin",
+    "agency": "National Aeronautics and Space Administration",
+    "keywords": [
+      "LOCKHEED MARTIN"
+    ],
+    "start": "1958-07-29",
+    "confidence": 0.85,
+    "detail": "NASA spacecraft and mission awards; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_NASA",
+    "recipient_id": "NOC",
+    "recipient_name": "Northrop Grumman",
+    "agency": "National Aeronautics and Space Administration",
+    "keywords": [
+      "NORTHROP GRUMMAN"
+    ],
+    "start": "1958-07-29",
+    "confidence": 0.85,
+    "detail": "NASA space systems and mission awards; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_NASA",
+    "recipient_id": "KBR",
+    "recipient_name": "KBR",
+    "agency": "National Aeronautics and Space Administration",
+    "keywords": [
+      "KBR",
+      "KBR WYLE"
+    ],
+    "start": "2006-04-05",
+    "confidence": 0.85,
+    "detail": "NASA engineering and mission-support awards; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_NASA",
+    "recipient_id": "LHX",
+    "recipient_name": "L3Harris / Aerojet Rocketdyne",
+    "agency": "National Aeronautics and Space Administration",
+    "keywords": [
+      "L3HARRIS",
+      "L3 HARRIS",
+      "AEROJET ROCKETDYNE"
+    ],
+    "start": "2019-06-29",
+    "confidence": 0.85,
+    "detail": "NASA communications, space systems, and propulsion awards; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_NASA",
+    "recipient_id": "AMTM",
+    "recipient_name": "Amentum",
+    "agency": "National Aeronautics and Space Administration",
+    "keywords": [
+      "AMENTUM"
+    ],
+    "start": "2020-02-04",
+    "confidence": 0.85,
+    "detail": "NASA engineering and operations support; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_NASA",
+    "recipient_id": "BAESY",
+    "recipient_name": "BAE Systems",
+    "agency": "National Aeronautics and Space Administration",
+    "keywords": [
+      "BAE SYSTEMS"
+    ],
+    "start": "1999-11-30",
+    "confidence": 0.8,
+    "detail": "NASA space and mission systems awards; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_US_DHS",
+    "recipient_id": "AMTM",
+    "recipient_name": "Amentum",
+    "agency": "Department of Homeland Security",
+    "keywords": [
+      "AMENTUM"
+    ],
+    "start": "2020-02-04",
+    "confidence": 0.8,
+    "detail": "DHS operations and mission-support awards; refresh for current federal FY obligations"
+  },
+  {
+    "agency_id": "GOV_US_DHS",
+    "recipient_id": "GVA",
+    "recipient_name": "Granite Construction",
+    "agency": "Department of Homeland Security",
+    "keywords": [
+      "GRANITE CONSTRUCTION"
+    ],
+    "start": "1922-01-01",
+    "confidence": 0.8,
+    "detail": "DHS construction and infrastructure awards; refresh for current federal FY obligations"
+  }
+]
