@@ -1,0 +1,9 @@
+{
+  "asset:demo-farm-iowa": {
+    "custom": {
+      "revenue": 123456,
+      "cost": 65432,
+      "discount_rate": 0.11
+    }
+  }
+}

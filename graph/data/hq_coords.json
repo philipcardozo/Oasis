@@ -72,14 +72,14 @@
   "abadino-vizcaya": [
     43.1511,
     -2.60942,
-    "Abadi\u00f1o",
+    "Abadiño",
     "Basque Country",
     "Spain"
   ],
   "abadino-vizcaya, spain": [
     43.1511,
     -2.60942,
-    "Abadi\u00f1o",
+    "Abadiño",
     "Basque Country",
     "Spain"
   ],
@@ -230,6 +230,15 @@
     "North Holland",
     "Netherlands"
   ],
+  "amsterdam, netherlands": [
+    52.37308,
+    4.892453,
+    "Amsterdam",
+    "Noord-Holland",
+    "Netherlands",
+    "nominatim",
+    0.72
+  ],
   "ankeny, iowa": [
     41.72971,
     -93.60577,
@@ -250,6 +259,15 @@
     "Applecross",
     "Perth",
     "Australia"
+  ],
+  "aracaju, brazil": [
+    -10.916206,
+    -37.077466,
+    "Aracaju",
+    "Sergipe",
+    "Brazil",
+    "nominatim",
+    0.72
   ],
   "ariobimo sentral, indonesia": [
     -6.2273575,
@@ -314,6 +332,15 @@
     "Brisbane",
     "Australia"
   ],
+  "asuncion, paraguay": [
+    -25.280046,
+    -57.634381,
+    "Asunción",
+    "Distrito Capital",
+    "Paraguay",
+    "nominatim",
+    0.72
+  ],
   "atlanta": [
     33.749,
     -84.388,
@@ -367,8 +394,17 @@
     -36.852095,
     174.7631803,
     "Auckland",
-    "Waitemat\u0101",
+    "Waitematā",
     "New Zealand"
+  ],
+  "augsburg, germany": [
+    48.369034,
+    10.897952,
+    "Augsburg",
+    "Bayern",
+    "Germany",
+    "nominatim",
+    0.72
   ],
   "aurora, illinois": [
     41.7605849,
@@ -440,6 +476,24 @@
     "Catalonia",
     "Spain"
   ],
+  "baden-baden, germany": [
+    48.761072,
+    8.239959,
+    "Baden-Baden",
+    "Baden-Württemberg",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
+  "bagshot, united kingdom": [
+    51.361164,
+    -0.692264,
+    "Bagshot",
+    "Surrey Heath",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "balcatta, australia": [
     -31.8709062,
     115.8198022,
@@ -486,7 +540,7 @@
     12.6078415,
     -7.9874585,
     "Bamako",
-    "Route de l'A\u00e9roport",
+    "Route de l'Aéroport",
     "Mali"
   ],
   "bandar lampung lampung, indonesia": [
@@ -573,11 +627,20 @@
     "Recanto de Portugal",
     "Portugal"
   ],
+  "barranquilla, colombia": [
+    11.010192,
+    -74.823179,
+    "Barranquilla",
+    "Atlántico",
+    "Colombia",
+    "nominatim",
+    0.72
+  ],
   "barretos, brazil": [
     -20.5531437,
     -48.5697509,
     "Barretos",
-    "S\u00e3o Paulo",
+    "São Paulo",
     "Brazil"
   ],
   "barton, australia": [
@@ -591,7 +654,7 @@
     -23.5112184,
     -46.8764612,
     "Barueri",
-    "S\u00e3o Paulo",
+    "São Paulo",
     "Brazil"
   ],
   "basel": [
@@ -607,6 +670,15 @@
     "Batam",
     "Kepulauan Riau",
     "Indonesia"
+  ],
+  "bath, united kingdom": [
+    51.381386,
+    -2.359696,
+    "Bath",
+    "Bath and North East Somerset",
+    "United Kingdom",
+    "nominatim",
+    0.72
   ],
   "bayswater, australia": [
     -31.909036,
@@ -656,6 +728,24 @@
     "Bekasi",
     "Jawa Barat",
     "Indonesia"
+  ],
+  "belem, brazil": [
+    -1.45056,
+    -48.468245,
+    "Belém",
+    "Pará",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
+  "bella vista, argentina": [
+    -34.568408,
+    -58.689488,
+    "Bella Vista",
+    "Partido de San Miguel",
+    "Argentina",
+    "nominatim",
+    0.72
   ],
   "bella vista, australia": [
     -33.7416936,
@@ -713,12 +803,39 @@
     "Western Australia",
     "Australia"
   ],
+  "bento goncalves, brazil": [
+    -29.165673,
+    -51.520117,
+    "Bento Gonçalves",
+    "Rio Grande do Sul",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
   "bentonville, arkansas": [
     36.37285,
     -94.20882,
     "Bentonville",
     "Arkansas",
     "United States"
+  ],
+  "berazategui, argentina": [
+    -34.763268,
+    -58.21166,
+    "Berazategui",
+    "Partido de Berazategui",
+    "Argentina",
+    "nominatim",
+    0.72
+  ],
+  "berlin, germany": [
+    52.517389,
+    13.395131,
+    "Berlin",
+    "Deutschland",
+    "Germany",
+    "nominatim",
+    0.72
   ],
   "bern": [
     46.948,
@@ -740,6 +857,15 @@
     "Bernin",
     "Auvergne-Rhone-Alpes",
     "France"
+  ],
+  "bernin, france": [
+    45.269384,
+    5.866474,
+    "Bernin",
+    "Grenoble",
+    "France",
+    "nominatim",
+    0.72
   ],
   "berwyn, pennsylvania": [
     40.04483,
@@ -783,6 +909,15 @@
     "Massachusetts",
     "United States"
   ],
+  "bietigheim-bissingen, germany": [
+    48.949324,
+    9.136423,
+    "Bietigheim-Bissingen",
+    "VVG der Stadt Bietigheim-Bissingen",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
   "bilbao": [
     43.26271,
     -2.92528,
@@ -825,6 +960,15 @@
     "Invercargill City",
     "New Zealand"
   ],
+  "blumenau, brazil": [
+    -26.919557,
+    -49.065802,
+    "Blumenau",
+    "Santa Catarina",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
   "boca raton, florida": [
     26.35869,
     -80.0831,
@@ -838,6 +982,15 @@
     "Bogor",
     "Jawa Barat",
     "Indonesia"
+  ],
+  "bogota, colombia": [
+    4.653382,
+    -74.083633,
+    "Bogotá",
+    "Bogotá",
+    "Colombia",
+    "nominatim",
+    0.72
   ],
   "boise": [
     43.615,
@@ -954,7 +1107,7 @@
   "brasilia, brazil": [
     -15.7939869,
     -47.8828,
-    "Bras\u00edlia",
+    "Brasília",
     "Plano Piloto",
     "Brazil"
   ],
@@ -1035,12 +1188,30 @@
     "Colorado",
     "United States"
   ],
+  "brunnthal, germany": [
+    48.007314,
+    11.683456,
+    "Brunnthal",
+    "Landkreis München",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
   "bucheon-si": [
     37.5014422,
     126.7660139,
     "Bucheon-si",
     "Gyeonggi-do",
     "South Korea"
+  ],
+  "buenos aires, argentina": [
+    -34.609558,
+    -58.38879,
+    "Buenos Aires",
+    "Comuna 1",
+    "Argentina",
+    "nominatim",
+    0.72
   ],
   "buffalo, new york": [
     42.88645,
@@ -1088,14 +1259,14 @@
     42.34106,
     -3.70184,
     "Burgos",
-    "Castille and Le\u00f3n",
+    "Castille and León",
     "Spain"
   ],
   "burgos, spain": [
     42.34106,
     -3.70184,
     "Burgos",
-    "Castille and Le\u00f3n",
+    "Castille and León",
     "Spain"
   ],
   "burlington, massachusetts": [
@@ -1132,6 +1303,15 @@
     "Burwood",
     "Inner West",
     "Australia"
+  ],
+  "cachoeirinha, brazil": [
+    -29.949335,
+    -51.089893,
+    "Cachoeirinha",
+    "Rio Grande do Sul",
+    "Brazil",
+    "nominatim",
+    0.72
   ],
   "cairns, australia": [
     -16.9206657,
@@ -1193,8 +1373,26 @@
     -22.9056391,
     -47.059564,
     "Campinas",
-    "S\u00e3o Paulo",
+    "São Paulo",
     "Brazil"
+  ],
+  "canada, new zealand": [
+    46.40999,
+    -62.313043,
+    "Canada",
+    "Rural Municipality of Eastern Kings",
+    "New Zealand",
+    "nominatim",
+    0.72
+  ],
+  "canelones, uruguay": [
+    -34.622248,
+    -55.99038,
+    "Canelones",
+    "Uruguay",
+    "Uruguay",
+    "nominatim",
+    0.72
   ],
   "canning vale, australia": [
     -32.0813818,
@@ -1216,6 +1414,33 @@
     "Canonsburg",
     "Pennsylvania",
     "United States"
+  ],
+  "capitan bermudez, argentina": [
+    -32.816665,
+    -60.716672,
+    "Capitán Bermúdez",
+    "Municipio de Capitán Bermudez",
+    "Argentina",
+    "nominatim",
+    0.72
+  ],
+  "caracas, venezuela": [
+    10.506093,
+    -66.914601,
+    "Caracas",
+    "Parroquia Catedral",
+    "Venezuela",
+    "nominatim",
+    0.72
+  ],
+  "carcarana, argentina": [
+    -32.85635,
+    -61.148729,
+    "Carcarañá",
+    "Municipio de Carcarañá",
+    "Argentina",
+    "nominatim",
+    0.72
   ],
   "carlisle, australia": [
     -31.9798827,
@@ -1251,6 +1476,33 @@
     "Carlton",
     "Victoria",
     "Australia"
+  ],
+  "cartavio, peru": [
+    -7.89261,
+    -79.221512,
+    "Cartavio",
+    "Santiago de Cao",
+    "Peru",
+    "nominatim",
+    0.72
+  ],
+  "casa grande, peru": [
+    -7.586019,
+    -79.20258,
+    "Casa Grande",
+    "Ascope",
+    "Peru",
+    "nominatim",
+    0.72
+  ],
+  "castro, chile": [
+    -42.482375,
+    -73.764292,
+    "Castro",
+    "Provincia de Chiloé",
+    "Chile",
+    "nominatim",
+    0.72
   ],
   "cataguases, brazil": [
     -21.387426,
@@ -1336,6 +1588,15 @@
     "North Carolina",
     "United States"
   ],
+  "chatham, united kingdom": [
+    51.381917,
+    0.526559,
+    "Chatham",
+    "Medway",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "chatswood, australia": [
     -33.7967377,
     151.1814306,
@@ -1391,6 +1652,15 @@
     "Chicago",
     "Illinois",
     "United States"
+  ],
+  "chimbote, peru": [
+    -9.074497,
+    -78.593609,
+    "Chimbote",
+    "Santa",
+    "Peru",
+    "nominatim",
+    0.72
   ],
   "chippendale, australia": [
     -33.8863291,
@@ -1483,6 +1753,15 @@
     "Victoria",
     "Australia"
   ],
+  "cochabamba, bolivia": [
+    -17.401246,
+    -66.167568,
+    "Cochabamba",
+    "Juan De La Rosa",
+    "Bolivia",
+    "nominatim",
+    0.72
+  ],
   "coffs harbour, australia": [
     -30.2985996,
     153.1094116,
@@ -1539,6 +1818,15 @@
     "Ohio",
     "United States"
   ],
+  "concepcion, paraguay": [
+    -23.1775,
+    -57.1675,
+    "Concepción",
+    "Región Oriental",
+    "Paraguay",
+    "nominatim",
+    0.72
+  ],
   "conshohocken": [
     40.0793,
     -75.3016,
@@ -1566,6 +1854,15 @@
     "Coorparoo",
     "Brisbane",
     "Australia"
+  ],
+  "copenhagen, denmark": [
+    55.686724,
+    12.570072,
+    "Copenhagen",
+    "Københavns Kommune",
+    "Denmark",
+    "nominatim",
+    0.72
   ],
   "cork, ireland": [
     51.89797,
@@ -1630,6 +1927,15 @@
     "Perth",
     "Australia"
   ],
+  "courbevoie, france": [
+    48.895333,
+    2.25616,
+    "Courbevoie",
+    "Nanterre",
+    "France",
+    "nominatim",
+    0.72
+  ],
   "cowandilla, australia": [
     -34.9324599,
     138.5569406,
@@ -1651,6 +1957,15 @@
     "Queensland",
     "Australia"
   ],
+  "cuiaba, brazil": [
+    -15.598669,
+    -56.09913,
+    "Cuiabá",
+    "Mato Grosso",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
   "cupertino": [
     37.323,
     -122.0322,
@@ -1669,8 +1984,17 @@
     -25.4295963,
     -49.2712724,
     "Curitiba",
-    "Paran\u00e1",
+    "Paraná",
     "Brazil"
+  ],
+  "cuxhaven, germany": [
+    53.86878,
+    8.698286,
+    "Cuxhaven",
+    "Landkreis Cuxhaven",
+    "Germany",
+    "nominatim",
+    0.72
   ],
   "daglish, australia": [
     -31.951336,
@@ -1727,6 +2051,15 @@
     "Darmstadt",
     "Hesse",
     "Germany"
+  ],
+  "darmstadt, germany": [
+    49.872775,
+    8.651177,
+    "Darmstadt",
+    "Hessen",
+    "Germany",
+    "nominatim",
+    0.72
   ],
   "darwin, australia": [
     -12.46044,
@@ -1854,6 +2187,15 @@
     "Melbourne",
     "Australia"
   ],
+  "dortmund, germany": [
+    51.514227,
+    7.465279,
+    "Dortmund",
+    "Nordrhein-Westfalen",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
   "double bay, australia": [
     -33.8766373,
     151.24245,
@@ -1902,6 +2244,15 @@
     "Dublin",
     "Ohio",
     "United States"
+  ],
+  "duisburg, germany": [
+    51.434999,
+    6.759562,
+    "Duisburg",
+    "Nordrhein-Westfalen",
+    "Germany",
+    "nominatim",
+    0.72
   ],
   "dulwich, australia": [
     -34.9368219,
@@ -1973,6 +2324,15 @@
     "Western Australia",
     "Australia"
   ],
+  "ec2m 3ae, new zealand": [
+    52.92572,
+    -1.499339,
+    "Ec2M 3Ae",
+    "Mackworth Estate",
+    "New Zealand",
+    "nominatim",
+    0.72
+  ],
   "eden prairie, minnesota": [
     44.85469,
     -93.47079,
@@ -1986,6 +2346,15 @@
     "Edinburgh",
     "South Australia",
     "Australia"
+  ],
+  "egham, united kingdom": [
+    51.431258,
+    -0.547308,
+    "Egham",
+    "Runnymede",
+    "United Kingdom",
+    "nominatim",
+    0.72
   ],
   "eight mile plains, australia": [
     -27.5804725,
@@ -2007,6 +2376,15 @@
     "Eindhoven",
     "North Brabant",
     "Netherlands"
+  ],
+  "el consejo, venezuela": [
+    10.237446,
+    -67.271994,
+    "El Consejo",
+    "Parroquia El Consejo",
+    "Venezuela",
+    "nominatim",
+    0.72
   ],
   "erie, pennsylvania": [
     42.12922,
@@ -2060,8 +2438,8 @@
   "eusebio, brazil": [
     -3.8889838,
     -38.4546585,
-    "Eus\u00e9bio",
-    "Cear\u00e1",
+    "Eusébio",
+    "Ceará",
     "Brazil"
   ],
   "eveleigh, australia": [
@@ -2113,6 +2491,15 @@
     "Connecticut",
     "United States"
   ],
+  "farnborough, united kingdom": [
+    51.291869,
+    -0.753984,
+    "Farnborough",
+    "Rushmoor",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "ferguson, missouri": [
     38.74422,
     -90.30539,
@@ -2137,7 +2524,7 @@
   "florianopolis, brazil": [
     -27.5973002,
     -48.5496098,
-    "Florian\u00f3polis",
+    "Florianópolis",
     "Santa Catarina",
     "Brazil"
   ],
@@ -2155,6 +2542,15 @@
     "Northern Beaches",
     "Australia"
   ],
+  "formosa, brazil": [
+    -15.549244,
+    -47.330121,
+    "Formosa",
+    "Goiás",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
   "fort wayne, indiana": [
     41.1306,
     -85.12886,
@@ -2166,7 +2562,7 @@
     -3.7932167,
     -38.5280359,
     "Fortaleza",
-    "Cear\u00e1",
+    "Ceará",
     "Brazil"
   ],
   "fortitude valley, australia": [
@@ -2190,6 +2586,15 @@
     "New South Wales",
     "Australia"
   ],
+  "fraiburgo, brazil": [
+    -27.023288,
+    -50.919978,
+    "Fraiburgo",
+    "Santa Catarina",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
   "framingham, massachusetts": [
     42.27926,
     -71.41617,
@@ -2201,8 +2606,26 @@
     -20.5381768,
     -47.4009795,
     "Franca",
-    "S\u00e3o Paulo",
+    "São Paulo",
     "Brazil"
+  ],
+  "frances, brazil": [
+    -22.920075,
+    -43.81259,
+    "Francês",
+    "Itaguaí",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
+  "frankfurt, germany": [
+    50.110644,
+    8.682092,
+    "Frankfurt",
+    "Hessen",
+    "Germany",
+    "nominatim",
+    0.72
   ],
   "franklin lakes, new jersey": [
     41.01676,
@@ -2253,6 +2676,24 @@
     "Connacht",
     "Ireland"
   ],
+  "garching, germany": [
+    48.251388,
+    11.650966,
+    "Garching",
+    "Landkreis München",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
+  "garðabær, iceland": [
+    64.088026,
+    -21.919396,
+    "Garðabær",
+    "Höfuðborgarsvæðið",
+    "Iceland",
+    "nominatim",
+    0.72
+  ],
   "gatot subroto no 38, indonesia": [
     -0.2456211,
     100.6251141,
@@ -2260,17 +2701,26 @@
     "Tanjung Pauh",
     "Indonesia"
   ],
+  "georgetown, guyana": [
+    6.803256,
+    -58.14554,
+    "Georgetown",
+    "Demerara-Mahaica",
+    "Guyana",
+    "nominatim",
+    0.72
+  ],
   "gijon": [
     43.53573,
     -5.66152,
-    "Gij\u00f3n",
+    "Gijón",
     "Principality of Asturias",
     "Spain"
   ],
   "gijon, spain": [
     43.53573,
     -5.66152,
-    "Gij\u00f3n",
+    "Gijón",
     "Principality of Asturias",
     "Spain"
   ],
@@ -2302,6 +2752,15 @@
     "Adelaide",
     "Australia"
   ],
+  "goianesia, brazil": [
+    -15.311827,
+    -49.1162,
+    "Goianésia",
+    "Goiás",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
   "golden valley, minnesota": [
     45.00969,
     -93.34912,
@@ -2329,6 +2788,15 @@
     "Goodwood",
     "Queensland",
     "Australia"
+  ],
+  "governador valadares, brazil": [
+    -18.857415,
+    -41.943928,
+    "Governador Valadares",
+    "Minas Gerais",
+    "Brazil",
+    "nominatim",
+    0.72
   ],
   "grassy, australia": [
     -40.0498058,
@@ -2372,6 +2840,33 @@
     "New South Wales",
     "Australia"
   ],
+  "guarapuava, brazil": [
+    -25.395099,
+    -51.462202,
+    "Guarapuava",
+    "Paraná",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
+  "guarulhos, brazil": [
+    -23.467594,
+    -46.52777,
+    "Guarulhos",
+    "São Paulo",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
+  "guayaquil, ecuador": [
+    -2.190057,
+    -79.886867,
+    "Guayaquil",
+    "Guayas",
+    "Ecuador",
+    "nominatim",
+    0.72
+  ],
   "guildford, united kingdom": [
     51.23536,
     -0.57427,
@@ -2406,6 +2901,15 @@
     "Gwelup",
     "Western Australia",
     "Australia"
+  ],
+  "halmstad, sweden": [
+    56.673983,
+    12.857483,
+    "Halmstad",
+    "Halmstads kommun",
+    "Sweden",
+    "nominatim",
+    0.72
   ],
   "hamburg": [
     53.55109,
@@ -2540,6 +3044,15 @@
     "Pennsylvania",
     "United States"
   ],
+  "herzogenrath, germany": [
+    50.868454,
+    6.095051,
+    "Herzogenrath",
+    "Städteregion Aachen",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
   "high wycombe, australia": [
     -31.954628,
     115.9921995,
@@ -2595,6 +3108,15 @@
     "Hong Kong",
     "Hong Kong",
     "Hong Kong"
+  ],
+  "hook, united kingdom": [
+    51.367898,
+    -0.307145,
+    "Hook",
+    "Royal Borough of Kingston upon Thames",
+    "United Kingdom",
+    "nominatim",
+    0.72
   ],
   "houston": [
     29.76328,
@@ -2655,14 +3177,14 @@
   "ilhavo": [
     40.60188,
     -8.67021,
-    "\u00cdlhavo",
+    "Ílhavo",
     "Aveiro District",
     "Portugal"
   ],
   "ilhavo, portugal": [
     40.60188,
     -8.67021,
-    "\u00cdlhavo",
+    "Ílhavo",
     "Aveiro District",
     "Portugal"
   ],
@@ -2701,6 +3223,15 @@
     "Perak",
     "Malaysia"
   ],
+  "iquique, chile": [
+    -20.214066,
+    -70.152465,
+    "Iquique",
+    "Provincia de Iquique",
+    "Chile",
+    "nominatim",
+    0.72
+  ],
   "irvine": [
     33.6846,
     -117.8265,
@@ -2728,6 +3259,24 @@
     "Issaquah",
     "Washington",
     "United States"
+  ],
+  "itajai, brazil": [
+    -26.904679,
+    -48.655298,
+    "Itajaí",
+    "Santa Catarina",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
+  "itapira, brazil": [
+    -22.436111,
+    -46.821667,
+    "Itapira",
+    "São Paulo",
+    "Brazil",
+    "nominatim",
+    0.72
   ],
   "jackson, michigan": [
     42.24587,
@@ -2802,7 +3351,7 @@
   "jaragua do sul, brazil": [
     -26.4897432,
     -49.0778063,
-    "Jaragu\u00e1 Do Sul",
+    "Jaraguá Do Sul",
     "Santa Catarina",
     "Brazil"
   ],
@@ -2882,6 +3431,15 @@
     "Junction Hill",
     "Gosford",
     "Australia"
+  ],
+  "jundiai, brazil": [
+    -23.188767,
+    -46.884506,
+    "Jundiaí",
+    "São Paulo",
+    "Brazil",
+    "nominatim",
+    0.72
   ],
   "juno beach, florida": [
     26.87978,
@@ -3219,6 +3777,15 @@
     "Bangkalan",
     "Indonesia"
   ],
+  "kyiv, ukraine": [
+    50.450034,
+    30.524136,
+    "Kyiv",
+    "Україна",
+    "Ukraine",
+    "nominatim",
+    0.72
+  ],
   "kyoto": [
     35.01164,
     135.76803,
@@ -3229,14 +3796,14 @@
   "la coruna": [
     43.37135,
     -8.396,
-    "A Coru\u00f1a",
+    "A Coruña",
     "Galicia",
     "Spain"
   ],
   "la coruna, spain": [
     43.37135,
     -8.396,
-    "A Coru\u00f1a",
+    "A Coruña",
     "Galicia",
     "Spain"
   ],
@@ -3260,6 +3827,24 @@
     "La Jolla",
     "California",
     "United States"
+  ],
+  "la paz, bolivia": [
+    -16.495545,
+    -68.133623,
+    "La Paz",
+    "Provincia Pedro Domingo Murillo",
+    "Bolivia",
+    "nominatim",
+    0.72
+  ],
+  "lahti, finland": [
+    60.982628,
+    25.661342,
+    "Lahti",
+    "Lahden seutukunta",
+    "Finland",
+    "nominatim",
+    0.72
   ],
   "lake forest, illinois": [
     42.25863,
@@ -3369,14 +3954,14 @@
   "leganes (madrid)": [
     40.32718,
     -3.7635,
-    "Legan\u00e9s",
+    "Leganés",
     "Madrid",
     "Spain"
   ],
   "leganes (madrid), spain": [
     40.32718,
     -3.7635,
-    "Legan\u00e9s",
+    "Leganés",
     "Madrid",
     "Spain"
   ],
@@ -3429,6 +4014,15 @@
     "New South Wales",
     "Australia"
   ],
+  "lima, peru": [
+    -12.045981,
+    -77.030591,
+    "Lima",
+    "Lima Metropolitana",
+    "Peru",
+    "nominatim",
+    0.72
+  ],
   "lincolnshire, illinois": [
     42.19002,
     -87.9084,
@@ -3442,6 +4036,15 @@
     "Lindfield",
     "Upper North Shore",
     "Australia"
+  ],
+  "linkoping, sweden": [
+    58.409813,
+    15.624525,
+    "Linköping",
+    "Linköpings kommun",
+    "Sweden",
+    "nominatim",
+    0.72
   ],
   "lisbon": [
     38.72509,
@@ -3495,15 +4098,15 @@
   "lome, togo": [
     6.12874,
     1.22154,
-    "Lom\u00e9",
+    "Lomé",
     "Maritime",
     "Togo"
   ],
   "lome, togo, togo": [
     6.130419,
     1.215829,
-    "Lom\u00e9",
-    "R\u00e9gion Maritime",
+    "Lomé",
+    "Région Maritime",
     "Togo"
   ],
   "london": [
@@ -3590,6 +4193,24 @@
     "Sutherland Shire",
     "Australia"
   ],
+  "lund, sweden": [
+    55.70293,
+    13.192945,
+    "Lund",
+    "Lunds kommun",
+    "Sweden",
+    "nominatim",
+    0.72
+  ],
+  "luxembourg city, luxembourg": [
+    49.601051,
+    6.063995,
+    "Luxembourg City",
+    "Route de Longwy",
+    "Luxembourg",
+    "nominatim",
+    0.72
+  ],
   "macau": [
     22.19875,
     113.54387,
@@ -3603,6 +4224,15 @@
     "Macau",
     "Macau",
     "Macau"
+  ],
+  "macclesfield, united kingdom": [
+    53.260663,
+    -2.125516,
+    "Macclesfield",
+    "Cheshire East",
+    "United Kingdom",
+    "nominatim",
+    0.72
   ],
   "mackay, australia": [
     -21.141956,
@@ -3691,7 +4321,7 @@
   "malaga": [
     36.72016,
     -4.42034,
-    "M\u00e1laga",
+    "Málaga",
     "Andalusia",
     "Spain"
   ],
@@ -3705,7 +4335,7 @@
   "malaga, spain": [
     36.72016,
     -4.42034,
-    "M\u00e1laga",
+    "Málaga",
     "Andalusia",
     "Spain"
   ],
@@ -3757,6 +4387,24 @@
     "Manchester",
     "New Hampshire",
     "United States"
+  ],
+  "mar del plata, argentina": [
+    -37.997617,
+    -57.548208,
+    "Mar Del Plata",
+    "Partido de General Pueyrredón",
+    "Argentina",
+    "nominatim",
+    0.72
+  ],
+  "maracaibo, venezuela": [
+    10.649809,
+    -71.64436,
+    "Maracaibo",
+    "Parroquia Cacique Mara",
+    "Venezuela",
+    "nominatim",
+    0.72
   ],
   "marlborough, massachusetts": [
     42.34593,
@@ -3842,6 +4490,15 @@
     "Sumatera Utara",
     "Indonesia"
   ],
+  "medellin, colombia": [
+    6.269732,
+    -75.60256,
+    "Medellín",
+    "Valle de Aburrá",
+    "Colombia",
+    "nominatim",
+    0.72
+  ],
   "melbourne": [
     28.0836,
     -80.6081,
@@ -3884,6 +4541,15 @@
     "Tennessee",
     "United States"
   ],
+  "mendoza, argentina": [
+    -34.597032,
+    -68.73048,
+    "Mendoza",
+    "Argentina",
+    "Argentina",
+    "nominatim",
+    0.72
+  ],
   "menlo park": [
     37.4529,
     -122.1817,
@@ -3911,6 +4577,15 @@
     "Merrillville",
     "Indiana",
     "United States"
+  ],
+  "mestre (venice), italy": [
+    45.494306,
+    12.241805,
+    "Mestre (Venice)",
+    "Venezia",
+    "Italy",
+    "nominatim",
+    0.72
   ],
   "meudon": [
     48.81315,
@@ -3968,6 +4643,15 @@
     "Northern District",
     "Israel"
   ],
+  "milan, italy": [
+    45.464194,
+    9.189635,
+    "Milan",
+    "Rodano",
+    "Italy",
+    "nominatim",
+    0.72
+  ],
   "milford, massachusetts": [
     42.13982,
     -71.51617,
@@ -4002,6 +4686,15 @@
     "Milwaukee",
     "Wisconsin",
     "United States"
+  ],
+  "minas, uruguay": [
+    -34.377399,
+    -55.238214,
+    "Minas",
+    "Lavalleja",
+    "Uruguay",
+    "nominatim",
+    0.72
   ],
   "minato": [
     34.2152,
@@ -4038,6 +4731,33 @@
     "Central District",
     "Israel"
   ],
+  "mogi das cruzes, brazil": [
+    -23.523428,
+    -46.192667,
+    "Mogi Das Cruzes",
+    "São Paulo",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
+  "mogi guacu, brazil": [
+    -22.372222,
+    -46.9425,
+    "Mogi Guaçu",
+    "São Paulo",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
+  "mogi mirim, brazil": [
+    -22.433123,
+    -46.958246,
+    "Mogi Mirim",
+    "São Paulo",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
   "molina de segura (murcia)": [
     38.05456,
     -1.20763,
@@ -4065,6 +4785,42 @@
     "Monett",
     "Missouri",
     "United States"
+  ],
+  "montbonnot-saint-martin, france": [
+    45.22645,
+    5.80266,
+    "Montbonnot-Saint-Martin",
+    "Grenoble",
+    "France",
+    "nominatim",
+    0.72
+  ],
+  "monte maiz, argentina": [
+    -33.204261,
+    -62.600625,
+    "Monte Maíz",
+    "Municipio de Monte Maíz",
+    "Argentina",
+    "nominatim",
+    0.72
+  ],
+  "montes claros, brazil": [
+    -16.749573,
+    -43.868727,
+    "Montes Claros",
+    "Minas Gerais",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
+  "montevideo, uruguay": [
+    -34.905892,
+    -56.19131,
+    "Montevideo",
+    "Uruguay",
+    "Uruguay",
+    "nominatim",
+    0.72
   ],
   "moorabbin, australia": [
     -37.9343641,
@@ -4283,12 +5039,30 @@
     "Tennessee",
     "United States"
   ],
+  "natal, brazil": [
+    -5.805398,
+    -35.20809,
+    "Natal",
+    "Rio Grande do Norte",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
   "naval base, australia": [
     -32.1954475,
     115.7819194,
     "Naval Base",
     "Western Australia",
     "Australia"
+  ],
+  "neckarsulm, germany": [
+    49.191716,
+    9.224926,
+    "Neckarsulm",
+    "VVG der Stadt Neckarsulm",
+    "Germany",
+    "nominatim",
+    0.72
   ],
   "nedlands, australia": [
     -31.9799209,
@@ -4311,6 +5085,15 @@
     "Nelson",
     "New Zealand"
   ],
+  "nepena, peru": [
+    -9.125954,
+    -78.277285,
+    "Nepeña",
+    "Santa",
+    "Peru",
+    "nominatim",
+    0.72
+  ],
   "neubiberg": [
     48.07839,
     11.64863,
@@ -4318,12 +5101,30 @@
     "Bavaria",
     "Germany"
   ],
+  "neubiberg, germany": [
+    48.076994,
+    11.661514,
+    "Neubiberg",
+    "Landkreis München",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
   "neutral bay, australia": [
     -33.8342887,
     151.2182049,
     "Neutral Bay",
     "Lower North Shore",
     "Australia"
+  ],
+  "neutraubling, germany": [
+    48.979484,
+    12.205767,
+    "Neutraubling",
+    "Landkreis Regensburg",
+    "Germany",
+    "nominatim",
+    0.72
   ],
   "new britain, connecticut": [
     41.66121,
@@ -4465,6 +5266,15 @@
     "Avenue Riz du Niger",
     "Niger"
   ],
+  "nicosia, cyprus": [
+    35.17465,
+    33.363878,
+    "Nicosia",
+    "Λευκωσία",
+    "Cyprus",
+    "nominatim",
+    0.72
+  ],
   "niiza": [
     35.82088,
     139.55791,
@@ -4598,6 +5408,24 @@
     "Victoria",
     "Australia"
   ],
+  "nova friburgo, brazil": [
+    -22.28,
+    -42.53253,
+    "Nova Friburgo",
+    "Rio de Janeiro",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
+  "nova lima, brazil": [
+    -19.985409,
+    -43.847069,
+    "Nova Lima",
+    "Minas Gerais",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
   "nunawading, australia": [
     -37.820503,
     145.1751332,
@@ -4707,7 +5535,7 @@
     -23.5324859,
     -46.7916801,
     "Osasco",
-    "S\u00e3o Paulo",
+    "São Paulo",
     "Brazil"
   ],
   "osborne park, australia": [
@@ -4734,14 +5562,14 @@
   "paco de arcos": [
     38.69569,
     -9.29143,
-    "Pa\u00e7o de Arcos",
+    "Paço de Arcos",
     "Lisbon District",
     "Portugal"
   ],
   "paco de arcos, portugal": [
     38.69569,
     -9.29143,
-    "Pa\u00e7o de Arcos",
+    "Paço de Arcos",
     "Lisbon District",
     "Portugal"
   ],
@@ -4814,6 +5642,15 @@
     "Paradise",
     "Nevada",
     "United States"
+  ],
+  "paramaribo, suriname": [
+    5.824176,
+    -55.166281,
+    "Paramaribo",
+    "Paramaribo",
+    "Suriname",
+    "nominatim",
+    0.72
   ],
   "paris": [
     48.85661,
@@ -4909,14 +5746,14 @@
   "peralta(navarra)": [
     42.33834,
     -1.80035,
-    "Peralta \u2013 Azkoien",
+    "Peralta – Azkoien",
     "Navarre",
     "Spain"
   ],
   "peralta(navarra), spain": [
     42.33834,
     -1.80035,
-    "Peralta \u2013 Azkoien",
+    "Peralta – Azkoien",
     "Navarre",
     "Spain"
   ],
@@ -4961,6 +5798,15 @@
     "Phoenix",
     "Arizona",
     "United States"
+  ],
+  "pisco, peru": [
+    -13.709981,
+    -76.202979,
+    "Pisco",
+    "Ica",
+    "Peru",
+    "nominatim",
+    0.72
   ],
   "pittsburgh, pennsylvania": [
     40.44062,
@@ -5092,7 +5938,7 @@
     41.0954304,
     -8.6350144,
     "Porto",
-    "Rua de Jos\u00e9 Monteiro Castro Portugal",
+    "Rua de José Monteiro Castro Portugal",
     "Portugal"
   ],
   "portsmouth, new hampshire": [
@@ -5105,14 +5951,14 @@
   "pozuelo": [
     40.43293,
     -3.81338,
-    "Pozuelo de Alarc\u00f3n",
+    "Pozuelo de Alarcón",
     "Madrid",
     "Spain"
   ],
   "pozuelo, spain": [
     40.43293,
     -3.81338,
-    "Pozuelo de Alarc\u00f3n",
+    "Pozuelo de Alarcón",
     "Madrid",
     "Spain"
   ],
@@ -5179,6 +6025,24 @@
     "Sydney CBD",
     "Australia"
   ],
+  "queensland, new zealand": [
+    -24.080846,
+    151.248313,
+    "Queensland",
+    "Taragoola",
+    "New Zealand",
+    "nominatim",
+    0.72
+  ],
+  "quito, ecuador": [
+    -0.220164,
+    -78.512327,
+    "Quito",
+    "Pichincha",
+    "Ecuador",
+    "nominatim",
+    0.72
+  ],
   "rakaia, new zealand": [
     -43.4828501,
     171.6130479,
@@ -5206,6 +6070,15 @@
     "Rapperswil-Jona",
     "St. Gallen",
     "Switzerland"
+  ],
+  "reading, united kingdom": [
+    51.456424,
+    -0.970066,
+    "Reading",
+    "England",
+    "United Kingdom",
+    "nominatim",
+    0.72
   ],
   "recife, brazil": [
     -8.0584933,
@@ -5284,6 +6157,15 @@
     "Inner West",
     "Australia"
   ],
+  "ribeirao preto, brazil": [
+    -21.177632,
+    -47.810098,
+    "Ribeirão Preto",
+    "São Paulo",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
   "richardson, texas": [
     32.94818,
     -96.72972,
@@ -5330,7 +6212,7 @@
     -22.9110137,
     -43.2093727,
     "Rio De Janeiro",
-    "Regi\u00e3o Sudeste",
+    "Região Sudeste",
     "Brazil"
   ],
   "rivas vaciamadrid": [
@@ -5476,14 +6358,14 @@
   "s cugat del valles (barcelona)": [
     41.47063,
     2.08611,
-    "Sant Cugat del Vall\u00e8s",
+    "Sant Cugat del Vallès",
     "Catalonia",
     "Spain"
   ],
   "s cugat del valles (barcelona), spain": [
     41.47063,
     2.08611,
-    "Sant Cugat del Vall\u00e8s",
+    "Sant Cugat del Vallès",
     "Catalonia",
     "Spain"
   ],
@@ -5522,12 +6404,30 @@
     "Utah",
     "United States"
   ],
+  "salta, argentina": [
+    -25.226991,
+    -64.591196,
+    "Salta",
+    "Argentina",
+    "Argentina",
+    "nominatim",
+    0.72
+  ],
   "salvador, brazil": [
     -12.9822499,
     -38.4812772,
     "Salvador",
     "Bahia",
     "Brazil"
+  ],
+  "salzgitter, germany": [
+    52.150372,
+    10.359315,
+    "Salzgitter",
+    "Niedersachsen",
+    "Germany",
+    "nominatim",
+    0.72
   ],
   "samarinda, indonesia": [
     -0.5017804,
@@ -5542,6 +6442,15 @@
     "San Antonio",
     "Texas",
     "United States"
+  ],
+  "san bernardo, chile": [
+    -33.592286,
+    -70.704584,
+    "San Bernardo",
+    "Provincia de Maipo",
+    "Chile",
+    "nominatim",
+    0.72
   ],
   "san ciprian de vinas": [
     42.33579,
@@ -5613,6 +6522,15 @@
     "California",
     "United States"
   ],
+  "san juan de marcona, peru": [
+    -15.361969,
+    -75.167139,
+    "San Juan De Marcona",
+    "Marcona",
+    "Peru",
+    "nominatim",
+    0.72
+  ],
   "san mateo, california": [
     37.56299,
     -122.32553,
@@ -5637,14 +6555,14 @@
   "san sebastian de los reyes": [
     40.55555,
     -3.62733,
-    "San Sebasti\u00e1n de los Reyes",
+    "San Sebastián de los Reyes",
     "Madrid",
     "Spain"
   ],
   "san sebastian de los reyes, spain": [
     40.55555,
     -3.62733,
-    "San Sebasti\u00e1n de los Reyes",
+    "San Sebastián de los Reyes",
     "Madrid",
     "Spain"
   ],
@@ -5669,19 +6587,37 @@
     "Georgia",
     "United States"
   ],
+  "sant cugat del valles, spain": [
+    41.470793,
+    2.084881,
+    "Sant Cugat Del Vallès",
+    "Vallès Occidental",
+    "Spain",
+    "nominatim",
+    0.72
+  ],
   "sant joan despi (barcelona)": [
     41.36718,
     2.0574,
-    "Sant Joan Desp\u00ed",
+    "Sant Joan Despí",
     "Catalonia",
     "Spain"
   ],
   "sant joan despi (barcelona), spain": [
     41.36718,
     2.0574,
-    "Sant Joan Desp\u00ed",
+    "Sant Joan Despí",
     "Catalonia",
     "Spain"
+  ],
+  "santa barbara d'oeste, brazil": [
+    -22.754254,
+    -47.413788,
+    "Santa Bárbara D'Oeste",
+    "São Paulo",
+    "Brazil",
+    "nominatim",
+    0.72
   ],
   "santa clara": [
     37.3541,
@@ -5704,6 +6640,15 @@
     "California",
     "United States"
   ],
+  "santa cruz de la sierra, bolivia": [
+    -17.783422,
+    -63.182085,
+    "Santa Cruz De La Sierra",
+    "Provincia Andrés Ibáñez",
+    "Bolivia",
+    "nominatim",
+    0.72
+  ],
   "santa rosa, california": [
     38.44047,
     -122.71443,
@@ -5725,54 +6670,81 @@
     "Cantabria",
     "Spain"
   ],
+  "santiago, chile": [
+    -33.4377,
+    -70.651067,
+    "Santiago",
+    "Provincia de Santiago",
+    "Chile",
+    "nominatim",
+    0.72
+  ],
   "santo andre, brazil": [
     -23.6533509,
     -46.5279039,
-    "Santo Andr\u00e9",
-    "S\u00e3o Paulo",
+    "Santo André",
+    "São Paulo",
     "Brazil"
   ],
   "santos, brazil": [
     -23.9609448,
     -46.3166316,
     "Santos",
-    "S\u00e3o Paulo",
+    "São Paulo",
     "Brazil"
   ],
   "sao bernardo do campo, brazil": [
     -23.7080345,
     -46.5506747,
-    "S\u00e3o Bernardo Do Campo",
-    "S\u00e3o Paulo",
+    "São Bernardo Do Campo",
+    "São Paulo",
     "Brazil"
+  ],
+  "sao jose do rio preto, brazil": [
+    -20.812585,
+    -49.380421,
+    "São José Do Rio Preto",
+    "São Paulo",
+    "Brazil",
+    "nominatim",
+    0.72
   ],
   "sao jose dos campos, brazil": [
     -23.1867782,
     -45.8854538,
     "Sao Jose Dos Campos",
-    "S\u00e3o Paulo",
+    "São Paulo",
     "Brazil"
   ],
   "sao jose, brazil": [
     -27.6157733,
     -48.6276491,
-    "S\u00e3o Jos\u00e9",
+    "São José",
     "Santa Catarina",
     "Brazil"
   ],
   "sao luis, brazil": [
     -2.5295265,
     -44.2963942,
-    "S\u00e3o Lu\u00eds",
-    "Maranh\u00e3o",
+    "São Luís",
+    "Maranhão",
     "Brazil"
   ],
   "sao paulo, brazil": [
     -23.5506507,
     -46.6333824,
     "Sao Paulo",
-    "Regi\u00e3o Sudeste",
+    "Região Sudeste",
     "Brazil"
+  ],
+  "sapucaia do sul, brazil": [
+    -29.819702,
+    -51.160872,
+    "Sapucaia Do Sul",
+    "Rio Grande do Sul",
+    "Brazil",
+    "nominatim",
+    0.72
   ],
   "sarasota, florida": [
     27.33643,
@@ -5868,22 +6840,22 @@
   "setubal": [
     38.5244,
     -8.8882,
-    "Set\u00fabal",
-    "Set\u00fabal District",
+    "Setúbal",
+    "Setúbal District",
     "Portugal"
   ],
   "setubal, portugal": [
     38.5244,
     -8.8882,
-    "Set\u00fabal",
-    "Set\u00fabal District",
+    "Setúbal",
+    "Setúbal District",
     "Portugal"
   ],
   "setubal, portugal, portugal": [
     38.529788,
     -8.8746508,
-    "Set\u00fabal",
-    "Pra\u00e7a de Portugal",
+    "Setúbal",
+    "Praça de Portugal",
     "Portugal"
   ],
   "seventeen mile rocks, australia": [
@@ -6033,12 +7005,30 @@
     "Sydney",
     "Australia"
   ],
+  "solihull, united kingdom": [
+    52.413019,
+    -1.776893,
+    "Solihull",
+    "West Midlands",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "solo, indonesia": [
     -7.5692489,
     110.828448,
     "Solo",
     "Kecamatan Pasar Kliwon",
     "Indonesia"
+  ],
+  "sondrio, italy": [
+    46.323366,
+    10.258395,
+    "Sondrio",
+    "Lombardia",
+    "Italy",
+    "nominatim",
+    0.72
   ],
   "south brisbane, australia": [
     -27.479264,
@@ -6117,6 +7107,15 @@
     "Missouri",
     "United States"
   ],
+  "st marys bay, australia": [
+    -36.848304,
+    174.743544,
+    "St Marys Bay",
+    "Ponsonby Road",
+    "Australia",
+    "nominatim",
+    0.72
+  ],
   "st peters, australia": [
     -33.9111235,
     151.1761345,
@@ -6159,6 +7158,15 @@
     "Western Australia",
     "Australia"
   ],
+  "stockholm, sweden": [
+    59.325117,
+    18.071093,
+    "Stockholm",
+    "Stockholms kommun",
+    "Sweden",
+    "nominatim",
+    0.72
+  ],
   "strathalbyn, australia": [
     -35.2576239,
     138.8956803,
@@ -6193,6 +7201,15 @@
     "Sukoharjo Jawa Tengah",
     "Salam",
     "Indonesia"
+  ],
+  "sumare, brazil": [
+    -22.821796,
+    -47.267105,
+    "Sumaré",
+    "São Paulo",
+    "Brazil",
+    "nominatim",
+    0.72
   ],
   "sumatera utara, indonesia": [
     2.1923519,
@@ -6271,6 +7288,15 @@
     "New South Wales",
     "Australia"
   ],
+  "taby, sweden": [
+    59.467048,
+    18.065849,
+    "Täby",
+    "Stockholms län",
+    "Sweden",
+    "nominatim",
+    0.72
+  ],
   "taichung": [
     24.14774,
     120.67365,
@@ -6341,6 +7367,15 @@
     "Banten",
     "Indonesia"
   ],
+  "tanjung barat, australia": [
+    -0.50718,
+    116.142938,
+    "Tanjung Barat",
+    "Tanjung Isuy",
+    "Australia",
+    "nominatim",
+    0.72
+  ],
   "tanunda, australia": [
     -34.5217025,
     138.9603091,
@@ -6362,12 +7397,30 @@
     "New York",
     "United States"
   ],
+  "taufkirchen, germany": [
+    48.045996,
+    11.61519,
+    "Taufkirchen",
+    "Landkreis München",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
   "tauranga, new zealand": [
     -37.6859006,
     176.167505,
     "Tauranga",
     "Tauranga City",
     "New Zealand"
+  ],
+  "tbilisi, georgia": [
+    41.693459,
+    44.801449,
+    "Tbilisi",
+    "საქართველო",
+    "Georgia",
+    "nominatim",
+    0.72
   ],
   "te puke, new zealand": [
     -37.7853294,
@@ -6481,6 +7534,24 @@
     "Gansu",
     "China"
   ],
+  "tijucas, brazil": [
+    -27.239404,
+    -48.63537,
+    "Tijucas",
+    "Santa Catarina",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
+  "timbo, brazil": [
+    -26.828274,
+    -49.270641,
+    "Timbó",
+    "Santa Catarina",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
   "tokyo": [
     35.6895,
     139.69171,
@@ -6562,7 +7633,7 @@
     63.43049,
     10.39506,
     "Trondheim",
-    "Tr\u00f8ndelag",
+    "Trøndelag",
     "Norway"
   ],
   "truganina, australia": [
@@ -6628,6 +7699,15 @@
     "Chiba",
     "Japan"
   ],
+  "vaduz, liechtenstein": [
+    47.139286,
+    9.522796,
+    "Vaduz",
+    "Oberland",
+    "Liechtenstein",
+    "nominatim",
+    0.72
+  ],
   "valencia": [
     39.47391,
     -0.37966,
@@ -6642,19 +7722,37 @@
     "Valencia",
     "Spain"
   ],
+  "valencia, venezuela": [
+    10.170026,
+    -68.000399,
+    "Valencia",
+    "Parroquia Santa Rosa",
+    "Venezuela",
+    "nominatim",
+    0.72
+  ],
   "valladolid": [
     41.65541,
     -4.72353,
     "Valladolid",
-    "Castille and Le\u00f3n",
+    "Castille and León",
     "Spain"
   ],
   "valladolid, spain": [
     41.65541,
     -4.72353,
     "Valladolid",
-    "Castille and Le\u00f3n",
+    "Castille and León",
     "Spain"
+  ],
+  "valparaiso, chile": [
+    -33.045846,
+    -71.619675,
+    "Valparaíso",
+    "Provincia de Valparaíso",
+    "Chile",
+    "nominatim",
+    0.72
   ],
   "vancouver, canada": [
     49.24966,
@@ -6662,6 +7760,15 @@
     "Vancouver",
     "British Columbia",
     "Canada"
+  ],
+  "vantaa, finland": [
+    60.292988,
+    25.043674,
+    "Vantaa",
+    "Helsingin seutukunta",
+    "Finland",
+    "nominatim",
+    0.72
   ],
   "varsity lakes, australia": [
     -28.0971316,
@@ -6677,6 +7784,15 @@
     "Netherlands",
     "Netherlands"
   ],
+  "veldhoven, netherlands": [
+    51.419069,
+    5.404557,
+    "Veldhoven",
+    "Noord-Brabant",
+    "Netherlands",
+    "nominatim",
+    0.72
+  ],
   "ventura, california": [
     34.27834,
     -119.29317,
@@ -6690,6 +7806,15 @@
     "Vernon Hills",
     "Illinois",
     "United States"
+  ],
+  "verona, italy": [
+    45.442498,
+    10.985738,
+    "Verona",
+    "Veneto",
+    "Italy",
+    "nominatim",
+    0.72
   ],
   "victoria park, australia": [
     -37.799123,
@@ -6716,7 +7841,7 @@
     41.0953601,
     -8.6339974,
     "Vila Nova De Gaia",
-    "Rua de Jos\u00e9 Monteiro Castro Portugal",
+    "Rua de José Monteiro Castro Portugal",
     "Portugal"
   ],
   "vitoria": [
@@ -6725,6 +7850,15 @@
     "Vitoria-Gasteiz",
     "Basque Country",
     "Spain"
+  ],
+  "vitoria, brazil": [
+    -20.320092,
+    -40.337668,
+    "Vitória",
+    "Espírito Santo",
+    "Brazil",
+    "nominatim",
+    0.72
   ],
   "vitoria, spain": [
     42.84998,
@@ -6975,7 +8109,7 @@
     -35.7275268,
     174.3194202,
     "Whangarei",
-    "Whang\u0101rei District",
+    "Whangārei District",
     "New Zealand"
   ],
   "white plains, new york": [
@@ -7110,6 +8244,15 @@
     "Yokohama",
     "Kanagawa",
     "Japan"
+  ],
+  "ypane, paraguay": [
+    -25.457352,
+    -57.509257,
+    "Ypané",
+    "Central",
+    "Paraguay",
+    "nominatim",
+    0.72
   ],
   "yuyao": [
     30.05,

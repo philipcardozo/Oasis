@@ -28,6 +28,11 @@ COUNTRY_COORDS = {
     "Canada": [56.1304, -106.3468], "Cayman Islands": [19.3133, -81.2546], "Chile": [-35.6751, -71.543],
     "China": [35.8617, 104.1954], "Colombia": [4.5709, -74.2973], "Cote d'Ivoire": [7.54, -5.5471],
     "Ecuador": [-1.8312, -78.1834], "Ghana": [7.9465, -1.0232], "Guyana": [4.8604, -58.9302],
+    "Germany": [51.1657, 10.4515], "Sweden": [60.1282, 18.6435], "France": [46.2276, 2.2137],
+    "Finland": [61.9241, 25.7482], "Denmark": [56.2639, 9.5018], "Liechtenstein": [47.166, 9.5554],
+    "Italy": [41.8719, 12.5674], "Cyprus": [35.1264, 33.4299], "Luxembourg": [49.8153, 6.1296],
+    "Iceland": [64.9631, -19.0208], "Ireland": [53.4129, -8.2439], "Ukraine": [48.3794, 31.1656],
+    "Georgia": [42.3154, 43.3569],
     "Indonesia": [-0.7893, 113.9213], "Israel": [31.0461, 34.8516], "Japan": [36.2048, 138.2529],
     "Kenya": [-0.0236, 37.9062], "Mali": [17.5707, -3.9962], "Morocco": [31.7917, -7.0926],
     "Netherlands": [52.1326, 5.2913], "New Zealand": [-40.9006, 174.886], "Niger": [17.6078, 8.0817],
@@ -117,6 +122,25 @@ def location_for(node: dict, coords: dict) -> dict | None:
     return None
 
 
+def spread_duplicate_locations(rows: list[tuple[dict, dict]]) -> None:
+    groups: dict[tuple[float, float], list[tuple[dict, dict]]] = {}
+    for node, loc in rows:
+        groups.setdefault((round(loc["lat"], 5), round(loc["lng"], 5)), []).append((node, loc))
+    for items in groups.values():
+        if len(items) < 2:
+            continue
+        items.sort(key=lambda item: str(item[0].get("id", "")))
+        for i, (_node, loc) in enumerate(items):
+            angle = i * math.pi * (3 - math.sqrt(5))
+            radius = min(0.08, 0.006 * math.sqrt(i + 1))
+            lat_rad = math.radians(loc["lat"])
+            loc["source_lat"] = loc["lat"]
+            loc["source_lng"] = loc["lng"]
+            loc["lat"] = round(loc["lat"] + math.sin(angle) * radius, 6)
+            loc["lng"] = round(loc["lng"] + math.cos(angle) * radius / max(abs(math.cos(lat_rad)), 0.25), 6)
+            loc["location_offset"] = "same_coordinate_jitter"
+
+
 def entity_type(node: dict) -> str:
     if node.get("kind") == "security":
         return "Security"
@@ -141,6 +165,8 @@ def point_feature(node: dict, loc: dict) -> dict:
             "group_key": node.get("grp", ""), "degree": int(node.get("deg") or 0), "market_value": node.get("tot", 0),
             "country": loc["country"], "hq_city": loc["city"], "location_quality": loc["location_quality"],
             "location_source": loc["location_source"], "location_confidence": loc["location_confidence"],
+            "location_offset": loc.get("location_offset", ""), "source_lat": loc.get("source_lat", loc["lat"]),
+            "source_lng": loc.get("source_lng", loc["lng"]),
             "issuer_id": node.get("issuer_id", ""),
         },
     }
@@ -152,12 +178,17 @@ def write_map_geojson(graph: dict | None = None) -> None:
     by_id = {n["id"]: n for n in graph["nodes"]}
     located: dict[str, dict] = {}
     companies, securities, unknown = [], [], []
+    pending: list[tuple[dict, dict]] = []
 
     for node in graph["nodes"]:
         loc = location_for(node, coords)
         if not loc:
             unknown.append({k: node.get(k, "") for k in ("id", "n", "t", "kind", "node_type", "hq", "country")})
             continue
+        pending.append((node, loc))
+
+    spread_duplicate_locations(pending)
+    for node, loc in pending:
         located[node["id"]] = loc
         feature = point_feature(node, loc)
         (securities if node.get("kind") == "security" else companies).append(feature)

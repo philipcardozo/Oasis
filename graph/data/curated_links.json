@@ -5135,5 +5135,685 @@
     "detail": "Major shareholder disclosed on IDX profile (60%)",
     "confidence": 0.92,
     "as_of": "2026-06-30"
+  },
+  {
+    "from": "XPAR:SOI",
+    "to": "TSM",
+    "rel": "supplies",
+    "src": "Company Reports / Industry Analysis 2026",
+    "val": 0.0,
+    "detail": "Supplies FD-SOI and SmartSiC substrates to TSMC fabs",
+    "confidence": 0.85,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XPAR:SOI",
+    "to": "GFS",
+    "rel": "supplies",
+    "src": "GlobalFoundries Partnership Disclosure 2026",
+    "val": 0.0,
+    "detail": "Long-term substrate supply agreement for FD-SOI wafer supply",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XETR:AIXA",
+    "to": "TSM",
+    "rel": "supplies",
+    "src": "Semi Equipment Surveys 2026",
+    "val": 0.0,
+    "detail": "Supplies MOCVD deposition equipment for compound semiconductor manufacturing",
+    "confidence": 0.8,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XETR:AIXA",
+    "to": "NXPI",
+    "rel": "supplies",
+    "src": "Supply Chain Intelligence 2026",
+    "val": 0.0,
+    "detail": "Supplies GaN and SiC deposition systems for automotive power chips",
+    "confidence": 0.85,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XPAR:HO",
+    "to": "BA",
+    "rel": "supplies",
+    "src": "Aerospace Supplier Directory 2026",
+    "val": 0.0,
+    "detail": "Supplies flight controls, avionics displays, and electrical systems to Boeing commercial airplanes",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XSTO:SAAB-B",
+    "to": "GOV_US_DOD",
+    "rel": "supplies",
+    "src": "DoD Contract Awards 2025",
+    "val": 0.0,
+    "detail": "Supplies Carl-Gustaf weapons systems and AT4 anti-armor systems to US Armed Forces",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XETR:WAF",
+    "to": "TSM",
+    "rel": "supplies",
+    "src": "Wafer Supplier Audits 2026",
+    "val": 0.0,
+    "detail": "Supplies hyperpure silicon wafers for advanced node processing",
+    "confidence": 0.85,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XETR:WAF",
+    "to": "INTC",
+    "rel": "supplies",
+    "src": "Intel Supplier List 2026",
+    "val": 0.0,
+    "detail": "Hyperpure silicon wafer substrate supplier for CPU manufacturing",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XETR:SMHN",
+    "to": "TSM",
+    "rel": "supplies",
+    "src": "Advanced Packaging Industry Reports 2026",
+    "val": 0.0,
+    "detail": "Provides temporary wafer bonding systems for CoWoS packaging line",
+    "confidence": 0.85,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XSTO:MYCR",
+    "to": "AAPL",
+    "rel": "supplies",
+    "src": "Display Supply Chain Consultants 2026",
+    "val": 0.0,
+    "detail": "Supplies photomask laser writers used in display screen fabrication for iPhones and iPads",
+    "confidence": 0.8,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XHEL:KEMPOWR",
+    "to": "TSLA",
+    "rel": "partners",
+    "src": "EV Charging Compatibility Database 2026",
+    "val": 0.0,
+    "detail": "Collaborates on North American Charging Standard (NACS) and Supercharger interoperability",
+    "confidence": 0.85,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XPAR:NEOEN",
+    "to": "TSLA",
+    "rel": "partners",
+    "src": "Hornsdale Power Reserve Press Release",
+    "val": 0.0,
+    "detail": "Partnered on Hornsdale Power Reserve (Tesla Big Battery) virtual power plant in Australia",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XETR:GXI",
+    "to": "NVO",
+    "rel": "supplies",
+    "src": "GLP-1 Supply Chain Reports 2026",
+    "val": 0.0,
+    "detail": "Supplies glass vials and prefillable syringes for Wegovy and Ozempic insulin pens",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XETR:GXI",
+    "to": "LLY",
+    "rel": "supplies",
+    "src": "GLP-1 Supply Chain Reports 2026",
+    "val": 0.0,
+    "detail": "Supplies prefillable glass syringes for Mounjaro and Zepbound auto-injectors",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "NXPI",
+    "to": "ALXP:ALKRY",
+    "rel": "funds",
+    "src": "NXP Financial Disclosures 2024",
+    "val": 0.0,
+    "detail": "NXP Semiconductors holds strategic equity investment and development agreement with Kalray",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XLON:AWE",
+    "to": "TSM",
+    "rel": "partners",
+    "src": "TSMC OIP Directory 2026",
+    "val": 0.0,
+    "detail": "Member of TSMC Open Innovation Platform (OIP) IP Alliance",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XLON:AWE",
+    "to": "NVDA",
+    "rel": "supplies",
+    "src": "Silicon Interconnect Reports 2026",
+    "val": 0.0,
+    "detail": "Licenses high-speed connectivity SerDes and PCIe IP blocks for AI GPU accelerators",
+    "confidence": 0.8,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XLON:TATE",
+    "to": "KO",
+    "rel": "supplies",
+    "src": "Beverage Ingredient Audits 2026",
+    "val": 0.0,
+    "detail": "Supplies caloric and non-caloric sweetener formulations to Coca-Cola bottlers",
+    "confidence": 0.85,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XLON:TATE",
+    "to": "PEP",
+    "rel": "supplies",
+    "src": "Beverage Ingredient Audits 2026",
+    "val": 0.0,
+    "detail": "Supplies texturizers, corn fibers, and sweetener systems to PepsiCo snack and drink brands",
+    "confidence": 0.85,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XETR:KRN",
+    "to": "KO",
+    "rel": "supplies",
+    "src": "Beverage Packaging Reviews 2026",
+    "val": 0.0,
+    "detail": "Supplies automated PET and glass bottling lines and labeling systems to Coca-Cola anchor bottlers",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XETR:KRN",
+    "to": "PEP",
+    "rel": "supplies",
+    "src": "Beverage Packaging Reviews 2026",
+    "val": 0.0,
+    "detail": "Supplies bottling, process equipment, and intralogistics conveyor layouts to PepsiCo plants",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XETR:DUE",
+    "to": "TSLA",
+    "rel": "supplies",
+    "src": "Automotive Factory Reports 2026",
+    "val": 0.0,
+    "detail": "Supplies automated EcoPaint painting line robotics to Tesla Gigafactories",
+    "confidence": 0.85,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XETR:KGX",
+    "to": "AMZN",
+    "rel": "supplies",
+    "src": "Warehouse Automation Industry Analysis 2026",
+    "val": 0.0,
+    "detail": "Supplies Dematic automated guided vehicles (AGVs) and conveyor networks to Amazon fulfillment centers",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "XETR:KGX",
+    "to": "FDX",
+    "rel": "supplies",
+    "src": "Warehouse Automation Industry Analysis 2026",
+    "val": 0.0,
+    "detail": "Supplies Dematic automated sorting conveyor systems to FedEx sorting hubs",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "B3:EMBR3",
+    "to": "B3:AZUL4",
+    "rel": "supplies",
+    "src": "Azul Fleet Allocation Disclosures 2026",
+    "val": 0.0,
+    "detail": "Supplies E-Jets commercial regional passenger aircraft",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "B3:EMBR3",
+    "to": "B3:GOLL4",
+    "rel": "supplies",
+    "src": "Aviation Industry Reports 2026",
+    "val": 0.0,
+    "detail": "Supplies regional flight options and aviation parts",
+    "confidence": 0.85,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "B3:WEGE3",
+    "to": "B3:VALE3",
+    "rel": "supplies",
+    "src": "WEG Industrial Division Reports 2025",
+    "val": 0.0,
+    "detail": "Supplies large-scale electric motors and power drives for mining operations",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "B3:WEGE3",
+    "to": "B3:PETR4",
+    "rel": "supplies",
+    "src": "Petrobras Procurement Database 2025",
+    "val": 0.0,
+    "detail": "Supplies heavy duty electrical motors and generators for drilling platforms",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "B3:VALE3",
+    "to": "B3:CSNA3",
+    "rel": "supplies",
+    "src": "CSN Annual Raw Material Reports 2026",
+    "val": 0.0,
+    "detail": "Supplies raw iron ore pellet feeds to CSN steel manufacturing furnaces",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "B3:VALE3",
+    "to": "B3:USIM5",
+    "rel": "supplies",
+    "src": "Usiminas Supply Disclosures 2026",
+    "val": 0.0,
+    "detail": "Primary supplier of high-grade iron ore pellets to Usiminas steel works",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "B3:PETR4",
+    "to": "B3:VBBR3",
+    "rel": "supplies",
+    "src": "Vibra Fuel Supply Contracts 2026",
+    "val": 0.0,
+    "detail": "Primary supplier of refined fuel products (gasoline, diesel) to Vibra distribution hubs",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "B3:PETR4",
+    "to": "B3:UGPA3",
+    "rel": "supplies",
+    "src": "Ultrapar Supply Contracts 2026",
+    "val": 0.0,
+    "detail": "Supplies refined oil and petrochemical feedstocks to Ipiranga gas network",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "B3:JBSS3",
+    "to": "B3:PCAR3",
+    "rel": "supplies",
+    "src": "GPA Supermarket Supplier List 2026",
+    "val": 0.0,
+    "detail": "Supplies processed meats, beef, and poultry products to GPA supermarket locations",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "B3:JBSS3",
+    "to": "B3:ASAI3",
+    "rel": "supplies",
+    "src": "Assai Wholesale Supply Audits 2026",
+    "val": 0.0,
+    "detail": "Primary protein and cold-cut supplier for wholesale distribution",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "B3:SUZB3",
+    "to": "B3:KLBN11",
+    "rel": "supplies",
+    "src": "Klabin Pulp Procurement Reports 2026",
+    "val": 0.0,
+    "detail": "Supplies eucalyptus and pine short-fiber pulp for packaging lines",
+    "confidence": 0.85,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "B3:ITSA4",
+    "to": "B3:ITUB4",
+    "rel": "owns",
+    "src": "Itaúsa Strategic Shareholder Disclosure 2026",
+    "val": 0.0,
+    "detail": "Holds controlling voting equity stake in Itaú Unibanco",
+    "confidence": 0.99,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "B3:ITSA4",
+    "to": "B3:DXCO3",
+    "rel": "owns",
+    "src": "Itaúsa Strategic Shareholder Disclosure 2026",
+    "val": 0.0,
+    "detail": "Holds controlling voting equity stake in Dexco",
+    "confidence": 0.99,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BYMA:YPFD",
+    "to": "BYMA:CEPU",
+    "rel": "supplies",
+    "src": "Central Puerto Procurement Audits 2026",
+    "val": 0.0,
+    "detail": "Supplies natural gas feedstocks to thermal power plants",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BYMA:YPFD",
+    "to": "BYMA:PAM",
+    "rel": "supplies",
+    "src": "Pampa Energia Financial Reports 2026",
+    "val": 0.0,
+    "detail": "Supplies natural gas feedstocks for Pampa's power generation fleet",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BYMA:YPFD",
+    "to": "BYMA:TGSU2",
+    "rel": "supplies",
+    "src": "TGS Processing Station Disclosures 2026",
+    "val": 0.0,
+    "detail": "Natural gas supply for processing at General Cerri complex",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BYMA:TXAR",
+    "to": "BYMA:MIRG",
+    "rel": "supplies",
+    "src": "Mirgor Raw Material Disclosures 2026",
+    "val": 0.0,
+    "detail": "Supplies industrial steel sheets for automotive parts production",
+    "confidence": 0.85,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BYMA:TXAR",
+    "to": "BYMA:AGRO",
+    "rel": "supplies",
+    "src": "Agrometal Supply Chain Reports 2025",
+    "val": 0.0,
+    "detail": "Supplies steel components for agricultural seeder frames",
+    "confidence": 0.85,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BYMA:ALUA",
+    "to": "BYMA:MIRG",
+    "rel": "supplies",
+    "src": "Mirgor Raw Material Disclosures 2026",
+    "val": 0.0,
+    "detail": "Supplies raw aluminum alloy for automotive wheel casting",
+    "confidence": 0.85,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BYMA:CRES",
+    "to": "BYMA:IRSA",
+    "rel": "owns",
+    "src": "Cresud Shareholder Directory 2026",
+    "val": 0.0,
+    "detail": "Holds controlling voting equity stake in IRSA",
+    "confidence": 0.99,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BYMA:IRSA",
+    "to": "BYMA:HAVA",
+    "rel": "supplies",
+    "src": "Havanna Tenant Directory 2026",
+    "val": 0.0,
+    "detail": "Leases prime retail store spaces in shopping malls to Havanna cafes",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BYMA:TGSU2",
+    "to": "BYMA:METR",
+    "rel": "supplies",
+    "src": "Metrogas Pipeline Delivery Audits 2026",
+    "val": 0.0,
+    "detail": "Transports high-pressure natural gas to Metrogas distribution grid",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BYMA:TGSU2",
+    "to": "BYMA:DGCU2",
+    "rel": "supplies",
+    "src": "Gas Cuyana Pipeline Delivery Audits 2026",
+    "val": 0.0,
+    "detail": "Transports high-pressure natural gas to Gas Cuyana distribution grid",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BCS:SQM-B",
+    "to": "TSLA",
+    "rel": "supplies",
+    "src": "Tesla Supplier Disclosures 2026",
+    "val": 0.0,
+    "detail": "Supplies high-grade lithium hydroxide for EV battery production",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BCS:VAPORES",
+    "to": "XETR:HAG",
+    "rel": "owns",
+    "src": "CSAV Financial Statements 2026",
+    "val": 0.0,
+    "detail": "Holds strategic ~30% controlling stake in Hapag-Lloyd container shipping",
+    "confidence": 0.99,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BCS:ANDINA-B",
+    "to": "KO",
+    "rel": "partners",
+    "src": "Coca-Cola Anchor Bottler Directory 2026",
+    "val": 0.0,
+    "detail": "Anchor Coca-Cola bottler for southern South America",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVC:ECOPETROL",
+    "to": "BVC:TERPEL",
+    "rel": "supplies",
+    "src": "Terpel Procurement Disclosures 2026",
+    "val": 0.0,
+    "detail": "Supplies refined fuel products (gasoline, diesel) to Terpel distribution stations",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVC:ECOPETROL",
+    "to": "BVC:ISA",
+    "rel": "owns",
+    "src": "Ecopetrol Financial Statements 2026",
+    "val": 0.0,
+    "detail": "Holds controlling ~51.4% stake in ISA electricity transmission network",
+    "confidence": 0.99,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVC:GRUPOARGOS",
+    "to": "BVC:CEMARGOS",
+    "rel": "owns",
+    "src": "Grupo Argos Strategic Portfolio 2026",
+    "val": 0.0,
+    "detail": "Holds controlling stake in Cementos Argos",
+    "confidence": 0.99,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVC:GRUPOARGOS",
+    "to": "BVC:CELSIA",
+    "rel": "owns",
+    "src": "Grupo Argos Strategic Portfolio 2026",
+    "val": 0.0,
+    "detail": "Holds controlling stake in Celsia",
+    "confidence": 0.99,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVC:GRUPOAVAL",
+    "to": "BVC:BOGOTA",
+    "rel": "owns",
+    "src": "Grupo Aval Shareholder Disclosures 2026",
+    "val": 0.0,
+    "detail": "Holds controlling stake in Banco de Bogota",
+    "confidence": 0.99,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVC:GRUPOAVAL",
+    "to": "BVC:CORFICOL",
+    "rel": "owns",
+    "src": "Grupo Aval Shareholder Disclosures 2026",
+    "val": 0.0,
+    "detail": "Holds controlling stake in Corficolombiana",
+    "confidence": 0.99,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVL:IFS",
+    "to": "BVL:INTERBC1",
+    "rel": "owns",
+    "src": "Intercorp Strategic Ownership Disclosures 2026",
+    "val": 0.0,
+    "detail": "Holds controlling stake in Interbank",
+    "confidence": 0.99,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVL:BACKUSI1",
+    "to": "BVL:INRETC1",
+    "rel": "supplies",
+    "src": "Backus Commercial Distribution Reports 2026",
+    "val": 0.0,
+    "detail": "Supplies beer and soft drink lines to Plaza Vea supermarkets and Vivanda",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVL:UNACEMC1",
+    "to": "BVL:AENZAC1",
+    "rel": "supplies",
+    "src": "Aenza Material Procurement Audits 2026",
+    "val": 0.0,
+    "detail": "Supplies bulk cement and concrete mix for infrastructure projects",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVL:CORAREI1",
+    "to": "BVL:AENZAC1",
+    "rel": "supplies",
+    "src": "Aenza Material Procurement Audits 2026",
+    "val": 0.0,
+    "detail": "Supplies steel rebars and construction profiles",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVL:FERREYC1",
+    "to": "BVL:VOLCABC1",
+    "rel": "supplies",
+    "src": "Ferreyros Mining Division Disclosures 2026",
+    "val": 0.0,
+    "detail": "Supplies heavy mining haul trucks and loaders",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVL:FERREYC1",
+    "to": "BVL:BVN",
+    "rel": "supplies",
+    "src": "Ferreyros Mining Division Disclosures 2026",
+    "val": 0.0,
+    "detail": "Supplies and services heavy earthmoving mining machinery fleet",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVCV:DOM",
+    "to": "BVCV:RST",
+    "rel": "supplies",
+    "src": "Santa Teresa Bottling Audits 2026",
+    "val": 0.0,
+    "detail": "Supplies aluminum closures and packaging for rum bottling lines",
+    "confidence": 0.85,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVCV:EVN",
+    "to": "BVCV:RST",
+    "rel": "supplies",
+    "src": "Santa Teresa Bottling Audits 2026",
+    "val": 0.0,
+    "detail": "Supplies glass bottles for Santa Teresa rum lines",
+    "confidence": 0.85,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVQ:PRD",
+    "to": "BVQ:SND",
+    "rel": "supplies",
+    "src": "Pronaca Supply Chain Audits 2026",
+    "val": 0.0,
+    "detail": "Supplies processed poultry, pork, and agricultural food lines to Supermaxi stores",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVQ:CNL",
+    "to": "BVQ:SND",
+    "rel": "supplies",
+    "src": "Cerveceria Nacional Commercial Reports 2026",
+    "val": 0.0,
+    "detail": "Supplies domestic beer and soft drink lines to Supermaxi retail stores",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVM:SAL",
+    "to": "BVM:GDU",
+    "rel": "supplies",
+    "src": "Salus Commercial Distribution Disclosures 2026",
+    "val": 0.0,
+    "detail": "Supplies mineral water and beverage products to Devoto, Disco, and Geant supermarkets",
+    "confidence": 0.9,
+    "as_of": "2026-07-02"
+  },
+  {
+    "from": "BVM:CONAPROLE",
+    "to": "BVM:GDU",
+    "rel": "supplies",
+    "src": "Conaprole Commercial Distribution Disclosures 2026",
+    "val": 0.0,
+    "detail": "Supplies fresh milk, cheese, and dairy lines to Devoto, Disco, and Geant supermarkets",
+    "confidence": 0.95,
+    "as_of": "2026-07-02"
   }
 ]

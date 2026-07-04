@@ -21,6 +21,9 @@ TARGET_COUNTRIES = {
     "Cote d'Ivoire", "Ecuador", "Ghana", "Guyana", "Indonesia", "Kenya", "Mali", "Morocco",
     "New Zealand", "Niger", "Paraguay", "Peru", "Senegal", "South Africa", "Suriname", "Togo",
     "Uruguay", "Venezuela",
+    "Germany", "Sweden", "France", "Finland", "Denmark", "Liechtenstein", "Italy", "Cyprus",
+    "Luxembourg", "Iceland", "Ireland", "United Kingdom", "Netherlands", "Spain", "Portugal",
+    "Ukraine", "Georgia"
 }
 
 

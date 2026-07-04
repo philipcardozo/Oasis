@@ -9,9 +9,9 @@
 <script src="https://unpkg.com/maplibre-gl@5.6.2/dist/maplibre-gl.js"></script>
 <style>
   :root {
-    --bg: #0d1017; --bg-2: #0a0d13; --panel: #151a22; --panel-2: #1b212b; --border: #283041;
+    --bg: #090b10; --bg-2: #05070b; --panel: #11151c; --panel-2: #181e28; --border: #2a303a;
     --text: #e8edf4; --text-2: #9aa6b6; --text-3: #687385;
-    --accent: #5aa2ff; --shadow: 0 12px 40px rgba(0,0,0,.5);
+    --accent: #ff3045; --accent-2: #ff6b75; --accent-soft: rgba(255,48,69,.16); --shadow: 0 12px 40px rgba(0,0,0,.5);
     --supplies: #2ec9a4; --funds: #f0b341; --partners: #9b8cff;
   }
   [data-theme="light"] {
@@ -54,7 +54,94 @@
   .node-g { cursor: pointer; }
   .node-circ { transition: stroke-width .12s; }
   .panel-card { position: absolute; background: var(--panel); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); }
-  .filters { top: 16px; left: 16px; width: 220px; padding: 14px; max-height: calc(100% - 32px); overflow-y: auto; }
+  .rail { display: none; }
+  .rail button { width: 34px; height: 34px; border: 1px solid transparent; border-radius: 12px; background: transparent; color: var(--text-2); font-size: 11px; font-weight: 700; cursor: pointer; }
+  .rail button:hover, .rail button.active { color: #fff; border-color: var(--accent); background: var(--accent-soft); }
+  .top-tools { display: flex; align-items: center; gap: 8px; margin-left: 10px; }
+  .tool-btn { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; border: 1px solid var(--border); background: var(--panel); color: var(--text-2); cursor: pointer; box-shadow: var(--shadow); }
+  .tool-btn:hover, .tool-btn.active { color: #fff; border-color: var(--accent); background: var(--accent-soft); }
+  .tool-btn svg { width: 17px; height: 17px; }
+  .tool-panel { position: absolute; top: 16px; right: 16px; z-index: 12; width: 320px; max-height: calc(100% - 32px); overflow-y: auto; padding: 14px; display: none; }
+  .tool-panel.show { display: block; }
+  .tool-panel .section-h { margin-top: 0; }
+  .tool-panel .mini-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
+  .tool-panel .mini-grid button, .tool-panel .mini-grid label, .tool-panel .mini-grid .chip { margin: 0; }
+  .tool-panel .mini-grid .btnish { min-height: 34px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); cursor: pointer; font-size: 12px; padding: 0 10px; }
+  .tool-panel .mini-grid .btnish.active { border-color: var(--accent); background: var(--accent-soft); }
+  .tool-panel .stack { display: grid; gap: 8px; }
+  .tool-panel .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 34px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel-2); padding: 0 10px; font-size: 12px; }
+  .tool-panel .toggle-row input { accent-color: var(--accent); }
+  .layer-presets { display: grid; gap: 8px; }
+  .layer-preset { border: 1px solid var(--border); border-radius: 12px; background: rgba(24,30,40,.78); overflow: hidden; }
+  .layer-preset.open { border-color: rgba(255,255,255,.18); background: rgba(24,30,40,.92); }
+  .preset-head { width: 100%; min-height: 40px; display: grid; grid-template-columns: 18px 1fr auto 14px; align-items: center; gap: 9px; padding: 0 10px; border: 0; background: transparent; color: var(--text); cursor: pointer; text-align: left; }
+  .preset-head:hover { background: rgba(255,255,255,.035); }
+  .preset-title { min-width: 0; font-size: 12.5px; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .preset-meta { color: var(--text-3); font-size: 10.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .preset-chevron { color: var(--text-3); font-size: 14px; transform: rotate(-90deg); transition: transform .12s; }
+  .layer-preset.open .preset-chevron { transform: rotate(0); }
+  .preset-body { display: none; padding: 4px 8px 9px; border-top: 1px solid rgba(255,255,255,.06); }
+  .layer-preset.open .preset-body { display: grid; gap: 5px; }
+  .layer-row { display: grid; grid-template-columns: 14px 17px minmax(0,1fr) auto auto; align-items: center; gap: 8px; min-height: 28px; padding: 3px 6px; border-radius: 8px; color: var(--text-2); font-size: 11.8px; cursor: pointer; }
+  .layer-row:hover { background: rgba(255,255,255,.04); color: var(--text); }
+  .layer-row input { width: 13px; height: 13px; margin: 0; accent-color: var(--accent); }
+  .layer-row input:disabled { cursor: not-allowed; }
+  .layer-row.disabled { opacity: .58; cursor: not-allowed; }
+  .layer-icon { width: 17px; height: 17px; display: inline-flex; align-items: center; justify-content: center; color: var(--layer-color, var(--text-2)); }
+  .layer-icon svg { width: 15px; height: 15px; stroke: currentColor; }
+  .layer-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .layer-count { color: var(--text-3); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+  .layer-state { padding: 2px 6px; border-radius: 999px; border: 1px solid rgba(255,255,255,.1); color: var(--text-3); background: rgba(255,255,255,.035); font-size: 9.5px; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
+  .layer-row:has(.layer-state) .layer-state { max-width: 70px; overflow: hidden; text-overflow: ellipsis; }
+  .terrain-controls { display: grid; gap: 7px; padding: 8px 6px 4px; }
+  .terrain-control-row { display: grid; grid-template-columns: 1fr 92px; gap: 9px; align-items: center; color: var(--text-2); font-size: 11.5px; }
+  .terrain-control-row input { width: 92px; accent-color: var(--accent); }
+  .relief-legend { display: grid; gap: 5px; color: var(--text-3); font-size: 10.5px; }
+  .legend-ramp { height: 7px; border-radius: 999px; background: linear-gradient(90deg,#1d4ed8,#22c55e,#facc15,#ef4444); border: 1px solid rgba(255,255,255,.12); }
+  .marketplace-controls { display: grid; gap: 8px; padding: 8px 6px 10px; border-bottom: 1px solid rgba(255,255,255,.06); margin-bottom: 4px; }
+  .marketplace-controls select, .marketplace-controls input { width: 100%; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); padding: 0 8px; font-size: 11.5px; }
+  .marketplace-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .marketplace-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .marketplace-actions button { min-height: 30px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); font-size: 11.5px; cursor: pointer; }
+  .marketplace-actions button.active { border-color: var(--accent); background: var(--accent-soft); }
+  .marketplace-results { max-height: 220px; overflow: auto; display: grid; gap: 6px; }
+  .market-card-row, .market-table-row { border: 1px solid var(--border); border-radius: 8px; background: rgba(255,255,255,.025); padding: 8px; cursor: pointer; }
+  .market-card-row:hover, .market-table-row:hover { border-color: var(--accent); }
+  .market-card-row b { display: block; font-size: 11.8px; line-height: 1.3; }
+  .market-card-row span, .market-table-row span { color: var(--text-3); font-size: 10.5px; line-height: 1.35; }
+  .market-table-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; font-size: 11px; }
+  .evidence-list, .override-list, .quality-grid { display: grid; gap: 7px; }
+  .evidence-row, .override-row, .quality-row { border: 1px solid var(--border); border-radius: 9px; background: var(--panel-2); padding: 9px 10px; font-size: 11.5px; line-height: 1.4; }
+  .evidence-row b, .override-row b { display: block; font-size: 12px; color: var(--text); margin-bottom: 2px; overflow-wrap: anywhere; }
+  .evidence-row span, .override-row span, .quality-row span { color: var(--text-3); }
+  .evidence-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .evidence-tag { padding: 2px 6px; border-radius: 999px; border: 1px solid rgba(255,255,255,.12); color: var(--text-2); background: rgba(255,255,255,.035); font-size: 9.5px; text-transform: uppercase; letter-spacing: .04em; }
+  .evidence-tag.warn { color: #fbbf24; border-color: rgba(251,191,36,.28); background: rgba(251,191,36,.1); }
+  .evidence-tag.bad { color: #fca5a5; border-color: rgba(248,113,113,.28); background: rgba(248,113,113,.1); }
+  .evidence-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin: 8px 0 10px; }
+  .evidence-actions button, .override-row button { min-height: 30px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); font-size: 11.5px; cursor: pointer; }
+  .evidence-actions button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .quality-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; }
+  .quality-row b { font-size: 13px; font-variant-numeric: tabular-nums; }
+  .data-panel-divider { height: 1px; background: var(--border); margin: 12px 0; opacity: .9; }
+  .theme-cta { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 38px; border-radius: 12px; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)), var(--panel-2); color: var(--text); cursor: pointer; font-size: 12px; font-weight: 600; letter-spacing: .01em; }
+  .theme-cta:hover { border-color: var(--accent); background: var(--accent-soft); color: #fff; }
+  .theme-cta svg { width: 15px; height: 15px; }
+  .workspace-panel { top: 184px; right: 16px; left: auto; z-index: 11; width: 320px; max-height: calc(100% - 200px); padding: 16px; overflow-y: auto; display: none; }
+  .workspace-panel.show { display: block; }
+  .workspace-panel h3 { margin: 0 0 5px; font-size: 16px; }
+  .workspace-panel p { margin: 0 0 12px; color: var(--text-3); font-size: 12.5px; line-height: 1.45; }
+  .control-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; margin: 9px 0; font-size: 12.5px; }
+  .control-row input[type="range"] { width: 120px; accent-color: var(--accent); }
+  .control-row select, .control-row input[type="text"] { min-width: 138px; height: 32px; border-radius: 9px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); padding: 0 9px; }
+  .workspace-panel button { width: 100%; min-height: 34px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); cursor: pointer; margin-top: 8px; }
+  .workspace-panel button.primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .lens-pill { display: flex; justify-content: space-between; gap: 10px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel-2); cursor: pointer; margin-top: 7px; font-size: 12.5px; }
+  .lens-pill.active { border-color: var(--accent); background: var(--accent-soft); }
+  .manual-list { display: grid; gap: 6px; margin-top: 10px; }
+  .manual-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 8px 9px; border-radius: 9px; background: var(--panel-2); border: 1px solid var(--border); font-size: 12px; cursor: pointer; }
+  .manual-row span:last-child { color: var(--text-3); }
+  .filters { display: none; }
   .filters h4 { margin: 0 0 8px; font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--text-3); font-weight: 600; }
   .filters h4:not(:first-child) { margin-top: 15px; }
   .chip { display: flex; align-items: center; gap: 9px; padding: 4px 6px; border-radius: 7px; cursor: pointer; font-size: 12.5px; user-select: none; }
@@ -101,6 +188,7 @@
   .badge + .badge { margin-left: 6px; }
   .badge.outline { background: transparent; border: 1px solid var(--border); color: var(--text-2); }
   .badge.signal { background: rgba(46,201,164,.12); color: var(--supplies); border: 1px solid rgba(46,201,164,.28); }
+  .badge.lens { background: var(--accent-soft); color: var(--accent-2); border: 1px solid var(--accent); }
   .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; font-size: 13px; }
   .meta div { min-width: 0; background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
   .meta div.span2 { grid-column: span 2; }
@@ -134,7 +222,7 @@
   .rels .meta-row { font-size: 11.5px; color: var(--text-3); padding: 0 8px 4px 24px; line-height: 1.45; }
   .rels .src { font-size: 10.5px; color: var(--text-3); padding: 0 8px 8px 24px; font-style: italic; opacity: .85; }
   .rels .src a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--border); }
-  .research, .news, .candidates { padding: 2px 0 18px; }
+  .research, .news, .candidates, .lens-context, .manual-detail { padding: 2px 0 18px; }
   .section-h { margin: 12px 0 8px; font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--text-3); font-weight: 600; }
   .link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .link-grid a { min-height: 34px; display: flex; align-items: center; justify-content: center; padding: 7px 9px; border-radius: 9px; border: 1px solid var(--border); color: var(--text); background: var(--panel-2); text-decoration: none; font-size: 12.5px; text-align: center; }
@@ -151,6 +239,18 @@
   .market-price { font-size: 22px; font-weight: 650; font-variant-numeric: tabular-nums; }
   .market-move { font-size: 13px; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .market-sub { margin-top: 5px; color: var(--text-3); font-size: 11.5px; }
+  .farm-detail { padding: 2px 0 18px; }
+  .farm-history { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .farm-history span { border: 1px solid var(--border); background: var(--panel-2); border-radius: 999px; padding: 4px 8px; font-size: 11px; color: var(--text-2); }
+  .valuation-tools { display: flex; gap: 6px; margin: 6px 0 10px; }
+  .valuation-tools button { min-height: 30px; flex: 1; border-radius: 8px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); cursor: pointer; font-size: 11.5px; }
+  .valuation-tools button.active { border-color: var(--accent); background: var(--accent-soft); }
+  .assumption-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; margin-top: 8px; }
+  .assumption-grid label { display: grid; gap: 3px; font-size: 10.5px; color: var(--text-3); }
+  .assumption-grid input { width: 100%; min-width: 0; height: 28px; border-radius: 7px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); padding: 0 7px; font-size: 11px; }
+  .score-breakdown { display: grid; gap: 5px; margin-top: 8px; }
+  .score-row { display: flex; justify-content: space-between; gap: 10px; color: var(--text-2); font-size: 11.5px; border-bottom: 1px solid rgba(255,255,255,.05); padding-bottom: 4px; }
+  .score-row b { color: var(--text); font-weight: 600; }
   .up { color: var(--supplies); }
   .down { color: #ff7f6e; }
   .spark { display: block; width: 100%; height: 36px; margin-top: 10px; overflow: visible; }
@@ -173,6 +273,9 @@
   .hint { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); font-size: 12px; color: var(--text-3); background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 7px 16px; box-shadow: var(--shadow); }
   #loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text-3); font-size: 14px; }
   @media (max-width: 760px) {
+    .workspace-panel, .filters { left: 12px; right: 12px; width: auto; top: 68px; }
+    .tool-panel { right: 12px; left: 12px; width: auto; }
+    .zoom { left: 12px; }
     .detail { top: 64px; right: 12px; left: 12px; width: auto; max-height: calc(100% - 86px); }
     .modeler { top: 64px; right: 12px; left: 12px; width: auto; max-height: calc(100% - 86px); z-index: 7; }
     .meta { grid-template-columns: 1fr 1fr; }
@@ -194,13 +297,58 @@
   </div>
   <label class="date-control" title="Relationship as-of year"><span>As of</span><input id="asOf" type="number" min="1800" max="2026" step="1"></label>
   <div class="grow"></div>
-  <button class="btn" id="globeBtn">Globe</button>
-  <button class="btn" id="modeBtn">Show all entities</button>
-  <button class="btn" id="resetBtn">Reset</button>
-  <button class="btn" id="themeBtn">Light mode</button>
+  <div class="top-tools">
+    <button class="tool-btn" id="gearBtn" type="button" aria-label="Workspace settings" title="Workspace settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="M19.4 13a7.7 7.7 0 0 0 .1-2l2-1.3-1.8-3.1-2.3.7a7.7 7.7 0 0 0-1.7-1L15.2 3h-3.6L11 6.3a7.7 7.7 0 0 0-1.7 1l-2.3-.7-1.8 3.1 2 1.3a7.7 7.7 0 0 0 0 2l-2 1.3 1.8 3.1 2.3-.7a7.7 7.7 0 0 0 1.7 1l.4 3.3h3.6l.4-3.3a7.7 7.7 0 0 0 1.7-1l2.3.7 1.8-3.1-2-1.3Z"/></svg>
+    </button>
+    <button class="tool-btn" id="dataBtn" type="button" aria-label="Data and graph settings" title="Data and graph settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16v12H4z"/><path d="M8 10h8M8 14h5"/></svg>
+    </button>
+</div>
 </header>
 
 <main>
+  <nav class="rail" id="rail" aria-label="Workspace">
+    <button type="button" data-rail="map" title="Map">MAP</button>
+    <button type="button" data-rail="network" title="Network">NET</button>
+    <button type="button" data-rail="engine" title="Engine">ENG</button>
+    <button type="button" data-rail="maker" title="Maker">MKR</button>
+    <button type="button" data-rail="lenses" title="Lenses">LNS</button>
+    <button type="button" data-rail="model" title="Model">MDL</button>
+  </nav>
+  <div class="panel-card workspace-panel" id="workspacePanel"></div>
+  <div class="panel-card tool-panel" id="gearPanel">
+    <div class="section-h">Workspace</div>
+    <div class="mini-grid">
+      <button type="button" class="btnish" data-rail="map">MAP</button>
+      <button type="button" class="btnish" data-rail="network">NET</button>
+      <button type="button" class="btnish" data-rail="engine">ENG</button>
+      <button type="button" class="btnish" data-rail="maker">MKR</button>
+      <button type="button" class="btnish" data-rail="lenses">LNS</button>
+      <button type="button" class="btnish" data-rail="model">MDL</button>
+    </div>
+    <div class="section-h">Theme</div>
+    <button type="button" class="theme-cta" id="toolThemeBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 7.2 7.2 0 0 0 21 12.8Z"/></svg>
+      <span>Light mode</span>
+    </button>
+  </div>
+  <div class="panel-card tool-panel" id="dataPanel">
+    <div class="section-h">Data Layers</div>
+    <div id="dataLayerPresets" class="layer-presets"></div>
+    <div class="data-panel-divider"></div>
+    <div class="section-h">Entity type</div>
+    <div id="toolKindFilters" class="stack"></div>
+    <div class="section-h">Sectors</div><div id="sectorFilters"></div>
+    <div class="section-h">Groups</div><div id="groupFilters"></div>
+    <div class="section-h">Connection type</div><div id="relFilters"></div>
+    <div class="section-h">Graph view</div>
+    <div class="mini-grid">
+      <button type="button" class="btnish" id="toolGlobeBtn">Globe</button>
+      <button type="button" class="btnish" id="toolModeBtn">All entities</button>
+    </div>
+  </div>
+  <input id="manualImport" type="file" accept="application/json" hidden>
   <div id="map"></div>
   <svg id="svg">
     <defs>
@@ -217,8 +365,7 @@
   <canvas id="canvas"></canvas>
   <div id="loading">Loading relationship graph…</div>
   <div class="hint" id="hint">Click a company to trace its contracts · hover an edge for deal value · scroll to zoom</div>
-  <div class="panel-card filters"><h4>Entity type</h4><div id="kindFilters"></div><h4>Sectors</h4><div id="sectorFilters"></div><h4>Groups</h4><div id="groupFilters"></div><h4>Connection type</h4><div id="relFilters"></div></div>
-  <div class="zoom"><button id="zoomIn">+</button><button id="zoomOut">&minus;</button><button id="zoomFit" style="font-size:13px;">Fit</button></div>
+  <div class="zoom"><button id="zoomIn" type="button">+</button><button id="zoomOut" type="button">&minus;</button><button id="zoomFit" type="button" style="font-size:13px;">Fit</button></div>
   <div class="panel-card stats"><div><b id="stNodes">0</b><span>entities</span></div><div><b id="stEdges">0</b><span>links</span></div><div><b id="stSel">—</b><span>focused</span></div><div class="fresh" id="fresh">universe — · contracts — · prices — · news —</div></div>
   <div class="panel-card modeler" id="modeler"></div>
   <div class="panel-card detail" id="detail"></div>
@@ -238,7 +385,9 @@ let hoverFrame=0,pendingHover=null;
 const globe={unknownCount:0};
 let globeSelectionLabel="";
 let map=null,mapReady=false,mapClusterIds=[],mapLayerEventsBound=false,mapSelectedId=null,mapSelectedSource=null;
+let hoveredFarmId="";
 const mapData={companies:null,securities:null,relationships:null,graphIndex:null,unknown:null};
+let activeRailPanel="",manualSelectedId=null;
 let maxEdgeVal=1,maxNodeVal=1;
 const params=new URLSearchParams(location.search);
 let selfViewId=params.get("self")||"",selfViewNodes=new Set();
@@ -252,6 +401,21 @@ const asOfInput=document.getElementById("asOf");
 const CURRENT_YEAR=new Date().getFullYear();
 asOfInput.max=String(CURRENT_YEAR);
 const HOVER_LINK_CAP=4;
+const VIEW_STATE_KEY="oasis.relationshipGraph.view.v2";
+const PRODUCT_PREF_KEY="oasis.relationshipGraph.productPrefs.v1";
+const MANUAL_LAYER_KEY="oasis.relationshipGraph.manualLayer.v1";
+let restoredView=loadViewState(),restoringView=true,saveViewTimer=0;
+if(restoredView.theme==="light"||restoredView.theme==="dark") document.documentElement.setAttribute("data-theme",restoredView.theme);
+const PRODUCT_DEFAULTS={
+  engine:{accent:"#ff3045",labels:"major",terrain:true,terrainExaggeration:1.12,nodeScale:1,edgeOpacity:1,motion:true},
+  maker:{sections:{counterparties:true,relationships:true,lens:true,candidates:true,market:true,filings:true,research:true,news:true}},
+  lens:"company",
+  assetGraph:{relationship_type:"",asset_type:"",confidence_min:"0"},
+  marketplace:{asset_type:"",location:"",min_price:"",max_price:"",min_acres:"",max_acres:"",min_square_feet:"",max_square_feet:"",zoning:"",listing_status:"active",owner_type:"",risk_max:"",soil_quality_min:"",infrastructure_distance_max:"",view:"cards",sort:"price"},
+  dataLayers:{}
+};
+let productPrefs=mergePrefs(loadStored(PRODUCT_PREF_KEY,{}));
+let manualLayer=normalizeManualLayer(loadStored(MANUAL_LAYER_KEY,null));
 
 const fmtBn=v=> v>=1000?`$${(v/1000).toFixed(1)}T`:(v>=10?`$${Math.round(v)}B`:`$${v.toFixed(1)}B`);
 const fmtPrice=v=> Number.isFinite(Number(v))?`$${Number(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`:"—";
@@ -269,6 +433,133 @@ const kindMeta={
   government:{name:"Government",color:"#58c7f3"},
   legacy:{name:"Historical",color:"#c6a15b"},
 };
+const EMPTY_GEOJSON={type:"FeatureCollection",features:[]};
+const DUE_DILIGENCE_SOURCES=[
+  "relief_features",
+  "industrial_assets",
+  "farm_parcels",
+  "government_facilities",
+  "public_cameras",
+  "weather_overlays",
+  "infrastructure_lines",
+  "marketplace_listings"
+];
+const DUE_DILIGENCE_ENDPOINTS={
+  relief_features:"/api/map/features.geojson?layer=reliefs",
+  industrial_assets:"/api/map/features.geojson?layer=industrial_assets",
+  farm_parcels:"/api/map/features.geojson?layer=farm_parcels",
+  government_facilities:"/api/map/features.geojson?layer=government_facilities",
+  public_cameras:"/api/cameras/public.geojson",
+  weather_overlays:"/api/map/features.geojson?layer=weather",
+  infrastructure_lines:"/api/map/features.geojson?layer=infrastructure",
+  marketplace_listings:"/api/listings/search?format=geojson"
+};
+const dataSourceStatus=Object.fromEntries(DUE_DILIGENCE_SOURCES.map(id=>[id,{state:"not loaded",count:0,error:""}]));
+const dataLayerCounts={};
+let dueDiligenceLoadTimer=0;
+let marketplaceListings=[];
+let selectedEntityAssetFeatures=[];
+const DATA_ICON_SVG={
+  factory:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 20V9l5 3V9l5 3V7h4v13"/><path d="M8 16h1M12 16h1M16 16h1"/></svg>`,
+  server:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="6" rx="1.5"/><rect x="5" y="14" width="14" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01M12 7h4M12 17h4"/></svg>`,
+  hydro:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16c2 0 2-1.5 4-1.5S10 16 12 16s2-1.5 4-1.5S18 16 20 16"/><path d="M5 20c2 0 2-1.5 4-1.5S11 20 13 20s2-1.5 4-1.5S19 20 21 20"/><circle cx="12" cy="8" r="4"/><path d="M12 4v8M8.5 10l7-4"/></svg>`,
+  energy:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 5 14h7l-1 8 8-13h-7l1-7Z"/></svg>`,
+  farm:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20c3-5 7-7 16-7"/><path d="M4 16c4-2 8-3 16-3"/><path d="M8 13c0-5 3-8 8-9 1 5-2 9-8 9Z"/><path d="M8 13c2-2 4-4 8-9"/></svg>`,
+  government:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 9h14M6 18V9M10 18V9M14 18V9M18 18V9"/><path d="M12 3 4 7h16l-8-4Z"/></svg>`,
+  terrain:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 20 6-12 4 7 3-5 5 10H3Z"/><path d="m9 8 1.7 3h3.1"/></svg>`,
+  camera:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h4l2-3h4l2 3h4v11H4V8Z"/><circle cx="12" cy="13" r="3.2"/></svg>`,
+  weather:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18h10a4 4 0 0 0 .4-8 6 6 0 0 0-11.2 1.6A3.4 3.4 0 0 0 7 18Z"/></svg>`,
+  transmission:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 21M12 3l7 18M8 12h8M6.5 17h11M7 7h10"/></svg>`,
+  river:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5c5 0 5 4 10 4 3 0 4-1.3 6-2"/><path d="M4 12c5 0 5 4 10 4 3 0 4-1.3 6-2"/><path d="M4 19c4 0 5-2 8-2"/></svg>`,
+  barn:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V9l8-5 8 5v12"/><path d="M8 21v-7h8v7M8 10h8M12 4v6"/></svg>`,
+  soil:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8c4-2 12-2 16 0M4 13c4-2 12-2 16 0M4 18c4-2 12-2 16 0"/></svg>`,
+  tag:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12V5h7l9 9-7 7-9-9Z"/><circle cx="8" cy="8" r="1"/></svg>`,
+  home:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v11h14V10"/><path d="M10 21v-6h4v6"/></svg>`,
+  storefront:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h16l-1-5H5l-1 5Z"/><path d="M5 10v10h14V10M8 20v-6h8v6"/><path d="M4 10c1 2 3 2 4 0 1 2 3 2 4 0 1 2 3 2 4 0 1 2 3 2 4 0"/></svg>`,
+  warehouse:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-4 9 4v13"/><path d="M7 21v-8h10v8M7 13h10M9 17h6"/></svg>`,
+  flag:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22V4"/><path d="M5 4h12l-2 4 2 4H5"/><path d="M9 22h6"/></svg>`,
+  permit:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l3 3v15H7V3Z"/><path d="M14 3v4h4M9 12h6M9 16h5"/></svg>`,
+  value:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 6.5c-.8-1-2.2-1.5-4-1.5-2.2 0-4 1.1-4 3 0 4.5 9 2.3 9 7 0 1.9-1.8 3-4.3 3-2 0-3.7-.7-4.7-2"/></svg>`,
+  link:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1"/><path d="M14 11a5 5 0 0 0-7.1 0l-2 2A5 5 0 0 0 12 20.1l1.1-1.1"/></svg>`,
+  risk:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 20h18L12 3Z"/><path d="M12 9v5M12 17h.01"/></svg>`
+};
+function dl(id,label,icon,source,layerType="symbol",color="#94a3b8",opts={}){
+  return {id,label,icon,source,layerType,color,count:0,loaded:false,...opts};
+}
+const MARKETPLACE_ASSET_TYPES=[
+  ["","All asset types"],["farm","Farms"],["agricultural_land","Agricultural land"],["house","Houses"],["commercial_property","Commercial"],["industrial_parcel","Industrial parcels"],["franchise_location","Franchise"],["data_center_site","Data center sites"],["warehouse","Warehouses"],["mixed_use_property","Mixed-use"]
+];
+const DATA_LAYER_PRESETS=[
+  {id:"reliefs",label:"Reliefs",icon:"terrain",color:"#a3e635",layers:[
+    dl("relief-terrain","Terrain / relief","terrain","relief_features","fill","#a3e635",{mapLayerIds:["dd-relief-terrain"],defaultOn:false}),
+    dl("relief-hillshade","Hillshade","terrain","relief_features","external","#d8dee9",{mapLayerIds:["terrain-hillshade"],defaultOn:true}),
+    dl("relief-mountains","Mountains / slope","terrain","relief_features","symbol","#e2e8f0"),
+    dl("relief-plateaus","Plateaus","terrain","relief_features","fill","#b6c2a1"),
+    dl("relief-water","Rivers / water bodies","river","relief_features","line","#38bdf8"),
+    dl("relief-vegetation","Vegetation","farm","relief_features","fill","#22c55e"),
+    dl("relief-weather","Weather","weather","weather_overlays","symbol","#7dd3fc"),
+    dl("relief-infrastructure","Infrastructure","transmission","infrastructure_lines","line","#cbd5e1"),
+    dl("relief-crime","Crime aggregates","risk","relief_features","fill","#fb7185"),
+    dl("relief-cameras","Public cameras where legally available","camera","public_cameras","symbol","#fbbf24")
+  ]},
+  {id:"industrial",label:"Industrial Complex",icon:"factory",color:"#f97316",layers:[
+    dl("industrial-data-centers","Data centers","server","industrial_assets","symbol","#60a5fa"),
+    dl("industrial-factories","Factories","factory","industrial_assets","symbol","#fb923c"),
+    dl("industrial-complexes","Industrial complexes","factory","industrial_assets","fill","#fb923c"),
+    dl("industrial-energy","Energy facilities","energy","industrial_assets","symbol","#facc15"),
+    dl("industrial-hydro","Hydro facilities","hydro","industrial_assets","symbol","#38bdf8"),
+    dl("industrial-power-plants","Power plants","energy","industrial_assets","symbol","#fde047"),
+    dl("industrial-transmission","Transmission lines","transmission","infrastructure_lines","line","#facc15"),
+    dl("industrial-substations","Substations where public","transmission","infrastructure_lines","symbol","#facc15"),
+    dl("industrial-logistics","Roads / rail / ports","transmission","infrastructure_lines","line","#94a3b8"),
+    dl("industrial-permits","Permits","permit","industrial_assets","symbol","#cbd5e1"),
+    dl("industrial-project-cost","Estimated project cost","value","industrial_assets","symbol","#34d399"),
+    dl("industrial-growth","Annual growth","value","industrial_assets","symbol","#22c55e"),
+    dl("industrial-demand","Demand indicators","risk","industrial_assets","symbol","#f472b6"),
+    dl("industrial-owner","Owner company","factory","industrial_assets","symbol","#f8fafc"),
+    dl("industrial-links","Supplier / customer links","link","industrial_assets","line","#2ec9a4")
+  ]},
+  {id:"farms",label:"Farms",icon:"farm",color:"#22c55e",layers:[
+    dl("farm-boundaries","Farm boundaries","farm","farm_parcels","line","#84cc16"),
+    dl("farm-complexes","Agricultural complexes","barn","farm_parcels","symbol","#22c55e"),
+    dl("farm-crop-history","Crop history","farm","farm_parcels","fill","#a3e635"),
+    dl("farm-soil-quality","Soil quality","soil","farm_parcels","fill","#b45309"),
+    dl("farm-vegetation","Vegetation","farm","farm_parcels","fill","#16a34a"),
+    dl("farm-water-access","Water access","river","farm_parcels","line","#38bdf8"),
+    dl("farm-acres","Acres","farm","farm_parcels","symbol","#bef264"),
+    dl("farm-for-sale","Farms for sale","tag","farm_parcels","symbol","#fbbf24"),
+    dl("farm-yield","Estimated yield","farm","farm_parcels","symbol","#4ade80"),
+    dl("farm-purchase-price","Historical purchase price","value","farm_parcels","symbol","#fde68a"),
+    dl("farm-current-value","Current estimated value","value","farm_parcels","symbol","#34d399"),
+    dl("farm-risk","Risk score","risk","farm_parcels","symbol","#fb7185")
+  ]},
+  {id:"government",label:"Government",icon:"government",color:"#38bdf8",layers:[
+    dl("government-facilities","Government facilities","government","government_facilities","symbol","#38bdf8"),
+    dl("government-agencies","Public agencies","government","government_facilities","symbol","#7dd3fc"),
+    dl("government-restricted","Military / restricted zones only when publicly mapped","risk","government_facilities","fill","#fb7185"),
+    dl("government-courthouses","Courthouses","government","government_facilities","symbol","#bfdbfe"),
+    dl("government-city-halls","City halls","government","government_facilities","symbol","#93c5fd"),
+    dl("government-infrastructure","Public infrastructure","transmission","infrastructure_lines","line","#cbd5e1"),
+    dl("government-permits","Public permits","permit","government_facilities","symbol","#f8fafc"),
+    dl("government-regulatory-zones","Regulatory zones","government","government_facilities","fill","#818cf8")
+  ]},
+  {id:"marketplace",label:"Marketplace",icon:"tag",color:"#f59e0b",layers:[
+    dl("marketplace-farms","Farms","farm","marketplace_listings","symbol","#84cc16"),
+    dl("marketplace-ag-land","Agricultural land","farm","marketplace_listings","fill","#a3e635"),
+    dl("marketplace-houses","Houses","home","marketplace_listings","symbol","#60a5fa"),
+    dl("marketplace-commercial","Commercial properties","storefront","marketplace_listings","symbol","#f97316"),
+    dl("marketplace-industrial-parcels","Industrial parcels","warehouse","marketplace_listings","fill","#fb923c"),
+    dl("marketplace-franchises","Franchise locations","flag","marketplace_listings","symbol","#f472b6"),
+    dl("marketplace-data-center-sites","Data center sites","server","marketplace_listings","fill","#38bdf8"),
+    dl("marketplace-warehouses","Warehouses","warehouse","marketplace_listings","symbol","#fbbf24"),
+    dl("marketplace-mixed-use","Mixed-use properties","storefront","marketplace_listings","symbol","#c084fc")
+  ]}
+];
+const DATA_LAYER_BY_ID=Object.fromEntries(DATA_LAYER_PRESETS.flatMap(p=>p.layers.map(layer=>[layer.id,layer])));
+const DATA_LAYER_OPEN=Object.fromEntries(DATA_LAYER_PRESETS.map((p,i)=>[p.id,i===0]));
+Object.values(DATA_LAYER_BY_ID).forEach(layer=>{
+  if(productPrefs.dataLayers[layer.id]===undefined) productPrefs.dataLayers[layer.id]=!!layer.defaultOn;
+});
 const HQ_CITY_COORDS={};
 const COUNTRY_COORDS={
   "Benin":[9.3077,2.3158],"Burkina Faso":[12.2383,-1.5616],"Cote d'Ivoire":[7.54,-5.5471],
@@ -280,6 +571,412 @@ const COUNTRY_COORDS={
 const COUNTRY_CODES={AE:"United Arab Emirates",CA:"Canada",CH:"Switzerland",CN:"China",DC:"United States",ES:"Spain",IL:"Israel",PT:"Portugal",SA:"Saudi Arabia",UK:"United Kingdom",US:"United States"};
 const BAD_HQ_VALUES=new Set(["nasdaq","nyse","otc","cboe","—","-","none","null","n/a","na",""]);
 const EXCHANGE_HQ_VALUES=new Set(["NYSE","Nasdaq","OTC","CBOE","B3","BVC","BVL","BCBA"]);
+
+function loadViewState(){
+  try{ return JSON.parse(localStorage.getItem(VIEW_STATE_KEY)||"{}")||{}; }
+  catch(_err){ return {}; }
+}
+function cloneJson(v){ return JSON.parse(JSON.stringify(v)); }
+function loadStored(key,fallback){
+  try{ return JSON.parse(localStorage.getItem(key)||"null") ?? fallback; }
+  catch(_err){ return fallback; }
+}
+function mergePrefs(saved={}){
+  const out=cloneJson(PRODUCT_DEFAULTS);
+  Object.assign(out.engine,saved.engine||{});
+  Object.assign(out.maker.sections,saved.maker?.sections||{});
+  if(saved.lens) out.lens=saved.lens;
+  Object.assign(out.assetGraph,saved.assetGraph||{});
+  Object.assign(out.marketplace,saved.marketplace||{});
+  Object.assign(out.dataLayers,saved.dataLayers||{});
+  return out;
+}
+function saveProductPrefs(){
+  localStorage.setItem(PRODUCT_PREF_KEY,JSON.stringify(productPrefs));
+}
+function emptyManualLayer(){
+  const now=new Date().toISOString();
+  return {version:1,name:"Local scenario",created_at:now,updated_at:now,nodes:[],edges:[],scenarios:[]};
+}
+function normalizeManualLayer(raw){
+  const base=emptyManualLayer(),src=raw&&typeof raw==="object"?raw:{};
+  return {
+    ...base,...src,
+    nodes:Array.isArray(src.nodes)?src.nodes.map(n=>({...n,lat:Number(n.lat),lng:Number(n.lng)})):[],
+    edges:Array.isArray(src.edges)?src.edges:[],
+    scenarios:Array.isArray(src.scenarios)?src.scenarios:[]
+  };
+}
+function saveManualLayer(){
+  manualLayer.updated_at=new Date().toISOString();
+  localStorage.setItem(MANUAL_LAYER_KEY,JSON.stringify(manualLayer));
+}
+function downloadText(name,text,type="text/plain"){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([text],{type}));
+  a.download=name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),30000);
+}
+function savedMode(){
+  return ["network","index","globe"].includes(restoredView.mode)?restoredView.mode:"network";
+}
+function mapCamera(){
+  if(!map) return restoredView.map||null;
+  const c=map.getCenter();
+  return {center:[Number(c.lng.toFixed(6)),Number(c.lat.toFixed(6))],zoom:Number(map.getZoom().toFixed(4)),bearing:Number(map.getBearing().toFixed(2)),pitch:Number(map.getPitch().toFixed(2))};
+}
+function filterSnapshot(obj){
+  return Object.fromEntries(Object.entries(obj).filter(([_k,v])=>!v));
+}
+function applySavedFilter(obj,saved){
+  if(!saved) return;
+  Object.keys(obj).forEach(k=>{ if(Object.prototype.hasOwnProperty.call(saved,k)) obj[k]=!!saved[k]; });
+}
+function applySavedFilters(){
+  applySavedFilter(kindOn,restoredView.filters?.kind);
+  applySavedFilter(sectorOn,restoredView.filters?.sector);
+  applySavedFilter(groupOn,restoredView.filters?.group);
+  applySavedFilter(relOn,restoredView.filters?.rel);
+}
+function modelerStateId(){
+  const el=document.getElementById("modeler");
+  return el?.classList.contains("show")?el.dataset.id||"":"";
+}
+function captureViewState(){
+  return {
+    mode,selected,manualSelectedId,modelerId:modelerStateId(),asOf:activeYear(),
+    theme:document.documentElement.getAttribute("data-theme")||"dark",
+    svg:{k:Number(k.toFixed(5)),tx:Number(tx.toFixed(2)),ty:Number(ty.toFixed(2))},
+    map:mapCamera(),
+    filters:{kind:filterSnapshot(kindOn),sector:filterSnapshot(sectorOn),group:filterSnapshot(groupOn),rel:filterSnapshot(relOn)}
+  };
+}
+function saveViewNow(){
+  if(restoringView) return;
+  try{ localStorage.setItem(VIEW_STATE_KEY,JSON.stringify(captureViewState())); }
+  catch(err){ console.warn("view state save skipped",err); }
+}
+function queueSaveView(){
+  if(restoringView) return;
+  clearTimeout(saveViewTimer);
+  saveViewTimer=setTimeout(saveViewNow,120);
+}
+function restoreSvgView(){
+  const v=restoredView.svg||{};
+  if([v.k,v.tx,v.ty].every(Number.isFinite)){
+    k=Math.max(.08,Math.min(7,v.k)); tx=v.tx; ty=v.ty; applyView();
+  }
+}
+function syncThemeButton(){
+  const light=document.documentElement.getAttribute("data-theme")==="light";
+  const tool=document.getElementById("toolThemeBtn");
+  if(tool){
+    tool.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 7.2 7.2 0 0 0 21 12.8Z"/></svg><span>${light?"Dark mode":"Light mode"}</span>`;
+  }
+}
+function syncModeButton(){
+  const tool=document.getElementById("toolModeBtn");
+  const globe=document.getElementById("toolGlobeBtn");
+  if(tool){
+    tool.textContent=mode==="index"?"Network only":"All entities";
+    tool.classList.toggle("active",mode==="index");
+  }
+  if(globe) globe.classList.toggle("active",mode==="globe");
+}
+function accentSoft(hex){
+  const h=String(hex||"#ff3045").replace("#","");
+  const n=parseInt(h.length===3?h.split("").map(x=>x+x).join(""):h,16);
+  if(!Number.isFinite(n)) return "rgba(255,48,69,.16)";
+  return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},.16)`;
+}
+function setLayerVisibility(id,visible){
+  if(map?.getLayer(id)) map.setLayoutProperty(id,"visibility",visible?"visible":"none");
+}
+function dataLayerMapIds(layer){
+  const ids=layer.mapLayerIds||[`dd-${layer.id}`];
+  return layer.source==="marketplace_listings"&&layer.layerType==="fill"?[...ids,`dd-${layer.id}-icon`]:ids;
+}
+function applyDueDiligenceLayerVisibility(){
+  Object.values(DATA_LAYER_BY_ID).forEach(layer=>{
+    dataLayerMapIds(layer).forEach(id=>setLayerVisibility(id,!!productPrefs.dataLayers[layer.id]));
+  });
+  const marketplaceOn=DATA_LAYER_PRESETS.find(p=>p.id==="marketplace")?.layers.some(layer=>productPrefs.dataLayers[layer.id]);
+  setLayerVisibility("marketplace-clusters",!!marketplaceOn);
+  setLayerVisibility("marketplace-cluster-count",!!marketplaceOn);
+  const terrainOn=!!productPrefs.engine.terrain&&(!!productPrefs.dataLayers["relief-hillshade"]||!!productPrefs.dataLayers["relief-terrain"]);
+  if(mapReady&&map?.setTerrain&&map.getSource("terrain-dem")) map.setTerrain(terrainOn?{source:"terrain-dem",exaggeration:Number(productPrefs.engine.terrainExaggeration??1.12)}:null);
+  updateDueDiligenceSources();
+}
+function activeDataSources(){
+  const sources=new Set();
+  Object.values(DATA_LAYER_BY_ID).forEach(layer=>{
+    if(productPrefs.dataLayers[layer.id]&&DUE_DILIGENCE_ENDPOINTS[layer.source]) sources.add(layer.source);
+  });
+  return sources;
+}
+function mapBboxParam(){
+  if(!map) return "";
+  const b=map.getBounds();
+  return [b.getWest(),b.getSouth(),b.getEast(),b.getNorth()].map(v=>Number(v.toFixed(5))).join(",");
+}
+function dataUrlForSource(source){
+  const base=DUE_DILIGENCE_ENDPOINTS[source];
+  if(!base) return "";
+  const bbox=mapBboxParam();
+  const params=new URLSearchParams();
+  if(bbox) params.set("bbox",bbox);
+  if(source==="marketplace_listings"){
+    Object.entries(productPrefs.marketplace||{}).forEach(([k,v])=>{
+      if(!v||["view","sort"].includes(k)) return;
+      params.set(k,String(v));
+    });
+  }
+  const qs=params.toString();
+  return qs?`${base}${base.includes("?")?"&":"?"}${qs}`:base;
+}
+function geojsonCentroid(g){
+  if(!g) return null;
+  if(g.type==="Point") return g.coordinates;
+  const flat=[];
+  (function walk(v){
+    if(Array.isArray(v)&&v.length>=2&&Number.isFinite(Number(v[0]))&&Number.isFinite(Number(v[1]))) flat.push([Number(v[0]),Number(v[1])]);
+    else if(Array.isArray(v)) v.forEach(walk);
+  })(g.coordinates||[]);
+  return flat.length?[flat.reduce((s,p)=>s+p[0],0)/flat.length,flat.reduce((s,p)=>s+p[1],0)/flat.length]:null;
+}
+function marketplacePointFeatures(features){
+  return {type:"FeatureCollection",features:features.map(f=>{
+    const c=geojsonCentroid(f.geometry);
+    return c?{type:"Feature",id:f.id,geometry:{type:"Point",coordinates:c},properties:f.properties}:null;
+  }).filter(Boolean)};
+}
+function selectedEntityFilters(){
+  const f=productPrefs.assetGraph||{};
+  return {rel:f.relationship_type||"",asset:f.asset_type||"",confidence:Number(f.confidence_min||0)};
+}
+function filterEntityAssetFeatures(features){
+  const f=selectedEntityFilters();
+  return (features||[]).filter(feature=>{
+    const p=feature.properties||{},rel=p.asset_relationship||{};
+    if(typeof rel==="string"){ try{ p.asset_relationship=JSON.parse(rel); }catch(_err){} }
+    const r=p.asset_relationship||rel||{};
+    if(f.rel&&r.relationship_type!==f.rel) return false;
+    if(f.asset&&p.asset_type!==f.asset) return false;
+    if(Number(r.confidence??p.confidence??0)<f.confidence) return false;
+    return true;
+  });
+}
+function selectedEntityLinkFeatures(entityId,features){
+  const c=byId[entityId],loc=companyLoc(c);
+  if(!loc) return [];
+  const start=[loc.lon,loc.lat];
+  return features.map(feature=>{
+    const end=geojsonCentroid(feature.geometry),p=feature.properties||{},rel=p.asset_relationship||{};
+    if(!end) return null;
+    return {type:"Feature",id:`${entityId}:${p.id}:${rel.relationship_type||"ASSET"}`,geometry:{type:"LineString",coordinates:[start,end]},properties:{...rel,asset_id:p.id,asset_type:p.asset_type,name:p.name}};
+  }).filter(Boolean);
+}
+async function loadCompanyAssetOverlay(entityId){
+  if(!mapReady||!entityId) return;
+  try{
+    const res=await fetch(`/api/entity/${encodeURIComponent(entityId)}/asset-map.geojson`,{cache:"no-store"});
+    if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const data=await res.json();
+    selectedEntityAssetFeatures=data.features||[];
+    const features=filterEntityAssetFeatures(selectedEntityAssetFeatures);
+    map.getSource("selected_entity_assets")?.setData({type:"FeatureCollection",features});
+    map.getSource("selected_entity_asset_links")?.setData({type:"FeatureCollection",features:selectedEntityLinkFeatures(entityId,features)});
+  }catch(err){
+    console.warn("entity asset overlay",err);
+    selectedEntityAssetFeatures=[];
+    map.getSource("selected_entity_assets")?.setData(EMPTY_GEOJSON);
+    map.getSource("selected_entity_asset_links")?.setData(EMPTY_GEOJSON);
+  }
+}
+function refreshSelectedEntityAssetOverlay(){
+  if(selected&&byId[selected]) loadCompanyAssetOverlay(selected);
+}
+function clearSourceCounts(source){
+  Object.values(DATA_LAYER_BY_ID).forEach(layer=>{ if(layer.source===source) dataLayerCounts[layer.id]=0; });
+}
+async function loadDueDiligenceSource(source){
+  if(!mapReady||!map?.getSource(source)||!DUE_DILIGENCE_ENDPOINTS[source]) return;
+  dataSourceStatus[source]={state:"loading",count:dataSourceStatus[source]?.count||0,error:""};
+  renderDataLayerPresets();
+  try{
+    const res=await fetch(dataUrlForSource(source),{cache:"no-store"});
+    if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const data=await res.json();
+    const features=Array.isArray(data.features)?data.features:[];
+    map.getSource(source).setData({type:"FeatureCollection",features});
+    if(source==="marketplace_listings"){
+      marketplaceListings=features.map(f=>f.properties||{});
+      map.getSource("marketplace_listing_points")?.setData(marketplacePointFeatures(features));
+      renderMarketplaceResults();
+    }
+    clearSourceCounts(source);
+    features.forEach(f=>{ const id=f?.properties?.layer; if(id) dataLayerCounts[id]=(dataLayerCounts[id]||0)+1; });
+    dataSourceStatus[source]={state:features.length?"ready":"empty",count:features.length,error:""};
+  }catch(err){
+    console.warn("map intelligence source",source,err);
+    map.getSource(source).setData(EMPTY_GEOJSON);
+    if(source==="marketplace_listings"){
+      marketplaceListings=[];
+      map.getSource("marketplace_listing_points")?.setData(EMPTY_GEOJSON);
+      renderMarketplaceResults();
+    }
+    clearSourceCounts(source);
+    dataSourceStatus[source]={state:"error",count:0,error:String(err?.message||err)};
+  }
+  renderDataLayerPresets();
+}
+function updateDueDiligenceSources(){
+  if(!mapReady) return;
+  clearTimeout(dueDiligenceLoadTimer);
+  dueDiligenceLoadTimer=setTimeout(()=>{
+    activeDataSources().forEach(source=>loadDueDiligenceSource(source));
+  },120);
+}
+function layerFilter(layer){
+  return ["==",["get","layer"],layer.id];
+}
+function iconName(icon){ return `dd-icon-${icon}`; }
+function registerDueDiligenceIcon(name,color){
+  const imageName=iconName(name);
+  if(!map||map.hasImage?.(imageName)) return;
+  const canvas=document.createElement("canvas"),size=30;
+  canvas.width=size; canvas.height=size;
+  const c=canvas.getContext("2d");
+  c.clearRect(0,0,size,size);
+  c.lineWidth=2.4; c.lineCap="round"; c.lineJoin="round";
+  c.strokeStyle=color; c.fillStyle=color;
+  c.shadowColor="rgba(0,0,0,.45)"; c.shadowBlur=2;
+  const sx=size/24,px=x=>x*sx,py=y=>y*sx;
+  function path(points,close=false,fill=false){
+    c.beginPath();
+    points.forEach(([x,y],i)=>i?c.lineTo(px(x),py(y)):c.moveTo(px(x),py(y)));
+    if(close) c.closePath();
+    fill?c.fill():c.stroke();
+  }
+  function rect(x,y,w,h){ c.strokeRect(px(x),py(y),px(w),py(h)); }
+  function circle(x,y,r,fill=false){ c.beginPath(); c.arc(px(x),py(y),px(r),0,Math.PI*2); fill?c.fill():c.stroke(); }
+  if(name==="factory"){ path([[3,20],[21,20]]); path([[5,20],[5,9],[10,12],[10,9],[15,12],[15,7],[19,7],[19,20]]); [[8,16],[12,16],[16,16]].forEach(p=>circle(p[0],p[1],.35,true)); }
+  else if(name==="server"){ rect(5,4,14,6); rect(5,14,14,6); circle(8,7,.45,true); circle(8,17,.45,true); path([[12,7],[16,7]]); path([[12,17],[16,17]]); }
+  else if(name==="hydro"){ circle(12,8,4); path([[12,4],[12,12]]); path([[8.5,10],[15.5,6]]); path([[4,16],[8,14.5],[12,16],[16,14.5],[20,16]]); path([[5,20],[9,18.5],[13,20],[17,18.5],[21,20]]); }
+  else if(name==="energy"){ path([[13,2],[5,14],[12,14],[11,22],[19,9],[12,9]],true); }
+  else if(name==="farm"){ path([[4,20],[9,15],[14,13],[20,13]]); path([[4,16],[9,14],[14,13],[20,13]]); path([[8,13],[8,8],[12,5],[16,4],[16,8],[13,11],[8,13]],true); }
+  else if(name==="government"){ path([[3,21],[21,21]]); path([[5,9],[19,9]]); [6,10,14,18].forEach(x=>path([[x,18],[x,9]])); path([[12,3],[4,7],[20,7],[12,3]],true); }
+  else if(name==="terrain"){ path([[3,20],[9,8],[13,15],[16,10],[21,20]],true); path([[9,8],[10.7,11],[13.7,11]]); }
+  else if(name==="camera"){ rect(4,8,16,11); path([[8,8],[10,5],[14,5],[16,8]]); circle(12,13,3.2); }
+  else if(name==="weather"){ path([[7,18],[17,18]]); c.beginPath(); c.arc(px(7),py(14.5),px(3.2),Math.PI*.55,Math.PI*1.75); c.arc(px(13),py(12),px(5),Math.PI,Math.PI*1.95); c.arc(px(17),py(14),px(4),Math.PI*1.25,Math.PI*.55); c.stroke(); }
+  else if(name==="transmission"){ path([[12,3],[5,21]]); path([[12,3],[19,21]]); path([[8,12],[16,12]]); path([[6.5,17],[17.5,17]]); path([[7,7],[17,7]]); }
+  else if(name==="river"){ path([[4,5],[9,6],[14,9],[20,7]]); path([[4,12],[9,13],[14,16],[20,14]]); path([[4,19],[8,18],[12,17]]); }
+  else if(name==="barn"){ path([[4,21],[4,9],[12,4],[20,9],[20,21]]); path([[8,21],[8,14],[16,14],[16,21]]); path([[8,10],[16,10]]); path([[12,4],[12,10]]); }
+  else if(name==="soil"){ path([[4,8],[8,7],[12,7],[16,7],[20,8]]); path([[4,13],[8,12],[12,12],[16,12],[20,13]]); path([[4,18],[8,17],[12,17],[16,17],[20,18]]); }
+  else if(name==="tag"){ path([[4,12],[4,5],[11,5],[20,14],[13,21],[4,12]],true); circle(8,8,1); }
+  else if(name==="home"){ path([[3,11],[12,3],[21,11]]); path([[5,10],[5,21],[19,21],[19,10]]); path([[10,21],[10,15],[14,15],[14,21]]); }
+  else if(name==="storefront"){ path([[4,10],[20,10],[19,5],[5,5],[4,10]],true); path([[5,10],[5,20],[19,20],[19,10]]); path([[8,20],[8,14],[16,14],[16,20]]); path([[4,10],[8,10],[12,10],[16,10],[20,10]]); }
+  else if(name==="warehouse"){ path([[3,21],[3,8],[12,4],[21,8],[21,21]]); path([[7,21],[7,13],[17,13],[17,21]]); path([[7,13],[17,13]]); path([[9,17],[15,17]]); }
+  else if(name==="flag"){ path([[5,22],[5,4]]); path([[5,4],[17,4],[15,8],[17,12],[5,12]],true); path([[9,22],[15,22]]); }
+  else if(name==="permit"){ path([[7,3],[14,3],[18,7],[18,21],[7,21],[7,3]],true); path([[14,3],[14,7],[18,7]]); path([[9,12],[15,12]]); path([[9,16],[14,16]]); }
+  else if(name==="value"){ path([[12,2],[12,22]]); c.beginPath(); c.moveTo(px(17),py(6.5)); c.bezierCurveTo(px(15.8),py(5.2),px(9),py(4.6),px(9),py(8)); c.bezierCurveTo(px(9),py(12),px(18),py(10),px(18),py(15)); c.bezierCurveTo(px(18),py(18.6),px(10.8),py(18.8),px(9),py(15.8)); c.stroke(); }
+  else if(name==="link"){ c.beginPath(); c.arc(px(8.5),py(12),px(4),Math.PI*.25,Math.PI*1.55); c.stroke(); c.beginPath(); c.arc(px(15.5),py(12),px(4),Math.PI*1.25,Math.PI*.55); c.stroke(); path([[9.5,12],[14.5,12]]); }
+  else { path([[12,3],[3,20],[21,20],[12,3]],true); path([[12,9],[12,14]]); circle(12,17,.45,true); }
+  const imgData=c.getImageData(0,0,size,size);
+  map.addImage(imageName,imgData,{pixelRatio:2});
+}
+function registerDueDiligenceIcons(){
+  Object.values(DATA_LAYER_BY_ID).forEach(layer=>registerDueDiligenceIcon(layer.icon,layer.color));
+}
+function addDueDiligenceSources(){
+  DUE_DILIGENCE_SOURCES.forEach(id=>{
+    if(!map.getSource(id)) map.addSource(id,{type:"geojson",data:EMPTY_GEOJSON,promoteId:"id"});
+  });
+  if(!map.getSource("marketplace_listing_points")) map.addSource("marketplace_listing_points",{type:"geojson",data:EMPTY_GEOJSON,promoteId:"id",cluster:true,clusterRadius:46,clusterMaxZoom:7});
+  if(!map.getSource("selected_entity_assets")) map.addSource("selected_entity_assets",{type:"geojson",data:EMPTY_GEOJSON,promoteId:"id"});
+  if(!map.getSource("selected_entity_asset_links")) map.addSource("selected_entity_asset_links",{type:"geojson",data:EMPTY_GEOJSON,promoteId:"id"});
+}
+function addDueDiligenceLayer(layer){
+  const id=`dd-${layer.id}`;
+  if(map.getLayer(id)||layer.layerType==="external") return;
+  const base={id,source:layer.source,filter:layerFilter(layer),layout:{visibility:productPrefs.dataLayers[layer.id]?"visible":"none"}};
+  if(layer.layerType==="line"){
+    map.addLayer({...base,type:"line",layout:{...base.layout,"line-join":"round","line-cap":"round"},paint:{"line-color":layer.color,"line-width":2.1,"line-opacity":0.78,"line-dasharray":[1.4,1]}});
+  }else if(layer.layerType==="fill"){
+    map.addLayer({...base,type:"fill",paint:{"fill-color":layer.color,"fill-opacity":0.18,"fill-outline-color":layer.color}});
+    if(layer.source==="marketplace_listings"&&!map.getLayer(`${id}-icon`)){
+      map.addLayer({id:`${id}-icon`,type:"symbol",source:"marketplace_listing_points",filter:layerFilter(layer),layout:{visibility:productPrefs.dataLayers[layer.id]?"visible":"none","icon-image":iconName(layer.icon),"icon-size":0.78,"icon-allow-overlap":true,"icon-ignore-placement":true,"text-field":["coalesce",["get","title"],["get","name"],""],"text-size":10,"text-offset":[0,1.15],"text-anchor":"top","text-font":["Noto Sans Regular"]},paint:{"text-color":"#e5e7eb","text-halo-color":"#020617","text-halo-width":1.2}});
+    }
+  }else{
+    map.addLayer({...base,type:"symbol",layout:{...base.layout,"icon-image":iconName(layer.icon),"icon-size":0.78,"icon-allow-overlap":true,"icon-ignore-placement":true,"text-field":["coalesce",["get","name"],""],"text-size":10,"text-offset":[0,1.15],"text-anchor":"top","text-font":["Noto Sans Regular"]},paint:{"text-color":"#e5e7eb","text-halo-color":"#020617","text-halo-width":1.2}});
+  }
+}
+function addDueDiligenceLayers(){
+  addDueDiligenceSources();
+  registerDueDiligenceIcons();
+  DATA_LAYER_PRESETS.flatMap(p=>p.layers).forEach(addDueDiligenceLayer);
+  if(!map.getLayer("farm-hover-boundary")){
+    map.addLayer({id:"farm-hover-boundary",type:"line",source:"farm_parcels",filter:["==",["get","id"],""],layout:{"line-join":"round","line-cap":"round","visibility":"visible"},paint:{"line-color":"#f8fafc","line-width":4,"line-opacity":0.95}});
+  }
+  if(!map.getLayer("marketplace-clusters")){
+    map.addLayer({id:"marketplace-clusters",type:"circle",source:"marketplace_listing_points",filter:["has","point_count"],layout:{visibility:"none"},paint:{"circle-color":"#f59e0b","circle-radius":["step",["get","point_count"],15,5,22,20,31],"circle-opacity":0.78,"circle-stroke-color":"#fff","circle-stroke-width":1.4}});
+    map.addLayer({id:"marketplace-cluster-count",type:"symbol",source:"marketplace_listing_points",filter:["has","point_count"],layout:{visibility:"none","text-field":["get","point_count_abbreviated"],"text-size":11,"text-font":["Noto Sans Bold"]},paint:{"text-color":"#fff"}});
+  }
+  addSelectedEntityAssetLayers();
+  applyDueDiligenceLayerVisibility();
+}
+function relationshipLinkLayer(id,rels,color,dash){
+  if(map.getLayer(id)) return;
+  map.addLayer({id,type:"line",source:"selected_entity_asset_links",filter:["in",["get","relationship_type"],["literal",rels]],layout:{"line-join":"round","line-cap":"round","visibility":"visible"},paint:{"line-color":color,"line-width":2.2,"line-opacity":0.82,"line-dasharray":dash}});
+}
+function addSelectedEntityAssetLayers(){
+  relationshipLinkLayer("entity-asset-link-ownership",["OWNS"],"#60a5fa",[1,0]);
+  relationshipLinkLayer("entity-asset-link-operation",["OPERATES","MANAGES"],"#22c55e",[1,0]);
+  relationshipLinkLayer("entity-asset-link-lease",["LEASES"],"#a78bfa",[1.6,1.2]);
+  relationshipLinkLayer("entity-asset-link-finance",["FINANCES","LISTED_AS"],"#fbbf24",[1,0]);
+  relationshipLinkLayer("entity-asset-link-permit",["PERMITS"],"#38bdf8",[.4,1.2]);
+  relationshipLinkLayer("entity-asset-link-regulation",["REGULATES","LOCATED_ON","NEAR"],"#94a3b8",[.4,1.2]);
+  relationshipLinkLayer("entity-asset-link-supply",["SUPPLIES","BUILDS","CONNECTED_TO"],"#f97316",[1.2,.8]);
+  if(!map.getLayer("selected-entity-asset-fill")){
+    map.addLayer({id:"selected-entity-asset-fill",type:"fill",source:"selected_entity_assets",filter:["in",["geometry-type"],["literal",["Polygon","MultiPolygon"]]],paint:{"fill-color":"#f59e0b","fill-opacity":0.16,"fill-outline-color":"#fbbf24"}});
+  }
+  if(!map.getLayer("selected-entity-assets")){
+    map.addLayer({id:"selected-entity-assets",type:"symbol",source:"selected_entity_assets",layout:{"icon-image":["match",["get","asset_type"],"farm",iconName("farm"),"agricultural_land",iconName("farm"),"data_center",iconName("server"),"data_center_site",iconName("server"),"factory",iconName("factory"),"industrial_complex",iconName("factory"),"industrial_parcel",iconName("warehouse"),"warehouse",iconName("warehouse"),"government_facility",iconName("government"),"house",iconName("home"),"commercial_property",iconName("storefront"),"franchise_location",iconName("flag"),iconName("tag")],"icon-size":0.9,"icon-allow-overlap":true,"icon-ignore-placement":true,"text-field":["coalesce",["get","name"],""],"text-size":10,"text-offset":[0,1.2],"text-anchor":"top","text-font":["Noto Sans Regular"],"visibility":"visible"},paint:{"text-color":"#fff7ed","text-halo-color":"#020617","text-halo-width":1.4}});
+  }
+}
+function scaledRadius(expr){ return ["*", Number(productPrefs.engine.nodeScale)||1, expr]; }
+function applyProductPrefs(){
+  const accent=productPrefs.engine.accent||"#ff3045";
+  document.documentElement.style.setProperty("--accent",accent);
+  document.documentElement.style.setProperty("--accent-2",accent);
+  document.documentElement.style.setProperty("--accent-soft",accentSoft(accent));
+  if(!mapReady) return;
+  setLayerVisibility("terrain-hillshade",!!productPrefs.engine.terrain&&!!productPrefs.dataLayers["relief-hillshade"]);
+  const labels=productPrefs.engine.labels;
+  setLayerVisibility("company-labels-major",labels!=="none");
+  setLayerVisibility("company-labels-close",labels==="close"||labels==="all");
+  setLayerVisibility("security-labels",labels==="all");
+  setLayerPaint("company-nodes","circle-radius",scaledRadius(nodeRadius()));
+  setLayerPaint("company-halo","circle-radius",scaledRadius(["interpolate",["linear"],["coalesce",["get","degree"],1],1,10,100,30,300,50]));
+  setLayerPaint("security-nodes","circle-radius",scaledRadius(["interpolate",["linear"],["coalesce",["get","degree"],1],1,3,25,5,100,9]));
+  setLayerPaint("relationship-lines","line-opacity",0.25*Number(productPrefs.engine.edgeOpacity||1));
+  applyDueDiligenceLayerVisibility();
+}
+function toggleToolPanel(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  const show=!el.classList.contains("show");
+  document.querySelectorAll(".tool-panel").forEach(p=>p.classList.remove("show"));
+  activeRailPanel="";
+  document.getElementById("workspacePanel").classList.remove("show");
+  document.querySelectorAll("#rail button, #gearPanel button[data-rail]").forEach(b=>b.classList.remove("active"));
+  renderWorkspacePanel();
+  if(show) el.classList.add("show");
+}
+window.addEventListener("beforeunload",saveViewNow);
+syncThemeButton();
+buildToolKinds();
+applyProductPrefs();
 
 fetch("data/universe_core.json?v="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(init).catch(()=>{ document.getElementById("loading").textContent="Could not load data/universe_core.json — run expand_us.py and serve this folder."; });
 fetch("data/news.json?v="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{ if(d){ NEWS=d; updateFresh(); if(selected) select(selected); } }).catch(()=>{});
@@ -310,7 +1007,6 @@ function loadBulk(){
     .then(d=>{
       (d.nodes||[]).forEach(c=>{ initNode(c); c.r=5; COMPANIES.push(c); });
       bulkLoaded=true; rebuildSelfView(); buildGrid(); invalidateVisibilityCache();
-      document.getElementById("modeBtn").textContent="Show network only";
     })
     .catch(err=>{ console.warn("bulk load skipped",err); bulkLoaded=true; });
   }
@@ -324,7 +1020,7 @@ function init(data){
   if(RELS.contracts) RELS.contracts.dir="agency → contractor";
   if(RELS.acquired) RELS.acquired.dir="acquirer → legacy";
   if(RELS.government_action) RELS.government_action.dir="authority → entity";
-  asOfInput.value=CURRENT_YEAR;
+  asOfInput.value=Math.min(Number(restoredView.asOf)||CURRENT_YEAR,CURRENT_YEAR);
   COMPANIES.forEach(initNode);
   LINKS.forEach(l=>{
     l.val=Number(l.val||0);
@@ -339,12 +1035,14 @@ function init(data){
   Object.keys(GROUPS).forEach(k=>groupOn[k]=true);
   Object.keys(RELS).forEach(k=>relOn[k]=true);
   [...new Set(COMPANIES.map(c=>c.kind))].forEach(k=>kindOn[k]=true);
+  applySavedFilters();
 
   edgeEls=LINKS.map((l,i)=>{
     const p=document.createElementNS(SVGNS,"path"); p.setAttribute("class","edge"); p.dataset.i=i;
     p.addEventListener("pointerover",e=>{ setHoverNode(null); setHoverEdge(i); showEdgeTip(l,e.clientX,e.clientY); draw(); });
     p.addEventListener("pointermove",e=>showEdgeTip(l,e.clientX,e.clientY));
     p.addEventListener("pointerout",()=>{ setHoverEdge(null); hideTip(); draw(); });
+    p.addEventListener("click",e=>{ e.stopPropagation(); openRelationshipEvidence(l); });
     gEdges.appendChild(p);
     const t=document.createElementNS(SVGNS,"text"); t.setAttribute("class","edge-label"); t.setAttribute("text-anchor","middle"); gLabels.appendChild(t);
     labelEls.push(t); return p;
@@ -352,14 +1050,21 @@ function init(data){
   ensureNetworkNodes();
   console.assert(document.querySelectorAll("#nodes .node-g").length===COMPANIES.filter(c=>c.deg>0).length,"network node count mismatch");
 
-  rebuildSelfView(); buildFilters();
+  rebuildSelfView(); buildFilters(); buildToolKinds();
   (async()=>{
     if(selfViewId) await loadBulk();
     rebuildSelfView();
-    await setMode("network");
-    if(selfViewId&&byId[selfViewId]){ selected=selfViewId; document.getElementById("stSel").textContent=displayLabel(byId[selfViewId]); draw(); }
+    const initialMode=savedMode();
+    await setMode(initialMode);
+    if(initialMode!=="globe") restoreSvgView();
+    const restoreId=selfViewId||restoredView.selected;
+    if(restoreId&&byId[restoreId]&&existsInYear(byId[restoreId])) select(restoreId);
+    if(restoredView.manualSelectedId) showManualObject(restoredView.manualSelectedId);
+    if(restoredView.modelerId&&byId[restoredView.modelerId]) openModeler(restoredView.modelerId);
     document.getElementById("loading").style.display="none";
-    document.getElementById("modeBtn").textContent=selfViewId?"Self view":`Show all ${(META.companies||COMPANIES.length).toLocaleString()} entities`;
+    syncModeButton();
+    restoringView=false;
+    saveViewNow();
     if(params.has("stress")) setTimeout(()=>window.stressIndex(50000),0);
   })();
 }
@@ -484,7 +1189,7 @@ function syncHoverFreeze(){
   if(byId[l.from]) hoverFrozenIds.add(l.from);
   if(byId[l.to]) hoverFrozenIds.add(l.to);
 }
-function physicsPaused(){ return mode==="network" && !dragNode && (hoverNodeId || hovEdge!==null); }
+function physicsPaused(){ return mode==="network" && (!productPrefs.engine.motion || (!dragNode && (hoverNodeId || hovEdge!==null))); }
 function setHoverNode(id){
   const next=id&&byId[id]?id:null;
   if(hoverNodeId===next) return;
@@ -608,7 +1313,7 @@ function draw(){
 
 /* ---------- view ---------- */
 let k=1,tx=0,ty=0;
-function applyView(){ vp.setAttribute("transform",`translate(${tx},${ty}) scale(${k})`); gNodes.classList.toggle("zoomed",k>1.4); if(mode==="index") drawCanvas(); }
+function applyView(){ vp.setAttribute("transform",`translate(${tx},${ty}) scale(${k})`); gNodes.classList.toggle("zoomed",k>1.4); if(mode==="index") drawCanvas(); queueSaveView(); }
 function bounds(){ let a=1e9,b=1e9,c=-1e9,d=-1e9,any=false; COMPANIES.forEach(n=>{ if(!visibleNode(n))return; any=true; a=Math.min(a,n.x);b=Math.min(b,n.y);c=Math.max(c,n.x);d=Math.max(d,n.y); }); return any?{minX:a,minY:b,maxX:c,maxY:d}:{minX:0,minY:0,maxX:1000,maxY:700}; }
 function fit(){ const r=svg.getBoundingClientRect(),bb=bounds(),pad=mode==="network"?160:90,w=bb.maxX-bb.minX+pad*2,h=bb.maxY-bb.minY+pad*2; k=Math.min(r.width/w,r.height/h); tx=(r.width-w*k)/2-(bb.minX-pad)*k; ty=(r.height-h*k)/2-(bb.minY-pad)*k; applyView(); }
 function screenToGraph(sx,sy){ const r=svg.getBoundingClientRect(); return {x:(sx-r.left-tx)/k,y:(sy-r.top-ty)/k}; }
@@ -668,6 +1373,317 @@ function showEdgeTip(l,x,y){
   tip.innerHTML=`<b>${esc(a.n)} ${arrow} ${esc(b.n)}</b><span class="t2">${esc(RELS[l.rel].name)} · ${esc(l.detail)}</span><div class="t3">source: ${esc(l.src||"curated")}${dates?` · ${esc(dates)}`:""}</div>`;
   place(x,y);
 }
+function openRelationshipEvidence(l){
+  const a=byId[l.from]||{},b=byId[l.to]||{},edgeId=l.id||`${l.from}:${l.rel}:${l.to}`;
+  detail.innerHTML=`<div class="hd"><div class="top"><div><h2>${esc(RELS[l.rel]?.name||l.rel||"Relationship")}</h2><div class="tick">${esc(a.n||l.from)} → ${esc(b.n||l.to)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div>
+    <span class="badge outline">${esc(l.rel||"edge")}</span><span class="badge signal">${confidencePct(l.confidence||l.conf||.7)} confidence</span>
+    <div class="meta"><div><span>Source entity</span><b>${esc(a.n||l.from)}</b></div><div><span>Target</span><b>${esc(b.n||l.to)}</b></div><div><span>Value</span><b>${l.val?fmtBn(l.val):"—"}</b></div><div><span>Source</span><b>${esc(l.src||"curated")}</b></div><div><span>As of</span><b>${esc(edgeDateText(l)||l.as_of_date||"date pending")}</b></div><div><span>Status</span><b>${esc(l.status||"inferred")}</b></div></div></div>
+    <div class="body">${evidenceBlock("relationship",edgeId)}<div class="story-meta">Network-edge provenance uses available source metadata. Asset bridge edges expose full evidence records when linked in the geospatial backend.</div></div>`;
+  detail.classList.add("show");
+  hydrateEvidence("relationship",edgeId);
+}
+function listValue(v){
+  if(Array.isArray(v)) return v.filter(Boolean);
+  if(typeof v==="string"&&v.trim().startsWith("[")){
+    try{ const parsed=JSON.parse(v); if(Array.isArray(parsed)) return parsed.filter(Boolean); }catch(_err){}
+  }
+  return v?[String(v)]:[];
+}
+function compactMoney(v){
+  const n=Number(v);
+  return Number.isFinite(n)?`$${Math.round(n).toLocaleString()}`:"—";
+}
+function setFarmHover(id){
+  if(hoveredFarmId===id) return;
+  hoveredFarmId=id||"";
+  if(map?.getLayer("farm-hover-boundary")) map.setFilter("farm-hover-boundary",hoveredFarmId?["==",["get","id"],hoveredFarmId]:["==",["get","id"],""]);
+}
+function showFarmTip(p,x,y){
+  const crops=listValue(p.crop_history),activity=p.main_crop||crops[0]||"crop history pending";
+  tip.innerHTML=`<b>${esc(p.name||"Farm parcel")}</b><span class="t2">${esc(p.farm_type||p.asset_type||"farm")} · ${esc(p.area_acres||p.acres||"—")} acres</span><div class="t3">${esc(activity)} · soil ${esc(p.soil_quality||"pending")} · risk ${esc(p.risk_level||p.risk_score||"pending")}</div>`;
+  place(x,y);
+}
+function assetLocation(a){
+  return [a.address,a.county,a.state,a.country].filter(Boolean).join(" · ")||"—";
+}
+function permitRows(permits){
+  return permits?.length?permits.map(p=>`<div class="meta-row">${esc(p.permit_type||"permit")} · ${esc(p.approval_status||"status pending")} · ${compactMoney(p.estimated_cost)}</div>`).join(""):`<div class="meta-row">No public permit records loaded yet.</div>`;
+}
+function valuationBlock(assetId){
+  return `<div class="farm-detail valuation-block" data-valuation-asset="${esc(assetId)}" data-case="base"><div class="section-h">Valuation</div><div class="story-meta">Loading deterministic valuation model…</div></div>`;
+}
+function assumptionInputs(v){
+  const a=v.assumptions||{},keys=["revenue","cost","growth","discount_rate","utilization","yield","capex","tax_incentives","risk_adjustment"];
+  return `<div class="assumption-grid">${keys.map(k=>`<label>${esc(k.replaceAll("_"," "))}<input type="number" step="any" data-assumption-key="${esc(k)}" value="${esc(a[k]??"")}"></label>`).join("")}</div>`;
+}
+function renderValuation(host,v){
+  const missing=v.missing_data_fields||[],breakdown=v.score_breakdown||[];
+  host.innerHTML=`<div class="section-h">Valuation</div>
+    <div class="valuation-tools"><button type="button" data-action="valuation-case" data-case="bear" class="${v.case==="bear"?"active":""}">Bear</button><button type="button" data-action="valuation-case" data-case="base" class="${v.case==="base"?"active":""}">Base</button><button type="button" data-action="valuation-case" data-case="bull" class="${v.case==="bull"?"active":""}">Bull</button><button type="button" data-action="valuation-save">Save</button></div>
+    <div class="kpis"><div class="kpi"><div class="v">${esc(v.headline_recommendation||"watch")}</div><div class="l">headline recommendation</div></div><div class="kpi"><div class="v">${esc(v.score??"—")}/100</div><div class="l">risk-adjusted score</div></div><div class="kpi"><div class="v">${confidencePct(v.confidence_score)}</div><div class="l">confidence</div></div></div>
+    <div class="meta"><div><span>Estimated value</span><b>${compactMoney(v.estimated_current_value)}</b></div><div><span>Last sale</span><b>${compactMoney(v.last_known_sale_price)}</b></div><div><span>Listing / acquisition</span><b>${compactMoney(v.acquisition_price)}</b></div><div><span>Annual revenue</span><b>${compactMoney(v.estimated_annual_revenue)}</b></div><div><span>Annual cost</span><b>${compactMoney(v.estimated_annual_operating_cost)}</b></div><div><span>Yearly gain/loss</span><b>${compactMoney(v.estimated_yearly_gain_loss)}</b></div><div><span>Payback</span><b>${v.payback_period!=null?`${esc(v.payback_period)} yrs`:"—"}</b></div><div><span>NPV</span><b>${compactMoney(v.npv)}</b></div><div><span>Risk score</span><b>${esc(v.risk_score??"—")}</b></div></div>
+    ${missing.length?`<div class="section-h">Missing Data</div><div class="story-meta">${esc(missing.join(" · "))}</div>`:""}
+    <div class="section-h">Assumptions</div>${assumptionInputs(v)}
+    <div class="section-h">Why This Score</div><div class="score-breakdown">${breakdown.map(x=>`<div class="score-row"><span>${esc(x.factor)}</span><b>${Number(x.points)>0?"+":""}${esc(x.points)}</b></div>`).join("")||`<div class="story-meta">No factor breakdown loaded.</div>`}</div>
+    <div class="section-h">Sources</div><div class="story-meta">${esc((v.source_list||[]).join(" · ")||"source pending")} · ${esc(v.disclaimer||"Modeled estimate, not a guarantee.")}</div>`;
+}
+async function hydrateValuation(assetId,caseName="base"){
+  const host=document.querySelector(`[data-valuation-asset="${CSS.escape(assetId)}"]`);
+  if(!host) return;
+  host.dataset.case=caseName;
+  try{
+    const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}/valuation?case=${encodeURIComponent(caseName)}`,{cache:"no-store"});
+    if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    renderValuation(host,await res.json());
+  }catch(err){
+    host.innerHTML=`<div class="section-h">Valuation</div><div class="story-meta">Could not load valuation: ${esc(err.message||err)}</div>`;
+  }
+}
+async function saveValuationAssumptions(host){
+  const assetId=host?.dataset.valuationAsset,caseName=host?.dataset.case||"custom";
+  if(!assetId) return;
+  const assumptions={};
+  host.querySelectorAll("[data-assumption-key]").forEach(input=>{ const n=Number(input.value); if(Number.isFinite(n)) assumptions[input.dataset.assumptionKey]=n; });
+  const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}/valuation-assumptions`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({case:caseName,assumptions})});
+  if(res.ok) hydrateValuation(assetId,caseName);
+}
+function evidenceBlock(objectType,objectId){
+  return `<div class="farm-detail evidence-block" data-evidence-object-type="${esc(objectType)}" data-evidence-object-id="${esc(objectId)}"><div class="section-h">Evidence</div><div class="story-meta">Loading source provenance…</div></div>`;
+}
+function evidenceTags(row){
+  const tags=[];
+  const status=String(row.status||"inferred").toLowerCase();
+  tags.push(status==="confirmed"?"Confirmed":status==="estimated"?"Estimated":"Inferred");
+  if(Number(row.confidence)<.6) tags.push("Low confidence");
+  if(!row.source_name||row.source_name==="source pending") tags.push("Missing source");
+  const d=row.source_date||row.retrieved_at;
+  if(!d) tags.push("Stale"); else {
+    const then=new Date(d),age=(Date.now()-then.getTime())/86400000;
+    if(Number.isFinite(age)&&age>365) tags.push("Stale");
+  }
+  return `<div class="evidence-tags">${tags.map(t=>`<span class="evidence-tag ${/low|missing/i.test(t)?"bad":/stale|inferred|estimated/i.test(t)?"warn":""}">${esc(t)}</span>`).join("")}</div>`;
+}
+function claimValue(v){
+  if(Array.isArray(v)) return v.join(" · ");
+  if(v&&typeof v==="object") return JSON.stringify(v);
+  return v??"—";
+}
+function renderEvidence(host,evidence,overrides){
+  const objectType=host.dataset.evidenceObjectType,objectId=host.dataset.evidenceObjectId;
+  const rows=evidence.slice(0,18).map(row=>{
+    const link=row.source_url?` · <a href="${esc(row.source_url)}" target="_blank" rel="noopener noreferrer">public link</a>`:"";
+    return `<div class="evidence-row"><b>${esc(row.claim_type)}: ${esc(claimValue(row.claim_value))}</b><span>${esc(row.source_name||"source pending")} · ${esc(row.source_date||row.retrieved_at||"date pending")} · confidence ${confidencePct(row.confidence)}${link}</span>${evidenceTags(row)}${row.notes?`<div class="story-meta">${esc(row.notes)}</div>`:""}</div>`;
+  }).join("")||`<div class="story-meta">No provenance records loaded for this object yet.</div>`;
+  const overrideRows=overrides.map(row=>`<div class="override-row"><b>${esc(row.field_name)}: ${esc(claimValue(row.old_value))} → ${esc(claimValue(row.new_value))}</b><span>User override · ${esc(row.review_status||"pending")} · ${esc(row.created_at||"")}</span>${row.user_note?`<div class="story-meta">${esc(row.user_note)}</div>`:""}<button type="button" data-action="delete-override" data-override-id="${esc(row.id)}">Revert override</button></div>`).join("");
+  host.innerHTML=`<div class="section-h">Evidence</div>
+    <div class="evidence-actions"><button class="primary" type="button" data-action="generate-report" data-object-type="${esc(objectType)}" data-object-id="${esc(objectId)}">Generate report</button><button type="button" data-action="add-override" data-object-type="${esc(objectType)}" data-object-id="${esc(objectId)}">Add correction</button></div>
+    <div class="evidence-list">${rows}</div>
+    <div class="section-h">Local Overrides</div><div class="override-list">${overrideRows||`<div class="story-meta">No local corrections saved. Original source values remain unchanged.</div>`}</div>
+    <div class="story-meta" data-report-status></div>`;
+}
+async function hydrateEvidence(objectType,objectId){
+  const host=document.querySelector(`[data-evidence-object-type="${CSS.escape(objectType)}"][data-evidence-object-id="${CSS.escape(objectId)}"]`);
+  if(!host) return;
+  try{
+    const [evRes,ovRes]=await Promise.all([
+      fetch(`/api/evidence?object_type=${encodeURIComponent(objectType)}&object_id=${encodeURIComponent(objectId)}`,{cache:"no-store"}),
+      fetch(`/api/overrides?object_type=${encodeURIComponent(objectType)}&object_id=${encodeURIComponent(objectId)}`,{cache:"no-store"})
+    ]);
+    if(!evRes.ok) throw new Error(`${evRes.status} evidence`);
+    renderEvidence(host,(await evRes.json()).evidence||[],ovRes.ok?((await ovRes.json()).overrides||[]):[]);
+  }catch(err){
+    host.innerHTML=`<div class="section-h">Evidence</div><div class="story-meta">Could not load provenance: ${esc(err.message||err)}</div>`;
+  }
+}
+async function addOverride(objectType,objectId){
+  const field=prompt("Field to correct, e.g. acreage, owner, listing_status");
+  if(!field) return;
+  const newValue=prompt(`New value for ${field}`);
+  if(newValue===null) return;
+  const userNote=prompt("Note/source for this correction")||"";
+  await fetch("/api/overrides",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({object_type:objectType,object_id:objectId,field_name:field,new_value:newValue,user_note:userNote})});
+  hydrateEvidence(objectType,objectId);
+}
+async function deleteOverride(id){
+  await fetch(`/api/overrides/${encodeURIComponent(id)}`,{method:"DELETE"});
+  document.querySelectorAll("[data-evidence-object-type][data-evidence-object-id]").forEach(host=>hydrateEvidence(host.dataset.evidenceObjectType,host.dataset.evidenceObjectId));
+}
+async function generateReport(objectType,objectId){
+  const host=document.querySelector(`[data-evidence-object-type="${CSS.escape(objectType)}"][data-evidence-object-id="${CSS.escape(objectId)}"]`),status=host?.querySelector("[data-report-status]");
+  if(status) status.textContent="Generating due-diligence report…";
+  try{
+    const res=await fetch(`/api/reports/${encodeURIComponent(objectType)}/${encodeURIComponent(objectId)}/generate`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sections:["overview","permits","infrastructure","risk","valuation","evidence"]})});
+    if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const out=await res.json();
+    if(status) status.innerHTML=`Report ready: <a href="${esc(out.html)}" target="_blank" rel="noopener noreferrer">HTML</a> · <a href="${esc(out.csv)}" target="_blank" rel="noopener noreferrer">CSV evidence</a> · <a href="${esc(out.json)}" target="_blank" rel="noopener noreferrer">JSON</a> · PDF ${esc(out.pdf||"placeholder")}`;
+  }catch(err){
+    if(status) status.textContent=`Report failed: ${err.message||err}`;
+  }
+}
+function showIndustrialTip(p,x,y){
+  tip.innerHTML=`<b>${esc(p.name||"Industrial asset")}</b><span class="t2">${esc(p.industrial_type||p.asset_type||"industrial")} · ${esc(p.owner_name||"owner pending")}</span><div class="t3">${esc(p.status||"status pending")} · project ${compactMoney(p.estimated_project_cost)} · ${esc(p.power_capacity_mw||"—")} MW · permits ${esc(p.permit_status||"not loaded")} · confidence ${confidencePct(p.confidence)}</div>`;
+  place(x,y);
+}
+function showGovernmentTip(p,x,y){
+  tip.innerHTML=`<b>${esc(p.name||"Government facility")}</b><span class="t2">${esc(p.agency_type||p.facility_type||"public facility")} · ${esc(p.jurisdiction||"jurisdiction pending")}</span><div class="t3">${esc(p.source||"public source")} · confidence ${confidencePct(p.confidence)}</div>`;
+  place(x,y);
+}
+function showListingTip(p,x,y){
+  const size=p.acreage?`${p.acreage} acres`:(p.square_feet?`${Number(p.square_feet).toLocaleString()} sq ft`:"size pending");
+  tip.innerHTML=`<b>${esc(p.title||"Marketplace listing")}</b><span class="t2">${esc(p.asset_type||"asset")} · ${compactMoney(p.price)} · ${esc(size)}</span><div class="t3">${esc(p.address||"location pending")} · ${esc(p.listing_status||"status pending")} · risk ${esc(p.risk_score??"placeholder")}</div>`;
+  place(x,y);
+}
+function showEntityAssetTip(p,x,y){
+  let rel=p.asset_relationship||{};
+  if(typeof rel==="string"){ try{ rel=JSON.parse(rel); }catch(_err){ rel={}; } }
+  tip.innerHTML=`<b>${esc(p.name||"Physical asset")}</b><span class="t2">${esc(p.asset_type||"asset")} · ${esc(rel.relationship_type||"connected")}</span><div class="t3">${esc(p.city||p.state||p.country||"location")} · ${esc(rel.status||"inferred")} · ${esc(rel.source||p.source||"source pending")} · confidence ${confidencePct(rel.confidence??p.confidence)}</div>`;
+  place(x,y);
+}
+function highlightAssetCorporateNetwork(entities){
+  const id=entities?.owner?.id||entities?.operator?.id;
+  if(id&&byId[id]&&mapReady) applyMapSelection(id,sourceForEntity(id));
+}
+async function showFarmWidget(assetId){
+  if(!assetId) return;
+  selected=null; manualSelectedId=null; globeSelectionLabel="";
+  clearMapSelection();
+  document.getElementById("stSel").textContent="Farm";
+  detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Loading farm…</h2><div class="tick">${esc(assetId)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
+  detail.classList.add("show");
+  try{
+    const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}/due-diligence`,{cache:"no-store"});
+    if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const data=await res.json(),a=data.asset||{},f=a.farm_profile||{},owner=data.owner||a.owner||{},entities=a.connected_entities||{};
+    highlightAssetCorporateNetwork(entities);
+    const location=[a.address,a.county,a.state,a.country].filter(Boolean).join(" · ")||"—";
+    const history=listValue(f.past_activities).length?listValue(f.past_activities):listValue(f.crop_history);
+    const sources=[a.source,f.source,...(a.permits||[]).map(p=>p.source)].filter(Boolean);
+    document.getElementById("stSel").textContent=a.name||"Farm";
+    detail.innerHTML=`<div class="hd"><div class="top"><div>
+      <h2>${esc(a.name||"Farm parcel")}</h2><div class="tick">${esc(location)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div>
+      <span class="badge" style="background:rgba(34,197,94,.14);color:#86efac;">${esc(f.farm_type||a.asset_type||"farm")}</span><span class="badge outline">${esc(a.status||"status pending")}</span><span class="badge signal">${confidencePct(a.confidence)} confidence</span>
+      <div class="meta"><div><span>Acres</span><b>${esc(f.acres||a.area_acres||"—")}</b></div><div><span>Owner</span><b>${esc(owner.name||a.owner_entity_id||"—")}</b></div><div><span>Listing status</span><b>${esc(a.listing_status||"not loaded")}</b></div><div><span>Last sale</span><b>${compactMoney(f.last_sale_price)}</b></div><div><span>Estimated value</span><b>${compactMoney(f.current_estimated_value)}</b></div><div><span>Yearly gain</span><b>${compactMoney(f.yearly_estimated_gain)}</b></div></div>
+      </div><div class="body"><div class="farm-detail">
+      <div class="kpis"><div class="kpi"><div class="v">${esc(f.estimated_yield||"—")}</div><div class="l">estimated annual yield</div></div><div class="kpi"><div class="v">${esc(f.soil_quality||a.soil_quality||"—")}</div><div class="l">soil quality</div></div><div class="kpi"><div class="v">${esc(a.risk_level||f.risk_score||"—")}</div><div class="l">flood/drought risk</div></div></div>
+      <div class="meta"><div class="span2"><span>Water access</span><b>${esc(f.water_access||a.water_access||"—")}</b></div><div><span>Risk score</span><b>${esc(f.risk_score??"—")}</b></div><div class="span2"><span>Nearby roads / infrastructure</span><b>${esc(listValue(a.nearby_infrastructure).join(" · ")||"—")}</b></div><div><span>Data sources</span><b>${esc([...new Set(sources)].join(" · ")||"—")}</b></div></div>
+      <div class="section-h">Crop / Activity History</div><div class="farm-history">${history.length?history.map(x=>`<span>${esc(x)}</span>`).join(""):`<span>not loaded yet</span>`}</div>
+      <div class="section-h">Corporate Network</div><div class="meta"><div><span>Owner company</span><b>${esc(entities.owner?.name||owner.name||"Owner relationship unknown")}</b></div><div><span>Operator</span><b>${esc(entities.operator?.name||"Operator relationship unknown")}</b></div><div><span>Permit authority</span><b>${esc((entities.permit_authorities||[]).map(x=>x.entity?.name||x.source_id).join(" · ")||"not loaded")}</b></div></div>
+      ${valuationBlock(assetId)}
+      ${evidenceBlock("asset",assetId)}
+      </div></div>`;
+    hydrateValuation(assetId);
+    hydrateEvidence("asset",assetId);
+  }catch(err){
+    detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Farm unavailable</h2><div class="tick">${esc(String(err?.message||err))}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
+  }
+}
+async function showIndustrialWidget(assetId){
+  if(!assetId) return;
+  selected=null; manualSelectedId=null; globeSelectionLabel="";
+  clearMapSelection();
+  document.getElementById("stSel").textContent="Industrial";
+  detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Loading industrial asset…</h2><div class="tick">${esc(assetId)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
+  detail.classList.add("show");
+  try{
+    const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}/due-diligence`,{cache:"no-store"});
+    if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const data=await res.json(),a=data.asset||{},p=a.industrial_profile||{},owner=data.owner||a.owner||{},operator=data.operator||a.operator||{},entities=a.connected_entities||{};
+    highlightAssetCorporateNetwork(entities);
+    const sources=[a.source,p.source,...(data.permits||[]).map(x=>x.source)].filter(Boolean);
+    document.getElementById("stSel").textContent=a.name||"Industrial";
+    detail.innerHTML=`<div class="hd"><div class="top"><div>
+      <h2>${esc(a.name||"Industrial asset")}</h2><div class="tick">${esc(assetLocation(a))}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div>
+      <span class="badge" style="background:rgba(249,115,22,.14);color:#fdba74;">${esc(p.industrial_type||a.asset_type||"industrial")}</span><span class="badge outline">${esc(a.status||"status pending")}</span><span class="badge signal">${confidencePct(a.confidence)} confidence</span>
+      <div class="meta"><div><span>Owner company</span><b>${esc(owner.name||a.owner_entity_id||"—")}</b></div><div><span>Operator</span><b>${esc(operator.name||a.operator_entity_id||"—")}</b></div><div><span>Project cost</span><b>${compactMoney(p.estimated_project_cost)}</b></div><div><span>Power capacity</span><b>${esc(p.power_capacity_mw??"—")} MW</b></div><div><span>Annual growth</span><b>${esc(p.annual_growth||"placeholder")}</b></div><div><span>Demand score</span><b>${esc(p.demand_score||"placeholder")}</b></div></div>
+      </div><div class="body"><div class="farm-detail">
+      <div class="section-h">Permits</div>${permitRows(data.permits||[])}
+      <div class="meta"><div class="span2"><span>Nearby transmission</span><b>${esc(a.nearby_transmission||"not loaded")}</b></div><div><span>Tax incentives</span><b>${esc(a.tax_incentives||"placeholder")}</b></div><div class="span2"><span>Roads / rail / ports</span><b>${esc(a.nearby_logistics||"not loaded")}</b></div><div><span>Water access</span><b>${esc(a.nearby_water_access||"not loaded")}</b></div><div><span>Revenue estimate</span><b>${compactMoney(p.revenue_estimate)}</b></div><div><span>Operating cost</span><b>${compactMoney(p.operating_cost_estimate)}</b></div><div><span>Owner gain/loss</span><b>${compactMoney(p.owner_gain_loss_estimate)}</b></div><div><span>Data sources</span><b>${esc([...new Set(sources)].join(" · ")||"—")}</b></div></div>
+      <div class="section-h">Corporate Network</div><div class="meta"><div><span>Owner company</span><b>${esc(entities.owner?.name||owner.name||"Owner relationship unknown")}</b></div><div><span>Operator</span><b>${esc(entities.operator?.name||operator.name||"Operator relationship unknown")}</b></div><div><span>Financiers</span><b>${esc((entities.financiers||[]).map(x=>x.entity?.name||x.source_id).join(" · ")||"not loaded")}</b></div><div><span>Suppliers / builders</span><b>${esc([...(entities.suppliers||[]),...(entities.builders||[])].map(x=>x.entity?.name||x.source_id).join(" · ")||"not loaded")}</b></div><div><span>Permit authority</span><b>${esc((entities.permit_authorities||[]).map(x=>x.entity?.name||x.source_id).join(" · ")||"not loaded")}</b></div><div><span>Regulator</span><b>${esc((entities.regulators||[]).map(x=>x.entity?.name||x.source_id).join(" · ")||"not loaded")}</b></div></div>
+      ${valuationBlock(assetId)}
+      ${evidenceBlock("asset",assetId)}
+      </div></div>`;
+    hydrateValuation(assetId);
+    hydrateEvidence("asset",assetId);
+  }catch(err){
+    detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Industrial asset unavailable</h2><div class="tick">${esc(String(err?.message||err))}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
+  }
+}
+async function showGovernmentWidget(assetId){
+  if(!assetId) return;
+  selected=null; manualSelectedId=null; globeSelectionLabel="";
+  clearMapSelection();
+  document.getElementById("stSel").textContent="Government";
+  detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Loading government facility…</h2><div class="tick">${esc(assetId)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
+  detail.classList.add("show");
+  try{
+    const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}/due-diligence`,{cache:"no-store"});
+    if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const data=await res.json(),a=data.asset||{},owner=data.owner||a.owner||{};
+    highlightAssetCorporateNetwork(a.connected_entities||{owner});
+    const sourceLink=a.public_source_url?`<a href="${esc(a.public_source_url)}" target="_blank" rel="noopener noreferrer">${esc(a.public_source_url)}</a>`:"—";
+    document.getElementById("stSel").textContent=a.name||"Government";
+    detail.innerHTML=`<div class="hd"><div class="top"><div>
+      <h2>${esc(a.name||"Government facility")}</h2><div class="tick">${esc(assetLocation(a))}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div>
+      <span class="badge" style="background:rgba(56,189,248,.14);color:#7dd3fc;">${esc(a.facility_type||"public facility")}</span><span class="badge outline">${esc(a.jurisdiction||"jurisdiction pending")}</span><span class="badge signal">${confidencePct(a.confidence)} confidence</span>
+      <div class="meta"><div><span>Agency / jurisdiction</span><b>${esc(owner.name||a.jurisdiction||"—")}</b></div><div><span>Facility type</span><b>${esc(a.agency_type||a.facility_type||"—")}</b></div><div><span>Status</span><b>${esc(a.status||"—")}</b></div><div class="span2"><span>Address</span><b>${esc(a.address||"—")}</b></div><div><span>Public source</span><b>${sourceLink}</b></div></div>
+      </div><div class="body"><div class="farm-detail">
+      <div class="section-h">Related Permits</div>${permitRows(data.permits||[])}
+      <div class="meta"><div><span>Regulatory zones</span><b>public placeholder</b></div><div><span>Nearby assets affected</span><b>not loaded</b></div><div><span>Source</span><b>${esc(a.source||"—")}</b></div></div>
+      ${valuationBlock(assetId)}
+      ${evidenceBlock("asset",assetId)}
+      </div></div>`;
+    hydrateValuation(assetId);
+    hydrateEvidence("asset",assetId);
+  }catch(err){
+    detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Government facility unavailable</h2><div class="tick">${esc(String(err?.message||err))}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
+  }
+}
+async function showListingWidget(listingId){
+  if(!listingId) return;
+  selected=null; manualSelectedId=null; globeSelectionLabel="";
+  clearMapSelection();
+  document.getElementById("stSel").textContent="Listing";
+  detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Loading listing…</h2><div class="tick">${esc(listingId)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
+  detail.classList.add("show");
+  try{
+    const res=await fetch(`/api/listings/${encodeURIComponent(listingId)}`,{cache:"no-store"});
+    if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const data=await res.json(),l=data.listing||{},a=data.asset||{},entities=a.connected_entities||{};
+    highlightAssetCorporateNetwork(entities);
+    const size=l.acreage?`${l.acreage} acres`:(l.square_feet?`${Number(l.square_feet).toLocaleString()} sq ft`:"—");
+    const sourceLink=l.listing_url?`<a href="${esc(l.listing_url)}" target="_blank" rel="noopener noreferrer">${esc(l.listing_url)}</a>`:esc(l.source||"public_seed");
+    const owner=entities.owner?.name||a.owner?.name||"Owner relationship unknown";
+    const operator=entities.operator?.name||a.operator?.name||"Operator relationship unknown";
+    document.getElementById("stSel").textContent=l.title||"Listing";
+    detail.innerHTML=`<div class="hd"><div class="top"><div>
+      <h2>${esc(l.title||"Marketplace listing")}</h2><div class="tick">${esc(l.address||assetLocation(a)||"location pending")}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div>
+      <span class="badge" style="background:rgba(245,158,11,.14);color:#fbbf24;">${esc(l.asset_type||"asset")}</span><span class="badge outline">${esc(l.listing_status||"status pending")}</span><span class="badge signal">${confidencePct(l.confidence)} confidence</span>
+      <div class="meta"><div><span>Price</span><b>${compactMoney(l.price)}</b></div><div><span>Size</span><b>${esc(size)}</b></div><div><span>Zoning</span><b>${esc(l.zoning||"—")}</b></div><div><span>Seller</span><b>${esc(l.seller_name||"—")}</b></div><div><span>Broker</span><b>${esc(l.broker_name||"—")}</b></div><div><span>Source</span><b>${sourceLink}</b></div></div>
+      </div><div class="body"><div class="farm-detail">
+      <div class="section-h">Listing Due Diligence</div><div class="meta"><div><span>Last sale</span><b>${compactMoney(l.last_sale_price)}</b></div><div><span>Estimated value</span><b>${compactMoney(l.current_estimated_value)}</b></div><div><span>Annual yield / income</span><b>${esc(l.expected_yield||"placeholder")}</b></div><div><span>Yearly gain</span><b>${compactMoney(l.estimated_annual_gain)}</b></div><div class="span2"><span>Nearby infrastructure</span><b>${esc(l.nearby_infrastructure||"not loaded")}</b></div><div><span>Flood/weather risk</span><b>${esc(l.flood_risk||"placeholder")}</b></div><div><span>Crime aggregate</span><b>${esc(l.crime_aggregate_score??"placeholder")}</b></div><div><span>Environmental risk</span><b>${esc(l.environmental_risk||"placeholder")}</b></div><div><span>Ownership</span><b>${esc(owner)}</b></div></div>
+      <div class="section-h">Corporate Network</div><div class="meta"><div><span>Owner company</span><b>${esc(owner)}</b></div><div><span>Operator</span><b>${esc(operator)}</b></div><div><span>Parent / subsidiaries</span><b>not loaded</b></div><div><span>Financiers</span><b>${esc((entities.financiers||[]).map(x=>x.entity?.name||x.source_id).join(" · ")||"not loaded")}</b></div><div><span>Suppliers / builders</span><b>${esc([...(entities.suppliers||[]),...(entities.builders||[])].map(x=>x.entity?.name||x.source_id).join(" · ")||"not loaded")}</b></div><div><span>Permit authority</span><b>${esc((entities.permit_authorities||[]).map(x=>x.entity?.name||x.source_id).join(" · ")||"not loaded")}</b></div><div><span>Regulatory authority</span><b>${esc((entities.regulators||[]).map(x=>x.entity?.name||x.source_id).join(" · ")||"not loaded")}</b></div><div><span>Related securities</span><b>not loaded</b></div></div>
+      ${valuationBlock(l.asset_id||a.id)}
+      ${evidenceBlock("listing",l.id)}
+      <div class="section-h">Data Status</div><div class="story-meta">Listing data is mock final-schema data. No restricted real estate platform was scraped. Valuation is deterministic and assumption-based.</div>
+      </div></div>`;
+    hydrateValuation(l.asset_id||a.id);
+    hydrateEvidence("listing",l.id);
+  }catch(err){
+    detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Listing unavailable</h2><div class="tick">${esc(String(err?.message||err))}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
+  }
+}
+async function openAssetWidget(assetId){
+  try{
+    const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}`,{cache:"no-store"});
+    if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const asset=await res.json();
+    if(asset.asset_type==="farm"||asset.asset_type==="agricultural_complex"||asset.asset_type==="parcel") return showFarmWidget(assetId);
+    if(asset.asset_type==="government_facility") return showGovernmentWidget(assetId);
+    return showIndustrialWidget(assetId);
+  }catch(_err){
+    showIndustrialWidget(assetId);
+  }
+}
 function place(x,y){ tip.style.left=(x+15)+"px"; tip.style.top=(y+15)+"px"; tip.style.opacity=1; }
 function hideTip(){ tip.style.opacity=0; }
 function newsFreshDate(){ let out=""; Object.values(NEWS.items_by_node||{}).forEach(items=>items.forEach(x=>{ if(x.published&&x.published>out) out=x.published; })); return out||"—"; }
@@ -684,7 +1700,8 @@ function updateDataHealth(){
 }
 
 /* ---------- globe ---------- */
-const MAP_STYLE_URL="https://demotiles.maplibre.org/style.json";
+const MAP_STYLE_URL="https://tiles.openfreemap.org/styles/liberty";
+const TERRAIN_TILESET_URL="https://demotiles.maplibre.org/terrain-tiles/tiles.json";
 function globeVisibleCompanies(){
   const located=[],unknown=[];
   COMPANIES.forEach(c=>{ if(!baseVisibleNode(c)) return; const loc=companyLoc(c); (loc?located:unknown).push(c); });
@@ -692,9 +1709,55 @@ function globeVisibleCompanies(){
 }
 function initMapGlobe(){
   if(map||!window.maplibregl) return;
-  map=new maplibregl.Map({container:"map",style:MAP_STYLE_URL,center:[-95,28],zoom:1.45,minZoom:1,maxZoom:9,attributionControl:true});
-  map.on("style.load",()=>{ map.setProjection({type:"globe"}); mapReady=true; addMapLayers(); drawGlobe(); });
+  const start=restoredView.mode==="globe"&&restoredView.map?restoredView.map:{};
+  map=new maplibregl.Map({
+    container:"map",style:MAP_STYLE_URL,
+    center:Array.isArray(start.center)?start.center:[-95,28],
+    zoom:Number.isFinite(start.zoom)?start.zoom:1.45,
+    bearing:Number.isFinite(start.bearing)?start.bearing:0,
+    pitch:Number.isFinite(start.pitch)?start.pitch:0,
+    minZoom:1,maxZoom:14,attributionControl:true
+  });
+  configureMapGestures();
+  map.on("style.load",()=>{
+    map.setProjection({type:"globe"});
+    normalizeBaseMapLabels();
+    mapReady=true;
+    addMapLayers();
+    drawGlobe();
+  });
+  map.on("moveend",()=>{ queueSaveView(); updateDueDiligenceSources(); });
   map.on("error",e=>console.warn("map globe",e.error||e));
+}
+function configureMapGestures(){
+  map.dragPan?.enable?.();
+  map.dragRotate?.enable?.();
+  map.scrollZoom?.enable?.();
+  map.doubleClickZoom?.disable?.();
+  map.boxZoom?.disable?.();
+  map.keyboard?.disable?.();
+  map.touchZoomRotate?.enable?.();
+  map.touchZoomRotate?.disableRotation?.();
+  map.touchPitch?.disable?.();
+}
+function normalizeBaseMapLabels(){
+  const layers=map?.getStyle?.()?.layers||[];
+  for(const layer of layers){
+    if(layer.type!=="symbol"||!layer.id||["company-labels-major","company-labels-close","security-labels","manual-labels","company-cluster-count"].includes(layer.id)) continue;
+    const source=layer.source||"";
+    if(source==="companies"||source==="securities"||source==="manual-nodes") continue;
+    if(!/label|place|settlement|country|state|city|town|village|road|water|marine|airport|park|poi/i.test(layer.id)) continue;
+    try{
+      map.setLayoutProperty(layer.id,"text-field",[
+        "coalesce",
+        ["get","name_en"],
+        ["get","name:en"],
+        ["get","name_en-US"],
+        ["get","name"],
+        ["get","ref"]
+      ]);
+    }catch(_){}
+  }
 }
 async function loadMapData(){
   if(mapData.companies) return mapData;
@@ -711,6 +1774,8 @@ async function loadMapData(){
 }
 function addMapLayers(){
   if(map.getSource("companies")) return;
+  addPhysicalContextLayers();
+  addDueDiligenceLayers();
   map.addSource("relationships",{type:"geojson",data:"data/relationships.geojson",promoteId:"id"});
   map.addSource("companies",{type:"geojson",data:"data/companies.geojson",promoteId:"id",cluster:true,clusterRadius:55,clusterMaxZoom:5});
   map.addSource("securities",{type:"geojson",data:"data/securities.geojson",promoteId:"id"});
@@ -719,8 +1784,25 @@ function addMapLayers(){
   addCompanyNodeLayers();
   addSecurityLayers();
   addCompanyLabelLayers();
+  addManualLayers();
   wireMapInteractions();
+  applyProductPrefs();
   loadMapData().then(()=>drawGlobe()).catch(err=>console.warn("map data",err));
+}
+function firstSymbolLayerId(){
+  return map.getStyle()?.layers?.find(layer=>layer.type==="symbol")?.id;
+}
+function addPhysicalContextLayers(){
+  if(!map||map.getSource("terrain-dem")) return;
+  try{
+    map.addSource("terrain-dem",{type:"raster-dem",url:TERRAIN_TILESET_URL,tileSize:256});
+    map.addLayer({id:"terrain-hillshade",type:"hillshade",source:"terrain-dem",paint:{
+      "hillshade-shadow-color":"#56616f","hillshade-highlight-color":"#ffffff","hillshade-accent-color":"#8fa2b8","hillshade-exaggeration":0.24
+    }},firstSymbolLayerId());
+    if(map.setTerrain) map.setTerrain({source:"terrain-dem",exaggeration:1.12});
+  }catch(err){
+    console.warn("terrain layer skipped",err);
+  }
 }
 function relationshipWidth(){
   return ["interpolate",["linear"],["coalesce",["get","confidence"],0.5],0,0.5,1,3];
@@ -768,20 +1850,112 @@ function addCompanyLabelLayers(){
   map.addLayer({id:"company-labels-close",type:"symbol",source:"companies",minzoom:6,filter:["!",["has","point_count"]],layout:{"text-field":["get","name"],"text-size":11,"text-offset":[0,1.4],"text-anchor":"top","text-font":["Noto Sans Regular"]},paint:{"text-color":"#f8fafc","text-halo-color":"#020617","text-halo-width":1.5,"text-opacity":1}});
   map.addLayer({id:"security-labels",type:"symbol",source:"securities",minzoom:5.2,layout:{"text-field":["coalesce",["get","ticker"],["get","name"]],"text-size":10.5,"text-offset":[0,1.2],"text-anchor":"top","text-font":["Noto Sans Regular"]},paint:{"text-color":"#fde68a","text-halo-color":"#020617","text-halo-width":1.5,"text-opacity":1}});
 }
+function manualNodeFeatures(){
+  return {type:"FeatureCollection",features:manualLayer.nodes.filter(n=>Number.isFinite(n.lat)&&Number.isFinite(n.lng)).map(n=>({type:"Feature",id:n.id,geometry:{type:"Point",coordinates:[n.lng,n.lat]},properties:n}))};
+}
+function objectLngLat(id){
+  const manual=manualLayer.nodes.find(n=>n.id===id);
+  if(manual) return [manual.lng,manual.lat];
+  const feature=[...(mapData.companies?.features||[]),...(mapData.securities?.features||[])].find(f=>f.properties.id===id);
+  if(feature) return feature.geometry.coordinates;
+  const loc=companyLoc(byId[id]);
+  return loc?[loc.lon,loc.lat]:null;
+}
+function manualEdgeFeatures(){
+  return {type:"FeatureCollection",features:manualLayer.edges.map(e=>{
+    const a=objectLngLat(e.from),b=objectLngLat(e.to);
+    return a&&b?{type:"Feature",id:e.id,geometry:{type:"LineString",coordinates:[a,b]},properties:e}:null;
+  }).filter(Boolean)};
+}
+function updateManualLayer(){
+  if(!mapReady) return;
+  map.getSource("manual-nodes")?.setData(manualNodeFeatures());
+  map.getSource("manual-edges")?.setData(manualEdgeFeatures());
+}
+function addManualLayers(){
+  map.addSource("manual-edges",{type:"geojson",data:manualEdgeFeatures(),promoteId:"id"});
+  map.addSource("manual-nodes",{type:"geojson",data:manualNodeFeatures(),promoteId:"id"});
+  map.addLayer({id:"manual-edges",type:"line",source:"manual-edges",paint:{"line-color":"#ffffff","line-width":2,"line-dasharray":[2,2],"line-opacity":0.75}});
+  map.addLayer({id:"manual-nodes",type:"circle",source:"manual-nodes",paint:{"circle-radius":9,"circle-color":productPrefs.engine.accent,"circle-stroke-color":"#ffffff","circle-stroke-width":2.5,"circle-opacity":0.92}});
+  map.addLayer({id:"manual-labels",type:"symbol",source:"manual-nodes",minzoom:4,layout:{"text-field":["get","name"],"text-size":11,"text-offset":[0,1.35],"text-anchor":"top","text-font":["Noto Sans Regular"]},paint:{"text-color":"#ffffff","text-halo-color":"#020617","text-halo-width":1.5}});
+}
 function wireMapInteractions(){
   if(mapLayerEventsBound) return;
   mapLayerEventsBound=true;
   map.on("mouseenter","company-clusters",()=>map.getCanvas().style.cursor="pointer");
   map.on("mouseleave","company-clusters",()=>{ map.getCanvas().style.cursor=""; hideTip(); });
-  ["company-nodes","security-nodes"].forEach(layer=>{
+  const featureLayers=[
+    ["company-nodes","companies"],["company-labels-major","companies"],["company-labels-close","companies"],
+    ["security-nodes","securities"],["security-labels","securities"]
+  ];
+  const farmInteractiveLayers=["dd-farm-boundaries","dd-farm-complexes","dd-farm-crop-history","dd-farm-soil-quality","dd-farm-vegetation","dd-farm-acres","dd-farm-for-sale","dd-farm-yield","dd-farm-risk"].filter(id=>map.getLayer(id));
+  const industrialInteractiveLayers=["dd-industrial-data-centers","dd-industrial-factories","dd-industrial-complexes","dd-industrial-energy","dd-industrial-hydro","dd-industrial-power-plants","dd-industrial-substations","dd-industrial-permits","dd-industrial-project-cost","dd-industrial-growth","dd-industrial-demand","dd-industrial-owner"].filter(id=>map.getLayer(id));
+  const governmentInteractiveLayers=["dd-government-facilities","dd-government-agencies","dd-government-city-halls","dd-government-courthouses","dd-government-permits","dd-government-regulatory-zones","dd-government-restricted"].filter(id=>map.getLayer(id));
+  const marketplaceInteractiveLayers=DATA_LAYER_PRESETS.find(p=>p.id==="marketplace").layers.flatMap(layer=>dataLayerMapIds(layer)).filter(id=>map.getLayer(id));
+  const focusedAssetLayers=["selected-entity-assets","selected-entity-asset-fill"].filter(id=>map.getLayer(id));
+  featureLayers.forEach(([layer,sourceId])=>{
     map.on("mouseenter",layer,()=>map.getCanvas().style.cursor="pointer");
     map.on("mouseleave",layer,()=>{ map.getCanvas().style.cursor=""; hideTip(); });
     map.on("mousemove",layer,e=>{ const c=byId[e.features[0].properties.id]; if(c) showNodeTip(c,e.originalEvent.clientX,e.originalEvent.clientY); });
-    map.on("click",layer,e=>selectMapFeature(e.features[0],layer==="security-nodes"?"securities":"companies"));
+    map.on("click",layer,e=>selectMapFeature(e.features[0],sourceId));
   });
+  farmInteractiveLayers.forEach(layer=>{
+    map.on("mouseenter",layer,()=>map.getCanvas().style.cursor="pointer");
+    map.on("mouseleave",layer,()=>{ map.getCanvas().style.cursor=""; setFarmHover(""); hideTip(); });
+    map.on("mousemove",layer,e=>{
+      const p=e.features?.[0]?.properties||{};
+      setFarmHover(p.id||"");
+      showFarmTip(p,e.originalEvent.clientX,e.originalEvent.clientY);
+    });
+    map.on("click",layer,e=>showFarmWidget(e.features?.[0]?.properties?.id));
+  });
+  industrialInteractiveLayers.forEach(layer=>{
+    map.on("mouseenter",layer,()=>map.getCanvas().style.cursor="pointer");
+    map.on("mouseleave",layer,()=>{ map.getCanvas().style.cursor=""; hideTip(); });
+    map.on("mousemove",layer,e=>showIndustrialTip(e.features?.[0]?.properties||{},e.originalEvent.clientX,e.originalEvent.clientY));
+    map.on("click",layer,e=>{
+      const p=e.features?.[0]?.properties||{};
+      showIndustrialWidget(p.asset_id||p.id);
+    });
+  });
+  governmentInteractiveLayers.forEach(layer=>{
+    map.on("mouseenter",layer,()=>map.getCanvas().style.cursor="pointer");
+    map.on("mouseleave",layer,()=>{ map.getCanvas().style.cursor=""; hideTip(); });
+    map.on("mousemove",layer,e=>showGovernmentTip(e.features?.[0]?.properties||{},e.originalEvent.clientX,e.originalEvent.clientY));
+    map.on("click",layer,e=>{
+      const p=e.features?.[0]?.properties||{};
+      if(p.asset_id||p.kind==="asset") showGovernmentWidget(p.asset_id||p.id);
+    });
+  });
+  marketplaceInteractiveLayers.forEach(layer=>{
+    map.on("mouseenter",layer,()=>map.getCanvas().style.cursor="pointer");
+    map.on("mouseleave",layer,()=>{ map.getCanvas().style.cursor=""; hideTip(); });
+    map.on("mousemove",layer,e=>showListingTip(e.features?.[0]?.properties||{},e.originalEvent.clientX,e.originalEvent.clientY));
+    map.on("click",layer,e=>showListingWidget(e.features?.[0]?.properties?.id));
+  });
+  focusedAssetLayers.forEach(layer=>{
+    map.on("mouseenter",layer,()=>map.getCanvas().style.cursor="pointer");
+    map.on("mouseleave",layer,()=>{ map.getCanvas().style.cursor=""; hideTip(); });
+    map.on("mousemove",layer,e=>showEntityAssetTip(e.features?.[0]?.properties||{},e.originalEvent.clientX,e.originalEvent.clientY));
+    map.on("click",layer,e=>openAssetWidget(e.features?.[0]?.properties?.id));
+  });
+  if(map.getLayer("marketplace-clusters")){
+    map.on("mouseenter","marketplace-clusters",()=>map.getCanvas().style.cursor="pointer");
+    map.on("mouseleave","marketplace-clusters",()=>{ map.getCanvas().style.cursor=""; hideTip(); });
+    map.on("mousemove","marketplace-clusters",e=>{ const p=e.features[0].properties; tip.innerHTML=`<b>${esc(p.point_count_abbreviated)} listings</b><span class="t2">Marketplace cluster</span><div class="t3">Click to zoom into individual assets</div>`; place(e.originalEvent.clientX,e.originalEvent.clientY); });
+    map.on("click","marketplace-clusters",async e=>{
+      const src=map.getSource("marketplace_listing_points"),id=e.features[0].properties.cluster_id;
+      const zoom=await clusterCall(src,"getClusterExpansionZoom",id);
+      if(Number.isFinite(zoom)) map.easeTo({center:e.features[0].geometry.coordinates,zoom:Math.min(zoom+.5,10),duration:420});
+    });
+  }
   map.on("mousemove","company-clusters",e=>{ const p=e.features[0].properties; tip.innerHTML=`<b>${esc(p.point_count_abbreviated)} companies</b><span class="t2">HQ cluster</span><div class="t3">Click to zoom and inspect</div>`; place(e.originalEvent.clientX,e.originalEvent.clientY); });
   map.on("click","company-clusters",e=>showMapCluster(e.features[0]));
-  map.on("click",e=>{ if(!map.queryRenderedFeatures(e.point,{layers:["company-nodes","security-nodes","company-clusters"]}).length){ clearMapSelection(); deselect(); } });
+  map.on("mouseenter","manual-nodes",()=>map.getCanvas().style.cursor="pointer");
+  map.on("mouseleave","manual-nodes",()=>{ map.getCanvas().style.cursor=""; hideTip(); });
+  map.on("mousemove","manual-nodes",e=>showManualTip(e.features[0].properties,e.originalEvent.clientX,e.originalEvent.clientY));
+  map.on("click","manual-nodes",e=>showManualObject(e.features[0].properties.id));
+  map.on("click",e=>{ if(!map.queryRenderedFeatures(e.point,{layers:[...featureLayers.map(x=>x[0]),...farmInteractiveLayers,...industrialInteractiveLayers,...governmentInteractiveLayers,...marketplaceInteractiveLayers,...focusedAssetLayers,"marketplace-clusters","company-clusters","manual-nodes"]}).length){ clearMapSelection(); deselect(); } });
 }
 function selectMapFeature(feature,sourceId){
   if(!feature?.properties?.id) return;
@@ -847,7 +2021,6 @@ function showMapClusterPanel(features,countLabel){
 }
 async function networkFromMapIds(){
   networkScope=new Set(mapClusterIds); selected=null; await setMode("network");
-  document.getElementById("modeBtn").textContent="Show all entities"; document.getElementById("modeBtn").classList.remove("active");
 }
 function cleanLocText(v){ return String(v||"").replace(/\[[^\]]*\]/g,"").replace(/([A-Za-z])\d+\b/g,"$1").replace(/\s+/g," ").trim(); }
 function locKey(v){ return cleanLocText(v).normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\./g,"").replace(/\s*,\s*/g,", "); }
@@ -903,6 +2076,7 @@ function updateMapSources(){
   map.getSource("companies")?.setData(filteredFeatures(mapData.companies,featureVisible));
   map.getSource("securities")?.setData(filteredFeatures(mapData.securities,featureVisible));
   map.getSource("relationships")?.setData(filteredFeatures(mapData.relationships,mapRelationshipVisible));
+  updateManualLayer();
   if(mapSelectedId) requestAnimationFrame(()=>applyMapSelection(mapSelectedId,mapSelectedSource||sourceForEntity(mapSelectedId)));
 }
 function drawGlobe(){
@@ -933,19 +2107,37 @@ const modeler=document.getElementById("modeler");
 detail.addEventListener("click",e=>{
   const row=e.target.closest("[data-select-id]");
   if(row){ select(row.dataset.selectId); return; }
+  const assetRow=e.target.closest("[data-asset-id]");
+  if(assetRow){ openAssetWidget(assetRow.dataset.assetId); return; }
   const actionEl=e.target.closest("[data-action]");
   const action=actionEl?.dataset.action;
   if(!action) return;
+  e.preventDefault();
   if(action==="close-detail") deselect();
+  else if(action==="valuation-case"){
+    const host=actionEl.closest("[data-valuation-asset]");
+    if(host) hydrateValuation(host.dataset.valuationAsset,actionEl.dataset.case||"base");
+  }
+  else if(action==="valuation-save") saveValuationAssumptions(actionEl.closest("[data-valuation-asset]"));
+  else if(action==="generate-report") generateReport(actionEl.dataset.objectType,actionEl.dataset.objectId);
+  else if(action==="add-override") addOverride(actionEl.dataset.objectType,actionEl.dataset.objectId);
+  else if(action==="delete-override") deleteOverride(actionEl.dataset.overrideId);
   else if(action==="map-network") networkFromMapIds();
   else if(action==="self-view") openSelfView(actionEl.dataset.id);
   else if(action==="financial-model") openModeler(actionEl.dataset.id);
   else if(action==="research") askAbout(actionEl.dataset.name,actionEl.dataset.ticker);
+  else if(action==="manual-focus") focusManualObject(actionEl.dataset.id);
+  else if(action==="manual-delete") deleteManualObject(actionEl.dataset.id);
 });
 modeler.addEventListener("click",async e=>{
-  const action=e.target.closest("[data-action]")?.dataset.action;
+  const actionEl=e.target.closest("[data-action]");
+  const action=actionEl?.dataset.action;
+  if(!action) return;
+  e.preventDefault();
+  e.stopPropagation();
   if(action==="close-modeler") closeModeler();
   if(action==="run-model") await runIntrinsicModel();
+  if(action==="export-model") await exportDcfModel();
 });
 function displayLabel(c){ const short=c.n.length>12?c.n.slice(0,11)+"…":c.n; return (c.kind==="public"||c.kind==="security")&&c.t?c.t:short; }
 function subtitle(c){
@@ -990,8 +2182,34 @@ function topCounterpartiesHtml(inc,id){
   if(!rows.length) return "";
   return `<div class="counterparties"><div class="section-h">Top counterparties</div><div class="counterparty-list">${rows.map(row=>`<div class="counterparty" data-select-id="${esc(row.node.id)}"><span class="sw" style="background:${SECTORS[row.node.sec]?.color||"#9aa6b6"}"></span><span class="nm">${esc(row.node.n)}</span><span class="why">${esc([...row.rels].slice(0,2).join(" / "))}${row.value>0?` · ${fmtBn(row.value)}`:""}</span></div>`).join("")}</div></div>`;
 }
+function companyAssetsBlock(id){
+  return `<div class="counterparties" id="companyAssetsBlock" data-company-assets="${esc(id)}"><div class="section-h">Assets</div><div class="story-meta">Loading owned, operated, leased, financed, and supplied assets…</div></div>`;
+}
+async function loadCompanyAssets(id){
+  const host=document.querySelector(`[data-company-assets="${CSS.escape(id)}"]`);
+  if(!host) return;
+  try{
+    const res=await fetch(`/api/entity/${encodeURIComponent(id)}/assets`,{cache:"no-store"});
+    if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const filters=selectedEntityFilters();
+    const rows=((await res.json()).assets||[]).filter(a=>{
+      const rel=a.asset_relationship||{};
+      if(filters.rel&&rel.relationship_type!==filters.rel) return false;
+      if(filters.asset&&a.asset_type!==filters.asset) return false;
+      if(Number(rel.confidence??a.confidence??0)<filters.confidence) return false;
+      return true;
+    });
+    if(!rows.length){ host.innerHTML=`<div class="section-h">Assets</div><div class="story-meta">No mapped physical assets yet. Owner relationship unknown where not explicitly linked.</div>`; return; }
+    host.innerHTML=`<div class="section-h">Assets</div><div class="counterparty-list">${rows.map(a=>{
+      const rel=a.asset_relationship||{},value=(a.farm_profile?.current_estimated_value||a.industrial_profile?.estimated_project_cost||""),risk=(a.farm_profile?.risk_score??a.industrial_profile?.risk_score??"pending");
+      return `<div class="counterparty" data-asset-id="${esc(a.id)}"><span class="sw" style="background:#f59e0b"></span><span class="nm">${esc(a.name||a.id)}</span><span class="why">${esc(rel.relationship_type||"CONNECTED")} · ${esc(a.asset_type||"asset")} · ${esc(a.city||a.state||a.country||"location")} · ${value?compactMoney(value):"value pending"} · ${esc(a.status||"status pending")} · risk ${esc(risk)} · ${confidencePct(rel.confidence??a.confidence)} · ${esc(rel.source||a.source||"source pending")} · ${esc(rel.status||"inferred")}</span></div>`;
+    }).join("")}</div>`;
+  }catch(err){
+    host.innerHTML=`<div class="section-h">Assets</div><div class="story-meta">Could not load assets: ${esc(err.message||err)}</div>`;
+  }
+}
 function select(id){
-  selected=id; globeSelectionLabel=""; const c=byId[id]; if(!nodeElsById[id]) buildNode(c); const lab=displayLabel(c); document.getElementById("stSel").textContent=lab;
+  manualSelectedId=null; selected=id; globeSelectionLabel=""; const c=byId[id]; if(!nodeElsById[id]) buildNode(c); const lab=displayLabel(c); document.getElementById("stSel").textContent=lab;
   const inc=visibleEdges().filter(l=>l.from===id||l.to===id);
   const heldBy=inc.filter(l=>l.rel==="funds"&&l.to===id);
   const holds=inc.filter(l=>l.rel==="funds"&&l.from===id);
@@ -1023,30 +2241,47 @@ function select(id){
   const securityMeta=c.kind==="security"?`<div><span>Security type</span><b>${esc(c.security_type_group||c.security_type||"Security")}</b></div><div><span>Issuer</span><b>${esc(byId[c.issuer_id]?.n||c.issuer_id||"—")}</b></div>`:"";
   const hq=hqSummary(c),filing=latestFiling(c),sourceConf=Number(c.source_confidence||0),p=c.price||{};
   let html=`<div class="hd"><div class="top"><div>
-    <h2>${esc(c.n)}</h2><div class="tick">${esc(subtitle(c))}</div></div><button class="close" data-action="close-detail">&times;</button></div>
-    <span class="badge" style="background:${sector.color}22;color:${sector.color};">${esc(sector.name)}</span><span class="badge outline">${esc(entityTypeLabel(c))}</span><span class="badge signal">${esc(confidenceBand(sourceConf))} confidence</span>
+    <h2>${esc(c.n)}</h2><div class="tick">${esc(subtitle(c))}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div>
+    <span class="badge" style="background:${sector.color}22;color:${sector.color};">${esc(sector.name)}</span><span class="badge outline">${esc(entityTypeLabel(c))}</span><span class="badge signal">${esc(confidenceBand(sourceConf))} confidence</span><span class="badge lens">${esc(LENSES[productPrefs.lens]?.[0]||"Company Research")}</span>
     <div class="meta"><div><span>Node type</span><b>${esc(entityTypeLabel(c))}</b></div><div><span>Listing</span><b>${esc(listingSummary(c))}</b></div><div><span>Connections</span><b>${inc.length} visible · ${c.deg||0} total</b></div><div class="span2"><span>Canonical HQ</span><b>${esc(hq.text)}</b></div><div><span>HQ source</span><b>${esc(hq.source)} · ${confidencePct(hq.confidence)}</b></div><div><span>Latest filing</span><b>${filing?`${esc(filing.form)} · ${esc(filing.filingDate)}`:"—"}</b></div><div><span>Recent price</span><b>${p.price!=null?`${fmtPrice(p.price)} · ${fmtPct(p.day_change_pct)}`:"—"}</b></div><div><span>Source confidence</span><b>${confidencePct(sourceConf)}</b></div>${securityMeta}<div><span>Group</span><b>${esc(c.group||"—")}</b></div><div><span>Sub-industry</span><b>${esc(c.sub||"—")}</b></div><div><span>Founded</span><b>${esc(c.f||"—")}</b></div><div><span>Ended</span><b>${esc(c.end_date||"—")}</b></div></div>
-    <div class="detail-actions"><button class="primary" data-action="self-view" data-id="${esc(id)}">Self view</button><button data-action="financial-model" data-id="${esc(id)}">Financial Modeling</button></div></div><div class="body">`;
+    <div class="detail-actions"><button class="primary" type="button" data-action="self-view" data-id="${esc(id)}">Self view</button><button type="button" data-action="financial-model" data-id="${esc(id)}">Financial Modeling</button></div></div><div class="body">`;
   if(kpis.length) html+=`<div class="kpis">${kpis.slice(0,3).map(x=>`<div class="kpi"><div class="v">${x.v}</div><div class="l">${x.l}</div></div>`).join("")}</div>`;
-  html+=topCounterpartiesHtml(inc,id);
-  html+=`<div class="rels">`;
+  if(sectionOn("counterparties")) html+=topCounterpartiesHtml(inc,id);
+  html+=companyAssetsBlock(id);
+  if(sectionOn("lens")) html+=lensContextBlock(c,inc);
+  if(sectionOn("relationships")) html+=`<div class="rels">`;
   const tot=inc.length;
-  if(!tot) html+=`<div class="empty">No visible relationships for this year and filter set. Structural edges are shown only when a source, generated overlay, or curated record exists.</div>`;
-  html+=grp("Government contracts from",contractFrom,id,RELS.contracts?.color||"#58c7f3");
-  html+=grp("Contracts issued to",contractTo,id,RELS.contracts?.color||"#58c7f3");
-  html+=grp("Supplied by",suppliedBy,id,"#2ec9a4");
-  html+=grp("Supplies to",suppliesTo,id,"#2ec9a4");
-  html+=grp("Held by",heldBy,id,"#f0b341");
-  html+=grp("Holdings",holds,id,"#f0b341");
-  html+=grp("Partners",partners,id,"#9b8cff");
-  html+=grp("Same issuer / listing",sameIssuer,id,RELS.same_issuer?.color||"#7fb3ff");
-  html+=grp("Owns",owns,id,RELS.owns?.color||"#d0a7ff");
-  html+=grp("Owned by",ownedBy,id,RELS.owns?.color||"#d0a7ff");
-  html+=grp("Acquired / absorbed",acquired,id,RELS.acquired?.color||"#c6a15b");
-  html+=grp("Acquired by",acquiredBy,id,RELS.acquired?.color||"#c6a15b");
-  html+=grp("Government action",govActions,id,RELS.government_action?.color||"#ff7f6e");
-  html+=`</div>${candidateBlock(c)}${marketBlock(c)}${filingsBlock(c)}${researchBlock(c)}${newsBlock(c)}</div>`;
-  detail.innerHTML=html; detail.classList.add("show"); document.getElementById("hint").style.display="none"; draw(); if(mode==="globe") applyMapSelection(id,sourceForEntity(id));
+  if(sectionOn("relationships")){
+    if(!tot) html+=`<div class="empty">No visible relationships for this year and filter set. Structural edges are shown only when a source, generated overlay, or curated record exists.</div>`;
+    html+=grp("Government contracts from",contractFrom,id,RELS.contracts?.color||"#58c7f3");
+    html+=grp("Contracts issued to",contractTo,id,RELS.contracts?.color||"#58c7f3");
+    html+=grp("Supplied by",suppliedBy,id,"#2ec9a4");
+    html+=grp("Supplies to",suppliesTo,id,"#2ec9a4");
+    html+=grp("Held by",heldBy,id,"#f0b341");
+    html+=grp("Holdings",holds,id,"#f0b341");
+    html+=grp("Partners",partners,id,"#9b8cff");
+    html+=grp("Same issuer / listing",sameIssuer,id,RELS.same_issuer?.color||"#7fb3ff");
+    html+=grp("Owns",owns,id,RELS.owns?.color||"#d0a7ff");
+    html+=grp("Owned by",ownedBy,id,RELS.owns?.color||"#d0a7ff");
+    html+=grp("Acquired / absorbed",acquired,id,RELS.acquired?.color||"#c6a15b");
+    html+=grp("Acquired by",acquiredBy,id,RELS.acquired?.color||"#c6a15b");
+    html+=grp("Government action",govActions,id,RELS.government_action?.color||"#ff7f6e");
+    html+=`</div>`;
+  }
+  html+=`${evidenceBlock("entity",id)}${sectionOn("candidates")?candidateBlock(c):""}${sectionOn("market")?marketBlock(c):""}${sectionOn("filings")?filingsBlock(c):""}${sectionOn("research")?researchBlock(c):""}${sectionOn("news")?newsBlock(c):""}</div>`;
+  detail.innerHTML=html; detail.classList.add("show"); document.getElementById("hint").style.display="none"; loadCompanyAssets(id); hydrateEvidence("entity",id); loadCompanyAssetOverlay(id); draw(); if(mode==="globe") applyMapSelection(id,sourceForEntity(id)); queueSaveView();
+}
+function lensContextBlock(c,inc){
+  const lens=productPrefs.lens;
+  if(lens==="political"){
+    const gov=inc.filter(l=>l.rel==="contracts"||l.rel==="government_action");
+    return `<div class="lens-context"><div class="section-h">Political exposure lens</div><div class="market-card">Public overlap only. Contracts/actions visible now: <b>${gov.length}</b>. No corruption inference is made; timing and source evidence must carry the claim.</div></div>`;
+  }
+  if(lens==="facility"||lens==="farm"||lens==="acquisition"){
+    return `<div class="lens-context"><div class="section-h">${esc(LENSES[lens][0])}</div><div class="market-card">Use Maker to add manual sites, parcels, farms, routes, or opportunities around this object. Public enrichment waits until the local map is useful.</div></div>`;
+  }
+  if(lens==="security"&&c.kind!=="security") return "";
+  return `<div class="lens-context"><div class="section-h">${esc(LENSES[lens]?.[0]||"Company Research")}</div><div class="market-card">${esc(LENSES[lens]?.[1]||"Object evidence and relationships.")}</div></div>`;
 }
 function grp(title,arr,id,color){
   if(!arr.length) return "";
@@ -1117,15 +2352,43 @@ function openModeler(id){
   const issuer=c.issuer_id&&byId[c.issuer_id]?byId[c.issuer_id]:c;
   const disabled=["Residual Income","Earnings-Based","Accounting Asset Approaches","Economic Asset Approaches","Bayesian Methods","Option-Based Valuation","Stochastic Processes","Private Equity / LBO","Sector-Specific: Insurance","Sector-Specific: REITs","Sector-Specific: Energy / Mining","Sector-Specific: Biotech","Hybrid Methods"];
   modeler.dataset.id=issuer.id;
-  modeler.innerHTML=`<div class="hd"><div class="top"><div><h3>Financial Modeling</h3><div class="sub">${esc(c.id===issuer.id?c.n:`${c.n} · issuer model: ${issuer.n}`)}</div></div><button class="close" data-action="close-modeler">&times;</button></div></div>
+  modeler.innerHTML=`<div class="hd"><div class="top"><div><h3>Financial Modeling</h3><div class="sub">${esc(c.id===issuer.id?c.n:`${c.n} · issuer model: ${issuer.n}`)}</div></div><button class="close" type="button" data-action="close-modeler">&times;</button></div></div>
     <div class="body"><div class="section-h">Intrinsic Valuation Model</div>
     <div class="choice"><label><span>Cash Flow Based</span><input type="radio" name="valuation-method" value="cash_flow" checked></label><label><span>Dividend Based</span><input type="radio" name="valuation-method" value="dividend"></label></div>
-    <button class="primary" data-action="run-model">Generate model from SEC facts</button>
-    <div id="modelResult" class="result">Uses local node metadata plus SEC companyfacts when available. Other models are visible below but intentionally locked until the data pipeline is ready.</div>
+    <button class="primary" type="button" data-action="export-model">Export selected DCF to Excel</button>
+    <button type="button" data-action="run-model" style="margin-top:8px;">Quick browser estimate</button>
+    <div id="modelResult" class="result">Excel export uses backend SEC companyfacts. Estimated time: 5-15 seconds when cached, 30-90 seconds if the SEC facts file must be fetched first. Keep this tab open while the workbook is prepared.</div>
     <div class="section-h">Later models</div><div class="choice">${disabled.map(x=>`<div class="locked"><span>${esc(x)}</span><span>Later</span></div>`).join("")}</div></div>`;
   modeler.classList.add("show");
+  queueSaveView();
 }
-function closeModeler(){ modeler.classList.remove("show"); }
+function closeModeler(){ modeler.classList.remove("show"); queueSaveView(); }
+function dcfApiBase(){ return location.port==="8788"?location.origin:"http://127.0.0.1:8788"; }
+function dcfFilename(c,method){
+  return `${String(c.t||c.id||"entity").replace(/[^A-Za-z0-9_-]+/g,"_")}_${method}_dcf.xlsx`;
+}
+async function exportDcfModel(){
+  const c=byId[modeler.dataset.id],out=document.getElementById("modelResult");
+  if(!c||!out) return;
+  const method=modeler.querySelector("input[name='valuation-method']:checked")?.value||"cash_flow";
+  out.innerHTML=`<b>Preparing ${esc(method==="dividend"?"Dividend Based":"Cash Flow Based")} DCF workbook...</b><br>Estimated time: 5-15 seconds if cached, 30-90 seconds on first SEC fetch.`;
+  try{
+    const res=await fetch(`${dcfApiBase()}/api/entity/${encodeURIComponent(c.id)}/dcf.xlsx?method=${encodeURIComponent(method)}`);
+    if(!res.ok){
+      let message=res.statusText;
+      try{ message=(await res.json()).error||message; }catch(_err){}
+      throw new Error(message||`HTTP ${res.status}`);
+    }
+    const blob=await res.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url; a.download=dcfFilename(c,method); document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),30000);
+    out.innerHTML=`<b>Excel export ready.</b><br>${esc(a.download)} was generated from SEC companyfacts with editable assumptions and audit/source sheets.`;
+  }catch(err){
+    out.innerHTML=`<b>Excel export backend is offline or missing data.</b><br>${esc(err.message||err)}<br>Start the app with <code>python3 map_api.py</code>, then open <code>http://127.0.0.1:8788/index.html</code> and try again.`;
+  }
+}
 function latestFact(payload,names){
   const facts=payload?.facts?.["us-gaap"]||{};
   for(const name of names){
@@ -1176,7 +2439,7 @@ async function runIntrinsicModel(){
     out.textContent=`Could not load SEC companyfacts: ${err.message}. Cache this entity with: python3 cache_companyfacts.py ${c.t||c.cik}`;
   }
 }
-function deselect(){ selected=null; globeSelectionLabel=""; clearMapSelection(); detail.classList.remove("show"); closeModeler(); document.getElementById("stSel").textContent="—"; draw(); }
+function deselect(){ selected=null; manualSelectedId=null; globeSelectionLabel=""; selectedEntityAssetFeatures=[]; map?.getSource("selected_entity_assets")?.setData(EMPTY_GEOJSON); map?.getSource("selected_entity_asset_links")?.setData(EMPTY_GEOJSON); clearMapSelection(); detail.classList.remove("show"); closeModeler(); document.getElementById("stSel").textContent="—"; draw(); queueSaveView(); }
 function openSelfView(id){ const u=new URL(location.href); u.search=""; u.searchParams.set("self",id); window.open(u.toString(),"_blank"); }
 function askAbout(name,t){ window.open("https://claude.ai/new?q="+encodeURIComponent("Analyze "+name+" ("+t+"): public filings, ownership, suppliers, customers, government contracts, historical status, and relationship risks."),"_blank"); }
 window.select=select; window.deselect=deselect; window.openSelfView=openSelfView; window.askAbout=askAbout;
@@ -1190,39 +2453,415 @@ window.stressIndex=async(n=50000)=>{
   await setMode("index");
   return {nodes:COMPANIES.length,svgNodes:document.querySelectorAll("#nodes .node-g").length};
 };
-window.graphState=()=>({mode,companies:COMPANIES.length,bulkLoaded,selected,selfViewId,selfViewNodes:selfViewNodes.size,svgNodes:document.querySelectorAll("#nodes .node-g").length,canvasDisplay:getComputedStyle(canvas).display,stats:document.getElementById("stNodes").textContent});
+window.graphState=()=>({mode,companies:COMPANIES.length,bulkLoaded,selected,manualSelectedId,manualNodes:manualLayer.nodes.length,lens:productPrefs.lens,selfViewId,selfViewNodes:selfViewNodes.size,svgNodes:document.querySelectorAll("#nodes .node-g").length,canvasDisplay:getComputedStyle(canvas).display,stats:document.getElementById("stNodes").textContent});
 window.graphPoint=id=>{ const c=byId[id],r=svg.getBoundingClientRect(); return c?{x:r.left+c.x*k+tx,y:r.top+c.y*k+ty}:null; };
+
+/* ---------- product controls + manual layer ---------- */
+const PALETTES={"Laser Red":"#ff3045","Signal White":"#f8fafc","Steel Blue":"#5aa2ff","Amber":"#f0b341","Emerald":"#2ec9a4","Bone":"#d8cab0"};
+const LENSES={
+  company:["Company Research","filings, prices, counterparties, evidence"],
+  security:["Security Research","issuer, listing, security wrapper, filing links"],
+  political:["Political Exposure","contracts, public-policy relevance, timing guardrails"],
+  facility:["Facility Analysis","manual sites, power, permits, infrastructure notes"],
+  farm:["Farm And Commodity","manual parcels, weather sensitivity, commodity assumptions"],
+  acquisition:["Acquisition","targets, owners, routes, custom notes, export"]
+};
+function sectionOn(key){ return productPrefs.maker.sections[key]!==false; }
+function setWorkspacePanel(name){
+  activeRailPanel=activeRailPanel===name?"":name;
+  document.getElementById("workspacePanel").classList.toggle("show",!!activeRailPanel);
+  document.querySelectorAll("#rail button, #gearPanel button[data-rail]").forEach(b=>b.classList.toggle("active",b.dataset.rail===activeRailPanel));
+  renderWorkspacePanel();
+}
+function renderWorkspacePanel(){
+  const panel=document.getElementById("workspacePanel");
+  if(!activeRailPanel){ panel.innerHTML=""; return; }
+  if(activeRailPanel==="engine"){
+    panel.innerHTML=`<h3>Engine</h3><p>Global behavior and visual density.</p>
+      <label class="control-row"><span>Accent</span><select data-engine="accent">${Object.entries(PALETTES).map(([n,v])=>`<option value="${v}" ${productPrefs.engine.accent===v?"selected":""}>${n}</option>`).join("")}</select></label>
+      <label class="control-row"><span>Labels</span><select data-engine="labels">${["major","close","all","none"].map(v=>`<option value="${v}" ${productPrefs.engine.labels===v?"selected":""}>${v}</option>`).join("")}</select></label>
+      <label class="control-row"><span>Node scale</span><input data-engine="nodeScale" type="range" min=".7" max="1.6" step=".05" value="${productPrefs.engine.nodeScale}"></label>
+      <label class="control-row"><span>Line intensity</span><input data-engine="edgeOpacity" type="range" min=".35" max="1.8" step=".05" value="${productPrefs.engine.edgeOpacity}"></label>
+      <label class="control-row"><span>Terrain / relief</span><input data-engine="terrain" type="checkbox" ${productPrefs.engine.terrain?"checked":""}></label>
+      <label class="control-row"><span>Motion</span><input data-engine="motion" type="checkbox" ${productPrefs.engine.motion?"checked":""}></label>`;
+    return;
+  }
+  if(activeRailPanel==="maker"){
+    const sections=["counterparties","relationships","lens","candidates","market","filings","research","news"];
+    panel.innerHTML=`<h3>Maker</h3><p>Choose what the object drawer shows and manage the local scenario layer.</p>
+      ${sections.map(k=>`<label class="control-row"><span>${esc(k)}</span><input data-maker-section="${k}" type="checkbox" ${sectionOn(k)?"checked":""}></label>`).join("")}
+      <button class="primary" type="button" data-action="manual-add-node">Add node at map center</button>
+      <button type="button" data-action="manual-connect-selected">Connect selected object to latest node</button>
+      <button type="button" data-action="manual-export-json">Export scenario JSON</button>
+      <button type="button" data-action="manual-export-csv">Export nodes + edges CSV</button>
+      <button type="button" data-action="manual-import-json">Import scenario JSON</button>
+      <div class="manual-list">${manualLayer.nodes.slice(-8).reverse().map(n=>`<div class="manual-row" data-manual-id="${esc(n.id)}"><span>${esc(n.name)}</span><span>${esc(n.type||"custom")}</span></div>`).join("")||`<p>No manual objects yet.</p>`}</div>`;
+    return;
+  }
+  if(activeRailPanel==="lenses"){
+    panel.innerHTML=`<h3>Lenses</h3><p>Task presets, not raw settings.</p>${Object.entries(LENSES).map(([id,[name,desc]])=>`<div class="lens-pill ${productPrefs.lens===id?"active":""}" data-lens="${id}"><span>${name}</span><span>${desc}</span></div>`).join("")}`;
+  }
+}
+async function addManualNodeAtCenter(){
+  if(mode!=="globe") await setMode("globe");
+  if(!map) return;
+  const center=map.getCenter(),now=new Date().toISOString();
+  const name=prompt("Manual object name", "NYC customer cluster");
+  if(!name) return;
+  const type=prompt("Object type", "customer_cluster")||"custom";
+  manualLayer.nodes.push({id:`manual:${Date.now().toString(36)}`,name,type,lat:Number(center.lat.toFixed(6)),lng:Number(center.lng.toFixed(6)),source:"manual",confidence:.7,created_at:now,updated_at:now,notes:""});
+  saveManualLayer(); updateManualLayer(); renderWorkspacePanel();
+}
+function connectSelectedToLatestManual(){
+  const target=manualLayer.nodes.at(-1);
+  if(!selected||!byId[selected]||!target){ alert("Select a public object and create a manual node first."); return; }
+  const now=new Date().toISOString();
+  manualLayer.edges.push({id:`manual_edge:${Date.now().toString(36)}`,from:selected,to:target.id,type:"exposed_to",source:"manual",confidence:.7,created_at:now,updated_at:now});
+  saveManualLayer(); updateManualLayer(); renderWorkspacePanel();
+}
+function csv(rows){
+  return rows.map(row=>row.map(v=>`"${String(v??"").replaceAll('"','""')}"`).join(",")).join("\n")+"\n";
+}
+function exportManualCsv(){
+  downloadText("oasis_manual_nodes.csv",csv([["id","name","type","lat","lng","source","confidence","notes"],...manualLayer.nodes.map(n=>[n.id,n.name,n.type,n.lat,n.lng,n.source,n.confidence,n.notes])]),"text/csv");
+  downloadText("oasis_manual_edges.csv",csv([["id","from","to","type","source","confidence"],...manualLayer.edges.map(e=>[e.id,e.from,e.to,e.type,e.source,e.confidence])]),"text/csv");
+}
+function showManualTip(n,x,y){
+  tip.innerHTML=`<b>${esc(n.name)}</b><span class="t2">${esc(n.type||"manual object")} · manual layer</span><div class="t3">${esc(n.source||"manual")} · confidence ${confidencePct(n.confidence)}</div>`;
+  place(x,y);
+}
+function showManualObject(id){
+  const n=manualLayer.nodes.find(x=>x.id===id);
+  if(!n) return;
+  manualSelectedId=id; selected=null; clearMapSelection();
+  const edges=manualLayer.edges.filter(e=>e.from===id||e.to===id);
+  document.getElementById("stSel").textContent=n.name;
+  detail.innerHTML=`<div class="hd"><div class="top"><div><h2>${esc(n.name)}</h2><div class="tick">Manual object · ${esc(n.id)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div>
+    <span class="badge lens">User layer</span><span class="badge outline">${esc(n.type||"custom")}</span><span class="badge signal">${confidenceBand(n.confidence)} confidence</span>
+    <div class="meta"><div><span>Object type</span><b>${esc(n.type||"custom")}</b></div><div><span>Location</span><b>${n.lat}, ${n.lng}</b></div><div><span>Source</span><b>${esc(n.source||"manual")}</b></div><div class="span2"><span>Notes</span><b>${esc(n.notes||"—")}</b></div><div><span>Edges</span><b>${edges.length}</b></div></div>
+    <div class="detail-actions"><button class="primary" type="button" data-action="manual-focus" data-id="${esc(id)}">Focus map</button><button type="button" data-action="manual-delete" data-id="${esc(id)}">Delete</button></div></div>
+    <div class="body"><div class="manual-detail"><div class="section-h">Manual relationships</div>${edges.map(e=>`<div class="story-title">${esc(e.type)} · ${esc(e.from===id?e.to:e.from)}</div>`).join("")||`<div class="empty">No manual edges yet.</div>`}</div></div>`;
+  detail.classList.add("show"); queueSaveView();
+}
+function deleteManualObject(id){
+  manualLayer.nodes=manualLayer.nodes.filter(n=>n.id!==id);
+  manualLayer.edges=manualLayer.edges.filter(e=>e.from!==id&&e.to!==id);
+  manualSelectedId=null; saveManualLayer(); updateManualLayer(); renderWorkspacePanel(); deselect();
+}
+function focusManualObject(id){
+  const n=manualLayer.nodes.find(x=>x.id===id);
+  if(n&&map) map.easeTo({center:[n.lng,n.lat],zoom:Math.max(map.getZoom(),6),duration:450});
+}
+function activateLens(id){
+  if(!LENSES[id]) return;
+  productPrefs.lens=id;
+  saveProductPrefs(); renderWorkspacePanel();
+  if(selected&&byId[selected]) select(selected);
+}
+async function handleRailAction(r){
+  if(r==="map"||r==="network"){
+    activeRailPanel="";
+    document.getElementById("workspacePanel").classList.remove("show");
+    renderWorkspacePanel();
+    await setMode(r==="map"?"globe":"network");
+    return;
+  }
+  if(r==="model"){ selected&&byId[selected]?openModeler(selected):setWorkspacePanel("maker"); return; }
+  setWorkspacePanel(r);
+}
+document.getElementById("rail").addEventListener("click",async e=>{
+  const btn=e.target.closest("[data-rail]");
+  if(!btn) return;
+  await handleRailAction(btn.dataset.rail);
+});
+document.getElementById("gearPanel").addEventListener("click",async e=>{
+  const btn=e.target.closest("[data-rail]");
+  if(!btn) return;
+  await handleRailAction(btn.dataset.rail);
+});
+document.getElementById("gearBtn").onclick=()=>toggleToolPanel("gearPanel");
+document.getElementById("dataBtn").onclick=()=>toggleToolPanel("dataPanel");
+document.getElementById("toolThemeBtn").onclick=function(){ const light=document.documentElement.getAttribute("data-theme")==="light"; document.documentElement.setAttribute("data-theme",light?"dark":"light"); syncThemeButton(); queueSaveView(); };
+document.getElementById("toolGlobeBtn").onclick=()=>setMode("globe");
+document.getElementById("toolModeBtn").onclick=()=>setMode(mode==="network"?"index":"network");
+document.getElementById("dataPanel").addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.marketFilter){
+    productPrefs.marketplace[el.dataset.marketFilter]=el.value;
+    saveProductPrefs();
+    loadDueDiligenceSource("marketplace_listings");
+    queueSaveView();
+    return;
+  }
+  if(el.dataset.assetGraphFilter){
+    productPrefs.assetGraph[el.dataset.assetGraphFilter]=el.value;
+    saveProductPrefs();
+    refreshSelectedEntityAssetOverlay();
+    if(selected) loadCompanyAssets(selected);
+    renderDataLayerPresets();
+    queueSaveView();
+    return;
+  }
+  if(el.dataset.terrainExaggeration!==undefined){
+    productPrefs.engine.terrainExaggeration=Number(el.value);
+    saveProductPrefs();
+    applyDueDiligenceLayerVisibility();
+    renderDataLayerPresets();
+    queueSaveView();
+    return;
+  }
+  if(el.dataset.layerToggle){
+    setDataLayer(el.dataset.layerToggle,el.checked);
+    return;
+  }
+  const key=el.dataset.toolKind;
+  if(!key) return;
+  kindOn[key]=el.checked;
+  refresh(true);
+  buildToolKinds();
+});
+document.getElementById("dataPanel").addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset.marketFilter){
+    productPrefs.marketplace[el.dataset.marketFilter]=el.value;
+    saveProductPrefs();
+    clearTimeout(dueDiligenceLoadTimer);
+    dueDiligenceLoadTimer=setTimeout(()=>loadDueDiligenceSource("marketplace_listings"),180);
+    queueSaveView();
+    return;
+  }
+  if(el.dataset.assetGraphFilter){
+    productPrefs.assetGraph[el.dataset.assetGraphFilter]=el.value;
+    el.closest(".marketplace-controls")?.querySelector(".terrain-control-row b")?.replaceChildren(`${Math.round(Number(el.value||0)*100)}%`);
+    saveProductPrefs();
+    refreshSelectedEntityAssetOverlay();
+    if(selected) loadCompanyAssets(selected);
+    queueSaveView();
+    return;
+  }
+  if(el.dataset.terrainExaggeration===undefined) return;
+  productPrefs.engine.terrainExaggeration=Number(el.value);
+  el.closest(".terrain-controls")?.querySelector("b")?.replaceChildren(`${Number(el.value).toFixed(1)}x`);
+  saveProductPrefs();
+  applyDueDiligenceLayerVisibility();
+  queueSaveView();
+});
+document.getElementById("dataPanel").addEventListener("click",e=>{
+  const marketView=e.target.closest("[data-market-view]");
+  if(marketView){
+    productPrefs.marketplace.view=marketView.dataset.marketView;
+    saveProductPrefs();
+    renderDataLayerPresets();
+    return;
+  }
+  const listing=e.target.closest("[data-listing-id]");
+  if(listing){
+    showListingWidget(listing.dataset.listingId);
+    return;
+  }
+  const btn=e.target.closest("[data-layer-preset]");
+  if(!btn) return;
+  const id=btn.dataset.layerPreset;
+  DATA_LAYER_OPEN[id]=!DATA_LAYER_OPEN[id];
+  renderDataLayerPresets();
+});
+document.addEventListener("click",e=>{
+  if(!document.body.contains(e.target)) return;
+  if(e.target.closest("#gearBtn,#dataBtn,.tool-panel")) return;
+  document.querySelectorAll(".tool-panel").forEach(p=>p.classList.remove("show"));
+});
+document.getElementById("workspacePanel").addEventListener("change",e=>{
+  const el=e.target;
+  if(el.dataset.engine){
+    const k=el.dataset.engine;
+    productPrefs.engine[k]=el.type==="checkbox"?el.checked:(el.type==="range"?Number(el.value):el.value);
+    saveProductPrefs(); applyProductPrefs(); queueSaveView();
+  }
+  if(el.dataset.makerSection){
+    productPrefs.maker.sections[el.dataset.makerSection]=el.checked;
+    saveProductPrefs(); if(selected&&byId[selected]) select(selected);
+  }
+});
+document.getElementById("workspacePanel").addEventListener("click",async e=>{
+  const lens=e.target.closest("[data-lens]");
+  if(lens){ activateLens(lens.dataset.lens); return; }
+  const row=e.target.closest("[data-manual-id]");
+  if(row){ showManualObject(row.dataset.manualId); return; }
+  const action=e.target.closest("[data-action]")?.dataset.action;
+  if(action==="manual-add-node") await addManualNodeAtCenter();
+  if(action==="manual-connect-selected") connectSelectedToLatestManual();
+  if(action==="manual-export-json") downloadText("oasis_manual_scenario.json",JSON.stringify(manualLayer,null,2),"application/json");
+  if(action==="manual-export-csv") exportManualCsv();
+  if(action==="manual-import-json") document.getElementById("manualImport").click();
+});
+document.getElementById("manualImport").addEventListener("change",async e=>{
+  const file=e.target.files?.[0];
+  if(!file) return;
+  try{
+    manualLayer=normalizeManualLayer(JSON.parse(await file.text()));
+    saveManualLayer(); updateManualLayer(); renderWorkspacePanel();
+  }catch(err){
+    alert(`Could not import scenario JSON: ${err.message}`);
+  }
+  e.target.value="";
+});
 
 /* ---------- filters ---------- */
 function buildFilters(){
-  const kf=document.getElementById("kindFilters");
-  Object.keys(kindOn).sort((a,b)=>(kindMeta[a]?.name||a).localeCompare(kindMeta[b]?.name||b)).forEach(key=>{
-    const meta=kindMeta[key]||{name:key,color:"#9aa6b6"};
-    const count=COMPANIES.filter(c=>c.kind===key).length;
-    const el=document.createElement("div"); el.className="chip"; el.innerHTML=`<span class="sw" style="background:${meta.color}"></span>${esc(meta.name)}<span class="count">${count}</span>`;
-    el.onclick=()=>{ kindOn[key]=!kindOn[key]; el.classList.toggle("off"); refresh(true); }; kf.appendChild(el);
-  });
   const sf=document.getElementById("sectorFilters");
   Object.entries(SECTORS).sort((a,b)=>a[1].name.localeCompare(b[1].name)).forEach(([key,v])=>{
     const count=COMPANIES.filter(c=>c.sec===key).length;
-    const el=document.createElement("div"); el.className="chip"; el.innerHTML=`<span class="sw" style="background:${v.color}"></span>${esc(v.name)}<span class="count">${count}</span>`;
+    const el=document.createElement("div"); el.className=`chip${sectorOn[key]?"":" off"}`; el.innerHTML=`<span class="sw" style="background:${v.color}"></span>${esc(v.name)}<span class="count">${count}</span>`;
     el.onclick=()=>{ sectorOn[key]=!sectorOn[key]; el.classList.toggle("off"); refresh(true); }; sf.appendChild(el);
   });
   const gf=document.getElementById("groupFilters");
   Object.entries(GROUPS).sort((a,b)=>a[1].name.localeCompare(b[1].name)).forEach(([key,v])=>{
     const count=COMPANIES.filter(c=>c.grp===key).length;
-    const el=document.createElement("div"); el.className="chip"; el.innerHTML=`<span class="sw" style="background:${v.color}"></span>${esc(v.name)}<span class="count">${count}</span>`;
+    const el=document.createElement("div"); el.className=`chip${groupOn[key]?"":" off"}`; el.innerHTML=`<span class="sw" style="background:${v.color}"></span>${esc(v.name)}<span class="count">${count}</span>`;
     el.onclick=()=>{ groupOn[key]=!groupOn[key]; el.classList.toggle("off"); refresh(true); }; gf.appendChild(el);
   });
   const rf=document.getElementById("relFilters");
   Object.entries(RELS).forEach(([key,v])=>{
     const count=LINKS.filter(l=>l.rel===key).length;
-    const el=document.createElement("div"); el.className="chip"; el.innerHTML=`<span class="ln" style="border-color:${v.color}"></span>${esc(v.name)}<span class="dir">${esc(v.dir||"")}</span>`;
+    const el=document.createElement("div"); el.className=`chip${relOn[key]?"":" off"}`; el.innerHTML=`<span class="ln" style="border-color:${v.color}"></span>${esc(v.name)}<span class="dir">${esc(v.dir||"")}</span>`;
     el.onclick=()=>{ relOn[key]=!relOn[key]; el.classList.toggle("off"); refresh(true); }; rf.appendChild(el);
   });
 }
+function buildToolKinds(){
+  const host=document.getElementById("toolKindFilters");
+  if(!host) return;
+  host.innerHTML="";
+  Object.keys(kindOn).sort((a,b)=>(kindMeta[a]?.name||a).localeCompare(kindMeta[b]?.name||b)).forEach(key=>{
+    const meta=kindMeta[key]||{name:key,color:"#9aa6b6"};
+    const count=COMPANIES.filter(c=>c.kind===key).length;
+    const row=document.createElement("label");
+    row.className="toggle-row";
+    row.innerHTML=`<span><span class="sw" style="background:${meta.color};margin-right:8px"></span>${esc(meta.name)} <span style="color:var(--text-3)">(${count})</span></span><input type="checkbox" data-tool-kind="${esc(key)}" ${kindOn[key]?"checked":""}>`;
+    host.appendChild(row);
+  });
+  renderDataLayerPresets();
+}
+function marketplaceControlsHtml(){
+  const m=productPrefs.marketplace||{};
+  const opt=(value,label)=>`<option value="${esc(value)}" ${m.asset_type===value?"selected":""}>${esc(label)}</option>`;
+  const input=(key,ph,type="text")=>`<input ${type==="number"?"type=\"number\" min=\"0\" step=\"any\"":"type=\"text\""} data-market-filter="${esc(key)}" value="${esc(m[key]||"")}" placeholder="${esc(ph)}">`;
+  return `<div class="marketplace-controls">
+    <select data-market-filter="asset_type">${MARKETPLACE_ASSET_TYPES.map(x=>opt(x[0],x[1])).join("")}</select>
+    ${input("location","Location")}
+    <div class="marketplace-grid">${input("min_price","Min price","number")}${input("max_price","Max price","number")}${input("min_acres","Min acres","number")}${input("max_acres","Max acres","number")}${input("min_square_feet","Min sq ft","number")}${input("max_square_feet","Max sq ft","number")}</div>
+    <div class="marketplace-grid">${input("zoning","Zoning")}${input("listing_status","Status")}${input("owner_type","Owner type")}${input("risk_max","Risk max","number")}${input("soil_quality_min","Soil min")}${input("infrastructure_distance_max","Infra miles max","number")}</div>
+    <div class="marketplace-grid"><input disabled value="Expected yield placeholder"><input disabled value="Estimated gain placeholder"></div>
+    <div class="marketplace-actions"><button type="button" data-market-view="cards" class="${m.view!=="table"?"active":""}">Cards</button><button type="button" data-market-view="table" class="${m.view==="table"?"active":""}">Table</button></div>
+    <div id="marketplaceResults" class="marketplace-results">${marketplaceResultsHtml()}</div>
+  </div>`;
+}
+function marketplaceResultsHtml(){
+  const rows=[...marketplaceListings];
+  const sort=productPrefs.marketplace?.sort||"price";
+  rows.sort((a,b)=>sort==="price"?(Number(a.price||0)-Number(b.price||0)):String(a.title||"").localeCompare(String(b.title||"")));
+  if(!rows.length) return `<div class="market-card-row"><span>No listings loaded for this view.</span></div>`;
+  if(productPrefs.marketplace?.view==="table"){
+    return rows.map(r=>`<div class="market-table-row" data-listing-id="${esc(r.id)}"><b>${esc(r.title||"Listing")}</b><span>${compactMoney(r.price)}</span><span>${esc(r.acreage?`${r.acreage} ac`:r.square_feet?`${r.square_feet} sf`:"—")}</span></div>`).join("");
+  }
+  return rows.map(r=>`<div class="market-card-row" data-listing-id="${esc(r.id)}"><b>${esc(r.title||"Listing")}</b><span>${esc(r.asset_type||"asset")} · ${compactMoney(r.price)} · ${esc(r.address||"")}</span></div>`).join("");
+}
+function renderMarketplaceResults(){
+  const host=document.getElementById("marketplaceResults");
+  if(host) host.innerHTML=marketplaceResultsHtml();
+}
+function assetGraphControlsHtml(){
+  const f=productPrefs.assetGraph||{},relTypes=["","OWNS","OPERATES","LEASES","FINANCES","SUPPLIES","BUILDS","MANAGES","PERMITS","REGULATES","LOCATED_ON","CONNECTED_TO","NEAR","LISTED_AS"];
+  const assetTypes=["","farm","data_center","factory","industrial_complex","government_facility","house","commercial_property","industrial_parcel","warehouse","franchise_location","data_center_site"];
+  return `<section class="layer-preset open">
+    <button class="preset-head" type="button" style="--layer-color:#60a5fa">
+      <span class="layer-icon">${DATA_ICON_SVG.link}</span><span class="preset-title">Company Assets</span><span class="preset-meta">bridge</span><span class="preset-chevron">▾</span>
+    </button>
+    <div class="preset-body"><div class="marketplace-controls">
+      <select data-asset-graph-filter="relationship_type">${relTypes.map(v=>`<option value="${esc(v)}" ${f.relationship_type===v?"selected":""}>${esc(v||"All relationship types")}</option>`).join("")}</select>
+      <select data-asset-graph-filter="asset_type">${assetTypes.map(v=>`<option value="${esc(v)}" ${f.asset_type===v?"selected":""}>${esc(v||"All asset types")}</option>`).join("")}</select>
+      <div class="terrain-control-row"><span>Min confidence</span><b>${Math.round(Number(f.confidence_min||0)*100)}%</b></div>
+      <input type="range" min="0" max="1" step="0.05" value="${esc(f.confidence_min||0)}" data-asset-graph-filter="confidence_min">
+    </div></div>
+  </section>`;
+}
+function dataQualityDashboardHtml(){
+  return `<section class="layer-preset open">
+    <button class="preset-head" type="button" style="--layer-color:#fbbf24">
+      <span class="layer-icon">${DATA_ICON_SVG.risk}</span><span class="preset-title">Data Quality</span><span class="preset-meta">audit</span><span class="preset-chevron">▾</span>
+    </button>
+    <div class="preset-body"><div class="quality-grid" id="dataQualityDashboard"><div class="story-meta">Loading evidence coverage…</div></div></div>
+  </section>`;
+}
+async function hydrateDataQuality(){
+  const host=document.getElementById("dataQualityDashboard");
+  if(!host) return;
+  try{
+    const [summaryRes,farmsRes,industrialRes,govRes]=await Promise.all([
+      fetch("/api/data-quality/summary",{cache:"no-store"}),
+      fetch("/api/data-quality/layer/farms",{cache:"no-store"}),
+      fetch("/api/data-quality/layer/industrial",{cache:"no-store"}),
+      fetch("/api/data-quality/layer/government",{cache:"no-store"})
+    ]);
+    if(!summaryRes.ok) throw new Error(`${summaryRes.status} ${summaryRes.statusText}`);
+    const s=await summaryRes.json(),farm=(await farmsRes.json()).metrics||{},ind=(await industrialRes.json()).metrics||{},gov=(await govRes.json()).metrics||{};
+    const rows=[
+      ["Evidence records",s.total_evidence_records],["Assets missing location",s.assets_missing_location],["Assets missing owner",s.assets_missing_owner],["Low-confidence relationships",s.low_confidence_relationships],["Stale records",s.stale_records],["Needs review",s.records_needing_review],
+      ["Farms missing acres",farm.farms_missing_acres],["Farms missing last sale",farm.farms_missing_last_sale_price],["Industrial missing project cost",ind.industrial_assets_missing_project_cost],["Data centers missing MW",ind.data_centers_missing_power_capacity],["Government missing source",gov.government_facilities_missing_source]
+    ];
+    host.innerHTML=rows.map(([k,v])=>`<div class="quality-row"><span>${esc(k)}</span><b>${Number(v||0).toLocaleString()}</b></div>`).join("");
+  }catch(err){
+    host.innerHTML=`<div class="story-meta">Could not load data quality metrics: ${esc(err.message||err)}</div>`;
+  }
+}
+function renderDataLayerPresets(){
+  const host=document.getElementById("dataLayerPresets");
+  if(!host) return;
+  host.innerHTML=DATA_LAYER_PRESETS.map(preset=>{
+    const active=preset.layers.filter(layer=>productPrefs.dataLayers[layer.id]).length;
+    const total=preset.layers.length;
+    const rows=preset.layers.map(layer=>{
+      const checked=productPrefs.dataLayers[layer.id]?"checked":"";
+      const disabled=layer.locked?"disabled":"";
+      const status=layer.layerType==="external"?{state:"base",count:0,error:""}:(dataSourceStatus[layer.source]||{state:"not loaded",count:0,error:""});
+      const count=dataLayerCounts[layer.id]||0;
+      const stateLabel=status.state==="ready"?"ready":(status.state==="not loaded"?"not loaded":status.state);
+      const title=status.error||`${layer.label} · ${stateLabel}`;
+      return `<label class="layer-row ${layer.locked?"disabled":""}" style="--layer-color:${esc(layer.color)}" title="${esc(title)}">
+        <input type="checkbox" data-layer-toggle="${esc(layer.id)}" ${checked} ${disabled}>
+        <span class="layer-icon">${DATA_ICON_SVG[layer.icon]||DATA_ICON_SVG.risk}</span>
+        <span class="layer-name">${esc(layer.label)}</span>
+        <span class="layer-count">${Number(count).toLocaleString()}</span>
+        <span class="layer-state">${esc(stateLabel)}</span>
+      </label>`;
+    }).join("");
+    const reliefControls=preset.id==="reliefs"?`<div class="terrain-controls">
+      <div class="terrain-control-row"><span>Terrain exaggeration</span><b>${Number(productPrefs.engine.terrainExaggeration??1.12).toFixed(1)}x</b></div>
+      <input type="range" min="0" max="3" step="0.1" value="${esc(productPrefs.engine.terrainExaggeration??1.12)}" data-terrain-exaggeration>
+      <div class="relief-legend"><div class="legend-ramp"></div><div><span>low relief</span><span>steep / high relief</span></div></div>
+    </div>`:"";
+    const marketplaceControls=preset.id==="marketplace"?marketplaceControlsHtml():"";
+    return `<section class="layer-preset ${DATA_LAYER_OPEN[preset.id]?"open":""}" data-preset="${esc(preset.id)}">
+      <button class="preset-head" type="button" data-layer-preset="${esc(preset.id)}" style="--layer-color:${esc(preset.color)}">
+        <span class="layer-icon">${DATA_ICON_SVG[preset.icon]||DATA_ICON_SVG.risk}</span>
+        <span class="preset-title">${esc(preset.label)}</span>
+        <span class="preset-meta">${active}/${total}</span>
+        <span class="preset-chevron">▾</span>
+      </button>
+      <div class="preset-body">${reliefControls}${marketplaceControls}${rows}</div>
+    </section>`;
+  }).join("")+assetGraphControlsHtml()+dataQualityDashboardHtml();
+  setTimeout(hydrateDataQuality,0);
+}
+function setDataLayer(id,on){
+  if(!DATA_LAYER_BY_ID[id]) return;
+  productPrefs.dataLayers[id]=!!on;
+  saveProductPrefs();
+  applyDueDiligenceLayerVisibility();
+  renderDataLayerPresets();
+  queueSaveView();
+}
 function updateStats(){ document.getElementById("stNodes").textContent=COMPANIES.filter(visibleNode).length.toLocaleString(); document.getElementById("stEdges").textContent=visibleEdges().length.toLocaleString(); updateDataHealth(); }
-function refresh(refit=false){ invalidateVisibilityCache(); updateStats(); draw(); if(selected&&!visibleNode(byId[selected])) deselect(); if(refit&&!selected&&mode!=="globe") fit(); if(selected) select(selected); }
+function refresh(refit=false){ invalidateVisibilityCache(); updateStats(); draw(); if(selected&&!visibleNode(byId[selected])) deselect(); if(refit&&!selected&&mode!=="globe") fit(); if(selected) select(selected); queueSaveView(); }
 asOfInput.addEventListener("input",()=>{ if(Number(asOfInput.value)>CURRENT_YEAR) asOfInput.value=CURRENT_YEAR; refresh(true); });
 
 /* ---------- search ---------- */
@@ -1258,7 +2897,7 @@ searchInput.addEventListener("input",()=>{ const q=searchInput.value.toLowerCase
   results.innerHTML=m.map(c=>`<div data-pick-id="${esc(c.id)}"><span>${esc(c.n)}</span><span style="color:var(--text-3)">${esc(c.t)}</span></div>`).join(""); results.classList.toggle("show",m.length>0);
 });
 results.addEventListener("click",e=>{ const row=e.target.closest("[data-pick-id]"); if(row) pickSearch(row.dataset.pickId); });
-window.pickSearch=async id=>{ results.classList.remove("show"); const c=byId[id]; if(!c||!existsInYear(c)) return; searchInput.value=c.n; if(mode==="globe"){ select(id); focusGlobeOn(id); return; } if(mode==="network"&&!hasVisibleEdge(c)){ await setMode("index"); document.getElementById("modeBtn").textContent="Show network only"; } select(id); centerOn(id); };
+window.pickSearch=async id=>{ results.classList.remove("show"); const c=byId[id]; if(!c||!existsInYear(c)) return; searchInput.value=c.n; if(mode==="globe"){ select(id); focusGlobeOn(id); return; } if(mode==="network"&&!hasVisibleEdge(c)){ await setMode("index"); } select(id); centerOn(id); };
 function centerOn(id){ if(mode==="globe"){ focusGlobeOn(id); return; } const c=byId[id],r=svg.getBoundingClientRect(); k=Math.max(k,1.5); tx=r.width/2-c.x*k; ty=r.height/2-c.y*k; applyView(); }
 document.addEventListener("click",e=>{ if(!e.target.closest(".search")) results.classList.remove("show"); });
 
@@ -1269,7 +2908,7 @@ async function setMode(m){
   mode=m;
   invalidateVisibilityCache();
   clearHoverFreeze();
-  document.getElementById("globeBtn").classList.toggle("active",m==="globe");
+  document.getElementById("toolGlobeBtn")?.classList.toggle("active",m==="globe");
   document.getElementById("map").style.display=m==="globe"?"block":"none";
   svg.style.display=m==="globe"?"none":"block";
   canvas.style.display=m==="index"?"block":"none";
@@ -1286,7 +2925,7 @@ async function setMode(m){
     COMPANIES.forEach(c=>{ c.x=c.ix; c.y=c.iy; });
     draw();
   }
-  updateStats(); if(m!=="globe") fit();
+  updateStats(); if(m!=="globe") fit(); syncModeButton(); queueSaveView();
 }
 function runPhysics(){
   const conn=COMPANIES.filter(visibleNode);
@@ -1305,10 +2944,6 @@ function runPhysics(){
   }
   step();
 }
-document.getElementById("globeBtn").onclick=async function(){ this.disabled=true; try{ networkScope=null; await setMode("globe"); document.getElementById("modeBtn").textContent="Network view"; document.getElementById("modeBtn").classList.remove("active"); } finally { this.disabled=false; } };
-document.getElementById("modeBtn").onclick=async function(){ this.disabled=true; try{ networkScope=null; if(mode==="network"){ await setMode("index"); this.textContent="Show network only"; this.classList.add("active"); } else { await setMode("network"); this.textContent=selfViewId?"Self view":`Show all ${(META.companies||COMPANIES.length).toLocaleString()} entities`; this.classList.remove("active"); } } finally { this.disabled=false; } };
-document.getElementById("resetBtn").onclick=async()=>{ networkScope=null; deselect(); Object.keys(sectorOn).forEach(k=>sectorOn[k]=true); Object.keys(groupOn).forEach(k=>groupOn[k]=true); Object.keys(relOn).forEach(k=>relOn[k]=true); Object.keys(kindOn).forEach(k=>kindOn[k]=true); asOfInput.value=CURRENT_YEAR; document.querySelectorAll(".chip").forEach(c=>c.classList.remove("off")); await setMode("network"); document.getElementById("modeBtn").textContent=selfViewId?"Self view":`Show all ${(META.companies||COMPANIES.length).toLocaleString()} entities`; document.getElementById("modeBtn").classList.remove("active"); };
-document.getElementById("themeBtn").onclick=function(){ const light=document.documentElement.getAttribute("data-theme")==="light"; document.documentElement.setAttribute("data-theme",light?"dark":"light"); this.textContent=light?"Light mode":"Dark mode"; };
 document.getElementById("zoomIn").onclick=()=>zoomBy(1.25); document.getElementById("zoomOut").onclick=()=>zoomBy(1/1.25); document.getElementById("zoomFit").onclick=()=>mode==="globe"&&map?map.easeTo({center:[-95,28],zoom:1.45,duration:450}):fit();
 function zoomBy(f){ if(mode==="globe"&&map){ map.zoomTo(map.getZoom()+(f>1?1:-1),{duration:220}); return; } const r=svg.getBoundingClientRect(),cx=r.width/2,cy=r.height/2,nk=Math.max(.08,Math.min(7,k*f)); tx=cx-(nk/k)*(cx-tx); ty=cy-(nk/k)*(cy-ty); k=nk; applyView(); }
 window.addEventListener("resize",()=>{ if(mode==="globe"){ if(map) map.resize(); else drawGlobe(); } else if(!selected) fit(); else if(mode==="index") drawCanvas(); });

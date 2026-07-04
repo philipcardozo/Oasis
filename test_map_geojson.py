@@ -30,6 +30,10 @@ def main() -> None:
 
     assert all(f["properties"]["entity_type"] == "Security" for f in securities["features"])
     assert all(f["properties"]["entity_type"] != "Security" for f in companies["features"])
+    if {"JPM", "PFE"} <= set(plotted):
+        assert plotted["JPM"]["geometry"]["coordinates"] != plotted["PFE"]["geometry"]["coordinates"]
+        assert plotted["JPM"]["properties"]["source_lat"] == plotted["PFE"]["properties"]["source_lat"]
+        assert plotted["JPM"]["properties"]["location_offset"] == "same_coordinate_jitter"
 
     edge_ids = set()
     for feature in relationships["features"]:
