@@ -96,6 +96,8 @@
   .terrain-controls { display: grid; gap: 7px; padding: 8px 6px 4px; }
   .terrain-control-row { display: grid; grid-template-columns: 1fr 92px; gap: 9px; align-items: center; color: var(--text-2); font-size: 11.5px; }
   .terrain-control-row input { width: 92px; accent-color: var(--accent); }
+  .terrain-action { min-height: 30px; border-radius: 8px; border: 1px solid var(--border); background: var(--panel-2); color: var(--text); font-size: 11.5px; cursor: pointer; }
+  .terrain-action:hover { border-color: var(--accent); }
   .relief-legend { display: grid; gap: 5px; color: var(--text-3); font-size: 10.5px; }
   .legend-ramp { height: 7px; border-radius: 999px; background: linear-gradient(90deg,#1d4ed8,#22c55e,#facc15,#ef4444); border: 1px solid rgba(255,255,255,.12); }
   .marketplace-controls { display: grid; gap: 8px; padding: 8px 6px 10px; border-bottom: 1px solid rgba(255,255,255,.06); margin-bottom: 4px; }
@@ -456,6 +458,8 @@ const DUE_DILIGENCE_ENDPOINTS={
 };
 const dataSourceStatus=Object.fromEntries(DUE_DILIGENCE_SOURCES.map(id=>[id,{state:"not loaded",count:0,error:""}]));
 const dataLayerCounts={};
+let terrainDemStatus={state:"not loaded yet",count:0,error:"",tilejson:null};
+let terrainDemStatusPromise=null;
 let dueDiligenceLoadTimer=0;
 let marketplaceListings=[];
 let selectedEntityAssetFeatures=[];
@@ -710,6 +714,7 @@ function applyDueDiligenceLayerVisibility(){
 function activeDataSources(){
   const sources=new Set();
   Object.values(DATA_LAYER_BY_ID).forEach(layer=>{
+    if(layer.id==="relief-terrain"||layer.id==="relief-hillshade") return;
     if(productPrefs.dataLayers[layer.id]&&DUE_DILIGENCE_ENDPOINTS[layer.source]) sources.add(layer.source);
   });
   return sources;
@@ -1065,6 +1070,7 @@ function init(data){
     syncModeButton();
     restoringView=false;
     saveViewNow();
+    if(params.has("reliefDemo")) setTimeout(()=>zoomToTerrainDem(),350);
     if(params.has("stress")) setTimeout(()=>window.stressIndex(50000),0);
   })();
 }
@@ -1701,7 +1707,7 @@ function updateDataHealth(){
 
 /* ---------- globe ---------- */
 const MAP_STYLE_URL="https://tiles.openfreemap.org/styles/liberty";
-const TERRAIN_TILESET_URL="https://demotiles.maplibre.org/terrain-tiles/tiles.json";
+const TERRAIN_STATUS_URL="/api/reliefs/dem/status";
 function globeVisibleCompanies(){
   const located=[],unknown=[];
   COMPANIES.forEach(c=>{ if(!baseVisibleNode(c)) return; const loc=companyLoc(c); (loc?located:unknown).push(c); });
@@ -1792,17 +1798,73 @@ function addMapLayers(){
 function firstSymbolLayerId(){
   return map.getStyle()?.layers?.find(layer=>layer.type==="symbol")?.id;
 }
+function setTerrainDemStatus(next){
+  terrainDemStatus={...terrainDemStatus,...next};
+  renderDataLayerPresets();
+}
+async function zoomToTerrainDem(){
+  await setMode("globe");
+  if(!mapReady||!map){
+    setTimeout(zoomToTerrainDem,700);
+    return;
+  }
+  productPrefs.dataLayers["relief-terrain"]=true;
+  productPrefs.dataLayers["relief-hillshade"]=true;
+  productPrefs.engine.terrain=true;
+  productPrefs.engine.terrainExaggeration=Math.max(Number(productPrefs.engine.terrainExaggeration||0),2.4);
+  saveProductPrefs();
+  renderDataLayerPresets();
+  try{ await loadTerrainDemStatus(); }catch(_err){}
+  applyDueDiligenceLayerVisibility();
+  const tj=terrainDemStatus.tilejson||{},center=tj.center||[-84.5,33.5,9],bounds=tj.bounds;
+  const focus=bounds?.length===4?[center[0],Math.min(bounds[3]-0.08,center[1]+0.38)]:[center[0],center[1]];
+  if(map) map.easeTo({center:focus,zoom:10.7,pitch:68,bearing:24,duration:900});
+  setTimeout(()=>applyDueDiligenceLayerVisibility(),900);
+}
+async function loadTerrainDemStatus(){
+  if(terrainDemStatusPromise) return terrainDemStatusPromise;
+  terrainDemStatusPromise=fetch(TERRAIN_STATUS_URL,{cache:"no-store"})
+    .then(r=>{ if(!r.ok) throw new Error(`${r.status} ${r.statusText}`); return r.json(); })
+    .then(status=>{
+      const tilejson=status.tilejson||{};
+      setTerrainDemStatus({state:status.available?"loaded":"DEM unavailable",count:status.available?1:0,error:status.available?"":(status.status||"DEM unavailable"),tilejson});
+      return status;
+    })
+    .catch(err=>{
+      setTerrainDemStatus({state:"DEM unavailable",count:0,error:String(err?.message||err),tilejson:null});
+      throw err;
+    });
+  return terrainDemStatusPromise;
+}
+function addTerrainSource(tilejson){
+  if(!map||map.getSource("terrain-dem")) return;
+  const tiles=(tilejson.tiles||[]).map(url=>url.startsWith("http")?url:url);
+  if(!tiles.length) throw new Error("DEM tilejson has no tiles");
+  map.addSource("terrain-dem",{
+    type:"raster-dem",
+    tiles,
+    bounds:tilejson.bounds,
+    minzoom:tilejson.minzoom,
+    maxzoom:tilejson.maxzoom,
+    tileSize:256,
+    encoding:tilejson.encoding||"mapbox",
+    attribution:tilejson.attribution||"USGS 3DEP"
+  });
+  map.addLayer({id:"terrain-hillshade",type:"hillshade",source:"terrain-dem",layout:{visibility:"none"},paint:{
+    "hillshade-shadow-color":"#3f4957","hillshade-highlight-color":"#ffffff","hillshade-accent-color":"#91a6be","hillshade-exaggeration":0.55
+  }},firstSymbolLayerId());
+}
 function addPhysicalContextLayers(){
   if(!map||map.getSource("terrain-dem")) return;
-  try{
-    map.addSource("terrain-dem",{type:"raster-dem",url:TERRAIN_TILESET_URL,tileSize:256});
-    map.addLayer({id:"terrain-hillshade",type:"hillshade",source:"terrain-dem",paint:{
-      "hillshade-shadow-color":"#56616f","hillshade-highlight-color":"#ffffff","hillshade-accent-color":"#8fa2b8","hillshade-exaggeration":0.24
-    }},firstSymbolLayerId());
-    if(map.setTerrain) map.setTerrain({source:"terrain-dem",exaggeration:1.12});
-  }catch(err){
+  setTerrainDemStatus({state:"loading",error:""});
+  loadTerrainDemStatus().then(status=>{
+    if(!status.available||!status.tilejson) throw new Error(status.status||"DEM unavailable");
+    addTerrainSource(status.tilejson);
+    applyDueDiligenceLayerVisibility();
+  }).catch(err=>{
     console.warn("terrain layer skipped",err);
-  }
+    applyDueDiligenceLayerVisibility();
+  });
 }
 function relationshipWidth(){
   return ["interpolate",["linear"],["coalesce",["get","confidence"],0.5],0,0.5,1,3];
@@ -2097,8 +2159,8 @@ window.mapState=()=>({
   ready:mapReady,
   selected:mapSelectedId,
   unknown:globe.unknownCount||mapData.unknown?.length||0,
-  sources:map?.getStyle?.().sources?Object.keys(map.getStyle().sources):[],
-  layers:map?.getStyle?.().layers?.map(l=>l.id)||[],
+  sources:(map?.getStyle?.()?.sources)?Object.keys(map.getStyle().sources):[],
+  layers:map?.getStyle?.()?.layers?.map(l=>l.id)||[],
 });
 
 /* ---------- detail panel ---------- */
@@ -2659,6 +2721,11 @@ document.getElementById("dataPanel").addEventListener("click",e=>{
     showListingWidget(listing.dataset.listingId);
     return;
   }
+  const action=e.target.closest("[data-action]");
+  if(action?.dataset.action==="zoom-terrain-dem"){
+    zoomToTerrainDem();
+    return;
+  }
   const btn=e.target.closest("[data-layer-preset]");
   if(!btn) return;
   const id=btn.dataset.layerPreset;
@@ -2792,6 +2859,12 @@ function dataQualityDashboardHtml(){
     <div class="preset-body"><div class="quality-grid" id="dataQualityDashboard"><div class="story-meta">Loading evidence coverage…</div></div></div>
   </section>`;
 }
+function layerStatus(layer){
+  if(layer.id==="relief-terrain"||layer.id==="relief-hillshade") return terrainDemStatus;
+  if(layer.id?.startsWith("relief-")) return {state:"not loaded yet",count:0,error:"placeholder"};
+  if(layer.layerType==="external") return {state:"base",count:0,error:""};
+  return dataSourceStatus[layer.source]||{state:"not loaded",count:0,error:""};
+}
 async function hydrateDataQuality(){
   const host=document.getElementById("dataQualityDashboard");
   if(!host) return;
@@ -2822,8 +2895,8 @@ function renderDataLayerPresets(){
     const rows=preset.layers.map(layer=>{
       const checked=productPrefs.dataLayers[layer.id]?"checked":"";
       const disabled=layer.locked?"disabled":"";
-      const status=layer.layerType==="external"?{state:"base",count:0,error:""}:(dataSourceStatus[layer.source]||{state:"not loaded",count:0,error:""});
-      const count=dataLayerCounts[layer.id]||0;
+      const status=layerStatus(layer);
+      const count=layer.id==="relief-terrain"||layer.id==="relief-hillshade"?(status.count||0):(dataLayerCounts[layer.id]||0);
       const stateLabel=status.state==="ready"?"ready":(status.state==="not loaded"?"not loaded":status.state);
       const title=status.error||`${layer.label} · ${stateLabel}`;
       return `<label class="layer-row ${layer.locked?"disabled":""}" style="--layer-color:${esc(layer.color)}" title="${esc(title)}">
@@ -2837,6 +2910,8 @@ function renderDataLayerPresets(){
     const reliefControls=preset.id==="reliefs"?`<div class="terrain-controls">
       <div class="terrain-control-row"><span>Terrain exaggeration</span><b>${Number(productPrefs.engine.terrainExaggeration??1.12).toFixed(1)}x</b></div>
       <input type="range" min="0" max="3" step="0.1" value="${esc(productPrefs.engine.terrainExaggeration??1.12)}" data-terrain-exaggeration>
+      <button class="terrain-action" type="button" data-action="zoom-terrain-dem">Zoom to USGS 3DEP DEM</button>
+      <div class="story-meta">${terrainDemStatus.state==="loaded"?"Coverage: northwest Georgia / eastern Alabama · z6-z13 Terrain-RGB":"DEM status: "+esc(terrainDemStatus.state)}</div>
       <div class="relief-legend"><div class="legend-ramp"></div><div><span>low relief</span><span>steep / high relief</span></div></div>
     </div>`:"";
     const marketplaceControls=preset.id==="marketplace"?marketplaceControlsHtml():"";

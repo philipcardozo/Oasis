@@ -4,8 +4,13 @@ __pycache__/
 .pytest_cache/
 .claude/
 .DS_Store
+.env
+.env.*
+!.env.example
 vinst/
 .venv/
 env/
 venv/
 ENV/
+graph/tiles/usgs_3dep/terrain-rgb/
+*.tif

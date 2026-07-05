@@ -37,6 +37,13 @@ def main() -> None:
 
     client = TestClient(app)
     assert client.get("/api/map/layers").status_code == 200
+    dem_status = client.get("/api/reliefs/dem/status").json()
+    assert dem_status["available"] is True
+    assert dem_status["tilejson"]["encoding"] == "mapbox"
+    assert "2Lp" not in str(dem_status)
+    assert client.get("/api/reliefs/dem/tilejson").json()["tiles"]
+    source_status = client.get("/api/data-sources/status").json()
+    assert all(c["ok"] for c in source_status["checks"])
     assert client.get("/api/map/features.geojson?layer=farms&bbox=-180,-90,180,90").json()["features"]
     assert client.get("/api/map/features.geojson?layer=farm_parcels&bbox=-180,-90,180,90").json()["features"]
     assert client.get("/api/map/features.geojson?layer=industrial_assets&bbox=-180,-90,180,90").json()["features"]

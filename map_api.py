@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 import csv
 import re
+import os
+from contextlib import suppress
 from datetime import date, datetime, timezone
 from functools import lru_cache
 from html import escape as html_escape
@@ -16,6 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from dcf_export import build_dcf_workbook
+from data_sources import dem_tilejson, validation_status
 
 ROOT = Path(__file__).parent
 DATA = ROOT / "graph" / "data"
@@ -24,6 +27,12 @@ OVERRIDES = DATA / "location_overrides.json"
 VALUATION_ASSUMPTIONS = DATA / "valuation_assumptions.json"
 USER_OVERRIDES = DATA / "user_overrides.json"
 REPORTS_DIR = DATA / "reports"
+RAW_DATA_ROOT = Path(os.environ.get("OASIS_RAW_DATA_ROOT", "/data/raw"))
+RAW_FEEDS = {
+    "usgs_3dep": {"source_layer": "relief_features", "default_layer": "relief-terrain"},
+    "eia": {"source_layer": "industrial_assets", "default_layer": "industrial-energy"},
+    "fbi_crime": {"source_layer": "relief_features", "default_layer": "relief-crime"},
+}
 
 
 app = FastAPI(title="Oasis Map Intelligence API")
@@ -52,6 +61,143 @@ def load_json(name: str | Path, fallback):
 
 def feature_collection(features: list[dict]) -> dict:
     return {"type": "FeatureCollection", "features": features}
+
+
+def raw_layer_type(feed: str, path: Path, row: dict | None = None) -> str:
+    text = f"{path.stem} {(row or {}).get('name', '')} {(row or {}).get('title', '')} {(row or {}).get('type', '')}".lower()
+    if feed == "usgs_3dep":
+        if any(k in text for k in ("hillshade", "shade")):
+            return "relief-hillshade"
+        if any(k in text for k in ("mount", "slope")):
+            return "relief-mountains"
+        if any(k in text for k in ("water", "river", "hydro")):
+            return "relief-water"
+        if any(k in text for k in ("veg", "vegetation", "landcover", "cdl")):
+            return "relief-vegetation"
+        return "relief-terrain"
+    if feed == "eia":
+        if "substation" in text:
+            return "industrial-substations"
+        if any(k in text for k in ("transmission", "line", "grid")):
+            return "industrial-transmission"
+        if "hydro" in text:
+            return "industrial-hydro"
+        if any(k in text for k in ("plant", "power", "generation")):
+            return "industrial-power-plants"
+        return "industrial-energy"
+    return "relief-crime"
+
+
+def raw_point_from_row(row: dict) -> list[float] | None:
+    lower = {str(k).lower(): v for k, v in row.items()}
+    for lat_key, lng_key in (("latitude", "longitude"), ("lat", "lng"), ("lat", "lon"), ("y", "x")):
+        lat = as_float(lower.get(lat_key))
+        lng = as_float(lower.get(lng_key))
+        if lat is not None and lng is not None:
+            return [lng, lat]
+    geom = row.get("geometry")
+    if isinstance(geom, dict) and geom.get("type") == "Point":
+        coords = geom.get("coordinates") or []
+        if len(coords) >= 2 and all(isinstance(v, (int, float)) for v in coords[:2]):
+            return [float(coords[0]), float(coords[1])]
+    if isinstance(geom, str):
+        with suppress(Exception):
+            parsed = json.loads(geom)
+            if isinstance(parsed, dict) and parsed.get("type") == "Point":
+                coords = parsed.get("coordinates") or []
+                if len(coords) >= 2 and all(isinstance(v, (int, float)) for v in coords[:2]):
+                    return [float(coords[0]), float(coords[1])]
+    return None
+
+
+def raw_feature_from_row(feed: str, path: Path, row: dict, index: int) -> dict | None:
+    geometry = row.get("geometry") if isinstance(row.get("geometry"), dict) else None
+    if not geometry:
+        point = raw_point_from_row(row)
+        if point:
+            geometry = {"type": "Point", "coordinates": point}
+    if not geometry:
+        return None
+    props = {k: v for k, v in row.items() if k != "geometry"}
+    layer = str(props.get("layer_type") or props.get("layer") or raw_layer_type(feed, path, row))
+    props.update(
+        {
+            "id": props.get("id") or f"{feed}:{path.stem}:{index}",
+            "name": props.get("name") or props.get("title") or props.get("facility_name") or path.stem,
+            "layer": layer,
+            "layer_type": layer,
+            "source_layer": RAW_FEEDS[feed]["source_layer"],
+            "kind": props.get("kind") or "layer_feature",
+            "source": props.get("source") or feed,
+            "confidence": as_float(props.get("confidence") or props.get("source_confidence")) or 0.5,
+            "updated_at": props.get("updated_at") or props.get("as_of") or datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).date().isoformat(),
+        }
+    )
+    return {"type": "Feature", "id": props["id"], "geometry": geometry, "properties": props}
+
+
+def raw_features_from_file(feed: str, path: Path) -> list[dict]:
+    suffix = path.suffix.lower()
+    text = path.read_text(errors="ignore")
+    rows: list[dict] = []
+    if suffix in {".geojson", ".json"}:
+        with suppress(Exception):
+            payload = json.loads(text)
+            if isinstance(payload, dict) and payload.get("type") == "FeatureCollection":
+                rows = [f for f in payload.get("features", []) if isinstance(f, dict)]
+            elif isinstance(payload, dict) and payload.get("type") == "Feature":
+                rows = [payload]
+            elif isinstance(payload, list):
+                rows = [r for r in payload if isinstance(r, dict)]
+            elif isinstance(payload, dict):
+                rows = [payload]
+    elif suffix in {".csv", ".tsv"}:
+        delimiter = "\t" if suffix == ".tsv" else ","
+        reader = csv.DictReader(text.splitlines(), delimiter=delimiter)
+        rows = list(reader)
+    features: list[dict] = []
+    for i, row in enumerate(rows):
+        if not isinstance(row, dict):
+            continue
+        if row.get("type") == "Feature" and row.get("geometry"):
+            feat = dict(row)
+            props = dict(feat.get("properties") or {})
+            layer = str(props.get("layer_type") or props.get("layer") or raw_layer_type(feed, path, props))
+            props.update(
+                {
+                    "id": props.get("id") or f"{feed}:{path.stem}:{i}",
+                    "name": props.get("name") or props.get("title") or path.stem,
+                    "layer": layer,
+                    "layer_type": layer,
+                    "source_layer": RAW_FEEDS[feed]["source_layer"],
+                    "kind": props.get("kind") or "layer_feature",
+                    "source": props.get("source") or feed,
+                    "confidence": as_float(props.get("confidence") or props.get("source_confidence")) or 0.5,
+                    "updated_at": props.get("updated_at") or props.get("as_of") or datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).date().isoformat(),
+                }
+            )
+            feat["id"] = props["id"]
+            feat["properties"] = props
+            features.append(feat)
+            continue
+        feat = raw_feature_from_row(feed, path, row, i)
+        if feat:
+            features.append(feat)
+    return features
+
+
+@lru_cache(maxsize=4)
+def raw_layer_features(root: str | None = None) -> tuple[dict, ...]:
+    base = Path(root) if root else RAW_DATA_ROOT
+    features: list[dict] = []
+    for feed in RAW_FEEDS:
+        feed_dir = base / feed
+        if not feed_dir.exists():
+            continue
+        # ponytail: optional raw feeds stay lazy; absent folders just yield no features.
+        for path in sorted(p for p in feed_dir.rglob("*") if p.is_file() and p.suffix.lower() in {".geojson", ".json", ".csv", ".tsv"}):
+            features.extend(raw_features_from_file(feed, path))
+    return tuple(features)
 
 
 def in_bbox(coords: list[float], bbox: list[float] | None) -> bool:
@@ -134,10 +280,14 @@ def neighborhood(entity_id: str, depth: int = 1) -> dict:
 
 
 def intel() -> dict[str, list[dict]]:
-    return load_json(INTEL, {
+    data = load_json(INTEL, {
         "entities": [], "assets": [], "permits": [], "farm_profiles": [], "industrial_profiles": [],
         "cameras": [], "asset_listings": [], "asset_relationships": [], "layer_features": [], "needs_location": [],
     })
+    raw = list(raw_layer_features())
+    if raw:
+        data = {**data, "layer_features": [*data.get("layer_features", []), *raw]}
+    return data
 
 
 def valid_point(row: dict) -> list[float] | None:
@@ -798,7 +948,7 @@ def valuation_model(asset_id: str, case: str = "base") -> dict:
 def api_layers():
     return {
         "groups": LAYER_GROUPS,
-        "sources": ["relief_features", "industrial_assets", "farm_parcels", "government_facilities", "public_cameras", "weather_overlays", "infrastructure_lines", "marketplace_listings"],
+        "sources": ["relief_features", "industrial_assets", "farm_parcels", "government_facilities", "public_cameras", "weather_overlays", "infrastructure_lines", "marketplace_listings", "usgs_3dep", "eia", "fbi_crime"],
     }
 
 
@@ -1073,6 +1223,25 @@ def api_permits_search(bbox: str | None = None, permit_type: str | None = None):
 @app.get("/api/location/unknown")
 def api_location_unknown():
     return load_json("location_unknown.json", [])
+
+
+@app.get("/api/data-sources/status")
+def api_data_sources_status():
+    return validation_status()
+
+
+@app.get("/api/reliefs/dem/status")
+def api_reliefs_dem_status():
+    status = validation_status()
+    return status["dem"] | {"checks": status["checks"], "sources": status["sources"]}
+
+
+@app.get("/api/reliefs/dem/tilejson")
+def api_reliefs_dem_tilejson():
+    tilejson = dem_tilejson()
+    if not tilejson:
+        raise HTTPException(404, "DEM tilejson not found; run scripts/build_usgs_terrain_tiles.py")
+    return tilejson
 
 
 @app.post("/api/location/override")

@@ -1,0 +1,10 @@
+- map and countries change (include germany, US, ingland, and european expansion) with data about those times and government contracts as
+- More private companies & connections (JaneStreet)
+- Manua Nodes throw user interaction (Maker Mode)
+- Better Mapping & visualizations on zoom - working on it
+- Improve node locations (specific coordinates)
+- More info & giving acces with service input
+- Create Graphs, data UIs, options, different maps (user chosen settings)
+- AI OASIS on excel (user MNDY DCF as basis)
+- Ships & Airplanes + Stalink & Satelites
+- Optons, futures & derivatives analysis with pre and after-Market data
