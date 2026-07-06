@@ -1,0 +1,142 @@
+{
+  "report_id": "entity_USDA_20260705220248",
+  "object_type": "entity",
+  "object_id": "USDA",
+  "report_type": "company asset exposure report",
+  "executive_summary": "Non-AI due-diligence report for U.S. Department of Agriculture. Values are sourced, modeled, inferred, or missing as labeled.",
+  "overview": {
+    "id": "USDA",
+    "name": "U.S. Department of Agriculture",
+    "entity_type": "government",
+    "ticker": "",
+    "lei": "",
+    "cik": "",
+    "country": "United States",
+    "sector": "Government",
+    "source": "public_seed",
+    "confidence": 0.7,
+    "updated_at": "2026-07-02"
+  },
+  "location_map_screenshot": "placeholder: capture current MapLibre viewport in production export",
+  "sections": {
+    "assets": [
+      {
+        "id": "asset:demo-farm-iowa",
+        "asset_type": "farm",
+        "name": "Iowa row crop farm",
+        "owner_entity_id": "USDA",
+        "operator_entity_id": "",
+        "latitude": 41.878,
+        "longitude": -93.0977,
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -93.1277,
+                41.898
+              ],
+              [
+                -93.0677,
+                41.898
+              ],
+              [
+                -93.0677,
+                41.858
+              ],
+              [
+                -93.1277,
+                41.858
+              ],
+              [
+                -93.1277,
+                41.898
+              ]
+            ]
+          ]
+        },
+        "address": "Central Iowa",
+        "country": "United States",
+        "state": "Iowa",
+        "county": "Story",
+        "city": "",
+        "area_acres": 640,
+        "status": "owned",
+        "listing_status": "not listed",
+        "main_crop": "corn / soybeans",
+        "soil_quality": "B+ loam, mock",
+        "risk_level": "moderate",
+        "water_access": "seasonal creek and drainage ditch",
+        "flood_drought_risk": "moderate drought sensitivity",
+        "nearby_infrastructure": [
+          "county road within 0.3 mi",
+          "grain elevator within 14 mi"
+        ],
+        "source": "public_seed",
+        "confidence": 0.3,
+        "updated_at": "2026-07-02",
+        "asset_relationship": {
+          "id": "assetrel:usda-owns-farm-iowa",
+          "source_id": "USDA",
+          "target_id": "asset:demo-farm-iowa",
+          "relationship_type": "OWNS",
+          "source": "public_seed",
+          "confidence": 0.35,
+          "as_of_date": "2026-07-02",
+          "updated_at": "2026-07-02",
+          "status": "inferred"
+        }
+      }
+    ],
+    "relationship_graph": {
+      "center": {
+        "id": "USDA",
+        "name": "USDA"
+      },
+      "nodes": [],
+      "edges": [],
+      "risk_summary": {
+        "supplier_concentration": "unknown",
+        "country_exposure": [],
+        "data_confidence": 0
+      }
+    }
+  },
+  "evidence_source_appendix": [
+    {
+      "id": "ev:entity_USDA_identity_public_seed_U.S._Department_of_Agriculture",
+      "linked_object_type": "entity",
+      "linked_object_id": "USDA",
+      "claim_type": "identity",
+      "claim_value": "U.S. Department of Agriculture",
+      "source_name": "public_seed",
+      "source_url": null,
+      "source_document_id": "USDA",
+      "source_date": "2026-07-02",
+      "retrieved_at": "2026-07-05",
+      "confidence": 0.7,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:entity_USDA_sector_public_seed_Government",
+      "linked_object_type": "entity",
+      "linked_object_id": "USDA",
+      "claim_type": "sector",
+      "claim_value": "Government",
+      "source_name": "public_seed",
+      "source_url": null,
+      "source_document_id": "USDA",
+      "source_date": "2026-07-02",
+      "retrieved_at": "2026-07-05",
+      "confidence": 0.7,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    }
+  ],
+  "missing_data_appendix": [],
+  "confidence_score": 0.7,
+  "generated_at": "2026-07-06T05:02:48+00:00"
+}

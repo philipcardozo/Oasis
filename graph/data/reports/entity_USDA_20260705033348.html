@@ -1,0 +1,129 @@
+<!doctype html><html><head><meta charset='utf-8'><title>Due Diligence Report</title><style>body{font:14px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:#0b0f16;color:#e8edf4;padding:28px;line-height:1.45}pre{white-space:pre-wrap;background:#151b24;border:1px solid #2a303a;border-radius:8px;padding:14px}.tag{display:inline-block;padding:3px 8px;border:1px solid #2a303a;border-radius:999px;color:#9aa6b6}</style></head><body><h1>Company Asset Exposure Report</h1><p>Non-AI due-diligence report for U.S. Department of Agriculture. Values are sourced, modeled, inferred, or missing as labeled.</p><p class='tag'>Confidence: 0.7</p><h2>Overview</h2><pre>{
+  &quot;id&quot;: &quot;USDA&quot;,
+  &quot;name&quot;: &quot;U.S. Department of Agriculture&quot;,
+  &quot;entity_type&quot;: &quot;government&quot;,
+  &quot;ticker&quot;: &quot;&quot;,
+  &quot;lei&quot;: &quot;&quot;,
+  &quot;cik&quot;: &quot;&quot;,
+  &quot;country&quot;: &quot;United States&quot;,
+  &quot;sector&quot;: &quot;Government&quot;,
+  &quot;source&quot;: &quot;public_seed&quot;,
+  &quot;confidence&quot;: 0.7,
+  &quot;updated_at&quot;: &quot;2026-07-02&quot;
+}</pre><h2>Ownership / Permits / Infrastructure / Risks / Valuation</h2><pre>{
+  &quot;assets&quot;: [
+    {
+      &quot;id&quot;: &quot;asset:demo-farm-iowa&quot;,
+      &quot;asset_type&quot;: &quot;farm&quot;,
+      &quot;name&quot;: &quot;Iowa row crop farm&quot;,
+      &quot;owner_entity_id&quot;: &quot;USDA&quot;,
+      &quot;operator_entity_id&quot;: &quot;&quot;,
+      &quot;latitude&quot;: 41.878,
+      &quot;longitude&quot;: -93.0977,
+      &quot;geometry&quot;: {
+        &quot;type&quot;: &quot;Polygon&quot;,
+        &quot;coordinates&quot;: [
+          [
+            [
+              -93.1277,
+              41.898
+            ],
+            [
+              -93.0677,
+              41.898
+            ],
+            [
+              -93.0677,
+              41.858
+            ],
+            [
+              -93.1277,
+              41.858
+            ],
+            [
+              -93.1277,
+              41.898
+            ]
+          ]
+        ]
+      },
+      &quot;address&quot;: &quot;Central Iowa&quot;,
+      &quot;country&quot;: &quot;United States&quot;,
+      &quot;state&quot;: &quot;Iowa&quot;,
+      &quot;county&quot;: &quot;Story&quot;,
+      &quot;city&quot;: &quot;&quot;,
+      &quot;area_acres&quot;: 640,
+      &quot;status&quot;: &quot;owned&quot;,
+      &quot;listing_status&quot;: &quot;not listed&quot;,
+      &quot;main_crop&quot;: &quot;corn / soybeans&quot;,
+      &quot;soil_quality&quot;: &quot;B+ loam, mock&quot;,
+      &quot;risk_level&quot;: &quot;moderate&quot;,
+      &quot;water_access&quot;: &quot;seasonal creek and drainage ditch&quot;,
+      &quot;flood_drought_risk&quot;: &quot;moderate drought sensitivity&quot;,
+      &quot;nearby_infrastructure&quot;: [
+        &quot;county road within 0.3 mi&quot;,
+        &quot;grain elevator within 14 mi&quot;
+      ],
+      &quot;source&quot;: &quot;public_seed&quot;,
+      &quot;confidence&quot;: 0.3,
+      &quot;updated_at&quot;: &quot;2026-07-02&quot;,
+      &quot;asset_relationship&quot;: {
+        &quot;id&quot;: &quot;assetrel:usda-owns-farm-iowa&quot;,
+        &quot;source_id&quot;: &quot;USDA&quot;,
+        &quot;target_id&quot;: &quot;asset:demo-farm-iowa&quot;,
+        &quot;relationship_type&quot;: &quot;OWNS&quot;,
+        &quot;source&quot;: &quot;public_seed&quot;,
+        &quot;confidence&quot;: 0.35,
+        &quot;as_of_date&quot;: &quot;2026-07-02&quot;,
+        &quot;updated_at&quot;: &quot;2026-07-02&quot;,
+        &quot;status&quot;: &quot;inferred&quot;
+      }
+    }
+  ],
+  &quot;relationship_graph&quot;: {
+    &quot;center&quot;: {
+      &quot;id&quot;: &quot;USDA&quot;,
+      &quot;name&quot;: &quot;USDA&quot;
+    },
+    &quot;nodes&quot;: [],
+    &quot;edges&quot;: [],
+    &quot;risk_summary&quot;: {
+      &quot;supplier_concentration&quot;: &quot;unknown&quot;,
+      &quot;country_exposure&quot;: [],
+      &quot;data_confidence&quot;: 0
+    }
+  }
+}</pre><h2>Evidence Appendix</h2><pre>[
+  {
+    &quot;id&quot;: &quot;ev:entity_USDA_identity_public_seed_U.S._Department_of_Agriculture&quot;,
+    &quot;linked_object_type&quot;: &quot;entity&quot;,
+    &quot;linked_object_id&quot;: &quot;USDA&quot;,
+    &quot;claim_type&quot;: &quot;identity&quot;,
+    &quot;claim_value&quot;: &quot;U.S. Department of Agriculture&quot;,
+    &quot;source_name&quot;: &quot;public_seed&quot;,
+    &quot;source_url&quot;: null,
+    &quot;source_document_id&quot;: &quot;USDA&quot;,
+    &quot;source_date&quot;: &quot;2026-07-02&quot;,
+    &quot;retrieved_at&quot;: &quot;2026-07-05&quot;,
+    &quot;confidence&quot;: 0.7,
+    &quot;extraction_method&quot;: &quot;structured_public_seed&quot;,
+    &quot;notes&quot;: &quot;&quot;,
+    &quot;status&quot;: &quot;inferred&quot;
+  },
+  {
+    &quot;id&quot;: &quot;ev:entity_USDA_sector_public_seed_Government&quot;,
+    &quot;linked_object_type&quot;: &quot;entity&quot;,
+    &quot;linked_object_id&quot;: &quot;USDA&quot;,
+    &quot;claim_type&quot;: &quot;sector&quot;,
+    &quot;claim_value&quot;: &quot;Government&quot;,
+    &quot;source_name&quot;: &quot;public_seed&quot;,
+    &quot;source_url&quot;: null,
+    &quot;source_document_id&quot;: &quot;USDA&quot;,
+    &quot;source_date&quot;: &quot;2026-07-02&quot;,
+    &quot;retrieved_at&quot;: &quot;2026-07-05&quot;,
+    &quot;confidence&quot;: 0.7,
+    &quot;extraction_method&quot;: &quot;structured_public_seed&quot;,
+    &quot;notes&quot;: &quot;&quot;,
+    &quot;status&quot;: &quot;inferred&quot;
+  }
+]</pre><h2>Missing Data Appendix</h2><pre>[]</pre></body></html>

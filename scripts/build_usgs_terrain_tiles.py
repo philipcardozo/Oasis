@@ -50,7 +50,12 @@ def encode_terrain_rgb(elevation_m: np.ndarray) -> np.ndarray:
     return rgb
 
 
-def tile_array(src, tile: mercantile.Tile, tile_size: int) -> np.ndarray | None:
+def decode_terrain_rgb(rgb: np.ndarray) -> np.ndarray:
+    value = rgb[:, :, 0].astype(np.uint32) * 65536 + rgb[:, :, 1].astype(np.uint32) * 256 + rgb[:, :, 2].astype(np.uint32)
+    return value.astype(np.float32) * 0.1 - 10000.0
+
+
+def tile_array(src, tile: mercantile.Tile, tile_size: int, fill: bool = True) -> np.ndarray | None:
     bounds = mercantile.xy_bounds(tile)
     dst = np.full((tile_size, tile_size), np.nan, dtype=np.float32)
     reproject(
@@ -67,21 +72,22 @@ def tile_array(src, tile: mercantile.Tile, tile_size: int) -> np.ndarray | None:
     finite = np.isfinite(dst)
     if not finite.any():
         return None
-    dst[~finite] = float(np.nanmin(dst))
+    if fill:
+        dst[~finite] = float(np.nanmin(dst))
     return dst
 
 
-def write_tiles(path: Path, metadata: dict, minzoom: int, maxzoom: int, tile_size: int, force: bool) -> int:
-    if force and TERRAIN_RGB_DIR.exists():
-        shutil.rmtree(TERRAIN_RGB_DIR)
-    TERRAIN_RGB_DIR.mkdir(parents=True, exist_ok=True)
+def write_tiles(path: Path, metadata: dict, minzoom: int, maxzoom: int, tile_size: int, force: bool, terrain_rgb_dir: Path = TERRAIN_RGB_DIR) -> int:
+    if force and terrain_rgb_dir.exists():
+        shutil.rmtree(terrain_rgb_dir)
+    terrain_rgb_dir.mkdir(parents=True, exist_ok=True)
     west, south, east, north = metadata["bounds_wgs84"]
     count = 0
     with rasterio.open(path) as src:
         for z in range(minzoom, maxzoom + 1):
             tiles = list(mercantile.tiles(west, south, east, north, z))
             for tile in tiles:
-                out = TERRAIN_RGB_DIR / str(tile.z) / str(tile.x) / f"{tile.y}.png"
+                out = terrain_rgb_dir / str(tile.z) / str(tile.x) / f"{tile.y}.png"
                 if out.exists() and not force:
                     count += 1
                     continue
@@ -94,7 +100,72 @@ def write_tiles(path: Path, metadata: dict, minzoom: int, maxzoom: int, tile_siz
     return count
 
 
-def write_metadata(metadata: dict, minzoom: int, maxzoom: int, tile_size: int, tile_count: int) -> dict:
+def write_mosaic_tiles(paths: list[Path], bounds_wgs84: list[float], minzoom: int, maxzoom: int, tile_size: int, force: bool, terrain_rgb_dir: Path = TERRAIN_RGB_DIR) -> int:
+    if force and terrain_rgb_dir.exists():
+        shutil.rmtree(terrain_rgb_dir)
+    terrain_rgb_dir.mkdir(parents=True, exist_ok=True)
+    count = 0
+    sources = []
+    for path in paths:
+        src = rasterio.open(path)
+        sources.append((src, transform_bounds(src.crs, "EPSG:3857", *src.bounds, densify_pts=21)))
+    try:
+        west, south, east, north = bounds_wgs84
+        for z in range(minzoom, maxzoom + 1):
+            for tile in mercantile.tiles(west, south, east, north, z):
+                out = terrain_rgb_dir / str(tile.z) / str(tile.x) / f"{tile.y}.png"
+                if out.exists() and not force:
+                    count += 1
+                    continue
+                dst = np.full((tile_size, tile_size), np.nan, dtype=np.float32)
+                tile_bounds = mercantile.xy_bounds(tile)
+                for src, src_bounds in sources:
+                    if tile_bounds.right < src_bounds[0] or tile_bounds.left > src_bounds[2] or tile_bounds.top < src_bounds[1] or tile_bounds.bottom > src_bounds[3]:
+                        continue
+                    arr = tile_array(src, tile, tile_size, fill=False)
+                    if arr is None:
+                        continue
+                    mask = np.isfinite(arr)
+                    dst[mask] = arr[mask]
+                if not np.isfinite(dst).any():
+                    continue
+                dst[~np.isfinite(dst)] = float(np.nanmin(dst))
+                out.parent.mkdir(parents=True, exist_ok=True)
+                Image.fromarray(encode_terrain_rgb(dst)).save(out)
+                count += 1
+    finally:
+        for src, _ in sources:
+            src.close()
+    return count
+
+
+def write_incremental_tiles(path: Path, metadata: dict, minzoom: int, maxzoom: int, tile_size: int, terrain_rgb_dir: Path = TERRAIN_RGB_DIR) -> int:
+    terrain_rgb_dir.mkdir(parents=True, exist_ok=True)
+    west, south, east, north = metadata["bounds_wgs84"]
+    count = 0
+    with rasterio.open(path) as src:
+        for z in range(minzoom, maxzoom + 1):
+            for tile in mercantile.tiles(west, south, east, north, z):
+                arr = tile_array(src, tile, tile_size, fill=False)
+                if arr is None:
+                    continue
+                mask = np.isfinite(arr)
+                if not mask.any():
+                    continue
+                out = terrain_rgb_dir / str(tile.z) / str(tile.x) / f"{tile.y}.png"
+                if out.exists():
+                    base = decode_terrain_rgb(np.array(Image.open(out).convert("RGB")))
+                else:
+                    base = np.array(arr, copy=True)
+                    base[~mask] = float(np.nanmin(arr))
+                base[mask] = arr[mask]
+                out.parent.mkdir(parents=True, exist_ok=True)
+                Image.fromarray(encode_terrain_rgb(base)).save(out)
+                count += 1
+    return count
+
+
+def write_metadata(metadata: dict, minzoom: int, maxzoom: int, tile_size: int, tile_count: int, metadata_path: Path = METADATA_PATH, public_tilejson: str = "/tiles/usgs_3dep/tiles.json") -> dict:
     west, south, east, north = metadata["bounds_wgs84"]
     coverage = {str(z): len(list(mercantile.tiles(west, south, east, north, z))) for z in range(minzoom, maxzoom + 1)}
     registry = source_registry()["usgs_3dep_tnmaccess"]
@@ -107,25 +178,25 @@ def write_metadata(metadata: dict, minzoom: int, maxzoom: int, tile_size: int, t
         "maxzoom": maxzoom,
         "generated_tile_count": tile_count,
         "tile_coverage_by_zoom": coverage,
-        "public_tilejson": "/tiles/usgs_3dep/tiles.json",
+        "public_tilejson": public_tilejson,
         "source_registry": registry,
-        "tnm_discovery_example": f"{registry['endpoint'] or DEFAULT_TNM_URL}?{urlencode({'datasets': 'Digital Elevation Model (DEM) 1/3 arc-second', 'bbox': ','.join(str(round(x, 6)) for x in [west, south, east, north]), 'prodFormats': 'GeoTIFF'})}",
+        "tnm_discovery_example": f"{registry['endpoint'] or DEFAULT_TNM_URL}?{urlencode({'datasets': 'National Elevation Dataset (NED) 1/3 arc-second', 'bbox': ','.join(str(round(x, 6)) for x in [west, south, east, north]), 'prodFormats': 'GeoTIFF'})}",
     }
-    METADATA_PATH.parent.mkdir(parents=True, exist_ok=True)
-    METADATA_PATH.write_text(json.dumps(out, indent=2) + "\n")
+    metadata_path.parent.mkdir(parents=True, exist_ok=True)
+    metadata_path.write_text(json.dumps(out, indent=2) + "\n")
     return out
 
 
-def write_tilejson(metadata: dict) -> None:
-    PUBLIC_TILE_DIR.mkdir(parents=True, exist_ok=True)
+def write_tilejson(metadata: dict, tilejson_path: Path = TILEJSON_PATH, tile_url: str = "/tiles/usgs_3dep/terrain-rgb/{z}/{x}/{y}.png", name: str | None = None, description: str | None = None) -> None:
+    tilejson_path.parent.mkdir(parents=True, exist_ok=True)
     west, south, east, north = metadata["bounds_wgs84"]
     tilejson = {
         "tilejson": "2.2.0",
-        "name": "USGS 3DEP 1/3 arc-second n34w085 Terrain-RGB",
-        "description": "Local Terrain-RGB tiles derived from USGS_13_n34w085_20220725.tif.",
+        "name": name or "USGS 3DEP 1/3 arc-second n34w085 Terrain-RGB",
+        "description": description or "Local Terrain-RGB tiles derived from USGS_13_n34w085_20220725.tif.",
         "version": "1.0.0",
         "scheme": "xyz",
-        "tiles": ["/tiles/usgs_3dep/terrain-rgb/{z}/{x}/{y}.png"],
+        "tiles": [tile_url],
         "minzoom": metadata["minzoom"],
         "maxzoom": metadata["maxzoom"],
         "bounds": [west, south, east, north],
@@ -133,7 +204,7 @@ def write_tilejson(metadata: dict) -> None:
         "encoding": "mapbox",
         "attribution": "USGS 3DEP via The National Map",
     }
-    TILEJSON_PATH.write_text(json.dumps(tilejson, indent=2) + "\n")
+    tilejson_path.write_text(json.dumps(tilejson, indent=2) + "\n")
 
 
 def main() -> None:

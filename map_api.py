@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from dcf_export import build_dcf_workbook
-from data_sources import dem_tilejson, validation_status
+from data_sources import dem_tilejson, terrain_coverage_registry, validation_status
 
 ROOT = Path(__file__).parent
 DATA = ROOT / "graph" / "data"
@@ -1242,6 +1242,39 @@ def api_reliefs_dem_tilejson():
     if not tilejson:
         raise HTTPException(404, "DEM tilejson not found; run scripts/build_usgs_terrain_tiles.py")
     return tilejson
+
+
+@app.get("/api/reliefs/terrain/sources")
+def api_reliefs_terrain_sources():
+    registry = terrain_coverage_registry()
+    return {
+        "active_source": registry.get("active_source"),
+        "active_tilejson": registry.get("active_tilejson"),
+        "sources": registry.get("sources", []),
+    }
+
+
+@app.get("/api/reliefs/terrain/coverage")
+def api_reliefs_terrain_coverage():
+    registry = terrain_coverage_registry()
+    active = registry.get("active_tilejson")
+    active_sources = [s for s in registry.get("sources", []) if s.get("public_tilejson") == active]
+    return {
+        "coverage_bbox": registry.get("coverage_bbox"),
+        "georgia_bbox_coverage_pct": registry.get("georgia_bbox_coverage_pct"),
+        "georgia_available_products_coverage_pct": registry.get("georgia_available_products_coverage_pct"),
+        "georgia_available_products_processed": registry.get("georgia_available_products_processed"),
+        "georgia_available_products_total": registry.get("georgia_available_products_total"),
+        "total_tile_count": registry.get("total_tile_count", 0),
+        "downloaded": sum(1 for s in active_sources if s.get("raw_file_path") and Path(s["raw_file_path"]).exists()),
+        "processed": sum(1 for s in active_sources if s.get("processing_status") == "processed"),
+        "active_tilejson": active,
+    }
+
+
+@app.get("/api/reliefs/terrain/jobs/status")
+def api_reliefs_terrain_jobs_status():
+    return terrain_coverage_registry().get("last_job") or {"status": "not run"}
 
 
 @app.post("/api/location/override")

@@ -386,7 +386,7 @@ let visibleEdgeCache=null,visibleEdgeSet=null,linkedNodeCache=null;
 let hoverFrame=0,pendingHover=null;
 const globe={unknownCount:0};
 let globeSelectionLabel="";
-let map=null,mapReady=false,mapClusterIds=[],mapLayerEventsBound=false,mapSelectedId=null,mapSelectedSource=null;
+let map=null,mapReady=false,mapInitPromise=null,mapClusterIds=[],mapLayerEventsBound=false,mapSelectedId=null,mapSelectedSource=null;
 let hoveredFarmId="";
 const mapData={companies:null,securities:null,relationships:null,graphIndex:null,unknown:null};
 let activeRailPanel="",manualSelectedId=null;
@@ -460,6 +460,8 @@ const dataSourceStatus=Object.fromEntries(DUE_DILIGENCE_SOURCES.map(id=>[id,{sta
 const dataLayerCounts={};
 let terrainDemStatus={state:"not loaded yet",count:0,error:"",tilejson:null};
 let terrainDemStatusPromise=null;
+let dataQualityPromise=null;
+let dataQualityLast=0;
 let dueDiligenceLoadTimer=0;
 let marketplaceListings=[];
 let selectedEntityAssetFeatures=[];
@@ -1713,11 +1715,39 @@ function globeVisibleCompanies(){
   COMPANIES.forEach(c=>{ if(!baseVisibleNode(c)) return; const loc=companyLoc(c); (loc?located:unknown).push(c); });
   return {located,unknown};
 }
+async function loadBaseMapStyle(){
+  const res=await fetch(MAP_STYLE_URL,{cache:"force-cache"});
+  if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return patchBaseMapStyle(await res.json());
+}
+function patchBaseMapStyle(style){
+  const building=(style.layers||[]).find(layer=>layer.id==="building-3d");
+  if(building?.paint){
+    building.paint["fill-extrusion-base"]=["coalesce",["get","render_min_height"],0];
+    building.paint["fill-extrusion-height"]=["coalesce",["get","render_height"],0];
+  }
+  (style.layers||[]).forEach(layer=>{
+    if(Array.isArray(layer.filter)) layer.filter=coalesceNumericFilterGets(layer.filter);
+  });
+  return style;
+}
+function coalesceNumericFilterGets(expr){
+  if(!Array.isArray(expr)) return expr;
+  const [op,a,b]=expr;
+  if([">",">=","<","<=","==","!="].includes(op)&&typeof b==="number"&&Array.isArray(a)&&a[0]==="get") return [op,["coalesce",a,0],b];
+  return expr.map(coalesceNumericFilterGets);
+}
 function initMapGlobe(){
-  if(map||!window.maplibregl) return;
+  if(map||mapInitPromise||!window.maplibregl) return;
+  mapInitPromise=loadBaseMapStyle().catch(err=>{
+    console.warn("base map style patch skipped",err);
+    return MAP_STYLE_URL;
+  }).then(createMapGlobe);
+}
+function createMapGlobe(style){
   const start=restoredView.mode==="globe"&&restoredView.map?restoredView.map:{};
   map=new maplibregl.Map({
-    container:"map",style:MAP_STYLE_URL,
+    container:"map",style,
     center:Array.isArray(start.center)?start.center:[-95,28],
     zoom:Number.isFinite(start.zoom)?start.zoom:1.45,
     bearing:Number.isFinite(start.bearing)?start.bearing:0,
@@ -1827,7 +1857,7 @@ async function loadTerrainDemStatus(){
     .then(r=>{ if(!r.ok) throw new Error(`${r.status} ${r.statusText}`); return r.json(); })
     .then(status=>{
       const tilejson=status.tilejson||{};
-      setTerrainDemStatus({state:status.available?"loaded":"DEM unavailable",count:status.available?1:0,error:status.available?"":(status.status||"DEM unavailable"),tilejson});
+      setTerrainDemStatus({state:status.available?"loaded":"DEM unavailable",count:status.available?1:0,error:status.available?"":(status.status||"DEM unavailable"),tilejson,coverageLabel:status.coverage_label||""});
       return status;
     })
     .catch(err=>{
@@ -1908,8 +1938,8 @@ function addSecurityLayers(){
   }});
 }
 function addCompanyLabelLayers(){
-  map.addLayer({id:"company-labels-major",type:"symbol",source:"companies",minzoom:3,filter:["all",["!",["has","point_count"]],[">=",["get","degree"],80]],layout:{"text-field":["coalesce",["get","ticker"],["get","name"]],"text-size":12,"text-offset":[0,1.2],"text-anchor":"top","text-font":["Noto Sans Regular"]},paint:{"text-color":"#e5e7eb","text-halo-color":"#020617","text-halo-width":1.5,"text-opacity":1}});
-  map.addLayer({id:"company-labels-close",type:"symbol",source:"companies",minzoom:6,filter:["!",["has","point_count"]],layout:{"text-field":["get","name"],"text-size":11,"text-offset":[0,1.4],"text-anchor":"top","text-font":["Noto Sans Regular"]},paint:{"text-color":"#f8fafc","text-halo-color":"#020617","text-halo-width":1.5,"text-opacity":1}});
+  map.addLayer({id:"company-labels-major",type:"symbol",source:"companies",minzoom:3,filter:["all",["!",["has","point_count"]],[">=",["coalesce",["get","degree"],0],80]],layout:{"text-field":["coalesce",["get","ticker"],["get","name"],""],"text-size":12,"text-offset":[0,1.2],"text-anchor":"top","text-font":["Noto Sans Regular"]},paint:{"text-color":"#e5e7eb","text-halo-color":"#020617","text-halo-width":1.5,"text-opacity":1}});
+  map.addLayer({id:"company-labels-close",type:"symbol",source:"companies",minzoom:6,filter:["!",["has","point_count"]],layout:{"text-field":["coalesce",["get","name"],""],"text-size":11,"text-offset":[0,1.4],"text-anchor":"top","text-font":["Noto Sans Regular"]},paint:{"text-color":"#f8fafc","text-halo-color":"#020617","text-halo-width":1.5,"text-opacity":1}});
   map.addLayer({id:"security-labels",type:"symbol",source:"securities",minzoom:5.2,layout:{"text-field":["coalesce",["get","ticker"],["get","name"]],"text-size":10.5,"text-offset":[0,1.2],"text-anchor":"top","text-font":["Noto Sans Regular"]},paint:{"text-color":"#fde68a","text-halo-color":"#020617","text-halo-width":1.5,"text-opacity":1}});
 }
 function manualNodeFeatures(){
@@ -2868,6 +2898,10 @@ function layerStatus(layer){
 async function hydrateDataQuality(){
   const host=document.getElementById("dataQualityDashboard");
   if(!host) return;
+  if(dataQualityPromise) return dataQualityPromise;
+  if(Date.now()-dataQualityLast<15000) return;
+  dataQualityLast=Date.now();
+  dataQualityPromise=(async()=>{
   try{
     const [summaryRes,farmsRes,industrialRes,govRes]=await Promise.all([
       fetch("/api/data-quality/summary",{cache:"no-store"}),
@@ -2875,7 +2909,7 @@ async function hydrateDataQuality(){
       fetch("/api/data-quality/layer/industrial",{cache:"no-store"}),
       fetch("/api/data-quality/layer/government",{cache:"no-store"})
     ]);
-    if(!summaryRes.ok) throw new Error(`${summaryRes.status} ${summaryRes.statusText}`);
+    if(!summaryRes.ok) throw new Error(summaryRes.status===404?"not implemented yet":`${summaryRes.status} ${summaryRes.statusText}`);
     const s=await summaryRes.json(),farm=(await farmsRes.json()).metrics||{},ind=(await industrialRes.json()).metrics||{},gov=(await govRes.json()).metrics||{};
     const rows=[
       ["Evidence records",s.total_evidence_records],["Assets missing location",s.assets_missing_location],["Assets missing owner",s.assets_missing_owner],["Low-confidence relationships",s.low_confidence_relationships],["Stale records",s.stale_records],["Needs review",s.records_needing_review],
@@ -2883,8 +2917,11 @@ async function hydrateDataQuality(){
     ];
     host.innerHTML=rows.map(([k,v])=>`<div class="quality-row"><span>${esc(k)}</span><b>${Number(v||0).toLocaleString()}</b></div>`).join("");
   }catch(err){
-    host.innerHTML=`<div class="story-meta">Could not load data quality metrics: ${esc(err.message||err)}</div>`;
+    host.innerHTML=`<div class="story-meta">Data quality: ${esc(err.message||"data unavailable")}</div>`;
   }
+  finally{ dataQualityPromise=null; }
+  })();
+  return dataQualityPromise;
 }
 function renderDataLayerPresets(){
   const host=document.getElementById("dataLayerPresets");
@@ -2911,7 +2948,7 @@ function renderDataLayerPresets(){
       <div class="terrain-control-row"><span>Terrain exaggeration</span><b>${Number(productPrefs.engine.terrainExaggeration??1.12).toFixed(1)}x</b></div>
       <input type="range" min="0" max="3" step="0.1" value="${esc(productPrefs.engine.terrainExaggeration??1.12)}" data-terrain-exaggeration>
       <button class="terrain-action" type="button" data-action="zoom-terrain-dem">Zoom to USGS 3DEP DEM</button>
-      <div class="story-meta">${terrainDemStatus.state==="loaded"?"Coverage: northwest Georgia / eastern Alabama · z6-z13 Terrain-RGB":"DEM status: "+esc(terrainDemStatus.state)}</div>
+      <div class="story-meta">${terrainDemStatus.state==="loaded"?`DEM loaded · Coverage: ${esc(terrainDemStatus.coverageLabel||"northwest Georgia / eastern Alabama")} · Zoom range: z${esc(terrainDemStatus.tilejson?.minzoom??6)}-z${esc(terrainDemStatus.tilejson?.maxzoom??13)} · Source: USGS 3DEP`:"DEM status: "+esc(terrainDemStatus.state)}</div>
       <div class="relief-legend"><div class="legend-ramp"></div><div><span>low relief</span><span>steep / high relief</span></div></div>
     </div>`:"";
     const marketplaceControls=preset.id==="marketplace"?marketplaceControlsHtml():"";

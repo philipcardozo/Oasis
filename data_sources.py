@@ -13,7 +13,12 @@ PUBLIC_TILE_DIR = ROOT / "graph" / "tiles" / "usgs_3dep"
 TERRAIN_RGB_DIR = PUBLIC_TILE_DIR / "terrain-rgb"
 TILEJSON_PATH = PUBLIC_TILE_DIR / "tiles.json"
 METADATA_PATH = PROCESSED_DIR / "USGS_13_n34w085_20220725.metadata.json"
+UNIFIED_PUBLIC_TILE_DIR = ROOT / "graph" / "tiles" / "terrain-rgb"
+UNIFIED_TERRAIN_RGB_DIR = UNIFIED_PUBLIC_TILE_DIR
+UNIFIED_TILEJSON_PATH = UNIFIED_PUBLIC_TILE_DIR / "tiles.json"
+TERRAIN_COVERAGE_PATH = PROCESSED_DIR / "terrain_coverage.json"
 DEFAULT_TNM_URL = "https://tnmaccess.nationalmap.gov/api/v1/products"
+GEORGIA_BBOX = (-85.61, 30.35, -80.84, 35.01)
 
 
 def load_env(path: Path = ENV_PATH) -> dict[str, str]:
@@ -71,9 +76,10 @@ def source_registry() -> dict[str, Any]:
 
 
 def dem_tilejson() -> dict[str, Any] | None:
-    if not TILEJSON_PATH.exists():
-        return None
-    return json.loads(TILEJSON_PATH.read_text())
+    for path in (UNIFIED_TILEJSON_PATH, TILEJSON_PATH):
+        if path.exists():
+            return json.loads(path.read_text())
+    return None
 
 
 def dem_metadata() -> dict[str, Any] | None:
@@ -82,11 +88,76 @@ def dem_metadata() -> dict[str, Any] | None:
     return json.loads(METADATA_PATH.read_text())
 
 
+def public_tile_dir(tilejson: dict[str, Any] | None) -> Path:
+    if not tilejson or not tilejson.get("tiles"):
+        return TERRAIN_RGB_DIR
+    public = str(tilejson["tiles"][0]).split("{z}", 1)[0].strip("/")
+    if public.startswith("tiles/"):
+        public = public[len("tiles/") :]
+    return ROOT / "graph" / "tiles" / public
+
+
+def terrain_coverage_registry() -> dict[str, Any]:
+    if TERRAIN_COVERAGE_PATH.exists():
+        return json.loads(TERRAIN_COVERAGE_PATH.read_text())
+    metadata = dem_metadata()
+    tilejson = dem_tilejson()
+    if not metadata or not tilejson:
+        return {"schema_version": 1, "sources": [], "active_tilejson": None, "active_source": None, "last_job": None}
+    return {
+        "schema_version": 1,
+        "active_tilejson": "/tiles/usgs_3dep/tiles.json",
+        "active_source": "local_usgs_13_n34w085_20220725",
+        "coverage_bbox": tilejson.get("bounds"),
+        "total_tile_count": metadata.get("generated_tile_count", 0),
+        "sources": [
+            {
+                "id": "local_usgs_13_n34w085_20220725",
+                "source_name": "USGS 3DEP / TNMAccess",
+                "raw_file_path": metadata.get("source_path"),
+                "processed_tile_path": str(TERRAIN_RGB_DIR),
+                "public_tilejson": "/tiles/usgs_3dep/tiles.json",
+                "bbox": metadata.get("bounds_wgs84"),
+                "center": tilejson.get("center"),
+                "crs": metadata.get("crs"),
+                "resolution": metadata.get("resolution"),
+                "min_elevation": metadata.get("elevation_min_m"),
+                "max_elevation": metadata.get("elevation_max_m"),
+                "minzoom": metadata.get("minzoom"),
+                "maxzoom": metadata.get("maxzoom"),
+                "tile_count": metadata.get("generated_tile_count", 0),
+                "processing_status": "processed",
+                "source_url": None,
+                "downloaded_at": None,
+                "processed_at": None,
+            }
+        ],
+        "last_job": None,
+    }
+
+
+def covers_bbox(coverage: list[float] | tuple[float, ...] | None, target: tuple[float, float, float, float]) -> bool:
+    return bool(coverage and coverage[0] <= target[0] and coverage[1] <= target[1] and coverage[2] >= target[2] and coverage[3] >= target[3])
+
+
 def validation_status() -> dict[str, Any]:
     load_env()
     tilejson = dem_tilejson()
     metadata = dem_metadata()
-    sample_tiles = list(TERRAIN_RGB_DIR.glob("*/*/*.png"))[:1] if TERRAIN_RGB_DIR.exists() else []
+    registry = terrain_coverage_registry()
+    active_tilejson = registry.get("active_tilejson")
+    georgia_pct = float(registry.get("georgia_bbox_coverage_pct") or 0)
+    georgia_products_pct = float(registry.get("georgia_available_products_coverage_pct") or 0)
+    coverage_label = (
+        "Georgia complete available 3DEP product coverage" if active_tilejson == "/tiles/terrain-rgb/tiles.json" and georgia_products_pct >= 100
+        else
+        "Georgia" if active_tilejson == "/tiles/terrain-rgb/tiles.json" and covers_bbox(registry.get("coverage_bbox"), GEORGIA_BBOX)
+        else "Georgia high-coverage terrain foundation" if active_tilejson == "/tiles/terrain-rgb/tiles.json" and georgia_pct >= 90
+        else "north and central Georgia / Atlanta corridor" if active_tilejson == "/tiles/terrain-rgb/tiles.json"
+        else "northwest Georgia / eastern Alabama"
+    )
+    tile_dir = public_tile_dir(tilejson)
+    sample_tiles = list(tile_dir.glob("*/*/*.png"))[:1] if tile_dir.exists() else []
     checks = [
         {"name": "EIA_API_KEY", "ok": bool(os.environ.get("EIA_API_KEY")), "message": "OK: EIA_API_KEY loaded" if os.environ.get("EIA_API_KEY") else "ERROR: EIA_API_KEY missing"},
         {"name": "DATA_GOV_API_KEY", "ok": bool(os.environ.get("DATA_GOV_API_KEY")), "message": "OK: DATA_GOV_API_KEY loaded" if os.environ.get("DATA_GOV_API_KEY") else "ERROR: DATA_GOV_API_KEY missing"},
@@ -102,9 +173,12 @@ def validation_status() -> dict[str, Any]:
             "status": "loaded" if terrain_ready else "DEM unavailable",
             "raw_path": str(dem_path()),
             "metadata": metadata,
-            "tilejson_url": "/tiles/usgs_3dep/tiles.json" if tilejson else None,
+            "tilejson_url": registry.get("active_tilejson") or ("/tiles/usgs_3dep/tiles.json" if tilejson else None),
+            "active_tilejson_url": registry.get("active_tilejson") or ("/tiles/usgs_3dep/tiles.json" if tilejson else None),
             "tilejson": tilejson,
             "tiles_found": bool(sample_tiles),
+            "coverage": registry,
+            "coverage_label": coverage_label,
         },
     }
 

@@ -42,6 +42,11 @@ def main() -> None:
     assert dem_status["tilejson"]["encoding"] == "mapbox"
     assert "2Lp" not in str(dem_status)
     assert client.get("/api/reliefs/dem/tilejson").json()["tiles"]
+    terrain_sources = client.get("/api/reliefs/terrain/sources").json()
+    assert terrain_sources["sources"]
+    terrain_coverage = client.get("/api/reliefs/terrain/coverage").json()
+    assert terrain_coverage["total_tile_count"] >= 1
+    assert client.get("/api/reliefs/terrain/jobs/status").status_code == 200
     source_status = client.get("/api/data-sources/status").json()
     assert all(c["ok"] for c in source_status["checks"])
     assert client.get("/api/map/features.geojson?layer=farms&bbox=-180,-90,180,90").json()["features"]

@@ -1,0 +1,1151 @@
+{
+  "report_id": "asset_asset_demo-farm-iowa_20260705033348",
+  "object_type": "asset",
+  "object_id": "asset:demo-farm-iowa",
+  "report_type": "asset due-diligence report",
+  "executive_summary": "Non-AI due-diligence report for Iowa row crop farm. Values are sourced, modeled, inferred, or missing as labeled.",
+  "overview": {
+    "id": "asset:demo-farm-iowa",
+    "asset_type": "farm",
+    "name": "Iowa row crop farm",
+    "owner_entity_id": "USDA",
+    "operator_entity_id": "",
+    "latitude": 41.878,
+    "longitude": -93.0977,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -93.1277,
+            41.898
+          ],
+          [
+            -93.0677,
+            41.898
+          ],
+          [
+            -93.0677,
+            41.858
+          ],
+          [
+            -93.1277,
+            41.858
+          ],
+          [
+            -93.1277,
+            41.898
+          ]
+        ]
+      ]
+    },
+    "address": "Central Iowa",
+    "country": "United States",
+    "state": "Iowa",
+    "county": "Story",
+    "city": "",
+    "area_acres": 640,
+    "status": "owned",
+    "listing_status": "not listed",
+    "main_crop": "corn / soybeans",
+    "soil_quality": "B+ loam, mock",
+    "risk_level": "moderate",
+    "water_access": "seasonal creek and drainage ditch",
+    "flood_drought_risk": "moderate drought sensitivity",
+    "nearby_infrastructure": [
+      "county road within 0.3 mi",
+      "grain elevator within 14 mi"
+    ],
+    "source": "public_seed",
+    "confidence": 0.3,
+    "updated_at": "2026-07-02",
+    "owner": {
+      "id": "USDA",
+      "name": "U.S. Department of Agriculture",
+      "entity_type": "government",
+      "ticker": "",
+      "lei": "",
+      "cik": "",
+      "country": "United States",
+      "sector": "Government",
+      "source": "public_seed",
+      "confidence": 0.7,
+      "updated_at": "2026-07-02"
+    },
+    "operator": null,
+    "permits": [],
+    "listings": [
+      {
+        "id": "listing:demo-farm-iowa",
+        "asset_id": "asset:demo-farm-iowa",
+        "listing_type": "sale",
+        "asset_type": "farm",
+        "title": "Iowa row crop farm acquisition opportunity",
+        "price": 6100000,
+        "currency": "USD",
+        "price_per_acre": 9531,
+        "price_per_sqft": null,
+        "acreage": 640,
+        "square_feet": null,
+        "bedrooms": null,
+        "bathrooms": null,
+        "zoning": "agricultural",
+        "address": "Central Iowa",
+        "latitude": 41.878,
+        "longitude": -93.0977,
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -93.1277,
+                41.898
+              ],
+              [
+                -93.0677,
+                41.898
+              ],
+              [
+                -93.0677,
+                41.858
+              ],
+              [
+                -93.1277,
+                41.858
+              ],
+              [
+                -93.1277,
+                41.898
+              ]
+            ]
+          ]
+        },
+        "seller_name": "Owner relationship unknown",
+        "broker_name": "Mock land partner",
+        "listing_url": "",
+        "listing_status": "active",
+        "listed_date": "2026-06-15",
+        "last_updated": "2026-07-02",
+        "owner_type": "unknown",
+        "distance_to_roads_miles": 0.3,
+        "distance_to_power_miles": 3.8,
+        "distance_to_water_miles": 0.2,
+        "flood_risk": "moderate",
+        "soil_quality": "B+",
+        "crime_aggregate_score": 0.18,
+        "environmental_risk": "low",
+        "expected_yield": "corn 185 bu/ac placeholder",
+        "estimated_annual_gain": 177000,
+        "risk_score": 0.42,
+        "nearby_infrastructure": "county road within 0.3 mi; grain elevator within 14 mi",
+        "last_sale_price": 5120000,
+        "current_estimated_value": 5760000,
+        "source": "public_seed",
+        "confidence": 0.3
+      }
+    ],
+    "asset_relationships": [
+      {
+        "id": "assetrel:usda-owns-farm-iowa",
+        "source_id": "USDA",
+        "target_id": "asset:demo-farm-iowa",
+        "relationship_type": "OWNS",
+        "source": "public_seed",
+        "confidence": 0.35,
+        "as_of_date": "2026-07-02",
+        "updated_at": "2026-07-02",
+        "status": "inferred"
+      },
+      {
+        "id": "assetrel:farm-located-parcel",
+        "source_id": "asset:demo-farm-iowa",
+        "target_id": "asset:listing-ag-land-nebraska",
+        "relationship_type": "LOCATED_ON",
+        "source": "public_seed",
+        "confidence": 0.2,
+        "as_of_date": "2026-07-02",
+        "updated_at": "2026-07-02",
+        "status": "inferred"
+      },
+      {
+        "id": "assetrel:farm-near-weather-risk",
+        "source_id": "asset:demo-farm-iowa",
+        "target_id": "layer:demo-weather",
+        "relationship_type": "NEAR",
+        "source": "public_seed",
+        "confidence": 0.2,
+        "as_of_date": "2026-07-02",
+        "updated_at": "2026-07-02",
+        "status": "inferred"
+      },
+      {
+        "id": "assetrel:list-farm-iowa",
+        "source_id": "asset:demo-farm-iowa",
+        "target_id": "listing:demo-farm-iowa",
+        "relationship_type": "LISTED_AS",
+        "source": "public_seed",
+        "confidence": 0.3,
+        "as_of_date": "2026-07-02",
+        "updated_at": "2026-07-02",
+        "status": "inferred"
+      }
+    ],
+    "connected_entities": {
+      "owner": {
+        "id": "USDA",
+        "name": "U.S. Department of Agriculture",
+        "entity_type": "government",
+        "ticker": "",
+        "lei": "",
+        "cik": "",
+        "country": "United States",
+        "sector": "Government",
+        "source": "public_seed",
+        "confidence": 0.7,
+        "updated_at": "2026-07-02"
+      },
+      "operator": null,
+      "financiers": [],
+      "suppliers": [],
+      "builders": [],
+      "regulators": [],
+      "permit_authorities": [],
+      "relationships": [
+        {
+          "id": "assetrel:usda-owns-farm-iowa",
+          "source_id": "USDA",
+          "target_id": "asset:demo-farm-iowa",
+          "relationship_type": "OWNS",
+          "source": "public_seed",
+          "confidence": 0.35,
+          "as_of_date": "2026-07-02",
+          "updated_at": "2026-07-02",
+          "status": "inferred",
+          "entity": {
+            "id": "USDA",
+            "name": "U.S. Department of Agriculture",
+            "entity_type": "government",
+            "ticker": "",
+            "lei": "",
+            "cik": "",
+            "country": "United States",
+            "sector": "Government",
+            "source": "public_seed",
+            "confidence": 0.7,
+            "updated_at": "2026-07-02"
+          }
+        },
+        {
+          "id": "assetrel:farm-located-parcel",
+          "source_id": "asset:demo-farm-iowa",
+          "target_id": "asset:listing-ag-land-nebraska",
+          "relationship_type": "LOCATED_ON",
+          "source": "public_seed",
+          "confidence": 0.2,
+          "as_of_date": "2026-07-02",
+          "updated_at": "2026-07-02",
+          "status": "inferred",
+          "entity": null
+        },
+        {
+          "id": "assetrel:farm-near-weather-risk",
+          "source_id": "asset:demo-farm-iowa",
+          "target_id": "layer:demo-weather",
+          "relationship_type": "NEAR",
+          "source": "public_seed",
+          "confidence": 0.2,
+          "as_of_date": "2026-07-02",
+          "updated_at": "2026-07-02",
+          "status": "inferred",
+          "entity": null
+        },
+        {
+          "id": "assetrel:list-farm-iowa",
+          "source_id": "asset:demo-farm-iowa",
+          "target_id": "listing:demo-farm-iowa",
+          "relationship_type": "LISTED_AS",
+          "source": "public_seed",
+          "confidence": 0.3,
+          "as_of_date": "2026-07-02",
+          "updated_at": "2026-07-02",
+          "status": "inferred",
+          "entity": null
+        }
+      ]
+    },
+    "farm_profile": {
+      "asset_id": "asset:demo-farm-iowa",
+      "farm_type": "row_crop",
+      "crop_history": [
+        "corn",
+        "soybeans"
+      ],
+      "soil_quality": "B+ loam, mock",
+      "water_access": "seasonal creek and drainage ditch",
+      "acres": 640,
+      "estimated_yield": "corn 185 bu/ac; soybeans 56 bu/ac",
+      "annual_revenue_estimate": 615000,
+      "annual_cost_estimate": 438000,
+      "yearly_estimated_gain": 177000,
+      "past_activities": [
+        "corn 2025",
+        "soybeans 2024",
+        "corn 2023"
+      ],
+      "risk_score": 0.42,
+      "last_sale_price": 5120000,
+      "current_estimated_value": 5760000
+    },
+    "industrial_profile": null
+  },
+  "location_map_screenshot": "placeholder: capture current MapLibre viewport in production export",
+  "sections": {
+    "permits": [],
+    "relationship_graph": {
+      "nodes": [
+        {
+          "id": "asset:demo-farm-iowa",
+          "type": "asset",
+          "label": "Iowa row crop farm"
+        },
+        {
+          "id": "USDA",
+          "type": "entity",
+          "label": "U.S. Department of Agriculture"
+        },
+        {
+          "id": "asset:listing-ag-land-nebraska",
+          "type": "object",
+          "label": "asset:listing-ag-land-nebraska"
+        },
+        {
+          "id": "layer:demo-weather",
+          "type": "object",
+          "label": "layer:demo-weather"
+        },
+        {
+          "id": "listing:demo-farm-iowa",
+          "type": "object",
+          "label": "listing:demo-farm-iowa"
+        },
+        {
+          "id": "listing:demo-farm-iowa",
+          "type": "listing",
+          "label": "Iowa row crop farm acquisition opportunity"
+        }
+      ],
+      "edges": [
+        {
+          "id": "assetrel:usda-owns-farm-iowa",
+          "source_id": "USDA",
+          "target_id": "asset:demo-farm-iowa",
+          "relationship_type": "OWNS",
+          "source": "public_seed",
+          "confidence": 0.35,
+          "as_of_date": "2026-07-02",
+          "updated_at": "2026-07-02",
+          "status": "inferred"
+        },
+        {
+          "id": "assetrel:farm-located-parcel",
+          "source_id": "asset:demo-farm-iowa",
+          "target_id": "asset:listing-ag-land-nebraska",
+          "relationship_type": "LOCATED_ON",
+          "source": "public_seed",
+          "confidence": 0.2,
+          "as_of_date": "2026-07-02",
+          "updated_at": "2026-07-02",
+          "status": "inferred"
+        },
+        {
+          "id": "assetrel:farm-near-weather-risk",
+          "source_id": "asset:demo-farm-iowa",
+          "target_id": "layer:demo-weather",
+          "relationship_type": "NEAR",
+          "source": "public_seed",
+          "confidence": 0.2,
+          "as_of_date": "2026-07-02",
+          "updated_at": "2026-07-02",
+          "status": "inferred"
+        },
+        {
+          "id": "assetrel:list-farm-iowa",
+          "source_id": "asset:demo-farm-iowa",
+          "target_id": "listing:demo-farm-iowa",
+          "relationship_type": "LISTED_AS",
+          "source": "public_seed",
+          "confidence": 0.3,
+          "as_of_date": "2026-07-02",
+          "updated_at": "2026-07-02",
+          "status": "inferred"
+        },
+        {
+          "id": "asset:demo-farm-iowa:listed:listing:demo-farm-iowa",
+          "source_id": "asset:demo-farm-iowa",
+          "target_id": "listing:demo-farm-iowa",
+          "relationship_type": "LISTED_AS",
+          "source": "public_seed",
+          "confidence": 0.3,
+          "updated_at": "2026-07-02"
+        }
+      ]
+    },
+    "nearby_infrastructure": {
+      "asset_id": "asset:demo-farm-iowa",
+      "nearby_infrastructure": [
+        {
+          "id": "layer:demo-transmission-line",
+          "layer_type": "industrial-transmission",
+          "source_layer": "infrastructure_lines",
+          "name": "Regional transmission corridor",
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [
+                -113.2,
+                33.2
+              ],
+              [
+                -112.074,
+                33.4484
+              ],
+              [
+                -111.6,
+                33.7
+              ]
+            ]
+          },
+          "properties_json": {},
+          "source": "public_seed",
+          "confidence": 0.25,
+          "updated_at": "2026-07-02"
+        },
+        {
+          "id": "layer:demo-logistics-corridor",
+          "layer_type": "industrial-logistics",
+          "source_layer": "infrastructure_lines",
+          "name": "Road / rail / port logistics corridor",
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [
+                -83.2,
+                42.25
+              ],
+              [
+                -83.0458,
+                42.3314
+              ],
+              [
+                -82.8,
+                42.45
+              ]
+            ]
+          },
+          "properties_json": {
+            "mode": "road_rail"
+          },
+          "source": "public_seed",
+          "confidence": 0.25,
+          "updated_at": "2026-07-02"
+        },
+        {
+          "id": "layer:demo-public-substation",
+          "layer_type": "industrial-substations",
+          "source_layer": "infrastructure_lines",
+          "name": "Publicly mapped substation placeholder",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -112.18,
+              33.53
+            ]
+          },
+          "properties_json": {
+            "legal_public_access": true
+          },
+          "source": "public_seed",
+          "confidence": 0.22,
+          "updated_at": "2026-07-02"
+        },
+        {
+          "id": "layer:demo-government-infrastructure",
+          "layer_type": "government-infrastructure",
+          "source_layer": "infrastructure_lines",
+          "name": "Public infrastructure corridor",
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [
+                -97.85,
+                30.21
+              ],
+              [
+                -97.747,
+                30.2649
+              ],
+              [
+                -97.63,
+                30.31
+              ]
+            ]
+          },
+          "properties_json": {},
+          "source": "public_seed",
+          "confidence": 0.24,
+          "updated_at": "2026-07-02"
+        }
+      ],
+      "status": "placeholder"
+    },
+    "risk_summary": {
+      "asset_id": "asset:demo-farm-iowa",
+      "risk_score": 0.42,
+      "flood_risk": "moderate",
+      "crime_aggregate_score": 0.18,
+      "environmental_risk": "low",
+      "source": "public_seed",
+      "confidence": 0.3,
+      "status": "placeholder"
+    },
+    "valuation": {
+      "asset_id": "asset:demo-farm-iowa",
+      "case": "base",
+      "model_type": "farm",
+      "headline_recommendation": "buy",
+      "estimated_current_value": 5760000.0,
+      "last_known_sale_price": 5120000.0,
+      "acquisition_price": 6100000.0,
+      "estimated_annual_revenue": 123456.0,
+      "estimated_annual_operating_cost": 65432.0,
+      "estimated_yearly_gain_loss": 58024.0,
+      "payback_period": 105.1,
+      "npv": -5732070.41,
+      "risk_score": 0.42,
+      "confidence_score": 0.3,
+      "source_list": [
+        "public_seed"
+      ],
+      "missing_data_fields": [
+        "permit status"
+      ],
+      "assumptions": {
+        "revenue": 123456,
+        "cost": 65432,
+        "growth": 0.02,
+        "discount_rate": 0.11,
+        "utilization": 0.72,
+        "yield": 185.0,
+        "capex": 6100000.0,
+        "tax_incentives": 0,
+        "risk_adjustment": 0.42,
+        "crop_price": 4.5,
+        "operating_cost_per_acre": 650,
+        "property_tax_rate": 0.012,
+        "electricity_cost_per_mwh": 55,
+        "revenue_per_mw": 1200000,
+        "construction_cost": 6100000.0,
+        "financing_cost": 0.08
+      },
+      "score": 80.0,
+      "score_breakdown": [
+        {
+          "factor": "soil quality",
+          "points": 12
+        },
+        {
+          "factor": "water access",
+          "points": 12
+        },
+        {
+          "factor": "flood/drought risk",
+          "points": -4
+        },
+        {
+          "factor": "price per acre",
+          "points": -8
+        },
+        {
+          "factor": "road access",
+          "points": 9
+        },
+        {
+          "factor": "crop history",
+          "points": 14
+        }
+      ],
+      "extra": {
+        "estimated_annual_yield": 118400.0,
+        "price_per_acre": 9531.25,
+        "soil_adjusted_land_value": 6832000.000000001,
+        "value_vs_county_median": "placeholder"
+      },
+      "disclaimer": "Deterministic estimate from public/mock fields and user assumptions; not financial advice or a guarantee."
+    },
+    "scenarios": {
+      "bear": {
+        "asset_id": "asset:demo-farm-iowa",
+        "case": "bear",
+        "model_type": "farm",
+        "headline_recommendation": "buy",
+        "estimated_current_value": 5760000.0,
+        "last_known_sale_price": 5120000.0,
+        "acquisition_price": 6100000.0,
+        "estimated_annual_revenue": 101233.92,
+        "estimated_annual_operating_cost": 73283.84,
+        "estimated_yearly_gain_loss": 27950.08,
+        "payback_period": 218.2,
+        "npv": -5922768.83,
+        "risk_score": 0.42,
+        "confidence_score": 0.3,
+        "source_list": [
+          "public_seed"
+        ],
+        "missing_data_fields": [
+          "permit status"
+        ],
+        "assumptions": {
+          "revenue": 101233.92,
+          "cost": 73283.84000000001,
+          "growth": 0.02,
+          "discount_rate": 0.11,
+          "utilization": 0.5903999999999999,
+          "yield": 185.0,
+          "capex": 6100000.0,
+          "tax_incentives": 0,
+          "risk_adjustment": 0.525,
+          "crop_price": 4.5,
+          "operating_cost_per_acre": 650,
+          "property_tax_rate": 0.012,
+          "electricity_cost_per_mwh": 55,
+          "revenue_per_mw": 1200000,
+          "construction_cost": 6100000.0,
+          "financing_cost": 0.08
+        },
+        "score": 80.0,
+        "score_breakdown": [
+          {
+            "factor": "soil quality",
+            "points": 12
+          },
+          {
+            "factor": "water access",
+            "points": 12
+          },
+          {
+            "factor": "flood/drought risk",
+            "points": -4
+          },
+          {
+            "factor": "price per acre",
+            "points": -8
+          },
+          {
+            "factor": "road access",
+            "points": 9
+          },
+          {
+            "factor": "crop history",
+            "points": 14
+          }
+        ],
+        "extra": {
+          "estimated_annual_yield": 118400.0,
+          "price_per_acre": 9531.25,
+          "soil_adjusted_land_value": 6832000.000000001,
+          "value_vs_county_median": "placeholder"
+        },
+        "disclaimer": "Deterministic estimate from public/mock fields and user assumptions; not financial advice or a guarantee."
+      },
+      "base": {
+        "asset_id": "asset:demo-farm-iowa",
+        "case": "base",
+        "model_type": "farm",
+        "headline_recommendation": "buy",
+        "estimated_current_value": 5760000.0,
+        "last_known_sale_price": 5120000.0,
+        "acquisition_price": 6100000.0,
+        "estimated_annual_revenue": 123456.0,
+        "estimated_annual_operating_cost": 65432.0,
+        "estimated_yearly_gain_loss": 58024.0,
+        "payback_period": 105.1,
+        "npv": -5732070.41,
+        "risk_score": 0.42,
+        "confidence_score": 0.3,
+        "source_list": [
+          "public_seed"
+        ],
+        "missing_data_fields": [
+          "permit status"
+        ],
+        "assumptions": {
+          "revenue": 123456,
+          "cost": 65432,
+          "growth": 0.02,
+          "discount_rate": 0.11,
+          "utilization": 0.72,
+          "yield": 185.0,
+          "capex": 6100000.0,
+          "tax_incentives": 0,
+          "risk_adjustment": 0.42,
+          "crop_price": 4.5,
+          "operating_cost_per_acre": 650,
+          "property_tax_rate": 0.012,
+          "electricity_cost_per_mwh": 55,
+          "revenue_per_mw": 1200000,
+          "construction_cost": 6100000.0,
+          "financing_cost": 0.08
+        },
+        "score": 80.0,
+        "score_breakdown": [
+          {
+            "factor": "soil quality",
+            "points": 12
+          },
+          {
+            "factor": "water access",
+            "points": 12
+          },
+          {
+            "factor": "flood/drought risk",
+            "points": -4
+          },
+          {
+            "factor": "price per acre",
+            "points": -8
+          },
+          {
+            "factor": "road access",
+            "points": 9
+          },
+          {
+            "factor": "crop history",
+            "points": 14
+          }
+        ],
+        "extra": {
+          "estimated_annual_yield": 118400.0,
+          "price_per_acre": 9531.25,
+          "soil_adjusted_land_value": 6832000.000000001,
+          "value_vs_county_median": "placeholder"
+        },
+        "disclaimer": "Deterministic estimate from public/mock fields and user assumptions; not financial advice or a guarantee."
+      },
+      "bull": {
+        "asset_id": "asset:demo-farm-iowa",
+        "case": "bull",
+        "model_type": "farm",
+        "headline_recommendation": "buy",
+        "estimated_current_value": 5760000.0,
+        "last_known_sale_price": 5120000.0,
+        "acquisition_price": 6100000.0,
+        "estimated_annual_revenue": 145678.08,
+        "estimated_annual_operating_cost": 62814.72,
+        "estimated_yearly_gain_loss": 82863.36,
+        "payback_period": 73.6,
+        "npv": -5574564.28,
+        "risk_score": 0.42,
+        "confidence_score": 0.3,
+        "source_list": [
+          "public_seed"
+        ],
+        "missing_data_fields": [
+          "permit status"
+        ],
+        "assumptions": {
+          "revenue": 145678.08,
+          "cost": 62814.72,
+          "growth": 0.02,
+          "discount_rate": 0.11,
+          "utilization": 0.8495999999999999,
+          "yield": 185.0,
+          "capex": 6100000.0,
+          "tax_incentives": 0,
+          "risk_adjustment": 0.3444,
+          "crop_price": 4.5,
+          "operating_cost_per_acre": 650,
+          "property_tax_rate": 0.012,
+          "electricity_cost_per_mwh": 55,
+          "revenue_per_mw": 1200000,
+          "construction_cost": 6100000.0,
+          "financing_cost": 0.08
+        },
+        "score": 80.0,
+        "score_breakdown": [
+          {
+            "factor": "soil quality",
+            "points": 12
+          },
+          {
+            "factor": "water access",
+            "points": 12
+          },
+          {
+            "factor": "flood/drought risk",
+            "points": -4
+          },
+          {
+            "factor": "price per acre",
+            "points": -8
+          },
+          {
+            "factor": "road access",
+            "points": 9
+          },
+          {
+            "factor": "crop history",
+            "points": 14
+          }
+        ],
+        "extra": {
+          "estimated_annual_yield": 118400.0,
+          "price_per_acre": 9531.25,
+          "soil_adjusted_land_value": 6832000.000000001,
+          "value_vs_county_median": "placeholder"
+        },
+        "disclaimer": "Deterministic estimate from public/mock fields and user assumptions; not financial advice or a guarantee."
+      }
+    }
+  },
+  "evidence_source_appendix": [
+    {
+      "id": "ev:asset_asset_demo-farm-iowa_acreage_public_seed_640",
+      "linked_object_type": "asset",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "acreage",
+      "claim_value": 640,
+      "source_name": "public_seed",
+      "source_url": null,
+      "source_document_id": "asset:demo-farm-iowa",
+      "source_date": "2026-07-02",
+      "retrieved_at": "2026-07-05",
+      "confidence": 0.3,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:asset_asset_demo-farm-iowa_acreage_source_pending_640",
+      "linked_object_type": "asset",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "acreage",
+      "claim_value": 640,
+      "source_name": "source pending",
+      "source_url": null,
+      "source_document_id": null,
+      "source_date": null,
+      "retrieved_at": "2026-07-05",
+      "confidence": null,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:asset_asset_demo-farm-iowa_annual_yield_source_pending_corn_185_bu_ac_soybeans_56_bu_ac",
+      "linked_object_type": "asset",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "annual_yield",
+      "claim_value": "corn 185 bu/ac; soybeans 56 bu/ac",
+      "source_name": "source pending",
+      "source_url": null,
+      "source_document_id": null,
+      "source_date": null,
+      "retrieved_at": "2026-07-05",
+      "confidence": null,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:asset_asset_demo-farm-iowa_asset_type_public_seed_farm",
+      "linked_object_type": "asset",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "asset_type",
+      "claim_value": "farm",
+      "source_name": "public_seed",
+      "source_url": null,
+      "source_document_id": "asset:demo-farm-iowa",
+      "source_date": "2026-07-02",
+      "retrieved_at": "2026-07-05",
+      "confidence": 0.3,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:asset_asset_demo-farm-iowa_crop_history_source_pending_corn_soybeans",
+      "linked_object_type": "asset",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "crop_history",
+      "claim_value": [
+        "corn",
+        "soybeans"
+      ],
+      "source_name": "source pending",
+      "source_url": null,
+      "source_document_id": null,
+      "source_date": null,
+      "retrieved_at": "2026-07-05",
+      "confidence": null,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:asset_asset_demo-farm-iowa_current_estimated_value_source_pending_5760000",
+      "linked_object_type": "asset",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "current_estimated_value",
+      "claim_value": 5760000,
+      "source_name": "source pending",
+      "source_url": null,
+      "source_document_id": null,
+      "source_date": null,
+      "retrieved_at": "2026-07-05",
+      "confidence": null,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:asset_asset_demo-farm-iowa_listing_price_public_seed_6100000",
+      "linked_object_type": "asset",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "listing_price",
+      "claim_value": 6100000,
+      "source_name": "public_seed",
+      "source_url": null,
+      "source_document_id": "listing:demo-farm-iowa",
+      "source_date": "2026-07-02",
+      "retrieved_at": "2026-07-05",
+      "confidence": 0.3,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:asset_asset_demo-farm-iowa_listing_status_public_seed_active",
+      "linked_object_type": "asset",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "listing_status",
+      "claim_value": "active",
+      "source_name": "public_seed",
+      "source_url": null,
+      "source_document_id": "listing:demo-farm-iowa",
+      "source_date": "2026-07-02",
+      "retrieved_at": "2026-07-05",
+      "confidence": 0.3,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:asset_asset_demo-farm-iowa_location_public_seed_Central_Iowa_Iowa_United_States",
+      "linked_object_type": "asset",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "location",
+      "claim_value": "Central Iowa, Iowa, United States",
+      "source_name": "public_seed",
+      "source_url": null,
+      "source_document_id": "asset:demo-farm-iowa",
+      "source_date": "2026-07-02",
+      "retrieved_at": "2026-07-05",
+      "confidence": 0.3,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:asset_asset_demo-farm-iowa_ownership_public_seed_USDA",
+      "linked_object_type": "asset",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "ownership",
+      "claim_value": "USDA",
+      "source_name": "public_seed",
+      "source_url": null,
+      "source_document_id": "asset:demo-farm-iowa",
+      "source_date": "2026-07-02",
+      "retrieved_at": "2026-07-05",
+      "confidence": 0.3,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:asset_asset_demo-farm-iowa_risk_score_source_pending_0.42",
+      "linked_object_type": "asset",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "risk_score",
+      "claim_value": 0.42,
+      "source_name": "source pending",
+      "source_url": null,
+      "source_document_id": null,
+      "source_date": null,
+      "retrieved_at": "2026-07-05",
+      "confidence": null,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:asset_asset_demo-farm-iowa_sale_price_source_pending_5120000",
+      "linked_object_type": "asset",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "sale_price",
+      "claim_value": 5120000,
+      "source_name": "source pending",
+      "source_url": null,
+      "source_document_id": null,
+      "source_date": null,
+      "retrieved_at": "2026-07-05",
+      "confidence": null,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:asset_asset_demo-farm-iowa_soil_quality_source_pending_B_loam_mock",
+      "linked_object_type": "asset",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "soil_quality",
+      "claim_value": "B+ loam, mock",
+      "source_name": "source pending",
+      "source_url": null,
+      "source_document_id": null,
+      "source_date": null,
+      "retrieved_at": "2026-07-05",
+      "confidence": null,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:asset_asset_demo-farm-iowa_water_access_source_pending_seasonal_creek_and_drainage_ditch",
+      "linked_object_type": "asset",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "water_access",
+      "claim_value": "seasonal creek and drainage ditch",
+      "source_name": "source pending",
+      "source_url": null,
+      "source_document_id": null,
+      "source_date": null,
+      "retrieved_at": "2026-07-05",
+      "confidence": null,
+      "extraction_method": "structured_public_seed",
+      "notes": "",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:risk_score_asset_demo-farm-iowa_risk_score_deterministic_valuation_model_0.42",
+      "linked_object_type": "risk_score",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "risk_score",
+      "claim_value": 0.42,
+      "source_name": "deterministic valuation model",
+      "source_url": null,
+      "source_document_id": null,
+      "source_date": "2026-07-05",
+      "retrieved_at": "2026-07-05",
+      "confidence": 0.3,
+      "extraction_method": "structured_public_seed",
+      "notes": "Deterministic scoring from public/mock fields and assumptions.",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:risk_score_asset_demo-farm-iowa_score_breakdown_deterministic_valuation_model_factor_soil_quality_points_12_fac",
+      "linked_object_type": "risk_score",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "score_breakdown",
+      "claim_value": [
+        {
+          "factor": "soil quality",
+          "points": 12
+        },
+        {
+          "factor": "water access",
+          "points": 12
+        },
+        {
+          "factor": "flood/drought risk",
+          "points": -4
+        },
+        {
+          "factor": "price per acre",
+          "points": -8
+        },
+        {
+          "factor": "road access",
+          "points": 9
+        },
+        {
+          "factor": "crop history",
+          "points": 14
+        }
+      ],
+      "source_name": "deterministic valuation model",
+      "source_url": null,
+      "source_document_id": null,
+      "source_date": "2026-07-05",
+      "retrieved_at": "2026-07-05",
+      "confidence": 0.3,
+      "extraction_method": "structured_public_seed",
+      "notes": "Deterministic scoring from public/mock fields and assumptions.",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:valuation_asset_demo-farm-iowa_annual_revenue_deterministic_valuation_model_123456.0",
+      "linked_object_type": "valuation",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "annual_revenue",
+      "claim_value": 123456.0,
+      "source_name": "deterministic valuation model",
+      "source_url": null,
+      "source_document_id": null,
+      "source_date": "2026-07-05",
+      "retrieved_at": "2026-07-05",
+      "confidence": 0.3,
+      "extraction_method": "structured_public_seed",
+      "notes": "Modeled estimate, not a fact or guarantee.",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:valuation_asset_demo-farm-iowa_current_estimated_value_deterministic_valuation_model_5760000.0",
+      "linked_object_type": "valuation",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "current_estimated_value",
+      "claim_value": 5760000.0,
+      "source_name": "deterministic valuation model",
+      "source_url": null,
+      "source_document_id": null,
+      "source_date": "2026-07-05",
+      "retrieved_at": "2026-07-05",
+      "confidence": 0.3,
+      "extraction_method": "structured_public_seed",
+      "notes": "Modeled estimate, not a fact or guarantee.",
+      "status": "inferred"
+    },
+    {
+      "id": "ev:valuation_asset_demo-farm-iowa_risk_score_deterministic_valuation_model_0.42",
+      "linked_object_type": "valuation",
+      "linked_object_id": "asset:demo-farm-iowa",
+      "claim_type": "risk_score",
+      "claim_value": 0.42,
+      "source_name": "deterministic valuation model",
+      "source_url": null,
+      "source_document_id": null,
+      "source_date": "2026-07-05",
+      "retrieved_at": "2026-07-05",
+      "confidence": 0.3,
+      "extraction_method": "structured_public_seed",
+      "notes": "Modeled estimate, not a fact or guarantee.",
+      "status": "inferred"
+    }
+  ],
+  "missing_data_appendix": [
+    "permit status"
+  ],
+  "confidence_score": 0.3,
+  "generated_at": "2026-07-05T10:33:48+00:00",
+  "requested_sections": null,
+  "requested_report_type": "farm acquisition report"
+}
