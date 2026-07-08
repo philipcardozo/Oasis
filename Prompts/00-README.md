@@ -80,7 +80,12 @@ Send one file's contents per session, in numeric order unless noted.
   (5 committees + DoD/NASA, 8 source links); MCD/etc. show nothing. **Deferred (data
   blocker):** trades table, POL_→company TRADED edges, politician graph nodes/search,
   trade-filtered lens — all need the unavailable ticker-level trade data.
-- ⬜ **15 not started.**
+- 🟢 **15 complete** — event pipeline + daily briefing: `gates.py` (entity/dedupe/
+  materiality-per-type/priority), `build_events.py` (append-only, idempotent, 1311
+  events/59 P1, quarantine file), `build_briefing.py` (P1-by-watchlist Markdown),
+  `watchlists.json` + drawer star (`/api/watchlist/toggle`), `/api/entity/{id}/events`
+  + drawer Events timeline. Wired into refresh_all; cron in README; `test_events.py`
+  passes. Verified end-to-end (NVDA 8-K → P1 with source link; star persists).
 
 ## Order and dependencies
 
