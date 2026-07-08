@@ -1,111 +1,8 @@
 import {fmtBn,fmtPrice,fmtSignedMoney,fmtPct,yearOf,esc,jsq,normText} from "./util.js";
 import {kindMeta,EMPTY_GEOJSON,DUE_DILIGENCE_SOURCES,DUE_DILIGENCE_ENDPOINTS,DATA_ICON_SVG,dl,MARKETPLACE_ASSET_TYPES,DATA_LAYER_PRESETS,DATA_LAYER_BY_ID,DATA_LAYER_OPEN,HQ_CITY_COORDS,COUNTRY_COORDS,COUNTRY_CODES,BAD_HQ_VALUES,EXCHANGE_HQ_VALUES} from "./config.js";
-const SVGNS="http://www.w3.org/2000/svg";
-let SECTORS={},GROUPS={},RELS={},COMPANIES=[],LINKS=[],NEWS={items_by_node:{}},EDGE_CANDIDATES=[],ALIASES={},META={},byId={},adj={},bulkLoaded=false,bulkPromise=null,grid=new Map();
-const sectorOn={},groupOn={},relOn={},kindOn={};
-let selected=null,hovEdge=null,mode="network",rafId=null;
-let networkScope=null;
-let hoverNodeId=null;
-const hoverFrozenIds=new Set();
-let visibleEdgeCache=null,visibleEdgeSet=null,linkedNodeCache=null;
-let hoverFrame=0,pendingHover=null;
-const globe={unknownCount:0};
-let globeSelectionLabel="";
-let map=null,mapReady=false,mapInitPromise=null,mapClusterIds=[],mapLayerEventsBound=false,mapSelectedId=null,mapSelectedSource=null;
-let hoveredFarmId="";
-const mapData={companies:null,securities:null,relationships:null,graphIndex:null,unknown:null};
-let activeRailPanel="",manualSelectedId=null;
-let maxEdgeVal=1,maxNodeVal=1;
-const params=new URLSearchParams(location.search);
-let selfViewId=params.get("self")||"",selfViewNodes=new Set();
-if(selfViewId) document.body.classList.add("self-view");
-
-const svg=document.getElementById("svg"),vp=document.getElementById("viewport");
-const canvas=document.getElementById("canvas"),ctx=canvas.getContext("2d");
-const gEdges=document.getElementById("edges"),gLabels=document.getElementById("edgeLabels"),gNodes=document.getElementById("nodes"),tip=document.getElementById("tip");
-let edgeEls=[],labelEls=[],nodeEls=[],nodeElsById={};
-const asOfInput=document.getElementById("asOf");
-const CURRENT_YEAR=new Date().getFullYear();
-asOfInput.max=String(CURRENT_YEAR);
-const HOVER_LINK_CAP=4;
-const VIEW_STATE_KEY="oasis.relationshipGraph.view.v2";
-const PRODUCT_PREF_KEY="oasis.relationshipGraph.productPrefs.v1";
-const MANUAL_LAYER_KEY="oasis.relationshipGraph.manualLayer.v1";
-let restoredView=loadViewState(),restoringView=true,saveViewTimer=0;
-if(restoredView.theme==="light"||restoredView.theme==="dark") document.documentElement.setAttribute("data-theme",restoredView.theme);
-const PRODUCT_DEFAULTS={
-  engine:{accent:"#ff3045",labels:"major",terrain:true,terrainExaggeration:1.12,nodeScale:1,edgeOpacity:1,motion:true},
-  maker:{sections:{counterparties:true,relationships:true,lens:true,candidates:true,market:true,filings:true,research:true,news:true}},
-  lens:"company",
-  assetGraph:{relationship_type:"",asset_type:"",confidence_min:"0"},
-  marketplace:{asset_type:"",location:"",min_price:"",max_price:"",min_acres:"",max_acres:"",min_square_feet:"",max_square_feet:"",zoning:"",listing_status:"active",owner_type:"",risk_max:"",soil_quality_min:"",infrastructure_distance_max:"",view:"cards",sort:"price"},
-  dataLayers:{}
-};
-let productPrefs=mergePrefs(loadStored(PRODUCT_PREF_KEY,{}));
-let manualLayer=normalizeManualLayer(loadStored(MANUAL_LAYER_KEY,null));
+import {SECTORS,GROUPS,RELS,COMPANIES,LINKS,NEWS,EDGE_CANDIDATES,ALIASES,META,byId,adj,bulkLoaded,bulkPromise,grid,selected,hovEdge,mode,rafId,networkScope,hoverNodeId,visibleEdgeCache,visibleEdgeSet,linkedNodeCache,hoverFrame,pendingHover,globeSelectionLabel,map,mapReady,mapInitPromise,mapClusterIds,mapLayerEventsBound,mapSelectedId,mapSelectedSource,hoveredFarmId,activeRailPanel,manualSelectedId,maxEdgeVal,maxNodeVal,selfViewId,selfViewNodes,edgeEls,labelEls,nodeEls,nodeElsById,restoredView,restoringView,saveViewTimer,productPrefs,manualLayer,terrainDemStatus,terrainDemStatusPromise,dataQualityPromise,dataQualityLast,dueDiligenceLoadTimer,marketplaceListings,selectedEntityAssetFeatures,SVGNS,sectorOn,groupOn,relOn,kindOn,hoverFrozenIds,globe,mapData,params,svg,vp,canvas,ctx,gEdges,gLabels,gNodes,tip,asOfInput,CURRENT_YEAR,HOVER_LINK_CAP,VIEW_STATE_KEY,PRODUCT_PREF_KEY,MANUAL_LAYER_KEY,PRODUCT_DEFAULTS,dataSourceStatus,dataLayerCounts,loadViewState,cloneJson,loadStored,mergePrefs,saveProductPrefs,emptyManualLayer,normalizeManualLayer,saveManualLayer,downloadText,savedMode,assignSECTORS,assignGROUPS,assignRELS,assignCOMPANIES,assignLINKS,assignNEWS,assignEDGE_CANDIDATES,assignALIASES,assignMETA,assignById,assignAdj,assignBulkLoaded,assignBulkPromise,assignGrid,assignSelected,assignHovEdge,assignMode,assignRafId,assignNetworkScope,assignHoverNodeId,assignVisibleEdgeCache,assignVisibleEdgeSet,assignLinkedNodeCache,assignHoverFrame,assignPendingHover,assignGlobeSelectionLabel,assignMap,assignMapReady,assignMapInitPromise,assignMapClusterIds,assignMapLayerEventsBound,assignMapSelectedId,assignMapSelectedSource,assignHoveredFarmId,assignActiveRailPanel,assignManualSelectedId,assignMaxEdgeVal,assignMaxNodeVal,assignSelfViewId,assignSelfViewNodes,assignEdgeEls,assignLabelEls,assignNodeEls,assignNodeElsById,assignRestoredView,assignRestoringView,assignSaveViewTimer,assignProductPrefs,assignManualLayer,assignTerrainDemStatus,assignTerrainDemStatusPromise,assignDataQualityPromise,assignDataQualityLast,assignDueDiligenceLoadTimer,assignMarketplaceListings,assignSelectedEntityAssetFeatures} from "./state.js";
 
 const activeYear=()=>Math.min(Number(asOfInput.value)||CURRENT_YEAR,CURRENT_YEAR);
-const dataSourceStatus=Object.fromEntries(DUE_DILIGENCE_SOURCES.map(id=>[id,{state:"not loaded",count:0,error:""}]));
-const dataLayerCounts={};
-let terrainDemStatus={state:"not loaded yet",count:0,error:"",tilejson:null};
-let terrainDemStatusPromise=null;
-let dataQualityPromise=null;
-let dataQualityLast=0;
-let dueDiligenceLoadTimer=0;
-let marketplaceListings=[];
-let selectedEntityAssetFeatures=[];
-Object.values(DATA_LAYER_BY_ID).forEach(layer=>{
-  if(productPrefs.dataLayers[layer.id]===undefined) productPrefs.dataLayers[layer.id]=!!layer.defaultOn;
-});
-
-function loadViewState(){
-  try{ return JSON.parse(localStorage.getItem(VIEW_STATE_KEY)||"{}")||{}; }
-  catch(_err){ return {}; }
-}
-function cloneJson(v){ return JSON.parse(JSON.stringify(v)); }
-function loadStored(key,fallback){
-  try{ return JSON.parse(localStorage.getItem(key)||"null") ?? fallback; }
-  catch(_err){ return fallback; }
-}
-function mergePrefs(saved={}){
-  const out=cloneJson(PRODUCT_DEFAULTS);
-  Object.assign(out.engine,saved.engine||{});
-  Object.assign(out.maker.sections,saved.maker?.sections||{});
-  if(saved.lens) out.lens=saved.lens;
-  Object.assign(out.assetGraph,saved.assetGraph||{});
-  Object.assign(out.marketplace,saved.marketplace||{});
-  Object.assign(out.dataLayers,saved.dataLayers||{});
-  return out;
-}
-function saveProductPrefs(){
-  localStorage.setItem(PRODUCT_PREF_KEY,JSON.stringify(productPrefs));
-}
-function emptyManualLayer(){
-  const now=new Date().toISOString();
-  return {version:1,name:"Local scenario",created_at:now,updated_at:now,nodes:[],edges:[],scenarios:[]};
-}
-function normalizeManualLayer(raw){
-  const base=emptyManualLayer(),src=raw&&typeof raw==="object"?raw:{};
-  return {
-    ...base,...src,
-    nodes:Array.isArray(src.nodes)?src.nodes.map(n=>({...n,lat:Number(n.lat),lng:Number(n.lng)})):[],
-    edges:Array.isArray(src.edges)?src.edges:[],
-    scenarios:Array.isArray(src.scenarios)?src.scenarios:[]
-  };
-}
-function saveManualLayer(){
-  manualLayer.updated_at=new Date().toISOString();
-  localStorage.setItem(MANUAL_LAYER_KEY,JSON.stringify(manualLayer));
-}
-function downloadText(name,text,type="text/plain"){
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(new Blob([text],{type}));
-  a.download=name; document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href),30000);
-}
-function savedMode(){
-  return ["network","index","globe"].includes(restoredView.mode)?restoredView.mode:"network";
-}
 function mapCamera(){
   if(!map) return restoredView.map||null;
   const c=map.getCenter();
@@ -145,7 +42,7 @@ function saveViewNow(){
 function queueSaveView(){
   if(restoringView) return;
   clearTimeout(saveViewTimer);
-  saveViewTimer=setTimeout(saveViewNow,120);
+  assignSaveViewTimer(setTimeout(saveViewNow,120));
 }
 function restoreSvgView(){
   const v=restoredView.svg||{};
@@ -269,13 +166,13 @@ async function loadCompanyAssetOverlay(entityId){
     const res=await fetch(`/api/entity/${encodeURIComponent(entityId)}/asset-map.geojson`,{cache:"no-store"});
     if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const data=await res.json();
-    selectedEntityAssetFeatures=data.features||[];
+    assignSelectedEntityAssetFeatures(data.features||[]);
     const features=filterEntityAssetFeatures(selectedEntityAssetFeatures);
     map.getSource("selected_entity_assets")?.setData({type:"FeatureCollection",features});
     map.getSource("selected_entity_asset_links")?.setData({type:"FeatureCollection",features:selectedEntityLinkFeatures(entityId,features)});
   }catch(err){
     console.warn("entity asset overlay",err);
-    selectedEntityAssetFeatures=[];
+    assignSelectedEntityAssetFeatures([]);
     map.getSource("selected_entity_assets")?.setData(EMPTY_GEOJSON);
     map.getSource("selected_entity_asset_links")?.setData(EMPTY_GEOJSON);
   }
@@ -297,7 +194,7 @@ async function loadDueDiligenceSource(source){
     const features=Array.isArray(data.features)?data.features:[];
     map.getSource(source).setData({type:"FeatureCollection",features});
     if(source==="marketplace_listings"){
-      marketplaceListings=features.map(f=>f.properties||{});
+      assignMarketplaceListings(features.map(f=>f.properties||{}));
       map.getSource("marketplace_listing_points")?.setData(marketplacePointFeatures(features));
       renderMarketplaceResults();
     }
@@ -308,7 +205,7 @@ async function loadDueDiligenceSource(source){
     console.warn("map intelligence source",source,err);
     map.getSource(source).setData(EMPTY_GEOJSON);
     if(source==="marketplace_listings"){
-      marketplaceListings=[];
+      assignMarketplaceListings([]);
       map.getSource("marketplace_listing_points")?.setData(EMPTY_GEOJSON);
       renderMarketplaceResults();
     }
@@ -320,9 +217,9 @@ async function loadDueDiligenceSource(source){
 function updateDueDiligenceSources(){
   if(!mapReady) return;
   clearTimeout(dueDiligenceLoadTimer);
-  dueDiligenceLoadTimer=setTimeout(()=>{
+  assignDueDiligenceLoadTimer(setTimeout(()=>{
     activeDataSources().forEach(source=>loadDueDiligenceSource(source));
-  },120);
+  },120));
 }
 function layerFilter(layer){
   return ["==",["get","layer"],layer.id];
@@ -454,7 +351,7 @@ function toggleToolPanel(id){
   if(!el) return;
   const show=!el.classList.contains("show");
   document.querySelectorAll(".tool-panel").forEach(p=>p.classList.remove("show"));
-  activeRailPanel="";
+  assignActiveRailPanel("");
   document.getElementById("workspacePanel").classList.remove("show");
   document.querySelectorAll("#rail button, #gearPanel button[data-rail]").forEach(b=>b.classList.remove("active"));
   renderWorkspacePanel();
@@ -466,9 +363,9 @@ buildToolKinds();
 applyProductPrefs();
 
 fetch("data/universe_core.json").then(r=>r.json()).then(init).catch(()=>{ document.getElementById("loading").textContent="Could not load data/universe_core.json — run expand_us.py and serve this folder."; });
-fetch("data/news.json").then(r=>r.ok?r.json():null).then(d=>{ if(d){ NEWS=d; updateFresh(); if(selected) select(selected); } }).catch(()=>{});
-fetch("data/edge_candidates.json").then(r=>r.ok?r.json():[]).then(d=>{ EDGE_CANDIDATES=d||[]; if(selected) select(selected); }).catch(()=>{});
-fetch("data/aliases.json").then(r=>r.ok?r.json():{}).then(d=>{ ALIASES=d||{}; }).catch(()=>{});
+fetch("data/news.json").then(r=>r.ok?r.json():null).then(d=>{ if(d){ assignNEWS(d); updateFresh(); if(selected) select(selected); } }).catch(()=>{});
+fetch("data/edge_candidates.json").then(r=>r.ok?r.json():[]).then(d=>{ assignEDGE_CANDIDATES(d||[]); if(selected) select(selected); }).catch(()=>{});
+fetch("data/aliases.json").then(r=>r.ok?r.json():{}).then(d=>{ assignALIASES(d||{}); }).catch(()=>{});
 fetch("data/hq_coords.json").then(r=>r.ok?r.json():{}).then(d=>{ Object.assign(HQ_CITY_COORDS,d||{}); COMPANIES.forEach(c=>delete c._loc); updateDataHealth(); if(mode==="globe") drawGlobe(); }).catch(()=>{});
 
 function initNode(c){
@@ -481,28 +378,28 @@ function initNode(c){
 function rebuildSelfView(){
   if(!selfViewId) return;
   const c=byId[selfViewId]||byId[ALIASES[selfViewId]];
-  if(c) selfViewId=c.id;
-  selfViewNodes=new Set(selfViewId?[selfViewId]:[]);
+  if(c) assignSelfViewId(c.id);
+  assignSelfViewNodes(new Set(selfViewId?[selfViewId]:[]));
   LINKS.forEach(l=>{ if(l.from===selfViewId) selfViewNodes.add(l.to); if(l.to===selfViewId) selfViewNodes.add(l.from); });
 }
 function loadBulk(){
   if(bulkLoaded) return Promise.resolve();
   if(!bulkPromise){
     document.body.dataset.bulkFetches=String(Number(document.body.dataset.bulkFetches||0)+1);
-    bulkPromise=fetch("data/universe_bulk.json")
+    assignBulkPromise(fetch("data/universe_bulk.json")
     .then(r=>r.ok?r.json():{nodes:[]})
     .then(d=>{
       (d.nodes||[]).forEach(c=>{ initNode(c); c.r=5; COMPANIES.push(c); });
-      bulkLoaded=true; rebuildSelfView(); buildGrid(); invalidateVisibilityCache();
+      assignBulkLoaded(true); rebuildSelfView(); buildGrid(); invalidateVisibilityCache();
     })
-    .catch(err=>{ console.warn("bulk load skipped",err); bulkLoaded=true; });
+    .catch(err=>{ console.warn("bulk load skipped",err); assignBulkLoaded(true); }));
   }
   return bulkPromise;
 }
 
 function init(data){
-  SECTORS=data.sectors; GROUPS=data.groups||{}; RELS=data.rels; COMPANIES=data.nodes; LINKS=data.links;
-  META=data.meta||{}; updateFresh();
+  assignSECTORS(data.sectors); assignGROUPS(data.groups||{}); assignRELS(data.rels); assignCOMPANIES(data.nodes); assignLINKS(data.links);
+  assignMETA(data.meta||{}); updateFresh();
   RELS.supplies.dir="supplier → customer"; RELS.funds.dir="investor → company"; RELS.partners.dir="mutual"; RELS.owns.dir="owner → subsidiary";
   if(RELS.contracts) RELS.contracts.dir="agency → contractor";
   if(RELS.acquired) RELS.acquired.dir="acquirer → legacy";
@@ -513,9 +410,9 @@ function init(data){
     l.val=Number(l.val||0);
     if(!byId[l.from]||!byId[l.to]) return;
     adj[l.from].add(l.to); adj[l.to].add(l.from);
-    byId[l.from].tot+=l.val; byId[l.to].tot+=l.val; maxEdgeVal=Math.max(maxEdgeVal,l.val);
+    byId[l.from].tot+=l.val; byId[l.to].tot+=l.val; assignMaxEdgeVal(Math.max(maxEdgeVal,l.val));
   });
-  COMPANIES.forEach(c=>{ maxNodeVal=Math.max(maxNodeVal,c.tot); });
+  COMPANIES.forEach(c=>{ assignMaxNodeVal(Math.max(maxNodeVal,c.tot)); });
   COMPANIES.forEach(c=>{ c.r=c.deg?9+15*Math.sqrt(c.tot)/Math.sqrt(maxNodeVal):5; });
   buildGrid();
   Object.keys(SECTORS).forEach(k=>sectorOn[k]=true);
@@ -524,7 +421,7 @@ function init(data){
   [...new Set(COMPANIES.map(c=>c.kind))].forEach(k=>kindOn[k]=true);
   applySavedFilters();
 
-  edgeEls=LINKS.map((l,i)=>{
+  assignEdgeEls(LINKS.map((l,i)=>{
     const p=document.createElementNS(SVGNS,"path"); p.setAttribute("class","edge"); p.dataset.i=i;
     p.addEventListener("pointerover",e=>{ setHoverNode(null); setHoverEdge(i); showEdgeTip(l,e.clientX,e.clientY); draw(); });
     p.addEventListener("pointermove",e=>showEdgeTip(l,e.clientX,e.clientY));
@@ -533,7 +430,7 @@ function init(data){
     gEdges.appendChild(p);
     const t=document.createElementNS(SVGNS,"text"); t.setAttribute("class","edge-label"); t.setAttribute("text-anchor","middle"); gLabels.appendChild(t);
     labelEls.push(t); return p;
-  });
+  }));
   ensureNetworkNodes();
   console.assert(document.querySelectorAll("#nodes .node-g").length===COMPANIES.filter(c=>c.deg>0).length,"network node count mismatch");
 
@@ -550,7 +447,7 @@ function init(data){
     if(restoredView.modelerId&&byId[restoredView.modelerId]) openModeler(restoredView.modelerId);
     document.getElementById("loading").style.display="none";
     syncModeButton();
-    restoringView=false;
+    assignRestoringView(false);
     saveViewNow();
     if(params.has("reliefDemo")) setTimeout(()=>zoomToTerrainDem(),350);
     if(params.has("stress")) setTimeout(()=>window.stressIndex(50000),0);
@@ -587,7 +484,7 @@ function buildNode(c){
 }
 function ensureNetworkNodes(){ COMPANIES.filter(c=>c.deg>0||(selfViewId&&selfViewNodes.has(c.id))).forEach(buildNode); }
 function buildGrid(){
-  grid=new Map();
+  assignGrid(new Map());
   COMPANIES.forEach(c=>{
     const gx=Math.floor(c.ix/90),gy=Math.floor(c.iy/90),key=gx+","+gy;
     if(!grid.has(key)) grid.set(key,[]);
@@ -643,12 +540,12 @@ function activeEdge(l){
   return true;
 }
 function baseVisibleNode(c){ return !!c && (!selfViewId||selfViewNodes.has(c.id)) && (!networkScope||mode!=="network"||networkScope.has(c.id)) && sectorOn[c.sec] && groupOn[c.grp] && kindOn[c.kind] && existsInYear(c); }
-function invalidateVisibilityCache(){ visibleEdgeCache=null; visibleEdgeSet=null; linkedNodeCache=null; }
+function invalidateVisibilityCache(){ assignVisibleEdgeCache(null); assignVisibleEdgeSet(null); assignLinkedNodeCache(null); }
 function visibleEdgeRaw(l){ return activeEdge(l) && (!selfViewId||l.from===selfViewId||l.to===selfViewId) && baseVisibleNode(byId[l.from]) && baseVisibleNode(byId[l.to]); }
 function rebuildVisibilityCache(){
-  visibleEdgeCache=LINKS.filter(visibleEdgeRaw);
-  visibleEdgeSet=new Set(visibleEdgeCache);
-  linkedNodeCache=new Set();
+  assignVisibleEdgeCache(LINKS.filter(visibleEdgeRaw));
+  assignVisibleEdgeSet(new Set(visibleEdgeCache));
+  assignLinkedNodeCache(new Set());
   visibleEdgeCache.forEach(l=>{ linkedNodeCache.add(l.from); linkedNodeCache.add(l.to); });
 }
 function visibleEdges(){ if(!visibleEdgeCache) rebuildVisibilityCache(); return visibleEdgeCache; }
@@ -681,31 +578,31 @@ function physicsPaused(){ return mode==="network" && (!productPrefs.engine.motio
 function setHoverNode(id){
   const next=id&&byId[id]?id:null;
   if(hoverNodeId===next) return;
-  hoverNodeId=next;
+  assignHoverNodeId(next);
   syncHoverFreeze();
 }
 function setHoverEdge(i){
   const next=Number.isInteger(i)?i:null;
   if(hovEdge===next) return;
-  hovEdge=next;
+  assignHovEdge(next);
   syncHoverFreeze();
 }
 function clearHoverFreeze(){
-  hoverNodeId=null;
-  hovEdge=null;
+  assignHoverNodeId(null);
+  assignHovEdge(null);
   hoverFrozenIds.clear();
 }
 function queueHover(n,x,y){
-  pendingHover={n,x,y};
+  assignPendingHover({n,x,y});
   if(hoverFrame) return;
-  hoverFrame=requestAnimationFrame(()=>{
+  assignHoverFrame(requestAnimationFrame(()=>{
     hoverFrame=0;
-    const h=pendingHover; pendingHover=null;
+    const h=pendingHover; assignPendingHover(null);
     if(!h) return;
     setHoverNode(mode==="network"&&h.n?h.n.id:null);
     if(h.n) showNodeTip(h.n,h.x,h.y); else hideTip();
     draw();
-  });
+  }));
 }
 
 const NODE_COLLISION_PAD=8;
@@ -840,7 +737,7 @@ svg.addEventListener("pointermove",e=>{
 svg.addEventListener("pointerup",e=>{
   if(dragNode){ dragNode.fixed=false; if(!moved) select(dragNode.id); } else if(downNode&&!moved){ select(downNode.id); } else if(panning&&!moved&&!nodeFrom(e)) deselect(); dragNode=null; downNode=null; panning=false; svg.classList.remove("panning");
 });
-svg.addEventListener("pointerleave",()=>{ pendingHover=null; clearHoverFreeze(); hideTip(); draw(); });
+svg.addEventListener("pointerleave",()=>{ assignPendingHover(null); clearHoverFreeze(); hideTip(); draw(); });
 
 function showNodeTip(n,x,y){
   const km=kindMeta[n.kind]||{name:n.kind,color:"var(--text-2)"};
@@ -883,7 +780,7 @@ function compactMoney(v){
 }
 function setFarmHover(id){
   if(hoveredFarmId===id) return;
-  hoveredFarmId=id||"";
+  assignHoveredFarmId(id||"");
   if(map?.getLayer("farm-hover-boundary")) map.setFilter("farm-hover-boundary",hoveredFarmId?["==",["get","id"],hoveredFarmId]:["==",["get","id"],""]);
 }
 function showFarmTip(p,x,y){
@@ -1033,7 +930,7 @@ function highlightAssetCorporateNetwork(entities){
 }
 async function showFarmWidget(assetId){
   if(!assetId) return;
-  selected=null; manualSelectedId=null; globeSelectionLabel="";
+  assignSelected(null); assignManualSelectedId(null); assignGlobeSelectionLabel("");
   clearMapSelection();
   document.getElementById("stSel").textContent="Farm";
   detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Loading farm…</h2><div class="tick">${esc(assetId)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
@@ -1067,7 +964,7 @@ async function showFarmWidget(assetId){
 }
 async function showIndustrialWidget(assetId){
   if(!assetId) return;
-  selected=null; manualSelectedId=null; globeSelectionLabel="";
+  assignSelected(null); assignManualSelectedId(null); assignGlobeSelectionLabel("");
   clearMapSelection();
   document.getElementById("stSel").textContent="Industrial";
   detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Loading industrial asset…</h2><div class="tick">${esc(assetId)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
@@ -1098,7 +995,7 @@ async function showIndustrialWidget(assetId){
 }
 async function showGovernmentWidget(assetId){
   if(!assetId) return;
-  selected=null; manualSelectedId=null; globeSelectionLabel="";
+  assignSelected(null); assignManualSelectedId(null); assignGlobeSelectionLabel("");
   clearMapSelection();
   document.getElementById("stSel").textContent="Government";
   detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Loading government facility…</h2><div class="tick">${esc(assetId)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
@@ -1128,7 +1025,7 @@ async function showGovernmentWidget(assetId){
 }
 async function showListingWidget(listingId){
   if(!listingId) return;
-  selected=null; manualSelectedId=null; globeSelectionLabel="";
+  assignSelected(null); assignManualSelectedId(null); assignGlobeSelectionLabel("");
   clearMapSelection();
   document.getElementById("stSel").textContent="Listing";
   detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Loading listing…</h2><div class="tick">${esc(listingId)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
@@ -1219,26 +1116,26 @@ function coalesceNumericFilterGets(expr){
 }
 function initMapGlobe(){
   if(map||mapInitPromise||!window.maplibregl) return;
-  mapInitPromise=loadBaseMapStyle().catch(err=>{
+  assignMapInitPromise(loadBaseMapStyle().catch(err=>{
     console.warn("base map style patch skipped",err);
     return MAP_STYLE_URL;
-  }).then(createMapGlobe);
+  }).then(createMapGlobe));
 }
 function createMapGlobe(style){
   const start=restoredView.mode==="globe"&&restoredView.map?restoredView.map:{};
-  map=new maplibregl.Map({
+  assignMap(new maplibregl.Map({
     container:"map",style,
     center:Array.isArray(start.center)?start.center:[-95,28],
     zoom:Number.isFinite(start.zoom)?start.zoom:1.45,
     bearing:Number.isFinite(start.bearing)?start.bearing:0,
     pitch:Number.isFinite(start.pitch)?start.pitch:0,
     minZoom:1,maxZoom:14,attributionControl:true
-  });
+  }));
   configureMapGestures();
   map.on("style.load",()=>{
     map.setProjection({type:"globe"});
     normalizeBaseMapLabels();
-    mapReady=true;
+    assignMapReady(true);
     addMapLayers();
     drawGlobe();
   });
@@ -1309,7 +1206,7 @@ function firstSymbolLayerId(){
   return map.getStyle()?.layers?.find(layer=>layer.type==="symbol")?.id;
 }
 function setTerrainDemStatus(next){
-  terrainDemStatus={...terrainDemStatus,...next};
+  assignTerrainDemStatus({...terrainDemStatus,...next});
   renderDataLayerPresets();
 }
 async function zoomToTerrainDem(){
@@ -1333,7 +1230,7 @@ async function zoomToTerrainDem(){
 }
 async function loadTerrainDemStatus(){
   if(terrainDemStatusPromise) return terrainDemStatusPromise;
-  terrainDemStatusPromise=fetch(TERRAIN_STATUS_URL,{cache:"no-store"})
+  assignTerrainDemStatusPromise(fetch(TERRAIN_STATUS_URL,{cache:"no-store"})
     .then(r=>{ if(!r.ok) throw new Error(`${r.status} ${r.statusText}`); return r.json(); })
     .then(status=>{
       const tilejson=status.tilejson||{};
@@ -1343,7 +1240,7 @@ async function loadTerrainDemStatus(){
     .catch(err=>{
       setTerrainDemStatus({state:"DEM unavailable",count:0,error:String(err?.message||err),tilejson:null});
       throw err;
-    });
+    }));
   return terrainDemStatusPromise;
 }
 function addTerrainSource(tilejson){
@@ -1453,7 +1350,7 @@ function addManualLayers(){
 }
 function wireMapInteractions(){
   if(mapLayerEventsBound) return;
-  mapLayerEventsBound=true;
+  assignMapLayerEventsBound(true);
   map.on("mouseenter","company-clusters",()=>map.getCanvas().style.cursor="pointer");
   map.on("mouseleave","company-clusters",()=>{ map.getCanvas().style.cursor=""; hideTip(); });
   const featureLayers=[
@@ -1539,7 +1436,7 @@ function setLayerPaint(id,prop,value){ if(map?.getLayer(id)) map.setPaintPropert
 function applyMapSelection(id,sourceId=sourceForEntity(id)){
   if(!mapReady||!map?.getSource(sourceId)) return;
   if(mapSelectedId&&mapSelectedSource&&map.getSource(mapSelectedSource)) map.setFeatureState({source:mapSelectedSource,id:mapSelectedId},{selected:false});
-  mapSelectedId=id; mapSelectedSource=sourceId;
+  assignMapSelectedId(id); assignMapSelectedSource(sourceId);
   map.setFeatureState({source:sourceId,id},{selected:true});
   const focus=mapData.graphIndex?.[id]||{neighbors:[],edges:[]};
   const nodeIds=[id,...(focus.neighbors||[])],edgeIds=focus.edges||[];
@@ -1557,7 +1454,7 @@ function applyMapSelection(id,sourceId=sourceForEntity(id)){
 function clearMapSelection(){
   if(!mapReady) return;
   if(mapSelectedId&&mapSelectedSource&&map.getSource(mapSelectedSource)) map.setFeatureState({source:mapSelectedSource,id:mapSelectedId},{selected:false});
-  mapSelectedId=null; mapSelectedSource=null;
+  assignMapSelectedId(null); assignMapSelectedSource(null);
   setLayerPaint("company-nodes","circle-opacity",["case",["==",["get","location_quality"],"country_centroid"],0.5,0.85]);
   setLayerPaint("security-nodes","circle-opacity",["case",["==",["get","location_quality"],"country_centroid"],0.35,0.72]);
   setLayerPaint("company-labels-major","text-opacity",1);
@@ -1583,8 +1480,8 @@ async function showMapCluster(feature){
   showMapClusterPanel(leaves||[],feature.properties.point_count_abbreviated||feature.properties.point_count||"");
 }
 function showMapClusterPanel(features,countLabel){
-  mapClusterIds=features.map(f=>f.properties.id).filter(Boolean);
-  selected=null; globeSelectionLabel=`${countLabel} companies`; document.getElementById("stSel").textContent=globeSelectionLabel;
+  assignMapClusterIds(features.map(f=>f.properties.id).filter(Boolean));
+  assignSelected(null); assignGlobeSelectionLabel(`${countLabel} companies`); document.getElementById("stSel").textContent=globeSelectionLabel;
   const rows=mapClusterIds.map(id=>byId[id]).filter(Boolean).sort((a,b)=>(b.deg||0)-(a.deg||0)||a.n.localeCompare(b.n)).slice(0,60);
   detail.innerHTML=`<div class="hd"><div class="top"><div><h2>HQ cluster</h2><div class="tick">${esc(String(countLabel))} companies · ${rows.length<mapClusterIds.length?`showing ${rows.length} · `:""}zoom for city detail</div></div><button class="close" data-action="close-detail">&times;</button></div>
     <div class="detail-actions"><button class="primary" data-action="map-network">Network view</button></div></div>
@@ -1592,7 +1489,7 @@ function showMapClusterPanel(features,countLabel){
   detail.classList.add("show");
 }
 async function networkFromMapIds(){
-  networkScope=new Set(mapClusterIds); selected=null; await setMode("network");
+  assignNetworkScope(new Set(mapClusterIds)); assignSelected(null); await setMode("network");
 }
 function cleanLocText(v){ return String(v||"").replace(/\[[^\]]*\]/g,"").replace(/([A-Za-z])\d+\b/g,"$1").replace(/\s+/g," ").trim(); }
 function locKey(v){ return cleanLocText(v).normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\./g,"").replace(/\s*,\s*/g,", "); }
@@ -1781,7 +1678,7 @@ async function loadCompanyAssets(id){
   }
 }
 function select(id){
-  manualSelectedId=null; selected=id; globeSelectionLabel=""; const c=byId[id]; if(!nodeElsById[id]) buildNode(c); const lab=displayLabel(c); document.getElementById("stSel").textContent=lab;
+  assignManualSelectedId(null); assignSelected(id); assignGlobeSelectionLabel(""); const c=byId[id]; if(!nodeElsById[id]) buildNode(c); const lab=displayLabel(c); document.getElementById("stSel").textContent=lab;
   const inc=visibleEdges().filter(l=>l.from===id||l.to===id);
   const heldBy=inc.filter(l=>l.rel==="funds"&&l.to===id);
   const holds=inc.filter(l=>l.rel==="funds"&&l.from===id);
@@ -2026,7 +1923,7 @@ async function runIntrinsicModel(){
     out.textContent=`Could not load SEC companyfacts: ${err.message}. Cache this entity with: python3 cache_companyfacts.py ${c.t||c.cik}`;
   }
 }
-function deselect(){ selected=null; manualSelectedId=null; globeSelectionLabel=""; selectedEntityAssetFeatures=[]; map?.getSource("selected_entity_assets")?.setData(EMPTY_GEOJSON); map?.getSource("selected_entity_asset_links")?.setData(EMPTY_GEOJSON); clearMapSelection(); detail.classList.remove("show"); closeModeler(); document.getElementById("stSel").textContent="—"; draw(); queueSaveView(); }
+function deselect(){ assignSelected(null); assignManualSelectedId(null); assignGlobeSelectionLabel(""); assignSelectedEntityAssetFeatures([]); map?.getSource("selected_entity_assets")?.setData(EMPTY_GEOJSON); map?.getSource("selected_entity_asset_links")?.setData(EMPTY_GEOJSON); clearMapSelection(); detail.classList.remove("show"); closeModeler(); document.getElementById("stSel").textContent="—"; draw(); queueSaveView(); }
 function openSelfView(id){ const u=new URL(location.href); u.search=""; u.searchParams.set("self",id); window.open(u.toString(),"_blank"); }
 function askAbout(name,t){ window.open("https://claude.ai/new?q="+encodeURIComponent("Analyze "+name+" ("+t+"): public filings, ownership, suppliers, customers, government contracts, historical status, and relationship risks."),"_blank"); }
 window.select=select; window.deselect=deselect; window.openSelfView=openSelfView; window.askAbout=askAbout;
@@ -2055,7 +1952,7 @@ const LENSES={
 };
 function sectionOn(key){ return productPrefs.maker.sections[key]!==false; }
 function setWorkspacePanel(name){
-  activeRailPanel=activeRailPanel===name?"":name;
+  assignActiveRailPanel(activeRailPanel===name?"":name);
   document.getElementById("workspacePanel").classList.toggle("show",!!activeRailPanel);
   document.querySelectorAll("#rail button, #gearPanel button[data-rail]").forEach(b=>b.classList.toggle("active",b.dataset.rail===activeRailPanel));
   renderWorkspacePanel();
@@ -2120,7 +2017,7 @@ function showManualTip(n,x,y){
 function showManualObject(id){
   const n=manualLayer.nodes.find(x=>x.id===id);
   if(!n) return;
-  manualSelectedId=id; selected=null; clearMapSelection();
+  assignManualSelectedId(id); assignSelected(null); clearMapSelection();
   const edges=manualLayer.edges.filter(e=>e.from===id||e.to===id);
   document.getElementById("stSel").textContent=n.name;
   detail.innerHTML=`<div class="hd"><div class="top"><div><h2>${esc(n.name)}</h2><div class="tick">Manual object · ${esc(n.id)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div>
@@ -2133,7 +2030,7 @@ function showManualObject(id){
 function deleteManualObject(id){
   manualLayer.nodes=manualLayer.nodes.filter(n=>n.id!==id);
   manualLayer.edges=manualLayer.edges.filter(e=>e.from!==id&&e.to!==id);
-  manualSelectedId=null; saveManualLayer(); updateManualLayer(); renderWorkspacePanel(); deselect();
+  assignManualSelectedId(null); saveManualLayer(); updateManualLayer(); renderWorkspacePanel(); deselect();
 }
 function focusManualObject(id){
   const n=manualLayer.nodes.find(x=>x.id===id);
@@ -2147,7 +2044,7 @@ function activateLens(id){
 }
 async function handleRailAction(r){
   if(r==="map"||r==="network"){
-    activeRailPanel="";
+    assignActiveRailPanel("");
     document.getElementById("workspacePanel").classList.remove("show");
     renderWorkspacePanel();
     await setMode(r==="map"?"globe":"network");
@@ -2213,7 +2110,7 @@ document.getElementById("dataPanel").addEventListener("input",e=>{
     productPrefs.marketplace[el.dataset.marketFilter]=el.value;
     saveProductPrefs();
     clearTimeout(dueDiligenceLoadTimer);
-    dueDiligenceLoadTimer=setTimeout(()=>loadDueDiligenceSource("marketplace_listings"),180);
+    assignDueDiligenceLoadTimer(setTimeout(()=>loadDueDiligenceSource("marketplace_listings"),180));
     queueSaveView();
     return;
   }
@@ -2290,7 +2187,7 @@ document.getElementById("manualImport").addEventListener("change",async e=>{
   const file=e.target.files?.[0];
   if(!file) return;
   try{
-    manualLayer=normalizeManualLayer(JSON.parse(await file.text()));
+    assignManualLayer(normalizeManualLayer(JSON.parse(await file.text())));
     saveManualLayer(); updateManualLayer(); renderWorkspacePanel();
   }catch(err){
     alert(`Could not import scenario JSON: ${err.message}`);
@@ -2395,8 +2292,8 @@ async function hydrateDataQuality(){
   if(!host) return;
   if(dataQualityPromise) return dataQualityPromise;
   if(Date.now()-dataQualityLast<15000) return;
-  dataQualityLast=Date.now();
-  dataQualityPromise=(async()=>{
+  assignDataQualityLast(Date.now());
+  assignDataQualityPromise((async()=>{
   try{
     const [summaryRes,farmsRes,industrialRes,govRes]=await Promise.all([
       fetch("/api/data-quality/summary",{cache:"no-store"}),
@@ -2415,7 +2312,7 @@ async function hydrateDataQuality(){
     host.innerHTML=`<div class="story-meta">Data quality: ${esc(err.message||"data unavailable")}</div>`;
   }
   finally{ dataQualityPromise=null; }
-  })();
+  })());
   return dataQualityPromise;
 }
 function renderDataLayerPresets(){
@@ -2510,9 +2407,9 @@ document.addEventListener("click",e=>{ if(!e.target.closest(".search")) results.
 
 /* ---------- mode + toolbar ---------- */
 async function setMode(m){
-  if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
+  if(rafId){ cancelAnimationFrame(rafId); assignRafId(null); }
   await loadBulk();
-  mode=m;
+  assignMode(m);
   invalidateVisibilityCache();
   clearHoverFreeze();
   document.getElementById("toolGlobeBtn")?.classList.toggle("active",m==="globe");
@@ -2540,14 +2437,14 @@ function runPhysics(){
   if(!conn.length){ draw(); return; }
   let alpha=1;
   function step(){
-    if(physicsPaused()){ rafId=requestAnimationFrame(step); return; }
+    if(physicsPaused()){ assignRafId(requestAnimationFrame(step)); return; }
     for(let i=0;i<conn.length;i++){ const a=conn[i]; for(let j=i+1;j<conn.length;j++){ const b=conn[j]; let dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy||.01,d=Math.sqrt(d2),f=14000/d2*alpha,ux=dx/d,uy=dy/d; if(!nodeAnchored(a)){ a.x+=ux*f; a.y+=uy*f; } if(!nodeAnchored(b)){ b.x-=ux*f; b.y-=uy*f; } } }
     edges.forEach(e=>{ if(e.a.deg===0||e.b.deg===0)return; let dx=e.b.x-e.a.x,dy=e.b.y-e.a.y,d=Math.hypot(dx,dy)||.01,f=(d-e.rest)*.04*alpha,ux=dx/d,uy=dy/d; if(!nodeAnchored(e.a)){e.a.x+=ux*f;e.a.y+=uy*f;} if(!nodeAnchored(e.b)){e.b.x-=ux*f;e.b.y-=uy*f;} });
     let mx=0,my=0; conn.forEach(c=>{mx+=c.x;my+=c.y;}); mx/=conn.length; my/=conn.length;
     conn.forEach(c=>{ if(!nodeAnchored(c)){ c.x+=(700-mx)*.05; c.y+=(470-my)*.05; } });
     resolveNodeCollisions(conn,dragNode,2);
     alpha*=0.992; if(alpha<0.02) alpha=0.02;
-    draw(); rafId=requestAnimationFrame(step);
+    draw(); assignRafId(requestAnimationFrame(step));
   }
   step();
 }
