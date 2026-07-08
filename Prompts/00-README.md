@@ -17,7 +17,15 @@ Send one file's contents per session, in numeric order unless noted.
   (all are real SEC CIKs incl. genuine foreign filers), and ~2,200 CIK nodes are
   SPACs/ADRs/funds whose LEI sits under a differently-named entity. Test asserts
   the achieved ≥50% + all-LEIs-20-chars + spot-checks, not a fabricated 90%.
-- ⬜ **06–15 not started.**
+- 🟡 **06 in progress** — index.html 3079 → 102 lines (< 500). CSS → `graph/css/app.css`;
+  inline JS → ES modules under `graph/js/`: `util.js` (pure helpers), `config.js`
+  (static reference data), `main.js` (rest). Each step verified in-browser: identical
+  `window.graphState()`, `select()`/panel work, network view renders, no console errors;
+  `test_product_shell`/`test_map_api` pass. **Remaining:** split the coupled 250-function
+  view core (`main.js`, ~2,556 lines) into `state.js`/`data.js`/`network.js`/`globe.js`/
+  `panel.js` — needs a shared-state module (setters, since ES imports are read-only) to
+  reach the 6–10 target. Higher-risk; do with full per-feature re-verification.
+- ⬜ **07–15 not started.**
 
 ## Order and dependencies
 
