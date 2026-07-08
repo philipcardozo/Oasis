@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 from datetime import date, datetime
+from functools import lru_cache
 from pathlib import Path
 import urllib.request
 import os
@@ -76,12 +77,22 @@ TAGS = {
 def slug(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "_", text).strip("_")[:48] or "dcf"
 
-def load_node(entity_id: str) -> dict:
+def _universe_mtime() -> float:
+    return UNIVERSE.stat().st_mtime if UNIVERSE.exists() else 0
+
+
+@lru_cache(maxsize=1)
+def _load_universe_nodes(mtime: float) -> tuple[dict, dict]:
     nodes = json.load(UNIVERSE.open())["nodes"]
+    by_id = {n["id"]: n for n in nodes}
     aliases = {str(n.get("t", "")).upper(): n["id"] for n in nodes if n.get("t")}
     aliases.update({n["id"].upper(): n["id"] for n in nodes})
+    return by_id, aliases
+
+
+def load_node(entity_id: str) -> dict:
+    by_id, aliases = _load_universe_nodes(_universe_mtime())
     resolved = aliases.get(entity_id.upper(), entity_id)
-    by_id = {n["id"]: n for n in nodes}
     if resolved not in by_id:
         raise ValueError(f"unknown entity {entity_id}")
     node = by_id[resolved]

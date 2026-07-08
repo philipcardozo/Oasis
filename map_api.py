@@ -43,13 +43,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from starlette.middleware.gzip import GZipMiddleware
+app.add_middleware(GZipMiddleware, minimum_size=1024)
+
 
 STATIC_JSON = {"companies.geojson", "securities.geojson", "relationships.geojson", "universe.json", "graph-index.json", "map_intelligence.json"}
 
 
 @lru_cache(maxsize=16)
-def load_static_json(path: str):
+def _load_json_cached(path: str, mtime: float):
     return json.load(Path(path).open())
+
+
+def load_static_json(path: str):
+    """Load JSON with mtime-based cache invalidation."""
+    p = Path(path)
+    mtime = p.stat().st_mtime if p.exists() else 0
+    return _load_json_cached(path, mtime)
 
 
 def load_json(name: str | Path, fallback):
@@ -57,6 +67,7 @@ def load_json(name: str | Path, fallback):
     if path.name in STATIC_JSON and path.exists():
         return load_static_json(str(path))
     return json.load(path.open()) if path.exists() else fallback
+
 
 
 def feature_collection(features: list[dict]) -> dict:

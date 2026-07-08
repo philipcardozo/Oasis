@@ -816,14 +816,35 @@ def prices_as_of() -> str | None:
     return max(dates) if dates else None
 
 
+def _strip_payload(node: dict) -> dict:
+    """Remove derivable research URLs and empty entity_model fields from payload nodes."""
+    n = dict(node)
+    # research URLs are derivable client-side from CIK/ticker
+    n.pop("research", None)
+    # strip empty-string values from entity_model
+    em = n.get("entity_model")
+    if isinstance(em, dict):
+        cleaned = {}
+        for k, v in em.items():
+            if isinstance(v, dict):
+                sub = {sk: sv for sk, sv in v.items() if sv not in ("", None)}
+                if sub:
+                    cleaned[k] = sub
+            elif v not in ("", None):
+                cleaned[k] = v
+        n["entity_model"] = cleaned
+    return n
+
+
 def split_graph(graph: dict) -> tuple[dict, dict]:
     core_nodes = [n for n in graph["nodes"] if n.get("deg", 0) > 0]
-    bulk_nodes = [n for n in graph["nodes"] if n.get("deg", 0) == 0]
+    bulk_nodes = [_strip_payload(n) for n in graph["nodes"] if n.get("deg", 0) == 0]
     core = dict(graph)
     core["meta"] = dict(graph["meta"], core_companies=len(core_nodes), bulk_companies=len(bulk_nodes))
     core["nodes"] = core_nodes
     bulk = {"meta": {"companies": len(bulk_nodes), "built_at": graph["meta"]["built_at"]}, "nodes": bulk_nodes}
     return core, bulk
+
 
 
 def layout(nodes: list[dict]) -> None:

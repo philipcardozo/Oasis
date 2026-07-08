@@ -985,11 +985,11 @@ syncThemeButton();
 buildToolKinds();
 applyProductPrefs();
 
-fetch("data/universe_core.json?v="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(init).catch(()=>{ document.getElementById("loading").textContent="Could not load data/universe_core.json — run expand_us.py and serve this folder."; });
-fetch("data/news.json?v="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{ if(d){ NEWS=d; updateFresh(); if(selected) select(selected); } }).catch(()=>{});
-fetch("data/edge_candidates.json?v="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():[]).then(d=>{ EDGE_CANDIDATES=d||[]; if(selected) select(selected); }).catch(()=>{});
-fetch("data/aliases.json?v="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():{}).then(d=>{ ALIASES=d||{}; }).catch(()=>{});
-fetch("data/hq_coords.json?v="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():{}).then(d=>{ Object.assign(HQ_CITY_COORDS,d||{}); COMPANIES.forEach(c=>delete c._loc); updateDataHealth(); if(mode==="globe") drawGlobe(); }).catch(()=>{});
+fetch("data/universe_core.json").then(r=>r.json()).then(init).catch(()=>{ document.getElementById("loading").textContent="Could not load data/universe_core.json — run expand_us.py and serve this folder."; });
+fetch("data/news.json").then(r=>r.ok?r.json():null).then(d=>{ if(d){ NEWS=d; updateFresh(); if(selected) select(selected); } }).catch(()=>{});
+fetch("data/edge_candidates.json").then(r=>r.ok?r.json():[]).then(d=>{ EDGE_CANDIDATES=d||[]; if(selected) select(selected); }).catch(()=>{});
+fetch("data/aliases.json").then(r=>r.ok?r.json():{}).then(d=>{ ALIASES=d||{}; }).catch(()=>{});
+fetch("data/hq_coords.json").then(r=>r.ok?r.json():{}).then(d=>{ Object.assign(HQ_CITY_COORDS,d||{}); COMPANIES.forEach(c=>delete c._loc); updateDataHealth(); if(mode==="globe") drawGlobe(); }).catch(()=>{});
 
 function initNode(c){
   c.kind=c.kind||(c.private?"private":"public");
@@ -1009,7 +1009,7 @@ function loadBulk(){
   if(bulkLoaded) return Promise.resolve();
   if(!bulkPromise){
     document.body.dataset.bulkFetches=String(Number(document.body.dataset.bulkFetches||0)+1);
-    bulkPromise=fetch("data/universe_bulk.json?v="+Date.now(),{cache:"no-store"})
+    bulkPromise=fetch("data/universe_bulk.json")
     .then(r=>r.ok?r.json():{nodes:[]})
     .then(d=>{
       (d.nodes||[]).forEach(c=>{ initNode(c); c.r=5; COMPANIES.push(c); });
@@ -1798,11 +1798,11 @@ function normalizeBaseMapLabels(){
 async function loadMapData(){
   if(mapData.companies) return mapData;
   const [companies,securities,relationships,graphIndex,unknown]=await Promise.all([
-    fetch("data/companies.geojson?v="+Date.now(),{cache:"no-store"}).then(r=>r.json()),
-    fetch("data/securities.geojson?v="+Date.now(),{cache:"no-store"}).then(r=>r.json()),
-    fetch("data/relationships.geojson?v="+Date.now(),{cache:"no-store"}).then(r=>r.json()),
-    fetch("data/graph-index.json?v="+Date.now(),{cache:"no-store"}).then(r=>r.json()),
-    fetch("data/location_unknown.json?v="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():[]),
+    fetch("data/companies.geojson").then(r=>r.json()),
+    fetch("data/securities.geojson").then(r=>r.json()),
+    fetch("data/relationships.geojson").then(r=>r.json()),
+    fetch("data/graph-index.json").then(r=>r.json()),
+    fetch("data/location_unknown.json").then(r=>r.ok?r.json():[]),
   ]);
   Object.assign(mapData,{companies,securities,relationships,graphIndex,unknown});
   globe.unknownCount=unknown.length||0;
@@ -2391,9 +2391,23 @@ function edgeDateText(l){
   if(l.as_of) return `reported ${l.as_of}`;
   return "";
 }
+function deriveResearch(c){
+  if(c.research) return c.research;
+  const cik=c.cik, t=c.t||c.id, n=c.n||"";
+  if(!cik) return {};
+  const cikInt=String(parseInt(cik,10));
+  return {
+    sec_filings:`https://www.sec.gov/edgar/browse/?CIK=${cikInt}`,
+    sec_10k:`https://www.sec.gov/edgar/search/#/dateRange=all&forms=10-K%2C10-Q&entityName=${encodeURIComponent(t||n)}`,
+    companyfacts:`https://data.sec.gov/api/xbrl/companyfacts/CIK${cik}.json`,
+    usaspending:`https://www.usaspending.gov/search/?hash=a1b2c3&filters=%7B%22keyword%22%3A%22${encodeURIComponent(n)}%22%7D`,
+    news:`https://news.google.com/rss/search?q=${encodeURIComponent(n+(t?" "+t:""))}`,
+  };
+}
 function researchBlock(c){
   const labels={sec_filings:"SEC filings",sec_10k:"10-K / 10-Q",companyfacts:"XBRL facts",quote:"Market quote",website:"Company site",usaspending:"USAspending",news:"News"};
-  const links=Object.entries(c.research||{}).filter(([k,v])=>labels[k]&&v);
+  const research=deriveResearch(c);
+  const links=Object.entries(research).filter(([k,v])=>labels[k]&&v);
   if(!links.length) return "";
   return `<div class="research"><div class="section-h">Research</div><div class="link-grid">${links.map(([k,v])=>`<a href="${esc(v)}" target="_blank" rel="noopener noreferrer">${labels[k]}</a>`).join("")}</div></div>`;
 }
@@ -2500,8 +2514,9 @@ async function loadCompanyFacts(c){
     const local=await fetch(`data/companyfacts/CIK${cik}.json`,{cache:"force-cache"}).catch(()=>null);
     if(local?.ok) return local.json();
   }
-  if(!c.research?.companyfacts) throw new Error("No SEC companyfacts URL is available for this entity.");
-  const direct=await fetch(c.research.companyfacts,{cache:"force-cache"});
+  const research=deriveResearch(c);
+  if(!research.companyfacts) throw new Error("No SEC companyfacts URL is available for this entity.");
+  const direct=await fetch(research.companyfacts,{cache:"force-cache"});
   if(!direct.ok) throw new Error(`SEC returned ${direct.status}`);
   return direct.json();
 }
