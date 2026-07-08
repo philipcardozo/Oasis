@@ -236,6 +236,14 @@
   .shortcut-card dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 0; }
   .shortcut-card dt { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text); }
   .shortcut-card dd { margin: 0; color: var(--text-2); font-size: 12.5px; }
+  .star-btn { float: right; font-size: 11px; padding: 2px 9px; border: 1px solid var(--border); border-radius: 999px; background: var(--panel-2); color: var(--text-2); cursor: pointer; }
+  .star-btn.on { color: var(--funds); border-color: var(--funds); }
+  .events-list { display: grid; gap: 5px; }
+  .event-row { display: grid; grid-template-columns: 18px 1fr; gap: 4px 8px; padding: 6px 9px; border: 1px solid var(--border); border-radius: 9px; background: var(--panel-2); }
+  .event-row.P1 { border-left: 2px solid var(--accent); }
+  .event-row .ev-ic { grid-row: span 2; align-self: center; }
+  .event-row .ev-t { font-size: 12px; font-weight: 550; }
+  .event-row .ev-meta { font-size: 10.5px; color: var(--text-3); font-variant-numeric: tabular-nums; }
   .issuer-link { color: var(--accent); cursor: pointer; text-decoration: none; }
   .issuer-link:hover { text-decoration: underline; }
   .rels { padding: 4px 0 18px; }

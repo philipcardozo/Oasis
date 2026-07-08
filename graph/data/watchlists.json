@@ -1,0 +1,12 @@
+{
+  "watchlists": [
+    {
+      "name": "Default",
+      "entity_ids": [
+        "AAPL",
+        "LMT",
+        "NVDA"
+      ]
+    }
+  ]
+}

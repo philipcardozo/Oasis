@@ -1637,6 +1637,7 @@ detail.addEventListener("click",e=>{
   else if(action==="research") askAbout(actionEl.dataset.name,actionEl.dataset.ticker);
   else if(action==="manual-focus") focusManualObject(actionEl.dataset.id);
   else if(action==="manual-delete") deleteManualObject(actionEl.dataset.id);
+  else if(action==="watch-toggle") toggleWatch(actionEl.dataset.id);
 });
 modeler.addEventListener("click",async e=>{
   const actionEl=e.target.closest("[data-action]");
@@ -1722,6 +1723,22 @@ async function loadModel(id){
     h+=`<div class="section-h">Comparables</div><div class="comps-list">`+cp.peers.map(p=>`<div class="comp-row" data-select-id="${esc(p.id)}"><span class="nm">${esc(p.ticker||p.name)}</span><span class="peer-chip ${esc(p.peer_source)}">${esc(p.peer_source)}</span><span class="why">${p.ebit_margin!=null?`${(p.ebit_margin*100).toFixed(0)}% mgn`:""}${p.ev_ebit!=null?` · ${p.ev_ebit.toFixed(0)}x EV/EBIT`:""}${p.pe!=null?` · ${p.pe.toFixed(0)} P/E`:""}</span></div>`).join("")+`</div>`;
   }
   host.innerHTML=h;
+}
+function eventsBlock(id){
+  return `<div class="counterparties" data-events="${esc(id)}"></div>`;
+}
+async function loadEvents(id){
+  const host=document.querySelector(`[data-events="${CSS.escape(id)}"]`);
+  if(!host) return;
+  const d=await fetch(`/api/entity/${encodeURIComponent(id)}/events`).then(r=>r.json()).catch(()=>({events:[],watchlisted:false}));
+  const star=`<button class="star-btn${d.watchlisted?" on":""}" type="button" data-action="watch-toggle" data-id="${esc(id)}">${d.watchlisted?"★":"☆"} Watchlist</button>`;
+  const ic={filing:"📄",price:"📈",news:"📰",contract:"🏛️",trade:"💼"};
+  const list=d.events.length?`<div class="events-list">`+d.events.map(e=>`<div class="event-row ${esc(e.priority||"")}"><span class="ev-ic">${ic[e.type]||"•"}</span><span class="ev-t">${esc(e.title)}</span><span class="ev-meta">${esc(e.ts||"")}${e.source_url?` · <a href="${esc(e.source_url)}" target="_blank" rel="noopener noreferrer">source</a>`:""} · ${esc(e.priority||"")}</span></div>`).join("")+`</div>`:`<div class="story-meta">No events recorded yet.</div>`;
+  host.innerHTML=`<div class="section-h">Events ${star}</div>${list}`;
+}
+async function toggleWatch(id){
+  await fetch("/api/watchlist/toggle",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({entity_id:id})}).catch(()=>{});
+  loadEvents(id);
 }
 function politicalBlock(id){
   return `<div class="counterparties" data-political="${esc(id)}"></div>`;
@@ -1810,6 +1827,7 @@ function select(id){
   html+=companyAssetsBlock(id);
   html+=modelBlock(c);
   html+=politicalBlock(id);
+  html+=eventsBlock(id);
   if(sectionOn("lens")) html+=lensContextBlock(c,inc);
   if(sectionOn("relationships")) html+=`<div class="rels">`;
   const tot=inc.length;
@@ -1831,7 +1849,7 @@ function select(id){
     html+=`</div>`;
   }
   html+=`${evidenceBlock("entity",id)}${sectionOn("candidates")?candidateBlock(c):""}${sectionOn("market")?marketBlock(c):""}${sectionOn("filings")?filingsBlock(c):""}${sectionOn("research")?researchBlock(c):""}${sectionOn("news")?newsBlock(c):""}</div>`;
-  detail.innerHTML=html; detail.classList.add("show"); document.getElementById("hint").style.display="none"; loadCompanyAssets(id); loadModel(id); loadPolitical(id); hydrateEvidence("entity",id); loadCompanyAssetOverlay(id); draw(); if(mode==="globe") applyMapSelection(id,sourceForEntity(id)); queueSaveView();
+  detail.innerHTML=html; detail.classList.add("show"); document.getElementById("hint").style.display="none"; loadCompanyAssets(id); loadModel(id); loadPolitical(id); loadEvents(id); hydrateEvidence("entity",id); loadCompanyAssetOverlay(id); draw(); if(mode==="globe") applyMapSelection(id,sourceForEntity(id)); queueSaveView();
 }
 function lensContextBlock(c,inc){
   const lens=productPrefs.lens;

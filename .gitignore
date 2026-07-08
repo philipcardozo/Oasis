@@ -44,6 +44,9 @@ data/raw/
 # Parquet store — canonical query layer, regenerable via build_store.py (prompt 10)
 data/store/
 
+# Generated daily briefings (prompt 15)
+outputs/briefings/
+
 # SEC company facts cache (fetched on demand)
 graph/data/companyfacts/
 

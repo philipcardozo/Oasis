@@ -1200,6 +1200,48 @@ def api_entity_political(entity_id: str):
     return political_context(unquote(entity_id))
 
 
+WATCHLISTS = DATA / "watchlists.json"
+
+
+def _watchlist_ids() -> set:
+    if not WATCHLISTS.exists():
+        return set()
+    wl = json.loads(WATCHLISTS.read_text())
+    return {e for w in wl.get("watchlists", []) for e in w.get("entity_ids", [])}
+
+
+@app.get("/api/entity/{entity_id}/events")
+def api_entity_events(entity_id: str, limit: int = 40):
+    import duckdb
+    eid = unquote(entity_id)
+    p = ROOT / "data" / "store" / "events.parquet"
+    events = []
+    if p.exists():
+        rows = duckdb.execute(
+            f"select event_id, event_type, ts, title, source_url, priority from '{p.as_posix()}' "
+            f"where oasis_id = ? order by ts desc limit ?", [eid, limit]).fetchall()
+        events = [{"id": r[0], "type": r[1], "ts": r[2], "title": r[3],
+                   "source_url": r[4], "priority": r[5]} for r in rows]
+    return {"events": events, "watchlisted": eid in _watchlist_ids()}
+
+
+@app.post("/api/watchlist/toggle")
+def api_watchlist_toggle(payload: dict):
+    eid = payload.get("entity_id")
+    if not eid:
+        raise HTTPException(400, "entity_id required")
+    wl = json.loads(WATCHLISTS.read_text()) if WATCHLISTS.exists() else {"watchlists": []}
+    default = next((w for w in wl["watchlists"] if w.get("name") == "Default"), None)
+    if not default:
+        default = {"name": "Default", "entity_ids": []}
+        wl.setdefault("watchlists", []).append(default)
+    ids = default["entity_ids"]
+    starred = eid not in ids
+    (ids.append if starred else ids.remove)(eid)
+    WATCHLISTS.write_text(json.dumps(wl, indent=2))
+    return {"entity_id": eid, "watchlisted": starred}
+
+
 @app.get("/api/entity/{entity_id}/risk")
 def api_entity_risk(entity_id: str):
     focus = load_json("graph-index.json", {}).get(unquote(entity_id), {})

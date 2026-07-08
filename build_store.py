@@ -39,7 +39,7 @@ def write_parquet(rows: list[dict], path) -> int:
     path = _P(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".jsonl")
-    tmp.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows) or "{}")
+    tmp.write_text("\n".join(json.dumps(r, ensure_ascii=False, default=str) for r in rows) or "{}")
     con = duckdb.connect()
     con.execute(
         f"COPY (SELECT * FROM read_json_auto('{tmp.as_posix()}', format='newline_delimited', "

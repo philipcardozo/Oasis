@@ -35,7 +35,9 @@ def main() -> None:
     run("expand_us.py")
     run("refresh_politicians.py")  # legislators + committees (prompt 13)
     run("refresh_pol_trades.py")   # PTR filing provenance (prompt 13)
-    run("build_store.py")  # canonical Parquet store (prompt 10)
+    run("build_store.py")   # canonical Parquet store (prompt 10)
+    run("build_events.py")  # append-only event extraction (prompt 15)
+    run("build_briefing.py")  # daily briefing markdown (prompt 15)
 
     elapsed = time.time() - start_time
     print(f"Refresh completed in {elapsed:.1f} seconds.")
