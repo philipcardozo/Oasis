@@ -55,7 +55,13 @@ Send one file's contents per session, in numeric order unless noted.
   `requirements.txt` created; postgis schema moved to `docs/design/`. **Deferred:**
   removing `universe.json` (17 Python readers; core/bulk aren't a mechanical swap)
   and porting the hot API paths to DuckDB — larger refactor, called out in the commit.
-- ⬜ **11–15 not started.**
+- 🟢 **11 complete** — reverse DCF (`reverse_dcf.py`, stdlib bisection for priced-in
+  10y FCF growth + 7–11% sensitivity, reuses dcf_export TAGS) and graph-aware comps
+  (`comps.py`, 1-hop same-type neighbors ∪ group, SEC-valued). Endpoints
+  `/api/entity/{id}/reverse-dcf` + `/comps`; drawer Model block renders both, hides
+  for no-CIK. NVDA: 35.5% priced-in growth (PV error 0%), 8 graph comps. Tests pass;
+  verified end-to-end via map_api on :8788.
+- ⬜ **12–15 not started.**
 
 ## Order and dependencies
 
