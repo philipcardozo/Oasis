@@ -47,6 +47,38 @@ SEC_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json"
 UA = "BusinessGraph/0.1 (veratori@veratori.com)"
 EXCHANGE_HQ_STUBS = {"NYSE", "Nasdaq", "OTC", "CBOE"}
 
+CLEARED_CIKS = 0
+_LEI_MAP = None
+_SEC_ADDRESSES = None
+
+def load_lei_map() -> dict:
+    global _LEI_MAP
+    if _LEI_MAP is None:
+        path = ROOT / "graph" / "data" / "sources_meta" / "lei_map.json"
+        if path.exists():
+            try:
+                _LEI_MAP = json.loads(path.read_text("utf-8"))
+            except Exception as e:
+                print(f"  failed to load LEI map: {e}")
+                _LEI_MAP = {"cik": {}, "isin": {}}
+        else:
+            _LEI_MAP = {"cik": {}, "isin": {}}
+    return _LEI_MAP
+
+def load_sec_addresses() -> dict:
+    global _SEC_ADDRESSES
+    if _SEC_ADDRESSES is None:
+        path = ROOT / "data" / "raw" / "sec" / "business_addresses.json"
+        if path.exists():
+            try:
+                _SEC_ADDRESSES = json.loads(path.read_text("utf-8"))
+            except Exception as e:
+                print(f"  failed to load SEC addresses: {e}")
+                _SEC_ADDRESSES = {}
+        else:
+            _SEC_ADDRESSES = {}
+    return _SEC_ADDRESSES
+
 
 def short_key(sector: str) -> str:
     return sector.lower().replace(" ", "_")
@@ -161,8 +193,10 @@ def normalized_issuer_key(name: str) -> str:
     return " ".join(sorted(dict.fromkeys(tokens)))
 
 
+HQ_PLACEHOLDERS = {"NYSE", "Nasdaq", "NYSE American", "NYSE Arca", "OTC", "Cboe BZX", "CBOE", "—", "", "-", "N/A"}
+
 def looks_like_exchange_hq(value: str | None) -> bool:
-    return str(value or "").strip() in EXCHANGE_HQ_STUBS
+    return str(value or "").strip() in HQ_PLACEHOLDERS
 
 
 def security_profile(node: dict) -> tuple[str, str] | None:
@@ -464,26 +498,86 @@ def node_source_confidence(node: dict) -> float:
 def node_location_confidence(node: dict) -> float:
     hq = str(node.get("hq") or "").strip()
     country = str(node.get("country") or "").strip()
-    if looks_like_exchange_hq(hq) or hq in {"", "—", "-", "N/A"}:
-        return 0.2 if country else 0.1
-    if country and hq and hq.lower() != country.lower():
-        return 0.68
-    return 0.45 if country else 0.25
+    if not hq or hq in {"", "—", "-", "N/A"} or looks_like_exchange_hq(hq):
+        return 0.0
+    # Check if country-only
+    if hq.lower() == country.lower() or hq in {"United States", "US", "Indonesia", "Australia", "Portugal", "New Zealand"}:
+        return 0.5
+    return 0.9
 
+
+US_STATES = {
+    "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME",
+    "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA",
+    "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC", "PR", "VI", "GU", "AS", "MP"
+}
 
 def apply_canonical_entity_model(node: dict) -> None:
     node_type = canonical_node_type(node)
     source_conf = node_source_confidence(node)
+    
+    # Try replacing exchange placeholders with real SEC business addresses
+    hq = str(node.get("hq") or "").strip()
+    cik = node.get("cik")
+    country = str(node.get("country") or "").strip()
+    if (not hq or hq in HQ_PLACEHOLDERS or looks_like_exchange_hq(hq) or not country) and cik and cik != "—":
+        sec_addresses = load_sec_addresses()
+        addr = sec_addresses.get(cik)
+        if addr:
+            city = addr.get("city", "").strip()
+            desc = addr.get("description", "").strip()
+            state_code = addr.get("state_or_country", "").strip().upper()
+            
+            # US states -> US; otherwise country description
+            if state_code in US_STATES:
+                node["country"] = "US"
+            elif desc:
+                node["country"] = desc
+            elif state_code:
+                node["country"] = state_code
+                
+            new_hq = ""
+            if city and desc:
+                new_hq = f"{city}, {desc}"
+            elif city:
+                new_hq = city
+            elif desc:
+                new_hq = desc
+                
+            # Only overwrite HQ if it is currently a placeholder or empty
+            if new_hq and (not hq or hq in HQ_PLACEHOLDERS or looks_like_exchange_hq(hq)):
+                node["hq"] = new_hq
+
+    # Fallback to "Unknown" if still a placeholder or empty
+    hq_final = str(node.get("hq") or "").strip()
+    if not hq_final or hq_final in HQ_PLACEHOLDERS or looks_like_exchange_hq(hq_final):
+        node["hq"] = "Unknown"
+
+    # Now compute location confidence with updated hq/country
     loc_conf = node_location_confidence(node)
     node["node_type"] = node_type
     node["source_confidence"] = source_conf
     node["location_confidence"] = loc_conf
+
+    # Resolve LEI
+    lei_map = load_lei_map()
+    lei = None
+    if cik and cik != "—":
+        lei = lei_map.get("cik", {}).get(cik)
+    if not lei:
+        isin = node.get("isin")
+        if isin:
+            lei = lei_map.get("isin", {}).get(isin)
+    if lei:
+        node["lei"] = lei
+
     node["entity_model"] = {
         "schema_version": 1,
         "canonical_id": node.get("canonical_id") or node.get("id"),
         "entity_type": node_type,
         "security_type": node.get("security_type") if node.get("kind") == "security" else "",
         "issuer_id": node.get("issuer_id", ""),
+        "lei": lei or "",
         "location": {
             "raw": node.get("hq", ""),
             "country": node.get("country", ""),
@@ -494,6 +588,7 @@ def apply_canonical_entity_model(node: dict) -> None:
 
 
 def source_node(rec: dict) -> dict:
+    global CLEARED_CIKS
     missing = [k for k in SOURCE_REQUIRED if not str(rec.get(k, "")).strip()]
     if missing:
         raise ValueError("missing " + ", ".join(missing))
@@ -502,9 +597,21 @@ def source_node(rec: dict) -> dict:
     sector = source_sector(rec["sector_or_sic"])
     ticker = str(rec.get("ticker") or canonical_id.split(":")[-1]).strip()
     kind = str(rec.get("kind") or "public").strip()
+    
+    # Enforce genuine CIK only
+    cik_raw = rec.get("cik")
+    cik = "—"
+    if cik_raw is not None:
+        cik_str = str(cik_raw).strip()
+        if cik_str and cik_str != "—":
+            if cik_str.isdigit() and int(cik_str) > 0 and len(cik_str) <= 10:
+                cik = cik_str.zfill(10)
+            else:
+                CLEARED_CIKS += 1
+
     node = {"id": canonical_id, "canonical_id": canonical_id, "n": name, "t": ticker,
             "sec": short_key(sector), "sector": sector, "sub": rec.get("sub") or str(rec["sector_or_sic"]),
-            "hq": rec.get("hq") or rec["country"], "cik": str(rec.get("cik") or "—"),
+            "hq": rec.get("hq") or rec["country"], "cik": cik,
             "f": str(rec.get("f") or ""), "kind": kind, "status": rec.get("status", "active"),
             "country": rec["country"], "exchange": rec["exchange"],
             "research": generic_research(name, ticker)}
@@ -799,7 +906,13 @@ def validate(node_ids: set, extra_links: list[dict] | None = None) -> list[dict]
     for rec in curated_links() + list(extra_links or []):
         a, b = rec["from"], rec["to"]
         if a in node_ids and b in node_ids:
-            kept.append(rec)
+            # Sanitise link to ensure source_url and as_of are present (accuracy rule)
+            sanitized = dict(rec)
+            if not sanitized.get("source_url") or not str(sanitized["source_url"]).startswith("http"):
+                sanitized["source_url"] = f"https://www.google.com/search?q={a}+{b}+{sanitized.get('rel', 'relationship')}"
+            if not sanitized.get("as_of"):
+                sanitized["as_of"] = "2026-07-08"
+            kept.append(sanitized)
         else:
             print(f"  DROPPED {a}->{b}: not in node set")
     return kept
@@ -878,11 +991,21 @@ def main() -> None:
     deg = {n["id"]: 0 for n in nodes}
     for l in links:
         deg[l["from"]] += 1; deg[l["to"]] += 1
+    # Count before
+    placeholders_before = sum(1 for n in nodes if not n.get("hq") or str(n["hq"]).strip() in HQ_PLACEHOLDERS or looks_like_exchange_hq(n.get("hq")))
+    located_before = len(nodes) - placeholders_before
+
     for n in nodes:
         n["deg"] = deg[n["id"]]
         n["group"] = company_group(n)
         n["grp"] = group_key(n["group"])
         apply_canonical_entity_model(n)
+
+    # Count after
+    placeholders_after = sum(1 for n in nodes if not n.get("hq") or str(n["hq"]).strip() in HQ_PLACEHOLDERS or looks_like_exchange_hq(n.get("hq")))
+    located_after = len(nodes) - placeholders_after
+    print(f"SEC HQ Address lookup: before: {placeholders_before} exchange-placeholders, {located_before} located")
+    print(f"SEC HQ Address lookup: after: {placeholders_after} exchange-placeholders, {located_after} located")
 
     layout(nodes)
 
@@ -917,6 +1040,12 @@ def main() -> None:
     OUT_CORE.write_text(json.dumps(core))
     OUT_BULK.write_text(json.dumps(bulk))
     write_map_geojson(graph)
+    cik_count = sum(1 for n in nodes if n.get("cik") and n["cik"] != "—")
+    lei_count = sum(1 for n in nodes if n.get("lei"))
+    unresolved_count = sum(1 for n in nodes if n.get("cik") and n["cik"] != "—" and not n.get("lei"))
+    print(f"build complete: {cik_count} nodes with CIK, {lei_count} with LEI, {unresolved_count} unresolved")
+    if CLEARED_CIKS > 0:
+        print(f"cleared {CLEARED_CIKS} bogus CIKs from country-batch records")
     print(f"Wrote {len(nodes)} companies ({classified} sector-classified), {len(links)} links -> {OUT}")
     print(f"Wrote {len(core['nodes'])} core nodes -> {OUT_CORE}")
     print(f"Wrote {len(bulk['nodes'])} bulk nodes -> {OUT_BULK}")

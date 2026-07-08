@@ -51,6 +51,13 @@ def fetch_submissions(cik: str) -> dict:
 
 
 def main() -> None:
+    if OUT.exists():
+        mtime = OUT.stat().st_mtime
+        age_hours = (time.time() - mtime) / 3600
+        if age_hours < 24:
+            print(f"Filings cache is fresh ({age_hours:.1f} hours old). Skipping refresh.")
+            return
+
     graph = json.load(GRAPH.open())
     nodes = sorted(
         (

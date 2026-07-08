@@ -1,7 +1,7 @@
 import json
 
 
-def main() -> None:
+def test_main() -> None:
     data = json.load(open("graph/data/universe.json"))
     nodes = {n["id"]: n for n in data["nodes"]}
     securities = [n for n in nodes.values() if n.get("kind") == "security"]
@@ -28,4 +28,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    test_main()

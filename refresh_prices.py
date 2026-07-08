@@ -180,6 +180,13 @@ def connected_public_nodes() -> list[dict]:
 
 
 def main() -> None:
+    if OUT.exists():
+        mtime = OUT.stat().st_mtime
+        age_hours = (time.time() - mtime) / 3600
+        if age_hours < 24:
+            print(f"Prices cache is fresh ({age_hours:.1f} hours old). Skipping refresh.")
+            return
+
     nodes = connected_public_nodes()
     prices = {}
     for i, node in enumerate(nodes, 1):

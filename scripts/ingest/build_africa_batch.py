@@ -14,7 +14,7 @@ import urllib3
 
 urllib3.disable_warnings()
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "graph" / "data" / "sources" / "africa_batch_2026_06.jsonl"
 UA = {"User-Agent": "Mozilla/5.0"}
 

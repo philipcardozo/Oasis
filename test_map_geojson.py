@@ -9,7 +9,7 @@ def load(name):
     return json.load((DATA / name).open())
 
 
-def main() -> None:
+def test_main() -> None:
     companies = load("companies.geojson")
     securities = load("securities.geojson")
     relationships = load("relationships.geojson")
@@ -50,4 +50,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    test_main()

@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from map_api import app, features_for_layer, parse_bbox, public_cameras_geojson
 
 
-def main() -> None:
+def test_main() -> None:
     bbox = parse_bbox({"bbox": ["-180,-90,180,90"]})
     farms = features_for_layer("farms", bbox)
     farm_parcels = features_for_layer("farm_parcels", bbox)
@@ -113,4 +113,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    test_main()

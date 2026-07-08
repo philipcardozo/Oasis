@@ -33,7 +33,7 @@ def check_workbook(path: Path, ticker: str) -> None:
     )
     assert "#REF!" not in formulas
 
-def main() -> None:
+def test_main() -> None:
     # BLK (BlackRock)
     check_workbook(build_dcf_workbook("BLK", "cash_flow"), "BLK")
     
@@ -49,4 +49,4 @@ def main() -> None:
     print("dcf export ok")
 
 if __name__ == "__main__":
-    main()
+    test_main()

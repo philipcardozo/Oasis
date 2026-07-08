@@ -6,7 +6,7 @@ import io
 from expand_us import load_source_nodes, merge_source_nodes
 
 
-def main() -> None:
+def test_main() -> None:
     with TemporaryDirectory() as d:
         p = Path(d) / "test_intl.jsonl"
         p.write_text(
@@ -30,4 +30,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    test_main()

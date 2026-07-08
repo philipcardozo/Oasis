@@ -1,7 +1,7 @@
 from expand_us import company_group, group_key
 
 
-def main() -> None:
+def test_main() -> None:
     assert company_group({"sector": "Information Technology", "sub": "Semiconductors", "n": "NVIDIA CORP", "t": "NVDA"}) == "AI & semiconductors"
     assert company_group({"sector": "Information Technology", "sub": "Services-Prepackaged Software", "n": "Software Co", "t": "SOFT"}) == "Cloud & software"
     assert company_group({"sector": "Financials", "sub": "Asset Management & Custody Banks", "n": "BlackRock", "t": "BLK"}) == "Asset management & advisory"
@@ -10,4 +10,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    test_main()

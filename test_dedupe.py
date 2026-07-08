@@ -1,10 +1,10 @@
 from dedupe_report import normalize_name
 
 
-def main() -> None:
+def test_main() -> None:
     assert normalize_name("Apple Inc.") == normalize_name("APPLE INC")
     assert normalize_name("Apple Inc.") != normalize_name("Applied Materials")
 
 
 if __name__ == "__main__":
-    main()
+    test_main()

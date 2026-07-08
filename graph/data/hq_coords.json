@@ -1,10 +1,28 @@
 {
+  "02150 espoo, finland": [
+    60.183914,
+    24.828857,
+    "02150 Espoo",
+    "Otaniemi",
+    "Finland",
+    "nominatim",
+    0.72
+  ],
   "1 willis street, australia": [
     -37.7525805,
     144.8045884,
     "1 Willis Street",
     "Willis Street",
     "Australia"
+  ],
+  "1012 sj amsterdam, netherlands": [
+    52.374523,
+    4.891105,
+    "1012 Sj Amsterdam",
+    "Centrum",
+    "Netherlands",
+    "nominatim",
+    0.72
   ],
   "14 honan place avondale auckland, new zealand": [
     -36.8848193,
@@ -34,6 +52,15 @@
     "Moorgate Street",
     "Australia"
   ],
+  "28013 madrid, spain": [
+    40.418749,
+    -3.707069,
+    "28013 Madrid",
+    "Centro",
+    "Spain",
+    "nominatim",
+    0.72
+  ],
   "32, indonesia": [
     -7.8763442,
     110.0673878,
@@ -55,12 +82,39 @@
     "RW 03",
     "Indonesia"
   ],
+  "69120 vaulx en velin, france": [
+    45.786148,
+    4.926695,
+    "69120 Vaulx En Velin",
+    "Vaulx-en-Velin",
+    "France",
+    "nominatim",
+    0.72
+  ],
+  "75002 paris, france": [
+    48.868277,
+    2.342792,
+    "75002 Paris",
+    "Paris",
+    "France",
+    "nominatim",
+    0.72
+  ],
   "85 the esplanade petone lower hutt, new zealand": [
     -41.2263252,
     174.8705815,
     "85 The Esplanade Petone Lower Hutt",
     "The Esplanade",
     "New Zealand"
+  ],
+  "8900 randers, denmark": [
+    56.463958,
+    10.034138,
+    "8900 Randers",
+    "Randers Kommune",
+    "Denmark",
+    "nominatim",
+    0.72
   ],
   "9 no 1 b, indonesia": [
     -2.4833826,
@@ -90,12 +144,30 @@
     "Victoria",
     "Australia"
   ],
+  "aberdeen, united kingdom": [
+    57.148243,
+    -2.092809,
+    "Aberdeen",
+    "Alba / Scotland",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "abidjan, cote d'ivoire": [
     5.345317,
     -4.024429,
     "Abidjan",
     "Abidjan Autonomous District",
     "Cote d'Ivoire"
+  ],
+  "abingdon, oxfordshire, united kingdom": [
+    51.671484,
+    -1.277972,
+    "Abingdon",
+    "Vale of White Horse",
+    "United Kingdom",
+    "nominatim",
+    0.72
   ],
   "abu dhabi": [
     24.4539,
@@ -216,12 +288,39 @@
     "Flevoland",
     "Netherlands"
   ],
+  "alphen aan den rijn, netherlands": [
+    52.113069,
+    4.640806,
+    "Alphen Aan Den Rijn",
+    "Zuid-Holland",
+    "Netherlands",
+    "nominatim",
+    0.72
+  ],
   "altona north, australia": [
     -37.8378229,
     144.8342853,
     "Altona North",
     "Victoria",
     "Australia"
+  ],
+  "altrincham, cheshire, united kingdom": [
+    53.350979,
+    -2.26338,
+    "Altrincham",
+    "Oversley Ford",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
+  "amstelveen, netherlands": [
+    52.286218,
+    4.852649,
+    "Amstelveen",
+    "Noord-Holland",
+    "Netherlands",
+    "nominatim",
+    0.72
   ],
   "amsterdam": [
     52.37403,
@@ -266,6 +365,15 @@
     "Aracaju",
     "Sergipe",
     "Brazil",
+    "nominatim",
+    0.72
+  ],
+  "argentina, argentina": [
+    -29.53495,
+    -62.26615,
+    "Argentina",
+    "Departamento Aguirre",
+    "Argentina",
     "nominatim",
     0.72
   ],
@@ -324,6 +432,15 @@
     "Asan",
     "South Chungcheong",
     "South Korea"
+  ],
+  "aschheim/munich, germany": [
+    48.171348,
+    11.716035,
+    "Aschheim/Munich",
+    "Landkreis München",
+    "Germany",
+    "nominatim",
+    0.72
   ],
   "ascot, australia": [
     -27.4297074,
@@ -389,6 +506,15 @@
     "Auckland Central",
     "Auckland",
     "New Zealand"
+  ],
+  "auckland city, new zealand": [
+    -36.852095,
+    174.76318,
+    "Auckland City",
+    "Waitematā",
+    "New Zealand",
+    "nominatim",
+    0.72
   ],
   "auckland, new zealand": [
     -36.852095,
@@ -462,6 +588,15 @@
     "Bac Ninh",
     "Vietnam"
   ],
+  "bad homburg, germany": [
+    50.22838,
+    8.613013,
+    "Bad Homburg",
+    "Hochtaunuskreis",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
   "badalona": [
     41.45004,
     2.24741,
@@ -494,6 +629,15 @@
     "nominatim",
     0.72
   ],
+  "bagsvaerd denmark, denmark": [
+    55.758394,
+    12.457311,
+    "Bagsvaerd Denmark",
+    "Gladsaxe Kommune",
+    "Denmark",
+    "nominatim",
+    0.72
+  ],
   "balcatta, australia": [
     -31.8709062,
     115.8198022,
@@ -521,6 +665,15 @@
     "Ballarat",
     "Victoria",
     "Australia"
+  ],
+  "ballerup, denmark": [
+    55.730359,
+    12.361231,
+    "Ballerup",
+    "Ballerup Kommune",
+    "Denmark",
+    "nominatim",
+    0.72
   ],
   "baltimore, maryland": [
     39.29038,
@@ -664,6 +817,15 @@
     "Basel-City",
     "Switzerland"
   ],
+  "basildon, essex, united kingdom": [
+    51.570237,
+    0.458357,
+    "Basildon",
+    "Essex",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "batam, indonesia": [
     1.1030815,
     104.0383696,
@@ -775,6 +937,15 @@
     "Minas Gerais",
     "Brazil"
   ],
+  "belo horizonte, minas gerais, brazil": [
+    -19.922732,
+    -43.945095,
+    "Belo Horizonte",
+    "Minas Gerais",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
   "bendigo, australia": [
     -36.7590183,
     144.2826718,
@@ -825,6 +996,15 @@
     "Berazategui",
     "Partido de Berazategui",
     "Argentina",
+    "nominatim",
+    0.72
+  ],
+  "berkshire, united kingdom": [
+    51.453489,
+    -1.031873,
+    "Berkshire",
+    "West Berkshire",
+    "United Kingdom",
     "nominatim",
     0.72
   ],
@@ -946,6 +1126,15 @@
     "Alabama",
     "United States"
   ],
+  "birmingham, united kingdom": [
+    52.494899,
+    -1.851844,
+    "Birmingham",
+    "West Midlands",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "bloomfield, connecticut": [
     41.82649,
     -72.73009,
@@ -1040,6 +1229,15 @@
     "Booragoon",
     "Perth",
     "Australia"
+  ],
+  "bordeaux, france": [
+    44.841225,
+    -0.580036,
+    "Bordeaux",
+    "Gironde",
+    "France",
+    "nominatim",
+    0.72
   ],
   "boronia, australia": [
     -37.860645,
@@ -1160,6 +1358,15 @@
     "England",
     "United Kingdom"
   ],
+  "bristol, united kingdom": [
+    51.453802,
+    -2.597298,
+    "Bristol",
+    "City of Bristol",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "broadwood, australia": [
     -30.7892832,
     121.4500436,
@@ -1203,6 +1410,15 @@
     "Bucheon-si",
     "Gyeonggi-do",
     "South Korea"
+  ],
+  "buenos aires 1364 ar, argentina": [
+    -33.084407,
+    -68.452109,
+    "Buenos Aires 1364 Ar",
+    "Buenos Aires",
+    "Argentina",
+    "nominatim",
+    0.72
   ],
   "buenos aires, argentina": [
     -34.609558,
@@ -1304,6 +1520,15 @@
     "Inner West",
     "Australia"
   ],
+  "c1054aaa buenos aires, argentina": [
+    -34.597587,
+    -58.370394,
+    "C1054Aaa Buenos Aires",
+    "Buenos Aires",
+    "Argentina",
+    "nominatim",
+    0.72
+  ],
   "cachoeirinha, brazil": [
     -29.949335,
     -51.089893,
@@ -1340,6 +1565,15 @@
     "Camberwell",
     "Victoria",
     "Australia"
+  ],
+  "camberwell, victoria, australia": [
+    -37.838462,
+    145.074077,
+    "Camberwell",
+    "Melbourne",
+    "Australia",
+    "nominatim",
+    0.72
   ],
   "cambridge, massachusetts": [
     42.3751,
@@ -1442,6 +1676,15 @@
     "nominatim",
     0.72
   ],
+  "cardiff, united kingdom": [
+    51.481655,
+    -3.179193,
+    "Cardiff",
+    "Cymru / Wales",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "carlisle, australia": [
     -31.9798827,
     115.9100391,
@@ -1510,6 +1753,15 @@
     "Cataguases",
     "Minas Gerais",
     "Brazil"
+  ],
+  "caulfield, australia": [
+    -37.877343,
+    145.042271,
+    "Caulfield",
+    "Normanby Road entrance",
+    "Australia",
+    "nominatim",
+    0.72
   ],
   "causeway bay": [
     22.28001,
@@ -1594,6 +1846,15 @@
     "Chatham",
     "Medway",
     "United Kingdom",
+    "nominatim",
+    0.72
+  ],
+  "chatillon, france": [
+    46.659177,
+    5.730277,
+    "Chatillon",
+    "Lons-le-Saunier",
+    "France",
     "nominatim",
     0.72
   ],
@@ -1718,6 +1979,15 @@
     "Ohio",
     "United States"
   ],
+  "city of buenos aires, argentina": [
+    -34.604808,
+    -58.372735,
+    "City Of Buenos Aires",
+    "266",
+    "Argentina",
+    "nominatim",
+    0.72
+  ],
   "claremont, australia": [
     -31.980291,
     115.7839988,
@@ -1790,6 +2060,24 @@
     "Madrid",
     "Spain"
   ],
+  "cologne, germany": [
+    50.938361,
+    6.959974,
+    "Cologne",
+    "Nordrhein-Westfalen",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
+  "colombes, france": [
+    48.92273,
+    2.254363,
+    "Colombes",
+    "Nanterre",
+    "France",
+    "nominatim",
+    0.72
+  ],
   "columbus, georgia": [
     32.46098,
     -84.98771,
@@ -1854,6 +2142,24 @@
     "Coorparoo",
     "Brisbane",
     "Australia"
+  ],
+  "cootamundra, australia": [
+    -34.63872,
+    148.02408,
+    "Cootamundra",
+    "New South Wales",
+    "Australia",
+    "nominatim",
+    0.72
+  ],
+  "copenhagen v, denmark": [
+    55.686724,
+    12.570072,
+    "Copenhagen V",
+    "Københavns Kommune",
+    "Denmark",
+    "nominatim",
+    0.72
   ],
   "copenhagen, denmark": [
     55.686724,
@@ -1943,6 +2249,15 @@
     "South Australia",
     "Australia"
   ],
+  "crawley, united kingdom": [
+    51.110344,
+    -0.180109,
+    "Crawley",
+    "West Sussex",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "cremorne, australia": [
     -33.8260081,
     151.2254326,
@@ -1963,6 +2278,15 @@
     "Cuiabá",
     "Mato Grosso",
     "Brazil",
+    "nominatim",
+    0.72
+  ],
+  "cupar, united kingdom": [
+    56.319391,
+    -3.011655,
+    "Cupar",
+    "Fife",
+    "United Kingdom",
     "nominatim",
     0.72
   ],
@@ -1996,12 +2320,30 @@
     "nominatim",
     0.72
   ],
+  "daerah khusus ibukota jakarta, indonesia": [
+    -6.175405,
+    106.827168,
+    "Daerah Khusus Ibukota Jakarta",
+    "Jawa",
+    "Indonesia",
+    "nominatim",
+    0.72
+  ],
   "daglish, australia": [
     -31.951336,
     115.8082864,
     "Daglish",
     "Western Australia",
     "Australia"
+  ],
+  "daix, france": [
+    47.352805,
+    4.998594,
+    "Daix",
+    "Dijon",
+    "France",
+    "nominatim",
+    0.72
   ],
   "dakar, senegal": [
     14.6937,
@@ -2138,6 +2480,15 @@
     "Jawa Barat",
     "Indonesia"
   ],
+  "derby, united kingdom": [
+    52.914223,
+    -1.471988,
+    "Derby",
+    "East Midlands",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "derrimut, australia": [
     -37.7987978,
     144.776051,
@@ -2224,6 +2575,51 @@
     "New South Wales",
     "Australia"
   ],
+  "dublin 1, ireland": [
+    53.352488,
+    -6.256646,
+    "Dublin 1",
+    "Leinster",
+    "Ireland",
+    "nominatim",
+    0.72
+  ],
+  "dublin 18, ireland": [
+    53.240942,
+    -6.183345,
+    "Dublin 18",
+    "Leinster",
+    "Ireland",
+    "nominatim",
+    0.72
+  ],
+  "dublin 2, ireland": [
+    53.341121,
+    -6.252667,
+    "Dublin 2",
+    "89",
+    "Ireland",
+    "nominatim",
+    0.72
+  ],
+  "dublin 4, ireland": [
+    53.320328,
+    -6.222264,
+    "Dublin 4",
+    "40",
+    "Ireland",
+    "nominatim",
+    0.72
+  ],
+  "dublin 8, ireland": [
+    53.350342,
+    -6.320311,
+    "Dublin 8",
+    "Leinster",
+    "Ireland",
+    "nominatim",
+    0.72
+  ],
   "dublin, california": [
     37.70215,
     -121.93579,
@@ -2261,6 +2657,15 @@
     "South Australia",
     "Australia"
   ],
+  "dundalk, county louth, ireland": [
+    54.004603,
+    -6.400888,
+    "Dundalk",
+    "County Louth",
+    "Ireland",
+    "nominatim",
+    0.72
+  ],
   "dunedin central dunedin, new zealand": [
     -45.875367,
     170.5088281,
@@ -2274,6 +2679,15 @@
     "Dunedin",
     "Dunedin City",
     "New Zealand"
+  ],
+  "durbanville, western cape, south africa": [
+    -33.840278,
+    18.649444,
+    "Durbanville",
+    "City of Cape Town",
+    "South Africa",
+    "nominatim",
+    0.72
   ],
   "durham, north carolina": [
     35.99403,
@@ -2347,6 +2761,24 @@
     "South Australia",
     "Australia"
   ],
+  "edinburgh, scotland, united kingdom": [
+    55.953346,
+    -3.188375,
+    "Edinburgh",
+    "Alba / Scotland",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
+  "edinburgh, united kingdom": [
+    55.953346,
+    -3.188375,
+    "Edinburgh",
+    "Alba / Scotland",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "egham, united kingdom": [
     51.431258,
     -0.547308,
@@ -2406,6 +2838,15 @@
     "Ermesinde",
     "Porto District",
     "Portugal"
+  ],
+  "espoo finland, finland": [
+    60.225185,
+    24.781599,
+    "Espoo Finland",
+    "3",
+    "Finland",
+    "nominatim",
+    0.72
   ],
   "essen, germany": [
     51.45564,
@@ -2618,6 +3059,15 @@
     "nominatim",
     0.72
   ],
+  "frankfurt am main, germany": [
+    50.110644,
+    8.682092,
+    "Frankfurt Am Main",
+    "Hessen",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
   "frankfurt, germany": [
     50.110644,
     8.682092,
@@ -2661,6 +3111,15 @@
     "Frenchs Forest",
     "Northern Beaches",
     "Australia"
+  ],
+  "freudenstadt, germany": [
+    48.463773,
+    8.411173,
+    "Freudenstadt",
+    "VVG der Stadt Freudenstadt",
+    "Germany",
+    "nominatim",
+    0.72
   ],
   "fyshwick, australia": [
     -35.3216575,
@@ -2789,12 +3248,30 @@
     "Queensland",
     "Australia"
   ],
+  "goteborg, sweden": [
+    57.707233,
+    11.967017,
+    "Goteborg",
+    "Göteborgs Stad",
+    "Sweden",
+    "nominatim",
+    0.72
+  ],
   "governador valadares, brazil": [
     -18.857415,
     -41.943928,
     "Governador Valadares",
     "Minas Gerais",
     "Brazil",
+    "nominatim",
+    0.72
+  ],
+  "grand duchy of luxembourg, luxembourg": [
+    49.611277,
+    6.129799,
+    "Grand Duchy Of Luxembourg",
+    "Canton Luxembourg",
+    "Luxembourg",
     "nominatim",
     0.72
   ],
@@ -2864,6 +3341,15 @@
     "Guayaquil",
     "Guayas",
     "Ecuador",
+    "nominatim",
+    0.72
+  ],
+  "guildford, surrey, united kingdom": [
+    51.235607,
+    -0.573206,
+    "Guildford",
+    "Surrey",
+    "United Kingdom",
     "nominatim",
     0.72
   ],
@@ -3023,6 +3509,24 @@
     "Gold Coast",
     "Australia"
   ],
+  "hellerup, denmark": [
+    55.733666,
+    12.565541,
+    "Hellerup",
+    "Gentofte Kommune",
+    "Denmark",
+    "nominatim",
+    0.72
+  ],
+  "helsinki, finland": [
+    60.16662,
+    24.943541,
+    "Helsinki",
+    "Helsingin seutukunta",
+    "Finland",
+    "nominatim",
+    0.72
+  ],
   "henderson, australia": [
     -32.1625849,
     115.7779342,
@@ -3109,6 +3613,15 @@
     "Hong Kong",
     "Hong Kong"
   ],
+  "hoofddorp, netherlands": [
+    52.305554,
+    4.692664,
+    "Hoofddorp",
+    "Haarlemmermeer",
+    "Netherlands",
+    "nominatim",
+    0.72
+  ],
   "hook, united kingdom": [
     51.367898,
     -0.307145,
@@ -3173,6 +3686,15 @@
     "Ieper",
     "West Flanders",
     "Belgium"
+  ],
+  "ile-de-france, france": [
+    48.644306,
+    2.753786,
+    "Ile-De-France",
+    "France métropolitaine",
+    "France",
+    "nominatim",
+    0.72
   ],
   "ilhavo": [
     40.60188,
@@ -3260,12 +3782,30 @@
     "Washington",
     "United States"
   ],
+  "issy-les-moulineaux, france": [
+    48.825051,
+    2.273457,
+    "Issy-Les-Moulineaux",
+    "Boulogne-Billancourt",
+    "France",
+    "nominatim",
+    0.72
+  ],
   "itajai, brazil": [
     -26.904679,
     -48.655298,
     "Itajaí",
     "Santa Catarina",
     "Brazil",
+    "nominatim",
+    0.72
+  ],
+  "italy, italy": [
+    45.024963,
+    7.671837,
+    "Italy",
+    "Corso Unità d'Italia",
+    "Italy",
     "nominatim",
     0.72
   ],
@@ -3376,6 +3916,15 @@
     "Jawa",
     "Indonesia"
   ],
+  "jena, germany": [
+    50.928172,
+    11.587936,
+    "Jena",
+    "Thüringen",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
   "jericho, new york": [
     40.79204,
     -73.53985,
@@ -3410,6 +3959,15 @@
     "Jl. Jendral Sudirman Kav.21",
     "Madegondo",
     "Indonesia"
+  ],
+  "johannesburg, south africa": [
+    -26.205,
+    28.049722,
+    "Johannesburg",
+    "City of Johannesburg Metropolitan Municipality",
+    "South Africa",
+    "nominatim",
+    0.72
   ],
   "joinville, brazil": [
     -26.3044898,
@@ -3525,6 +4083,15 @@
     "Aichi",
     "Japan"
   ],
+  "karlstad, sweden": [
+    59.380915,
+    13.502763,
+    "Karlstad",
+    "Karlstads kommun",
+    "Sweden",
+    "nominatim",
+    0.72
+  ],
   "kawasaki": [
     35.52056,
     139.71722,
@@ -3587,6 +4154,15 @@
     "Keysborough",
     "Victoria",
     "Australia"
+  ],
+  "kiel, germany": [
+    54.322708,
+    10.135555,
+    "Kiel",
+    "Schleswig-Holstein",
+    "Germany",
+    "nominatim",
+    0.72
   ],
   "kilburn, australia": [
     -34.8596902,
@@ -3693,6 +4269,15 @@
     "Hong Kong",
     "Hong Kong"
   ],
+  "krefeld, germany": [
+    51.33312,
+    6.562334,
+    "Krefeld",
+    "Nordrhein-Westfalen",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
   "kuala lumpur": [
     3.1516964,
     101.6942371,
@@ -3776,6 +4361,15 @@
     "Kwanyar Bangkalan",
     "Bangkalan",
     "Indonesia"
+  ],
+  "kwazulu-natal, south africa": [
+    -28.503833,
+    30.887501,
+    "Kwazulu-Natal",
+    "South Africa",
+    "South Africa",
+    "nominatim",
+    0.72
   ],
   "kyiv, ukraine": [
     50.450034,
@@ -3867,6 +4461,15 @@
     "Sumatera",
     "Indonesia"
   ],
+  "lanarkshire, united kingdom": [
+    55.575297,
+    -3.833333,
+    "Lanarkshire",
+    "Alba / Scotland",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "landsdale, australia": [
     -31.809048,
     115.8662569,
@@ -3916,6 +4519,15 @@
     "Madrid",
     "Spain"
   ],
+  "las vegas, colombia": [
+    9.078368,
+    -73.650868,
+    "Las Vegas",
+    "Chimichagua",
+    "Colombia",
+    "nominatim",
+    0.72
+  ],
   "las vegas, nevada": [
     36.17497,
     -115.13722,
@@ -3944,6 +4556,15 @@
     "Victoria",
     "Australia"
   ],
+  "leblon-rio de janeiro, brazil": [
+    -22.983461,
+    -43.224966,
+    "Leblon-Rio De Janeiro",
+    "Rio de Janeiro",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
   "leederville, australia": [
     -31.9330799,
     115.8414423,
@@ -3971,6 +4592,15 @@
     "Leichhardt",
     "Inner West",
     "Australia"
+  ],
+  "leiden, netherlands": [
+    52.159475,
+    4.490884,
+    "Leiden",
+    "Zuid-Holland",
+    "Netherlands",
+    "nominatim",
+    0.72
   ],
   "leioa (vizcaya)": [
     43.32686,
@@ -4014,12 +4644,30 @@
     "New South Wales",
     "Australia"
   ],
+  "lima 33, peru": [
+    -12.144683,
+    -77.002897,
+    "Lima 33",
+    "380",
+    "Peru",
+    "nominatim",
+    0.72
+  ],
   "lima, peru": [
     -12.045981,
     -77.030591,
     "Lima",
     "Lima Metropolitana",
     "Peru",
+    "nominatim",
+    0.72
+  ],
+  "limassol, cyprus": [
+    34.68529,
+    33.033266,
+    "Limassol",
+    "Δήμος Λεμεσού",
+    "Cyprus",
     "nominatim",
     0.72
   ],
@@ -4116,6 +4764,33 @@
     "England",
     "United Kingdom"
   ],
+  "london england, united kingdom": [
+    51.502995,
+    -0.00146,
+    "London England",
+    "Blackwall Tunnel",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
+  "london w1k 6nx, united kingdom": [
+    51.502995,
+    -0.00146,
+    "London W1K 6Nx",
+    "Blackwall Tunnel",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
+  "london, england, united kingdom": [
+    51.507446,
+    -0.127765,
+    "London",
+    "England",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "london, new zealand": [
     -39.5830175,
     175.1058852,
@@ -4193,6 +4868,15 @@
     "Sutherland Shire",
     "Australia"
   ],
+  "lucca, italy": [
+    44.017764,
+    10.45443,
+    "Lucca",
+    "Toscana",
+    "Italy",
+    "nominatim",
+    0.72
+  ],
   "lund, sweden": [
     55.70293,
     13.192945,
@@ -4207,6 +4891,15 @@
     6.063995,
     "Luxembourg City",
     "Route de Longwy",
+    "Luxembourg",
+    "nominatim",
+    0.72
+  ],
+  "luxembourg, luxembourg": [
+    49.611277,
+    6.129799,
+    "Luxembourg",
+    "Canton Luxembourg",
     "Luxembourg",
     "nominatim",
     0.72
@@ -4297,6 +4990,15 @@
     "Jardim Portugal",
     "Portugal"
   ],
+  "mainz, germany": [
+    49.999521,
+    8.273625,
+    "Mainz",
+    "Rheinland-Pfalz",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
   "majadahonda (madrid)": [
     40.47353,
     -3.87182,
@@ -4346,6 +5048,15 @@
     "Klojen",
     "Indonesia"
   ],
+  "malmo, sweden": [
+    55.605293,
+    13.000157,
+    "Malmo",
+    "Malmö kommun",
+    "Sweden",
+    "nominatim",
+    0.72
+  ],
   "malta": [
     42.9715,
     -73.7923,
@@ -4388,6 +5099,15 @@
     "New Hampshire",
     "United States"
   ],
+  "manchester, united kingdom": [
+    53.442462,
+    -2.232455,
+    "Manchester",
+    "Greater Manchester",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "mar del plata, argentina": [
     -37.997617,
     -57.548208,
@@ -4403,6 +5123,15 @@
     "Maracaibo",
     "Parroquia Cacique Mara",
     "Venezuela",
+    "nominatim",
+    0.72
+  ],
+  "maranello, italy": [
+    44.525522,
+    10.866361,
+    "Maranello",
+    "Unione dei comuni del Distretto Ceramico",
+    "Italy",
     "nominatim",
     0.72
   ],
@@ -4426,6 +5155,15 @@
     "Maroochydore",
     "Queensland",
     "Australia"
+  ],
+  "marseille, france": [
+    43.296399,
+    5.377789,
+    "Marseille",
+    "Bouches-du-Rhône",
+    "France",
+    "nominatim",
+    0.72
   ],
   "mascot, australia": [
     -33.9289562,
@@ -4686,6 +5424,15 @@
     "Milwaukee",
     "Wisconsin",
     "United States"
+  ],
+  "minas gerais, brazil": [
+    -18.526484,
+    -44.158865,
+    "Minas Gerais",
+    "Região Sudeste",
+    "Brazil",
+    "nominatim",
+    0.72
   ],
   "minas, uruguay": [
     -34.377399,
@@ -4983,6 +5730,15 @@
     "Karnataka",
     "India"
   ],
+  "n/a, luxembourg": [
+    51.100728,
+    71.434331,
+    "N/A",
+    "Есіл ауданы",
+    "Luxembourg",
+    "nominatim",
+    0.72
+  ],
   "nagambie, australia": [
     -36.791516,
     145.2139895,
@@ -5017,6 +5773,15 @@
     "Naju-Si",
     "South Jeolla",
     "South Korea"
+  ],
+  "nanterre, france": [
+    48.892427,
+    2.207127,
+    "Nanterre",
+    "Hauts-de-Seine",
+    "France",
+    "nominatim",
+    0.72
   ],
   "nantong": [
     31.9827896,
@@ -5094,6 +5859,15 @@
     "nominatim",
     0.72
   ],
+  "netherland, netherlands": [
+    51.593684,
+    5.522003,
+    "Netherland",
+    "2200",
+    "Netherlands",
+    "nominatim",
+    0.72
+  ],
   "neubiberg": [
     48.07839,
     11.64863,
@@ -5106,6 +5880,15 @@
     11.661514,
     "Neubiberg",
     "Landkreis München",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
+  "neuss, germany": [
+    51.198178,
+    6.691648,
+    "Neuss",
+    "Rhein-Kreis Neuss",
     "Germany",
     "nominatim",
     0.72
@@ -5168,6 +5951,15 @@
     "New Plymouth District",
     "New Zealand"
   ],
+  "new romney, united kingdom": [
+    50.98512,
+    0.942657,
+    "New Romney",
+    "Folkestone and Hythe",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "new taipei city": [
     25.012,
     121.4658,
@@ -5195,6 +5987,24 @@
     "Newark",
     "New Jersey",
     "United States"
+  ],
+  "newbury, berkshire, united kingdom": [
+    51.402024,
+    -1.324221,
+    "Newbury",
+    "West Berkshire",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
+  "newcastle upon tyne, united kingdom": [
+    54.973847,
+    -1.613157,
+    "Newcastle Upon Tyne",
+    "Tyne and Wear",
+    "United Kingdom",
+    "nominatim",
+    0.72
   ],
   "newcastle, australia": [
     -32.9192953,
@@ -5380,6 +6190,15 @@
     "Connecticut",
     "United States"
   ],
+  "norwest nsw, australia": [
+    -33.734367,
+    150.965861,
+    "Norwest Nsw",
+    "Brookhollow Avenue",
+    "Australia",
+    "nominatim",
+    0.72
+  ],
   "norwest, australia": [
     -33.733048,
     150.964298,
@@ -5407,6 +6226,15 @@
     "Notting Hill",
     "Victoria",
     "Australia"
+  ],
+  "nottingham, united kingdom": [
+    52.953419,
+    -1.149646,
+    "Nottingham",
+    "Nottinghamshire",
+    "United Kingdom",
+    "nominatim",
+    0.72
   ],
   "nova friburgo, brazil": [
     -22.28,
@@ -5559,6 +6387,15 @@
     "Kadiogo",
     "Burkina Faso"
   ],
+  "oxfordshire, united kingdom": [
+    51.833333,
+    -1.25,
+    "Oxfordshire",
+    "England",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "paco de arcos": [
     38.69569,
     -9.29143,
@@ -5579,6 +6416,15 @@
     "Padang",
     "Sumatera Barat",
     "Indonesia"
+  ],
+  "padua, italy": [
+    45.398443,
+    11.895683,
+    "Padua",
+    "Veneto",
+    "Italy",
+    "nominatim",
+    0.72
   ],
   "pakenham, australia": [
     -38.0806283,
@@ -5635,6 +6481,15 @@
     "Palo Alto",
     "California",
     "United States"
+  ],
+  "paphos, cyprus": [
+    34.774399,
+    32.423159,
+    "Paphos",
+    "Επαρχία Πάφου",
+    "Cyprus",
+    "nominatim",
+    0.72
   ],
   "paradise, nevada": [
     36.09719,
@@ -5778,6 +6633,15 @@
     "Scotland",
     "United Kingdom"
   ],
+  "perth, wa, australia": [
+    -31.955897,
+    115.860578,
+    "Perth",
+    "Western Australia",
+    "Australia",
+    "nominatim",
+    0.72
+  ],
   "philadelphia, pennsylvania": [
     39.95238,
     -75.16362,
@@ -5814,6 +6678,15 @@
     "Pittsburgh",
     "Pennsylvania",
     "United States"
+  ],
+  "pl venlo, netherlands": [
+    51.365348,
+    6.172322,
+    "Pl Venlo",
+    "Hagerhof",
+    "Netherlands",
+    "nominatim",
+    0.72
   ],
   "plainview, new york": [
     40.78346,
@@ -5969,6 +6842,15 @@
     "Melbourne",
     "Australia"
   ],
+  "provence-alpes-cote d azur, france": [
+    44.058056,
+    6.063851,
+    "Provence-Alpes-Cote D Azur",
+    "France métropolitaine",
+    "France",
+    "nominatim",
+    0.72
+  ],
   "providence, rhode island": [
     41.82399,
     -71.41283,
@@ -6063,6 +6945,15 @@
     "Raleigh",
     "North Carolina",
     "United States"
+  ],
+  "randfontein, south africa": [
+    -26.173611,
+    27.694167,
+    "Randfontein",
+    "Randfontein Local Municipality",
+    "South Africa",
+    "nominatim",
+    0.72
   ],
   "rapperswil-jona, switzerland": [
     47.2267,
@@ -6201,6 +7092,15 @@
     "Virginia",
     "United States"
   ],
+  "rickmansworth, united kingdom": [
+    51.640228,
+    -0.473631,
+    "Rickmansworth",
+    "Swan Close",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "ringwood, australia": [
     -37.8158726,
     145.2291113,
@@ -6277,6 +7177,24 @@
     "Rolling Meadows",
     "Illinois",
     "United States"
+  ],
+  "rome italy, italy": [
+    41.970496,
+    12.544815,
+    "Rome Italy",
+    "376",
+    "Italy",
+    "nominatim",
+    0.72
+  ],
+  "rome, italy": [
+    41.89332,
+    12.482932,
+    "Rome",
+    "Roma Capitale",
+    "Italy",
+    "nominatim",
+    0.72
   ],
   "rosebery, australia": [
     -33.9185861,
@@ -6383,12 +7301,30 @@
     "Catalonia",
     "Spain"
   ],
+  "saint cloud, france": [
+    48.843741,
+    2.219344,
+    "Saint Cloud",
+    "Nanterre",
+    "France",
+    "nominatim",
+    0.72
+  ],
   "saint paul, minnesota": [
     44.94441,
     -93.09327,
     "Saint Paul",
     "Minnesota",
     "United States"
+  ],
+  "saint-herblain, france": [
+    47.223301,
+    -1.634696,
+    "Saint-Herblain",
+    "Nantes",
+    "France",
+    "nominatim",
+    0.72
   ],
   "salisbury south, australia": [
     -34.7827756,
@@ -6580,6 +7516,15 @@
     "Gujarat",
     "India"
   ],
+  "sandton, south africa": [
+    -26.104553,
+    28.054515,
+    "Sandton",
+    "City of Johannesburg Metropolitan Municipality",
+    "South Africa",
+    "nominatim",
+    0.72
+  ],
   "sandy springs, georgia": [
     33.92427,
     -84.37854,
@@ -6670,6 +7615,15 @@
     "Cantabria",
     "Spain"
   ],
+  "santiago chile, chile": [
+    -33.4377,
+    -70.651067,
+    "Santiago Chile",
+    "Provincia de Santiago",
+    "Chile",
+    "nominatim",
+    0.72
+  ],
   "santiago, chile": [
     -33.4377,
     -70.651067,
@@ -6730,12 +7684,39 @@
     "Maranhão",
     "Brazil"
   ],
+  "sao paulo - sp, brazil": [
+    -23.464765,
+    -46.858426,
+    "Sao Paulo - Sp",
+    "1000",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
   "sao paulo, brazil": [
     -23.5506507,
     -46.6333824,
     "Sao Paulo",
     "Região Sudeste",
     "Brazil"
+  ],
+  "sao paulo, sao paulo, brazil": [
+    -23.550651,
+    -46.633382,
+    "Sao Paulo",
+    "Região Sudeste",
+    "Brazil",
+    "nominatim",
+    0.72
+  ],
+  "sao paulo, sp, brazil": [
+    -23.550651,
+    -46.633382,
+    "Sao Paulo",
+    "Região Sudeste",
+    "Brazil",
+    "nominatim",
+    0.72
   ],
   "sapucaia do sul, brazil": [
     -29.819702,
@@ -6767,6 +7748,24 @@
     "Schaffhausen",
     "Switzerland"
   ],
+  "schiphol, netherlands": [
+    52.308039,
+    4.762198,
+    "Schiphol",
+    "Haarlemmermeer",
+    "Netherlands",
+    "nominatim",
+    0.72
+  ],
+  "schiphol-oost, netherlands": [
+    52.304425,
+    4.799733,
+    "Schiphol-Oost",
+    "Schiphol",
+    "Netherlands",
+    "nominatim",
+    0.72
+  ],
   "scoresby, australia": [
     -37.9025786,
     145.2183066,
@@ -6780,6 +7779,15 @@
     "Scottsdale",
     "Arizona",
     "United States"
+  ],
+  "se-106 38 stockholm, sweden": [
+    59.338275,
+    18.071893,
+    "Se-106 38 Stockholm",
+    "Humlegårdsgatan",
+    "Sweden",
+    "nominatim",
+    0.72
   ],
   "seattle": [
     47.6062,
@@ -6858,6 +7866,15 @@
     "Praça de Portugal",
     "Portugal"
   ],
+  "seven hills, new south wales, australia": [
+    -33.77603,
+    150.942704,
+    "Seven Hills",
+    "Sydney",
+    "Australia",
+    "nominatim",
+    0.72
+  ],
   "seventeen mile rocks, australia": [
     -27.5495466,
     152.9579475,
@@ -6892,6 +7909,15 @@
     "Shanghai",
     "Shanghai",
     "China"
+  ],
+  "sheffield, united kingdom": [
+    53.380663,
+    -1.470228,
+    "Sheffield",
+    "South Yorkshire",
+    "United Kingdom",
+    "nominatim",
+    0.72
   ],
   "shelton, connecticut": [
     41.31649,
@@ -6941,6 +7967,15 @@
     "Sidoarjo",
     "Jawa Timur",
     "Indonesia"
+  ],
+  "siena (si), italy": [
+    43.167206,
+    11.467561,
+    "Siena (Si)",
+    "Toscana",
+    "Italy",
+    "nominatim",
+    0.72
   ],
   "silverwater, australia": [
     -33.834881,
@@ -7005,6 +8040,15 @@
     "Sydney",
     "Australia"
   ],
+  "soborg, denmark": [
+    55.736468,
+    12.508873,
+    "Soborg",
+    "Gladsaxe Kommune",
+    "Denmark",
+    "nominatim",
+    0.72
+  ],
   "solihull, united kingdom": [
     52.413019,
     -1.776893,
@@ -7043,6 +8087,15 @@
     "South Granville",
     "Sydney",
     "Australia"
+  ],
+  "south melbourne vic, australia": [
+    -37.833882,
+    144.961204,
+    "South Melbourne Vic",
+    "307",
+    "Australia",
+    "nominatim",
+    0.72
   ],
   "south melbourne, australia": [
     -37.83344,
@@ -7092,6 +8145,15 @@
     "Springfield",
     "Missouri",
     "United States"
+  ],
+  "st helier, united kingdom": [
+    51.386695,
+    -0.180057,
+    "St Helier",
+    "Greater London",
+    "United Kingdom",
+    "nominatim",
+    0.72
   ],
   "st leonards, australia": [
     -33.8225666,
@@ -7158,6 +8220,15 @@
     "Western Australia",
     "Australia"
   ],
+  "stockholm sweden, sweden": [
+    46.99189,
+    -68.142196,
+    "Stockholm Sweden",
+    "Jemtland",
+    "Sweden",
+    "nominatim",
+    0.72
+  ],
   "stockholm, sweden": [
     59.325117,
     18.071093,
@@ -7187,6 +8258,15 @@
     "Strawberry Hills",
     "Surry Hills",
     "Australia"
+  ],
+  "subiaco wa, australia": [
+    -31.947312,
+    115.831438,
+    "Subiaco Wa",
+    "215",
+    "Australia",
+    "nominatim",
+    0.72
   ],
   "subiaco, australia": [
     -31.9463298,
@@ -7253,6 +8333,15 @@
     "Jawa Timur",
     "Indonesia"
   ],
+  "surrey, united kingdom": [
+    51.271532,
+    -0.341452,
+    "Surrey",
+    "England",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "surry hills, australia": [
     -33.8845123,
     151.2100301,
@@ -7267,12 +8356,39 @@
     "Gyeonggi-do",
     "South Korea"
   ],
+  "swindon, united kingdom": [
+    51.561533,
+    -1.785432,
+    "Swindon",
+    "England",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
+  "sydney nsw, australia": [
+    -33.86443,
+    151.202217,
+    "Sydney Nsw",
+    "Shipwright Walk",
+    "Australia",
+    "nominatim",
+    0.72
+  ],
   "sydney, australia": [
     -33.8698439,
     151.2082848,
     "Sydney",
     "New South Wales",
     "Australia"
+  ],
+  "sydney, nsw, australia": [
+    -33.869844,
+    151.208285,
+    "Sydney",
+    "New South Wales",
+    "Australia",
+    "nominatim",
+    0.72
   ],
   "symonston, australia": [
     -35.3488407,
@@ -7643,6 +8759,15 @@
     "Victoria",
     "Australia"
   ],
+  "tubingen, germany": [
+    48.520326,
+    9.053596,
+    "Tubingen",
+    "Landkreis Tübingen",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
   "tulsa, oklahoma": [
     36.15398,
     -95.99277,
@@ -7699,12 +8824,30 @@
     "Chiba",
     "Japan"
   ],
+  "uxbridge, united kingdom": [
+    51.544951,
+    -0.481667,
+    "Uxbridge",
+    "Greater London",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "vaduz, liechtenstein": [
     47.139286,
     9.522796,
     "Vaduz",
     "Oberland",
     "Liechtenstein",
+    "nominatim",
+    0.72
+  ],
+  "valdilana (biella), italy": [
+    45.666126,
+    8.144302,
+    "Valdilana (Biella)",
+    "Biella",
+    "Italy",
     "nominatim",
     0.72
   ],
@@ -7867,6 +9010,15 @@
     "Basque Country",
     "Spain"
   ],
+  "walldorf, germany": [
+    49.303267,
+    8.643206,
+    "Walldorf",
+    "Rhein-Neckar-Kreis",
+    "Germany",
+    "nominatim",
+    0.72
+  ],
   "wallingford, connecticut": [
     41.45704,
     -72.82316,
@@ -7958,6 +9110,15 @@
     "Washington DC area",
     "United States"
   ],
+  "watford, hertfordshire, united kingdom": [
+    51.655388,
+    -0.395742,
+    "Watford",
+    "Hertfordshire",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "watsonville": [
     36.9102,
     -121.7569,
@@ -8006,6 +9167,15 @@
     "Welshpool",
     "Victoria",
     "Australia"
+  ],
+  "weltevreden park, south africa": [
+    -34.059975,
+    18.595238,
+    "Weltevreden Park",
+    "Rocklands",
+    "South Africa",
+    "nominatim",
+    0.72
   ],
   "wembley, australia": [
     -31.9336484,
@@ -8063,6 +9233,15 @@
     "Perth",
     "Australia"
   ],
+  "west sussex, united kingdom": [
+    50.944584,
+    -0.527848,
+    "West Sussex",
+    "England",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "westbrook, maine": [
     43.67703,
     -70.37116,
@@ -8105,6 +9284,15 @@
     "Sydney",
     "Australia"
   ],
+  "weybridge, united kingdom": [
+    51.372718,
+    -0.45493,
+    "Weybridge",
+    "Elmbridge",
+    "United Kingdom",
+    "nominatim",
+    0.72
+  ],
   "whangarei, new zealand": [
     -35.7275268,
     174.3194202,
@@ -8125,6 +9313,15 @@
     "Wickham",
     "Newcastle-Maitland",
     "Australia"
+  ],
+  "wicklow, ireland": [
+    52.980238,
+    -6.041418,
+    "Wicklow",
+    "County Wicklow",
+    "Ireland",
+    "nominatim",
+    0.72
   ],
   "wilmington, delaware": [
     39.74595,
@@ -8153,6 +9350,15 @@
     "Winona",
     "Minnesota",
     "United States"
+  ],
+  "woking, united kingdom": [
+    51.320189,
+    -0.556473,
+    "Woking",
+    "Surrey",
+    "United Kingdom",
+    "nominatim",
+    0.72
   ],
   "woonsocket, rhode island": [
     42.00288,

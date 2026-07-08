@@ -1,7 +1,7 @@
 from expand_us import normalize_link, resolve_id
 
 
-def main() -> None:
+def test_main() -> None:
     assert resolve_id("BRK.B") == "BRK-B"
     assert resolve_id("Twitter") == "LEGACY_TWTR"
     assert resolve_id("TikTok") == "PVT_BYTEDANCE"
@@ -12,4 +12,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    test_main()

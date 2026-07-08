@@ -2,7 +2,7 @@ from refresh_edge_candidates import infer_rel, make_candidates, name_hit
 from expand_us import has_edge_evidence
 
 
-def main() -> None:
+def test_main() -> None:
     graph = {
         "nodes": [
             {"id": "MSFT", "n": "Microsoft Corporation", "t": "MSFT", "deg": 1},
@@ -24,4 +24,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    test_main()

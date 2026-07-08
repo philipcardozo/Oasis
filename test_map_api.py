@@ -1,7 +1,7 @@
 from map_api import map_entities, map_relationships, neighborhood, parse_bbox
 
 
-def main() -> None:
+def test_main() -> None:
     bbox = parse_bbox({"bbox": ["-180,-90,180,90"]})
     entities = map_entities(bbox)
     relationships = map_relationships(bbox)
@@ -17,4 +17,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    test_main()

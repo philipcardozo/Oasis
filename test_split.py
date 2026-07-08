@@ -1,7 +1,7 @@
 from expand_us import split_graph
 
 
-def main() -> None:
+def test_main() -> None:
     graph = {
         "meta": {"built_at": "2026-01-01", "companies": 2},
         "nodes": [{"id": "A", "deg": 1}, {"id": "B", "deg": 0}],
@@ -15,4 +15,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    test_main()

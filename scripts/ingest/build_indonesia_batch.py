@@ -5,7 +5,7 @@ import re
 import unicodedata
 from pathlib import Path
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).resolve().parents[2]
 RAW = ROOT / "graph" / "data" / "browser_exports" / "idx_profiles_2026_07.ndjson"
 OUT = ROOT / "graph" / "data" / "sources" / "indonesia_batch_2026_07.jsonl"
 CURATED_LINKS = ROOT / "graph" / "data" / "curated_links.json"

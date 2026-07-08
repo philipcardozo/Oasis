@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 
 urllib3.disable_warnings()
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ROOT / "graph" / "data" / "sources"
 ASX_OUT = SOURCES / "australia_batch_2026_07.jsonl"
 NZX_OUT = SOURCES / "new_zealand_batch_2026_07.jsonl"

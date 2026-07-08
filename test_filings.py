@@ -1,7 +1,7 @@
 from refresh_filings import filing_url, pick_filings
 
 
-def main() -> None:
+def test_main() -> None:
     recent = {
         "form": ["8-K", "10-Q", "10-K"],
         "accessionNumber": ["0001045810-26-000001", "0001045810-25-000099", "0001045810-25-000010"],
@@ -14,4 +14,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    test_main()

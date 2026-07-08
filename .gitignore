@@ -22,6 +22,12 @@ graph/data/universe.json
 graph/data/universe_bulk.json
 graph/data/universe_core.json
 
+# GLEIF LEI map (regenerable 18.7 MB download from refresh_gleif.py)
+graph/data/sources_meta/lei_map.json
+
+# Raw source downloads (regenerable; GLEIF golden copy, SEC, terrain, etc.)
+data/raw/
+
 # SEC company facts cache (fetched on demand)
 graph/data/companyfacts/
 

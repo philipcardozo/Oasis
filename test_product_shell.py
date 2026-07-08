@@ -4,7 +4,7 @@ from pathlib import Path
 HTML = Path("graph/index.html").read_text()
 
 
-def main() -> None:
+def test_main() -> None:
     for token in [
         'class="rail"',
         'id="gearBtn"',
@@ -36,4 +36,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    test_main()

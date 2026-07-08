@@ -3,7 +3,7 @@ import json
 from expand_us import resolve_id
 
 
-def main() -> None:
+def test_main() -> None:
     data = json.load(open("graph/data/universe.json"))
     aliases = json.load(open("graph/data/aliases.json"))
     seen = {}
@@ -24,4 +24,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    test_main()

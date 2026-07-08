@@ -23,14 +23,11 @@ seeds:
 sources:
   gleif:
     enabled: true
-    # Free, no API key, no registration. ~60 requests/minute.
-    base_url: "https://api.gleif.org/api/v1"
-    # Level 2 = "who owns whom" (direct parents and children).
-    fetch:
-      - lei_record          # the entity itself
-      - direct_parents      # OWNS edges (parent -> seed)
-      - direct_children     # OWNS edges (seed -> child)
-    rate_limit_per_min: 55
+    # Deterministic mapping-file join:
+    # 1. ISIN-to-LEI bulk relationship file (downloaded and parsed locally)
+    # 2. CIK-to-LEI mapping cached locally in graph/data/sources_meta/lei_map.json
+    #    (resolved via chunked name lookup on the GLEIF API when cache is stale)
+    refresh_script: "refresh_gleif.py"
 
   sec_edgar:
     enabled: true

@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from refresh_prices import market_symbol, price_record
 
 
-def main() -> None:
+def test_main() -> None:
     start = date(2026, 1, 1)
     rows = [((start + timedelta(days=i)).isoformat(), 100 + i) for i in range(127)]
     out = price_record(rows)
@@ -19,4 +19,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    test_main()

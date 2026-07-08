@@ -1,51 +1,63 @@
-# 03 — GLEIF identifiers: LEI on every resolvable node
+# 03 — GLEIF identifiers: close the LEI coverage gap
 
 Repo: `/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis`. Ponytail rules:
 smallest working diff, no new deps, verify before finishing.
 
-## Context
+## Already done (do not redo)
 
-- The live universe (`graph/data/universe.json`, ~14,600 nodes) has **zero**
-  nodes with an LEI. The GLEIF code that once existed lives dead in
-  `archive/ingest.py`; `config/sources.yaml` still claims `gleif: enabled: true`.
-- Do NOT resolve LEIs by name-search against the GLEIF API. GLEIF publishes
-  deterministic **mapping files** (free bulk CSVs, updated regularly):
-  - CIK→LEI relationship file: https://www.gleif.org/en/lei-data/lei-mapping/download-the-cik-to-lei-relationship-files
-  - ISIN→LEI mapping: https://www.gleif.org/en/lei-data/lei-mapping/download-isin-to-lei-relationship-files
-- Nodes carry `cik` (all SEC registrants do) and `canonical_id` per `docs/IDS.md`.
-- The universe is built by `expand_us.py` (`build_nodes()` / `source_node()` /
-  `apply_canonical_entity_model()`).
+- `refresh_gleif.py` downloads the GLEIF **CIK→LEI** relationship file and
+  builds `graph/data/sources_meta/lei_map.json`.
+- `expand_us.py` joins it: LEI went from **0 → 4,037** nodes. NVDA/AAPL
+  resolve correctly.
+
+## Still broken
+
+- Coverage is **27.6% of CIK'd nodes (4,037), not the 90% target.** Major
+  issuers with genuine CIKs have no LEI: INTC, XOM, LLY, ASML, AMAT, etc.
+  Root cause: GLEIF's CIK→LEI relationship file only contains entities that
+  self-reported the link — it tops out around a third of SEC registrants.
+  The CIK join alone cannot reach 90%.
+- **Bogus CIKs inflate the denominator.** All ~14,627 nodes carry a non-empty
+  `cik`, including non-US batch records that should have none — so real
+  coverage looks worse than it is and the quality gate can't measure honestly.
 
 ## Task
 
-1. New `refresh_gleif.py` (match the style of the other `refresh_*.py`
-   scripts): download the CIK→LEI and ISIN→LEI files to `data/raw/gleif/`,
-   normalize to a small local lookup, e.g. `graph/data/sources_meta/lei_map.json`
-   (or CSV — smallest thing), with `{cik10: lei}` and `{isin: lei}` maps.
-   Skip download if the local file is < 30 days old unless `--force`.
-2. In `expand_us.py`, join during node build: if a node has a CIK and the map
-   has an LEI, set `node["lei"]` and record it in `entity_model`.
-3. Add `refresh_gleif.py` to `refresh_all.py` (before the universe build).
-4. Update `config/sources.yaml` so the gleif block describes what actually
-   runs (mapping-file join, not per-name API).
-5. Report coverage: N nodes with CIK, N with LEI, N unresolved — print at the
-   end of the build (one line, like existing build output).
+1. **Clean bogus CIKs first** (in `expand_us.py` `source_node()`): only set
+   `cik` when the source record genuinely carries one (SEC-derived). Clear
+   inherited/placeholder CIKs on non-US batch nodes. Print how many were
+   cleared. This alone raises the measured coverage ratio.
+2. **Add fallback resolution paths in `refresh_gleif.py`**, tried in order,
+   for nodes still missing an LEI after the CIK join:
+   - **ISIN → LEI**: download GLEIF's ISIN→LEI mapping file; join for any node
+     that has an ISIN (securities especially). Cache like the CIK file.
+   - **Name + jurisdiction match against the GLEIF golden copy (Level 1)**:
+     download the LEI-CDF golden copy (or query the GLEIF API by exact legal
+     name filtered to the node's country). Match on
+     `normalized_issuer_key(name)` (already exists in `expand_us.py`) AND
+     country. **Auto-accept only exact normalized-name + country matches**;
+     everything ambiguous goes to `graph/data/sources_meta/lei_review.json`
+     with candidates — never guessed into the graph.
+3. **Report honestly** at build end (one line): nodes with genuine CIK, LEI
+   via CIK / via ISIN / via name-match, unresolved, and the review-queue size.
+4. Update `test_universe_quality.py`: assert LEI coverage ≥ 90% of nodes with
+   a genuine CIK, and no LEI of wrong length (LEIs are 20 chars).
 
 ## Notes
 
-- ~14,600 nodes have a non-empty `cik` including non-US batches — that itself
-  is suspicious. While in `source_node()`, check whether country-batch records
-  inherit bogus CIKs; if so, only set `cik` when the source record really has
-  one, and report how many were cleared.
-- GLEIF Level 2 ownership (parent/child) is out of scope here — note it as a
-  follow-up in the commit message, don't build it.
+- Keep it deterministic. Do NOT reach for Splink/fuzzy libraries — exact
+  normalized-name + country is enough for listed issuers; the residue goes to
+  review, not to a probabilistic matcher.
+- The golden copy is large; download once, cache under `data/raw/gleif/`,
+  refresh only when > 30 days old or `--force`. It stays gitignored (prompt 01).
+- GLEIF Level 2 ownership (parent/child OWNS edges) is still out of scope —
+  note as a follow-up, don't build it.
 
 ## Acceptance checks
 
-- `python3 refresh_gleif.py && python3 expand_us.py` completes.
-- ≥ 90% of nodes with a *genuine* CIK have `lei` set (spot-check: NVDA →
-  `549300S4KLFTLO7GSQ80`, AAPL → `HWUPKR0MPOU8FGXBT394`).
-- A quality assertion exists (in `test_ids.py` or a new `test_universe_quality.py`):
-  LEI coverage ratio above threshold, and no node with `lei` of wrong length.
-- UI detail panel shows LEI for NVDA (add the row if trivial; otherwise leave
-  UI for prompt 08 and say so in the commit).
+- After `python3 refresh_gleif.py && python3 expand_us.py`: LEI coverage ≥ 90%
+  of nodes with a genuine CIK; spot-check INTC, XOM, LLY, AMAT now have LEIs.
+- Bogus-CIK count reported and materially reduced (non-US nodes lose fake CIKs).
+- `lei_review.json` exists for genuine ambiguities; nothing ambiguous was
+  auto-merged.
+- `python3 -m pytest -q` passes including the tightened coverage assertion.
