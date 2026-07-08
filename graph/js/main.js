@@ -1,3 +1,4 @@
+import {fmtBn,fmtPrice,fmtSignedMoney,fmtPct,yearOf,esc,jsq,normText} from "./util.js";
 const SVGNS="http://www.w3.org/2000/svg";
 let SECTORS={},GROUPS={},RELS={},COMPANIES=[],LINKS=[],NEWS={items_by_node:{}},EDGE_CANDIDATES=[],ALIASES={},META={},byId={},adj={},bulkLoaded=false,bulkPromise=null,grid=new Map();
 const sectorOn={},groupOn={},relOn={},kindOn={};
@@ -42,15 +43,7 @@ const PRODUCT_DEFAULTS={
 let productPrefs=mergePrefs(loadStored(PRODUCT_PREF_KEY,{}));
 let manualLayer=normalizeManualLayer(loadStored(MANUAL_LAYER_KEY,null));
 
-const fmtBn=v=> v>=1000?`$${(v/1000).toFixed(1)}T`:(v>=10?`$${Math.round(v)}B`:`$${v.toFixed(1)}B`);
-const fmtPrice=v=> Number.isFinite(Number(v))?`$${Number(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`:"—";
-const fmtSignedMoney=v=>{ const n=Number(v); return Number.isFinite(n)?`${n>=0?"+":"-"}$${Math.abs(n).toFixed(2)}`:"—"; };
-const fmtPct=v=>{ const n=Number(v); return Number.isFinite(n)?`${n>=0?"+":""}${n.toFixed(2)}%`:"—"; };
-const yearOf=v=>{ const m=String(v||"").match(/\d{4}/); return m?Number(m[0]):null; };
 const activeYear=()=>Math.min(Number(asOfInput.value)||CURRENT_YEAR,CURRENT_YEAR);
-const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
-const jsq=v=>esc(JSON.stringify(String(v??"")));
-const normText=v=>String(v??"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
 const kindMeta={
   public:{name:"Public",color:"#5aa2ff"},
   security:{name:"Security",color:"#f0b341"},
