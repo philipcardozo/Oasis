@@ -1,7 +1,11 @@
 from pathlib import Path
 
 
+# The UI is split across index.html + ES modules under graph/js/ + graph/css/;
+# assert tokens against the whole served bundle, not just the HTML shell.
 HTML = Path("graph/index.html").read_text()
+for _f in sorted(Path("graph/js").glob("*.js")) + sorted(Path("graph/css").glob("*.css")):
+    HTML += "\n" + _f.read_text()
 
 
 def test_main() -> None:
