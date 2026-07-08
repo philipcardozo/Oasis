@@ -33,6 +33,8 @@ def main() -> None:
     run("refresh_news.py")
     run("refresh_edge_candidates.py")
     run("expand_us.py")
+    run("refresh_politicians.py")  # legislators + committees (prompt 13)
+    run("refresh_pol_trades.py")   # PTR filing provenance (prompt 13)
     run("build_store.py")  # canonical Parquet store (prompt 10)
 
     elapsed = time.time() - start_time

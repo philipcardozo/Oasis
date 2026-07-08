@@ -23,6 +23,33 @@ def _j(v):
     return json.dumps(v, ensure_ascii=False) if v is not None else None
 
 
+def download(url: str, path) -> Path:
+    """Fetch url to path via curl (uses the system trust store — urllib's CA bundle
+    is unreliable on this machine). Returns the path; raises on non-2xx."""
+    import subprocess
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["curl", "-sL", "--fail", "--max-time", "90", "-o", str(path), url], check=True)
+    return path
+
+
+def write_parquet(rows: list[dict], path) -> int:
+    """Write rows to a Parquet file via a JSONL -> DuckDB COPY. Reused by refresh_*."""
+    from pathlib import Path as _P
+    path = _P(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".jsonl")
+    tmp.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows) or "{}")
+    con = duckdb.connect()
+    con.execute(
+        f"COPY (SELECT * FROM read_json_auto('{tmp.as_posix()}', format='newline_delimited', "
+        f"maximum_object_size=20000000)) TO '{path.as_posix()}' (FORMAT PARQUET)"
+    )
+    con.close()
+    tmp.unlink()
+    return len(rows)
+
+
 def build() -> dict[str, int]:
     STORE.mkdir(parents=True, exist_ok=True)
     uni = json.loads((DATA / "universe.json").read_text("utf-8"))
@@ -71,18 +98,9 @@ def build() -> dict[str, int]:
                 "chg_6m_pct": p.get("chg_6m_pct"), "source": p.get("source"), "spark_json": _j(p.get("spark")),
             })
 
-    con = duckdb.connect()
     counts = {}
     for rows, name in ((node_rows, "nodes"), (edge_rows, "edges"), (filing_rows, "filings"), (price_rows, "prices")):
-        tmp = STORE / f"{name}.jsonl"
-        tmp.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows) or "{}")
-        con.execute(
-            f"COPY (SELECT * FROM read_json_auto('{tmp.as_posix()}', format='newline_delimited', "
-            f"maximum_object_size=20000000)) TO '{(STORE / (name + '.parquet')).as_posix()}' (FORMAT PARQUET)"
-        )
-        tmp.unlink()
-        counts[name] = len(rows)
-    con.close()
+        counts[name] = write_parquet(rows, STORE / f"{name}.parquet")
     print(f"store built: nodes={counts['nodes']} edges={counts['edges']} "
           f"filings={counts['filings']} prices={counts['prices']} -> {STORE}")
     return counts

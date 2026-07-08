@@ -1,0 +1,27 @@
+{
+  "_comment": "EDITORIAL, hand-maintained (prompt 13). Maps congressional committee thomas_id -> sector groups it plausibly governs, for showing overlap/relevance in the political-exposure wedge. This is a relevance heuristic, NOT a claim of influence or corruption. Group names must match universe.json node 'group' values. Edit freely.",
+  "map": {
+    "HSAS": ["AI & semiconductors", "Industrial machinery & equipment"],
+    "SSAS": ["AI & semiconductors", "Industrial machinery & equipment"],
+    "HSIF": ["Energy producers", "Utilities", "Pharma & biotech", "Cloud & software"],
+    "SSCM": ["Cloud & software", "AI & semiconductors", "Industrial machinery & equipment"],
+    "SSEG": ["Energy producers", "Utilities", "Metals, mining & chemicals"],
+    "HSII": ["Energy producers", "Metals, mining & chemicals", "Real estate operators"],
+    "HSBA": ["Banks & credit", "Asset management & advisory", "Insurance", "REITs & real estate finance"],
+    "SSBK": ["Banks & credit", "Asset management & advisory", "Insurance", "REITs & real estate finance"],
+    "HSWM": ["Banks & credit", "Health providers & services"],
+    "SSFI": ["Banks & credit", "Health providers & services", "Insurance"],
+    "HSAG": ["Food, beverage & staples", "Metals, mining & chemicals"],
+    "SSAF": ["Food, beverage & staples", "Metals, mining & chemicals"],
+    "HSPW": ["Industrial machinery & equipment", "REITs & real estate finance", "Utilities"],
+    "SSEV": ["Utilities", "Energy producers", "Metals, mining & chemicals"],
+    "HSJU": ["Cloud & software", "Consumer retail & ecommerce"],
+    "SSJU": ["Cloud & software", "Consumer retail & ecommerce"],
+    "HSVR": ["Pharma & biotech", "Health providers & services"],
+    "SSVA": ["Pharma & biotech", "Health providers & services"],
+    "HSAP": ["Pharma & biotech", "AI & semiconductors", "Industrial machinery & equipment"],
+    "SSAP": ["Pharma & biotech", "AI & semiconductors", "Industrial machinery & equipment"],
+    "HLIG": ["AI & semiconductors", "Cloud & software"],
+    "SLIN": ["AI & semiconductors", "Cloud & software"]
+  }
+}

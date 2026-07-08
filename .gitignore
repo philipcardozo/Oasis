@@ -33,6 +33,7 @@ graph/data/filings.json
 graph/data/news.json
 graph/data/gov_contracts.json
 graph/data/edge_candidates.json
+graph/data/pol_members.json
 
 # GLEIF LEI map (regenerable 18.7 MB download from refresh_gleif.py)
 graph/data/sources_meta/lei_map.json
