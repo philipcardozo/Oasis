@@ -12,5 +12,31 @@ vinst/
 env/
 venv/
 ENV/
-graph/tiles/usgs_3dep/terrain-rgb/
 *.tif
+
+# Terrain tiles (all providers — large binary assets, regenerable)
+graph/tiles/
+
+# Generated universe payloads (rebuilt by expand_us.py)
+graph/data/universe.json
+graph/data/universe_bulk.json
+graph/data/universe_core.json
+
+# SEC company facts cache (fetched on demand)
+graph/data/companyfacts/
+
+# Generated reports (rebuilt by dcf_export.py)
+graph/data/reports/
+
+# Diagnostic outputs (not served to the UI)
+graph/data/dupes_report.json
+graph/data/location_unknown.json
+
+# Build outputs
+outputs/
+
+# Archived data files
+archive/data/
+
+# Media assets (large binary files)
+Assets & Media/

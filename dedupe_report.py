@@ -9,7 +9,7 @@ import re
 
 ROOT = Path(__file__).parent
 UNIVERSE = ROOT / "graph" / "data" / "universe.json"
-OUT = ROOT / "graph" / "data" / "dupes_report.json"
+OUT = ROOT / "outputs" / "diagnostics" / "dupes_report.json"
 SUFFIXES = {"inc", "corp", "co", "ltd", "plc", "sa", "ag", "nv", "group", "holdings", "the"}
 
 
@@ -72,6 +72,7 @@ def build_report(nodes: list[dict]) -> dict:
 def main() -> None:
     nodes = json.load(UNIVERSE.open())["nodes"]
     report = build_report(nodes)
+    OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(report, indent=2) + "\n")
     t = report["totals"]
     print(

@@ -1,3 +1,0 @@
-id,linked_object_type,linked_object_id,claim_type,claim_value,source_name,source_url,source_date,retrieved_at,confidence,status,notes
-ev:entity_USDA_identity_public_seed_U.S._Department_of_Agriculture,entity,USDA,identity,U.S. Department of Agriculture,public_seed,,2026-07-02,2026-07-05,0.7,inferred,
-ev:entity_USDA_sector_public_seed_Government,entity,USDA,sector,Government,public_seed,,2026-07-02,2026-07-05,0.7,inferred,
