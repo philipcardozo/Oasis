@@ -48,8 +48,30 @@ def test_committee_policy_map_valid() -> None:
             assert g in groups, f"committee {cid} -> unknown group '{g}'"
 
 
+def test_political_context_company() -> None:
+    # Prompt 14: defense contractor -> committee overlap + contract context, all sourced.
+    _need("data/store/pol_members.parquet")
+    _need("graph/data/gov_contracts.json")
+    from political import political_context
+    d = political_context("LMT")
+    assert d["available"], d
+    assert d["committees"] and all(c["source_url"].startswith("http") and c["members"] > 0 for c in d["committees"])
+    assert d["contracts"] and all(c["source_url"].startswith("http") for c in d["contracts"])
+
+
+def test_political_wording_neutral() -> None:
+    # No loaded/accusatory terms in the political module, map, or the drawer block.
+    main = (ROOT / "graph/js/main.js").read_text()
+    block = main[main.index("function politicalBlock"):main.index("function companyAssetsBlock")]
+    corpus = ((ROOT / "political.py").read_text() + (ROOT / "graph/data/committee_policy_map.json").read_text() + block).lower()
+    for term in ("insider", "corrupt", "suspicious"):
+        assert term not in corpus, term
+
+
 if __name__ == "__main__":
     test_pol_members_schema()
     test_pol_trades_provenance()
     test_committee_policy_map_valid()
+    test_political_context_company()
+    test_political_wording_neutral()
     print("political ok")

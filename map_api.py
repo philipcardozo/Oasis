@@ -1194,6 +1194,12 @@ def api_entity_comps(entity_id: str, cap: int = 12):
     return comps(unquote(entity_id), cap=cap)
 
 
+@app.get("/api/entity/{entity_id}/political")
+def api_entity_political(entity_id: str):
+    from political import political_context
+    return political_context(unquote(entity_id))
+
+
 @app.get("/api/entity/{entity_id}/risk")
 def api_entity_risk(entity_id: str):
     focus = load_json("graph-index.json", {}).get(unquote(entity_id), {})

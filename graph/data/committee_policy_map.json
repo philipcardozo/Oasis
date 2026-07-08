@@ -1,8 +1,8 @@
 {
-  "_comment": "EDITORIAL, hand-maintained (prompt 13). Maps congressional committee thomas_id -> sector groups it plausibly governs, for showing overlap/relevance in the political-exposure wedge. This is a relevance heuristic, NOT a claim of influence or corruption. Group names must match universe.json node 'group' values. Edit freely.",
+  "_comment": "EDITORIAL, hand-maintained (prompt 13). Maps congressional committee thomas_id -> sector groups it plausibly governs, for showing overlap/relevance in the political-exposure wedge. This is a relevance heuristic, NOT a claim of influence or wrongdoing. Group names must match universe.json node 'group' values. Edit freely.",
   "map": {
-    "HSAS": ["AI & semiconductors", "Industrial machinery & equipment"],
-    "SSAS": ["AI & semiconductors", "Industrial machinery & equipment"],
+    "HSAS": ["Aerospace & defense", "AI & semiconductors", "Industrial machinery & equipment"],
+    "SSAS": ["Aerospace & defense", "AI & semiconductors", "Industrial machinery & equipment"],
     "HSIF": ["Energy producers", "Utilities", "Pharma & biotech", "Cloud & software"],
     "SSCM": ["Cloud & software", "AI & semiconductors", "Industrial machinery & equipment"],
     "SSEG": ["Energy producers", "Utilities", "Metals, mining & chemicals"],
@@ -19,9 +19,9 @@
     "SSJU": ["Cloud & software", "Consumer retail & ecommerce"],
     "HSVR": ["Pharma & biotech", "Health providers & services"],
     "SSVA": ["Pharma & biotech", "Health providers & services"],
-    "HSAP": ["Pharma & biotech", "AI & semiconductors", "Industrial machinery & equipment"],
-    "SSAP": ["Pharma & biotech", "AI & semiconductors", "Industrial machinery & equipment"],
-    "HLIG": ["AI & semiconductors", "Cloud & software"],
-    "SLIN": ["AI & semiconductors", "Cloud & software"]
+    "HSAP": ["Aerospace & defense", "Pharma & biotech", "AI & semiconductors", "Industrial machinery & equipment"],
+    "SSAP": ["Aerospace & defense", "Pharma & biotech", "AI & semiconductors", "Industrial machinery & equipment"],
+    "HLIG": ["Aerospace & defense", "AI & semiconductors", "Cloud & software"],
+    "SLIN": ["Aerospace & defense", "AI & semiconductors", "Cloud & software"]
   }
 }

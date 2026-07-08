@@ -1723,6 +1723,23 @@ async function loadModel(id){
   }
   host.innerHTML=h;
 }
+function politicalBlock(id){
+  return `<div class="counterparties" data-political="${esc(id)}"></div>`;
+}
+async function loadPolitical(id){
+  const host=document.querySelector(`[data-political="${CSS.escape(id)}"]`);
+  if(!host) return;
+  const d=await fetch(`/api/entity/${encodeURIComponent(id)}/political`).then(r=>r.json()).catch(()=>({available:false}));
+  if(!d.available){ host.remove(); return; } // no section when there is no data
+  let h=`<div class="section-h">Political exposure</div><div class="story-meta">Committee overlap and federal contract context — relevance and provenance only, not a claim of influence.</div>`;
+  if(d.committees.length){
+    h+=`<div class="comps-list">`+d.committees.map(c=>`<div class="comp-row"><span class="nm">${esc(c.name)}</span><a class="src-chip" href="${esc(c.source_url)}" target="_blank" rel="noopener noreferrer">source</a><span class="why">${c.members} members · ${c.filer_members} disclose trades</span></div>`).join("")+`</div>`;
+  }
+  if(d.contracts.length){
+    h+=`<div class="section-h">Federal contracts</div><div class="comps-list">`+d.contracts.map(c=>`<div class="comp-row"><span class="nm">${esc(c.agency)}</span><a class="src-chip" href="${esc(c.source_url)}" target="_blank" rel="noopener noreferrer">USAspending</a><span class="why">${c.obligations_bn!=null?`$${Number(c.obligations_bn).toFixed(2)}B`:""} · FY${esc(c.fiscal_year)}</span></div>`).join("")+`</div>`;
+  }
+  host.innerHTML=h;
+}
 function companyAssetsBlock(id){
   return `<div class="counterparties" id="companyAssetsBlock" data-company-assets="${esc(id)}"><div class="section-h">Assets</div><div class="story-meta">Loading owned, operated, leased, financed, and supplied assets…</div></div>`;
 }
@@ -1792,6 +1809,7 @@ function select(id){
   if(sectionOn("counterparties")) html+=topCounterpartiesHtml(inc,id);
   html+=companyAssetsBlock(id);
   html+=modelBlock(c);
+  html+=politicalBlock(id);
   if(sectionOn("lens")) html+=lensContextBlock(c,inc);
   if(sectionOn("relationships")) html+=`<div class="rels">`;
   const tot=inc.length;
@@ -1813,13 +1831,13 @@ function select(id){
     html+=`</div>`;
   }
   html+=`${evidenceBlock("entity",id)}${sectionOn("candidates")?candidateBlock(c):""}${sectionOn("market")?marketBlock(c):""}${sectionOn("filings")?filingsBlock(c):""}${sectionOn("research")?researchBlock(c):""}${sectionOn("news")?newsBlock(c):""}</div>`;
-  detail.innerHTML=html; detail.classList.add("show"); document.getElementById("hint").style.display="none"; loadCompanyAssets(id); loadModel(id); hydrateEvidence("entity",id); loadCompanyAssetOverlay(id); draw(); if(mode==="globe") applyMapSelection(id,sourceForEntity(id)); queueSaveView();
+  detail.innerHTML=html; detail.classList.add("show"); document.getElementById("hint").style.display="none"; loadCompanyAssets(id); loadModel(id); loadPolitical(id); hydrateEvidence("entity",id); loadCompanyAssetOverlay(id); draw(); if(mode==="globe") applyMapSelection(id,sourceForEntity(id)); queueSaveView();
 }
 function lensContextBlock(c,inc){
   const lens=productPrefs.lens;
   if(lens==="political"){
     const gov=inc.filter(l=>l.rel==="contracts"||l.rel==="government_action");
-    return `<div class="lens-context"><div class="section-h">Political exposure lens</div><div class="market-card">Public overlap only. Contracts/actions visible now: <b>${gov.length}</b>. No corruption inference is made; timing and source evidence must carry the claim.</div></div>`;
+    return `<div class="lens-context"><div class="section-h">Political exposure lens</div><div class="market-card">Public overlap only. Contracts/actions visible now: <b>${gov.length}</b>. No wrongdoing is inferred; timing and source evidence must carry the claim.</div></div>`;
   }
   if(lens==="facility"||lens==="farm"||lens==="acquisition"){
     return `<div class="lens-context"><div class="section-h">${esc(LENSES[lens][0])}</div><div class="market-card">Use Maker to add manual sites, parcels, farms, routes, or opportunities around this object. Public enrichment waits until the local map is useful.</div></div>`;
