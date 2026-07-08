@@ -1,0 +1,53 @@
+{
+  "source_path": "/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/data/raw/usgs_3dep/USGS_13_n63w143_20150825.tif",
+  "source_name": "USGS_13_n63w143_20150825.tif",
+  "crs": "EPSG:4269",
+  "bounds": [
+    -143.00055555555517,
+    61.99944444516571,
+    -141.99944444516572,
+    63.00055555555515
+  ],
+  "bounds_wgs84": [
+    -143.00055555555517,
+    61.99944444516571,
+    -141.99944444516572,
+    63.00055555555515
+  ],
+  "width": 10812,
+  "height": 10812,
+  "resolution": [
+    9.259259252584581e-05,
+    9.259259252584581e-05
+  ],
+  "nodata": -999999.0,
+  "dtype": "float32",
+  "elevation_min_m": 507.79998779296875,
+  "elevation_max_m": 3287.480712890625,
+  "source_url": "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/13/TIFF/historical/n63w143/USGS_13_n63w143_20150825.tif",
+  "tile_format": "Mapbox Terrain-RGB PNG",
+  "encoding": "mapbox",
+  "tile_size": 256,
+  "minzoom": 6,
+  "maxzoom": 11,
+  "generated_tile_count": 147,
+  "tile_coverage_by_zoom": {
+    "6": 1,
+    "7": 2,
+    "8": 6,
+    "9": 12,
+    "10": 28,
+    "11": 98
+  },
+  "public_tilejson": "/tiles/terrain-rgb/tiles.json",
+  "source_registry": {
+    "name": "USGS 3DEP / TNMAccess",
+    "endpoint": "https://tnmaccess.nationalmap.gov/api/v1/products",
+    "purpose": "Discover and download future DEM products by bbox, state, county, or area of interest.",
+    "active_local_dem": "/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/data/raw/usgs_3dep/USGS_13_n34w085_20220725.tif",
+    "processed_metadata": "/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/data/processed/usgs_3dep/USGS_13_n34w085_20220725.metadata.json",
+    "tilejson": "/tiles/usgs_3dep/tiles.json",
+    "active": true
+  },
+  "tnm_discovery_example": "https://tnmaccess.nationalmap.gov/api/v1/products?datasets=National+Elevation+Dataset+%28NED%29+1%2F3+arc-second&bbox=-143.000556%2C61.999444%2C-141.999444%2C63.000556&prodFormats=GeoTIFF"
+}
