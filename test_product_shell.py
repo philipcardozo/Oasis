@@ -66,6 +66,24 @@ def test_drawer_type_coverage() -> None:
     print(f"drawer config covers node_types: {sorted(types)}")
 
 
+def test_builtin_lenses_validate() -> None:
+    # Prompt 12: built-in lens presets must reference real node kinds / edge rels.
+    import json
+    import re
+    main = Path("graph/js/main.js").read_text()
+    block = main[main.index("const LENS_PRESETS="):main.index("const LENS_PRESETS=") + 400]
+    assert "company:" in block and "security:" in block, block
+    uni = json.loads(Path("graph/data/universe.json").read_text())
+    kinds = {n.get("kind") for n in uni["nodes"]}
+    rels = {l.get("rel") for l in uni["links"]}
+    for grp, valid in (("kind", kinds), ("rel", rels)):
+        for m in re.finditer(grp + r":\{([^}]*)\}", block):
+            for key in re.findall(r"(\w+):", m.group(1)):
+                assert key in valid, f"lens {grp} '{key}' not a real filter"
+    print("built-in lenses validate")
+
+
 if __name__ == "__main__":
     test_main()
     test_drawer_type_coverage()
+    test_builtin_lenses_validate()

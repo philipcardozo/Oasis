@@ -88,6 +88,19 @@
     </div>
   </div>
   <input id="manualImport" type="file" accept="application/json" hidden>
+  <input id="workspaceImport" type="file" accept="application/json,.oasis.json" hidden>
+  <div id="shortcutOverlay" class="shortcut-overlay" hidden>
+    <div class="shortcut-card">
+      <div class="shortcut-hd"><b>Keyboard shortcuts</b><button type="button" data-action="close-shortcuts">&times;</button></div>
+      <dl>
+        <dt>1 – 5</dt><dd>Map · Network · Research · Model · Maker</dd>
+        <dt>⌘K / /</dt><dd>Search entities</dd>
+        <dt>e</dt><dd>Toggle Engine panel</dd>
+        <dt>?</dt><dd>This help</dd>
+        <dt>Esc</dt><dd>Close panel / drawer / overlay</dd>
+      </dl>
+    </div>
+  </div>
   <div id="map"></div>
   <svg id="svg">
     <defs>

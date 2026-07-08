@@ -2042,7 +2042,12 @@ function renderWorkspacePanel(){
       <label class="control-row"><span>Node scale</span><input data-engine="nodeScale" type="range" min=".7" max="1.6" step=".05" value="${productPrefs.engine.nodeScale}"></label>
       <label class="control-row"><span>Line intensity</span><input data-engine="edgeOpacity" type="range" min=".35" max="1.8" step=".05" value="${productPrefs.engine.edgeOpacity}"></label>
       <label class="control-row"><span>Terrain / relief</span><input data-engine="terrain" type="checkbox" ${productPrefs.engine.terrain?"checked":""}></label>
-      <label class="control-row"><span>Motion</span><input data-engine="motion" type="checkbox" ${productPrefs.engine.motion?"checked":""}></label>`;
+      <label class="control-row"><span>Terrain source</span><select data-terrain-source>${["aws","local"].map(v=>`<option value="${v}" ${(productPrefs.terrainSource||"aws")===v?"selected":""}>${v}</option>`).join("")}</select></label>
+      <label class="control-row"><span>Motion</span><input data-engine="motion" type="checkbox" ${productPrefs.engine.motion?"checked":""}></label>
+      <div class="panel-actions"><button type="button" data-action="engine-reset">Reset to default</button></div>
+      <h3 style="margin-top:14px">Workspace</h3><p>Save or restore the whole view.</p>
+      <div class="panel-actions"><button class="primary" type="button" data-action="workspace-export">Export .oasis.json</button><button type="button" data-action="workspace-import">Import</button></div>
+      <p class="story-meta">Shortcuts: <b>1–5</b> surfaces · <b>e</b> engine · <b>/</b> or <b>⌘K</b> search · <b>?</b> all · <b>Esc</b> close.</p>`;
     return;
   }
   if(activeRailPanel==="maker"){
@@ -2058,7 +2063,10 @@ function renderWorkspacePanel(){
     return;
   }
   if(activeRailPanel==="lenses"){
-    panel.innerHTML=`<h3>Lenses</h3><p>Task presets, not raw settings.</p>${Object.entries(LENSES).map(([id,[name,desc]])=>`<div class="lens-pill ${productPrefs.lens===id?"active":""}" data-lens="${id}"><span>${name}</span><span>${desc}</span></div>`).join("")}`;
+    const custom=Object.entries(productPrefs.customLenses||{});
+    panel.innerHTML=`<h3>Lenses</h3><p>Task presets, not raw settings.</p>${Object.entries(LENSES).map(([id,[name,desc]])=>`<div class="lens-pill ${productPrefs.lens===id?"active":""}" data-lens="${id}"><span>${name}</span><span>${desc}</span></div>`).join("")}
+      ${custom.length?`<p class="story-meta">Saved lenses</p>${custom.map(([id,l])=>`<div class="lens-pill ${productPrefs.lens===id?"active":""}" data-lens="${id}"><span>${esc(l.name)}</span><span>custom · ${esc(l.surface||"")}</span></div>`).join("")}`:""}
+      <div class="panel-actions"><button class="primary" type="button" data-action="lens-save">Save current as lens</button></div>`;
   }
 }
 async function addManualNodeAtCenter(){
@@ -2111,11 +2119,53 @@ function focusManualObject(id){
   const n=manualLayer.nodes.find(x=>x.id===id);
   if(n&&map) map.easeTo({center:[n.lng,n.lat],zoom:Math.max(map.getZoom(),6),duration:450});
 }
+// Built-in lens presets: named {surface, filters, engine} snapshots applied atomically.
+const LENS_PRESETS={
+  company:{surface:"globe",kind:{security:false},rel:{}},                 // Map+drawer, securities hidden
+  security:{surface:"network",kind:{security:true},rel:{same_issuer:true}}, // securities visible, same-issuer edges on
+};
+function customLens(id){ return (productPrefs.customLenses||{})[id]; }
 function activateLens(id){
-  if(!LENSES[id]) return;
+  const preset=LENS_PRESETS[id]||customLens(id);
+  if(!LENSES[id]&&!preset) return;
   productPrefs.lens=id;
+  if(preset){
+    if(preset.engine) Object.assign(productPrefs.engine,preset.engine);
+    if(preset.kind) Object.entries(preset.kind).forEach(([k,v])=>{ if(k in kindOn) kindOn[k]=!!v; });
+    if(preset.rel) Object.entries(preset.rel).forEach(([k,v])=>{ if(k in relOn) relOn[k]=!!v; });
+    applyProductPrefs();
+    if(preset.surface&&preset.surface!==mode) setMode(preset.surface); else refresh(true);
+  }
   saveProductPrefs(); renderWorkspacePanel();
   if(selected&&byId[selected]) select(selected);
+}
+function saveCurrentAsLens(){
+  const name=prompt("Name this lens","My lens");
+  if(!name) return;
+  const id="custom:"+Date.now().toString(36);
+  productPrefs.customLenses=productPrefs.customLenses||{};
+  productPrefs.customLenses[id]={name,engine:{...productPrefs.engine},kind:filterSnapshot(kindOn),rel:filterSnapshot(relOn),surface:mode};
+  productPrefs.lens=id;
+  saveProductPrefs(); renderWorkspacePanel();
+}
+function resetEngine(){
+  Object.assign(productPrefs.engine,cloneJson(PRODUCT_DEFAULTS.engine));
+  productPrefs.terrainSource=PRODUCT_DEFAULTS.terrainSource;
+  saveProductPrefs(); applyProductPrefs(); renderWorkspacePanel(); queueSaveView();
+}
+// Workspace file: view-state snapshot + engine + lens, spec_version'd as the seed
+// of the vault Stage-6 manual-layer format. Import re-uses the reload restore path.
+function exportWorkspace(){
+  const ws={spec_version:1,kind:"workspace",engineState:productPrefs.engine,lens:productPrefs.lens,...captureViewState()};
+  downloadText("workspace.oasis.json",JSON.stringify(ws,null,2),"application/json");
+}
+function importWorkspace(obj){
+  if(!obj||obj.kind!=="workspace"){ alert("Not an Oasis workspace file (.oasis.json)"); return; }
+  if(obj.engineState) Object.assign(productPrefs.engine,obj.engineState);
+  if(obj.lens) productPrefs.lens=obj.lens;
+  saveProductPrefs();
+  localStorage.setItem(VIEW_STATE_KEY,JSON.stringify(obj)); // restore path applies mode/camera/filters/selection on load
+  location.reload();
 }
 function syncRailActive(){
   const byMode={globe:"map",network:"network",index:"network"};
@@ -2252,6 +2302,9 @@ document.getElementById("workspacePanel").addEventListener("change",e=>{
     productPrefs.maker.sections[el.dataset.makerSection]=el.checked;
     saveProductPrefs(); if(selected&&byId[selected]) select(selected);
   }
+  if(el.hasAttribute("data-terrain-source")){ // ponytail: applies to the DEM on next globe init
+    productPrefs.terrainSource=el.value; saveProductPrefs();
+  }
 });
 document.getElementById("workspacePanel").addEventListener("click",async e=>{
   const lens=e.target.closest("[data-lens]");
@@ -2259,6 +2312,10 @@ document.getElementById("workspacePanel").addEventListener("click",async e=>{
   const row=e.target.closest("[data-manual-id]");
   if(row){ showManualObject(row.dataset.manualId); return; }
   const action=e.target.closest("[data-action]")?.dataset.action;
+  if(action==="engine-reset") resetEngine();
+  if(action==="workspace-export") exportWorkspace();
+  if(action==="workspace-import") document.getElementById("workspaceImport").click();
+  if(action==="lens-save") saveCurrentAsLens();
   if(action==="manual-add-node") await addManualNodeAtCenter();
   if(action==="manual-connect-selected") connectSelectedToLatestManual();
   if(action==="manual-export-json") downloadText("oasis_manual_scenario.json",JSON.stringify(manualLayer,null,2),"application/json");
@@ -2506,12 +2563,26 @@ window.addEventListener("keydown",e=>{
   const el=document.activeElement, typing=/^(INPUT|TEXTAREA|SELECT)$/.test(el?.tagName||"")||el?.isContentEditable;
   if((e.key==="k"||e.key==="K")&&(e.metaKey||e.ctrlKey)){ e.preventDefault(); searchInput.focus(); searchInput.select(); return; }
   if(e.key==="/"&&!typing){ e.preventDefault(); searchInput.focus(); return; }
+  if(!typing){
+    if(e.key>="1"&&e.key<="5"){ e.preventDefault(); handleRailAction(["map","network","research","model","maker"][+e.key-1]); return; }
+    if(e.key==="e"||e.key==="E"){ e.preventDefault(); setWorkspacePanel("engine"); return; }
+    if(e.key==="?"){ e.preventDefault(); const o=document.getElementById("shortcutOverlay"); o.hidden=!o.hidden; return; }
+  }
   if(e.key==="Escape"){
     results.classList.remove("show");
+    document.getElementById("shortcutOverlay").hidden=true;
     document.querySelectorAll(".tool-panel.show").forEach(p=>p.classList.remove("show"));
     document.getElementById("workspacePanel")?.classList.remove("show");
     if(selected) deselect();
   }
+});
+document.getElementById("workspaceImport").addEventListener("change",async e=>{
+  const file=e.target.files?.[0];
+  if(file){ try{ importWorkspace(JSON.parse(await file.text())); }catch(err){ alert(`Could not import workspace: ${err.message}`); } }
+  e.target.value="";
+});
+document.getElementById("shortcutOverlay").addEventListener("click",e=>{
+  if(e.target.id==="shortcutOverlay"||e.target.closest("[data-action='close-shortcuts']")) document.getElementById("shortcutOverlay").hidden=true;
 });
 
 /* ---------- mode + toolbar ---------- */

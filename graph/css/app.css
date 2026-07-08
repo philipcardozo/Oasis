@@ -224,6 +224,18 @@
   .peer-chip { font-size: 9.5px; text-transform: uppercase; letter-spacing: .04em; padding: 1px 6px; border-radius: 999px; }
   .peer-chip.graph { color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
   .peer-chip.sector { color: var(--text-2); background: var(--panel); border: 1px solid var(--border); }
+  .panel-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+  .panel-actions button { flex: 1; min-width: 110px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 9px; background: var(--panel-2); color: var(--text); cursor: pointer; font-size: 12px; }
+  .panel-actions button.primary { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+  .panel-actions button:hover { border-color: var(--accent); }
+  .shortcut-overlay { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: rgba(0,0,0,.5); }
+  .shortcut-overlay[hidden] { display: none; }
+  .shortcut-card { width: min(420px, 92vw); background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; box-shadow: var(--shadow); }
+  .shortcut-hd { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .shortcut-hd button { background: none; border: none; color: var(--text-2); font-size: 22px; cursor: pointer; }
+  .shortcut-card dl { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 0; }
+  .shortcut-card dt { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text); }
+  .shortcut-card dd { margin: 0; color: var(--text-2); font-size: 12.5px; }
   .issuer-link { color: var(--accent); cursor: pointer; text-decoration: none; }
   .issuer-link:hover { text-decoration: underline; }
   .rels { padding: 4px 0 18px; }
