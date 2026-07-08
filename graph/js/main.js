@@ -1701,6 +1701,28 @@ function topCounterpartiesHtml(inc,id){
   if(!rows.length) return "";
   return `<div class="counterparties"><div class="section-h">Top counterparties</div><div class="counterparty-list">${rows.map(row=>`<div class="counterparty" data-select-id="${esc(row.node.id)}"><span class="sw" style="background:${SECTORS[row.node.sec]?.color||"#9aa6b6"}"></span><span class="nm">${esc(row.node.n)}</span><span class="why">${esc([...row.rels].slice(0,2).join(" / "))}${row.value>0?` · ${fmtBn(row.value)}`:""}</span>${provenanceHtml(row.edge)}</div>`).join("")}</div></div>`;
 }
+function modelBlock(c){
+  if(!/^\d+$/.test(String(c.cik||""))) return ""; // no SEC facts -> no Model section
+  return `<div class="counterparties" data-model="${esc(c.id)}"><div class="section-h">Model</div><div class="story-meta">Loading priced-in growth &amp; comps…</div></div>`;
+}
+async function loadModel(id){
+  const host=document.querySelector(`[data-model="${CSS.escape(id)}"]`);
+  if(!host) return;
+  const [rd,cp]=await Promise.all([
+    fetch(`/api/entity/${encodeURIComponent(id)}/reverse-dcf`).then(r=>r.json()).catch(()=>({available:false})),
+    fetch(`/api/entity/${encodeURIComponent(id)}/comps?cap=8`).then(r=>r.json()).catch(()=>({available:false})),
+  ]);
+  if(!rd.available && !cp.available){ host.remove(); return; }
+  let h=`<div class="section-h">Model</div>`;
+  if(rd.available){
+    h+=`<div class="model-line"><span>Priced-in growth</span><b>${(rd.implied_growth*100).toFixed(1)}%</b><span class="story-meta">@ ${(rd.discount*100).toFixed(0)}% disc · ${(rd.terminal_growth*100).toFixed(1)}% terminal</span></div>`;
+    h+=`<div class="sens-row">${rd.sensitivity.map(s=>`<span class="sens">${(s.discount*100).toFixed(0)}%: ${s.implied_growth!=null?(s.implied_growth*100).toFixed(0)+"%":"—"}</span>`).join("")}</div>`;
+  }
+  if(cp.available && cp.peers.length){
+    h+=`<div class="section-h">Comparables</div><div class="comps-list">`+cp.peers.map(p=>`<div class="comp-row" data-select-id="${esc(p.id)}"><span class="nm">${esc(p.ticker||p.name)}</span><span class="peer-chip ${esc(p.peer_source)}">${esc(p.peer_source)}</span><span class="why">${p.ebit_margin!=null?`${(p.ebit_margin*100).toFixed(0)}% mgn`:""}${p.ev_ebit!=null?` · ${p.ev_ebit.toFixed(0)}x EV/EBIT`:""}${p.pe!=null?` · ${p.pe.toFixed(0)} P/E`:""}</span></div>`).join("")+`</div>`;
+  }
+  host.innerHTML=h;
+}
 function companyAssetsBlock(id){
   return `<div class="counterparties" id="companyAssetsBlock" data-company-assets="${esc(id)}"><div class="section-h">Assets</div><div class="story-meta">Loading owned, operated, leased, financed, and supplied assets…</div></div>`;
 }
@@ -1769,6 +1791,7 @@ function select(id){
   if(kpis.length) html+=`<div class="kpis">${kpis.slice(0,3).map(x=>`<div class="kpi"><div class="v">${x.v}</div><div class="l">${x.l}</div></div>`).join("")}</div>`;
   if(sectionOn("counterparties")) html+=topCounterpartiesHtml(inc,id);
   html+=companyAssetsBlock(id);
+  html+=modelBlock(c);
   if(sectionOn("lens")) html+=lensContextBlock(c,inc);
   if(sectionOn("relationships")) html+=`<div class="rels">`;
   const tot=inc.length;
@@ -1790,7 +1813,7 @@ function select(id){
     html+=`</div>`;
   }
   html+=`${evidenceBlock("entity",id)}${sectionOn("candidates")?candidateBlock(c):""}${sectionOn("market")?marketBlock(c):""}${sectionOn("filings")?filingsBlock(c):""}${sectionOn("research")?researchBlock(c):""}${sectionOn("news")?newsBlock(c):""}</div>`;
-  detail.innerHTML=html; detail.classList.add("show"); document.getElementById("hint").style.display="none"; loadCompanyAssets(id); hydrateEvidence("entity",id); loadCompanyAssetOverlay(id); draw(); if(mode==="globe") applyMapSelection(id,sourceForEntity(id)); queueSaveView();
+  detail.innerHTML=html; detail.classList.add("show"); document.getElementById("hint").style.display="none"; loadCompanyAssets(id); loadModel(id); hydrateEvidence("entity",id); loadCompanyAssetOverlay(id); draw(); if(mode==="globe") applyMapSelection(id,sourceForEntity(id)); queueSaveView();
 }
 function lensContextBlock(c,inc){
   const lens=productPrefs.lens;

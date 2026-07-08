@@ -212,6 +212,18 @@
   .src-chip { color: var(--text-2); text-decoration: none; padding: 1px 7px; border: 1px solid var(--border); border-radius: 999px; background: var(--panel); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
   .src-chip:hover { color: var(--text); border-color: var(--accent); }
   .as-of { color: var(--text-3); font-variant-numeric: tabular-nums; }
+  .model-line { display: flex; align-items: baseline; gap: 8px; padding: 4px 0; }
+  .model-line b { font-size: 15px; color: var(--text); }
+  .sens-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+  .sens { font-size: 10.5px; color: var(--text-2); padding: 1px 7px; border: 1px solid var(--border); border-radius: 999px; font-variant-numeric: tabular-nums; }
+  .comps-list { display: grid; gap: 6px; }
+  .comp-row { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel-2); cursor: pointer; }
+  .comp-row:hover { border-color: var(--accent); }
+  .comp-row .nm { font-weight: 600; font-size: 12.5px; }
+  .comp-row .why { color: var(--text-3); font-size: 11px; text-align: right; font-variant-numeric: tabular-nums; }
+  .peer-chip { font-size: 9.5px; text-transform: uppercase; letter-spacing: .04em; padding: 1px 6px; border-radius: 999px; }
+  .peer-chip.graph { color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, transparent); }
+  .peer-chip.sector { color: var(--text-2); background: var(--panel); border: 1px solid var(--border); }
   .issuer-link { color: var(--accent); cursor: pointer; text-decoration: none; }
   .issuer-link:hover { text-decoration: underline; }
   .rels { padding: 4px 0 18px; }

@@ -1181,6 +1181,19 @@ def api_entity_neighborhood(entity_id: str, depth: int = 1):
     return neighborhood(unquote(entity_id), depth)
 
 
+@app.get("/api/entity/{entity_id}/reverse-dcf")
+def api_entity_reverse_dcf(entity_id: str, discount: float = 0.09, terminal_growth: float = 0.025,
+                           method: str = "cash_flow"):
+    from reverse_dcf import reverse_dcf
+    return reverse_dcf(unquote(entity_id), discount=discount, terminal_growth=terminal_growth, method=method)
+
+
+@app.get("/api/entity/{entity_id}/comps")
+def api_entity_comps(entity_id: str, cap: int = 12):
+    from comps import comps
+    return comps(unquote(entity_id), cap=cap)
+
+
 @app.get("/api/entity/{entity_id}/risk")
 def api_entity_risk(entity_id: str):
     focus = load_json("graph-index.json", {}).get(unquote(entity_id), {})
