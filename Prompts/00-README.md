@@ -73,7 +73,14 @@ Send one file's contents per session, in numeric order unless noted.
   unresolved→review). Wired into refresh_all, idempotent, `test_political.py` passes.
   **Blocked:** transaction-level tickers + POL_→company TRADED edges — free Stock
   Watcher datasets are offline (403) and the durable Clerk source is PDF-only.
-- ⬜ **14–15 not started.**
+- 🟡 **14 committee/contract wedge shipped, trades blocked** — `political.py` +
+  `/api/entity/{id}/political`; company drawer "Political exposure" block shows
+  committee overlap (relevant committees, member + PTR-filer counts) and USAspending
+  contract context, all sourced, neutral wording, hidden when no data. Verified LMT
+  (5 committees + DoD/NASA, 8 source links); MCD/etc. show nothing. **Deferred (data
+  blocker):** trades table, POL_→company TRADED edges, politician graph nodes/search,
+  trade-filtered lens — all need the unavailable ticker-level trade data.
+- ⬜ **15 not started.**
 
 ## Order and dependencies
 
