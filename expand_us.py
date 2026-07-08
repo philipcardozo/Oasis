@@ -1040,10 +1040,28 @@ def main() -> None:
     OUT_CORE.write_text(json.dumps(core))
     OUT_BULK.write_text(json.dumps(bulk))
     write_map_geojson(graph)
-    cik_count = sum(1 for n in nodes if n.get("cik") and n["cik"] != "—")
+    lei_map = load_lei_map()
+    cik_lei, isin_lei = lei_map.get("cik", {}), lei_map.get("isin", {})
+    cik_method = lei_map.get("cik_method", {})
+    cik_nodes = [n for n in nodes if n.get("cik") and n["cik"] != "—"]
+    via = {"seed": 0, "name": 0, "isin": 0}
+    unresolved_count = 0
+    for n in cik_nodes:
+        if not n.get("lei"):
+            unresolved_count += 1
+        elif n["cik"] in cik_lei:
+            via["seed" if cik_method.get(n["cik"]) == "seed" else "name"] += 1
+        elif n.get("isin") in isin_lei:
+            via["isin"] += 1
+        else:
+            via["name"] += 1  # LEI supplied directly on the source record
     lei_count = sum(1 for n in nodes if n.get("lei"))
-    unresolved_count = sum(1 for n in nodes if n.get("cik") and n["cik"] != "—" and not n.get("lei"))
-    print(f"build complete: {cik_count} nodes with CIK, {lei_count} with LEI, {unresolved_count} unresolved")
+    review_path = ROOT / "graph" / "data" / "sources_meta" / "lei_review.json"
+    review_n = len(json.loads(review_path.read_text())) if review_path.exists() else 0
+    cov = 100 * (len(cik_nodes) - unresolved_count) / max(1, len(cik_nodes))
+    print(f"build complete: {len(cik_nodes)} genuine-CIK nodes, {lei_count} with LEI "
+          f"(coverage {cov:.1f}%) — via seed={via['seed']} name-match={via['name']} "
+          f"ISIN={via['isin']}; unresolved={unresolved_count}; review-queue={review_n}")
     if CLEARED_CIKS > 0:
         print(f"cleared {CLEARED_CIKS} bogus CIKs from country-batch records")
     print(f"Wrote {len(nodes)} companies ({classified} sector-classified), {len(links)} links -> {OUT}")
