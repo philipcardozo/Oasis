@@ -28,7 +28,27 @@ Send one file's contents per session, in numeric order unless noted.
   — they cross-call densely and the `k/tx/ty` transform vars collide with the pervasive
   local `k` (`forEach(k=>…)`), so extracting them safely needs a parser/bundler the prompt
   forbids. `state.js` is the enabler if that split is ever wanted.
-- ⬜ **07–15 not started.**
+- 🟢 **07 complete** — product shell: left-nav rail made visible (5 surfaces
+  Map/Network/Research/Model/Maker, icon+label, active-synced); command bar upgraded
+  with Cmd/Ctrl-K + `/` focus, arrow-nav, Enter-opens, Esc-closes; theme custom
+  properties extended and residual shell hex mapped to vars; `research` surface opens
+  the detail drawer over the canvas without reflowing the map. Verified at 1440px;
+  test_product_shell asserts the new landmarks.
+- 🟢 **08 complete** — type-specific object drawers via a DRAWER_TYPES config
+  (covers every node_type; asserted in test_product_shell); provenance chips
+  (source-domain link + 3-step confidence dot + as-of) on every counterparty row;
+  security drawer issuer link that navigates; enriched hover card (type/HQ/exchange/
+  confidence/latest signal); network label collision pass (grid-bucket, batched,
+  ~800 overlapping labels de-crowded). Verified in-browser, no console errors.
+- 🟢 **09 complete** — globe terrain default switched to AWS Terrain Tiles (Tilezen
+  terrarium, global, no key; AWS_TERRAIN_TILEJSON in main.js) with local 3DEP as an
+  opt-in (`productPrefs.terrainSource`). `data_sources.py` coverage-label ternary
+  removed; `/api/reliefs/dem/status` reports `{source, ready}`. Pipeline archived to
+  `scripts/terrain_aoi/`. **5 GB `graph/tiles/` deleted** (owner-confirmed; metadata +
+  registry kept; disk 100%→98%). Docs updated; tests pass; git untouched by tiles.
+  Cross-region visual render (GA/CO/AK/Alps) needs the owner's real browser (preview
+  can't reach S3).
+- ⬜ **10–15 not started.**
 
 ## Order and dependencies
 
