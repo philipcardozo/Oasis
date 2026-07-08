@@ -17,14 +17,17 @@ Send one file's contents per session, in numeric order unless noted.
   (all are real SEC CIKs incl. genuine foreign filers), and ~2,200 CIK nodes are
   SPACs/ADRs/funds whose LEI sits under a differently-named entity. Test asserts
   the achieved ≥50% + all-LEIs-20-chars + spot-checks, not a fabricated 90%.
-- 🟡 **06 in progress** — index.html 3079 → 102 lines (< 500). CSS → `graph/css/app.css`;
-  inline JS → ES modules under `graph/js/`: `util.js` (pure helpers), `config.js`
-  (static reference data), `main.js` (rest). Each step verified in-browser: identical
-  `window.graphState()`, `select()`/panel work, network view renders, no console errors;
-  `test_product_shell`/`test_map_api` pass. **Remaining:** split the coupled 250-function
-  view core (`main.js`, ~2,556 lines) into `state.js`/`data.js`/`network.js`/`globe.js`/
-  `panel.js` — needs a shared-state module (setters, since ES imports are read-only) to
-  reach the 6–10 target. Higher-risk; do with full per-feature re-verification.
+- 🟢 **06 acceptance met** — index.html 3079 → 102 lines (< 500). CSS → `graph/css/app.css`;
+  inline JS → ES modules under `graph/js/`: `util.js` (pure helpers), `config.js` (static
+  reference data), `state.js` (all shared mutable state + persistence; mutable scalars get
+  `assign*()` setters since ES imports are read-only), `main.js` (views + bootstrap).
+  6 files, honoring the "fewer, larger modules" steer. Verified in-browser at every step:
+  identical `window.graphState()`, network/index/globe modes render + switch, detail panel
+  populates, select/deselect work, no JS errors (only handled terrain-404 warnings); 22
+  tests pass. **Not split further:** the network/globe/panel view functions stay in main.js
+  — they cross-call densely and the `k/tx/ty` transform vars collide with the pervasive
+  local `k` (`forEach(k=>…)`), so extracting them safely needs a parser/bundler the prompt
+  forbids. `state.js` is the enabler if that split is ever wanted.
 - ⬜ **07–15 not started.**
 
 ## Order and dependencies
