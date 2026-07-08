@@ -4,9 +4,11 @@ Oasis is an accuracy-first static relationship graph for U.S. public companies, 
 
 ## Three Commands
 
-Refresh:
+Refresh (a fresh clone must run both — the served payloads under `graph/data/`
+are generated, not tracked):
 ```sh
 python3 refresh_all.py
+python3 build_map_geojson.py
 ```
 
 Serve:
