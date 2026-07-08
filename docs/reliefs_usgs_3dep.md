@@ -1,4 +1,28 @@
-# Reliefs: USGS 3DEP DEM
+# Reliefs: terrain (AWS default + USGS 3DEP AOI)
+
+## Default: AWS Terrain Tiles (global, no key)
+
+The globe's default terrain + hillshade now come from **AWS Terrain Tiles**
+(Tilezen "Joerd" on the AWS Open Data program): global coverage, z0–z15,
+terrarium-encoded, free, no API key. Wired client-side in `graph/js/main.js`
+(`AWS_TERRAIN_TILEJSON`, `addPhysicalContextLayers`) as a MapLibre `raster-dem`
+source with `"encoding": "terrarium"`. Attribution: *Terrain: Tilezen/Mapzen,
+USGS 3DEP, SRTM, GMTED, ETOPO1 (AWS Open Data)*.
+
+`/api/reliefs/dem/status` now reports `{ "source": "aws"|"local", "ready": bool }`
+(the old nested state coverage-label was removed from `data_sources.py`).
+
+## Optional: local USGS 3DEP high-resolution AOI
+
+The local 3DEP pipeline is retained as an **on-demand high-resolution AOI tool**,
+not a default. Set `productPrefs.terrainSource = "local"` to use locally-built
+tiles when present. Builders live in `scripts/terrain_aoi/` (+
+`scripts/build_usgs_terrain_tiles.py`); the bulk 50-state tile tree under
+`graph/tiles/terrain-rgb/` is regenerable and may be removed from disk. The
+processed metadata (`data/processed/usgs_3dep/*.metadata.json`) is the record of
+work and is kept.
+
+The rest of this doc describes that local 3DEP pipeline.
 
 This stage uses local USGS 3DEP GeoTIFFs as the first real Reliefs data source.
 

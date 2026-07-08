@@ -198,19 +198,6 @@ def validation_status() -> dict[str, Any]:
     tilejson = dem_tilejson()
     metadata = dem_metadata()
     registry = terrain_coverage_registry()
-    active_tilejson = registry.get("active_tilejson")
-    georgia_pct = float(registry.get("georgia_bbox_coverage_pct") or 0)
-    completed_states = [label for key, label in TERRAIN_PRODUCT_STATES if float(registry.get(f"{key}_available_products_coverage_pct") or 0) >= 100]
-    in_progress_states = [label for key, label in TERRAIN_PRODUCT_STATES if 0 < float(registry.get(f"{key}_available_products_coverage_pct") or 0) < 100]
-    coverage_label = (
-        f"{' + '.join(completed_states)} complete available 3DEP product coverage" if active_tilejson == "/tiles/terrain-rgb/tiles.json" and completed_states and not in_progress_states
-        else f"{' + '.join(completed_states)} complete + {' + '.join(in_progress_states)} terrain in progress" if active_tilejson == "/tiles/terrain-rgb/tiles.json" and completed_states and in_progress_states
-        else
-        "Georgia" if active_tilejson == "/tiles/terrain-rgb/tiles.json" and covers_bbox(registry.get("coverage_bbox"), GEORGIA_BBOX)
-        else "Georgia high-coverage terrain foundation" if active_tilejson == "/tiles/terrain-rgb/tiles.json" and georgia_pct >= 90
-        else "north and central Georgia / Atlanta corridor" if active_tilejson == "/tiles/terrain-rgb/tiles.json"
-        else "northwest Georgia / eastern Alabama"
-    )
     tile_dir = public_tile_dir(tilejson)
     sample_tiles = list(tile_dir.glob("*/*/*.png"))[:1] if tile_dir.exists() else []
     checks = [
@@ -219,13 +206,19 @@ def validation_status() -> dict[str, Any]:
         {"name": "TNM_ACCESS_PRODUCTS_URL", "ok": bool(os.environ.get("TNM_ACCESS_PRODUCTS_URL") or DEFAULT_TNM_URL), "message": "OK: TNMAccess endpoint configured"},
         {"name": "USGS_3DEP_DEM_PATH", "ok": dem_path().exists(), "message": "OK: local DEM found" if dem_path().exists() else f"ERROR: local DEM missing at {dem_path()}"},
     ]
-    terrain_ready = bool(tilejson and sample_tiles)
+    # Default terrain is AWS Terrain Tiles (global terrarium, client-side, no key).
+    # This status only reports whether the OPTIONAL local 3DEP tiles are present.
+    local_ready = bool(tilejson and sample_tiles)
+    source = "local" if local_ready else "aws"
+    ready = True if source == "aws" else local_ready  # AWS is always available client-side
     return {
         "checks": checks,
         "sources": source_registry(),
         "dem": {
-            "available": terrain_ready,
-            "status": "loaded" if terrain_ready else "DEM unavailable",
+            "source": source,
+            "ready": ready,
+            "available": local_ready,  # back-compat: true only when local 3DEP tiles exist
+            "status": "loaded" if local_ready else "AWS terrarium default (local 3DEP not built)",
             "raw_path": str(dem_path()),
             "metadata": metadata,
             "tilejson_url": registry.get("active_tilejson") or ("/tiles/usgs_3dep/tiles.json" if tilejson else None),
@@ -233,7 +226,6 @@ def validation_status() -> dict[str, Any]:
             "tilejson": tilejson,
             "tiles_found": bool(sample_tiles),
             "coverage": registry,
-            "coverage_label": coverage_label,
         },
     }
 

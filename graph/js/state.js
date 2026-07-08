@@ -39,6 +39,7 @@ export const PRODUCT_DEFAULTS={
   engine:{accent:"#ff3045",labels:"major",terrain:true,terrainExaggeration:1.12,nodeScale:1,edgeOpacity:1,motion:true},
   maker:{sections:{counterparties:true,relationships:true,lens:true,candidates:true,market:true,filings:true,research:true,news:true}},
   lens:"company",
+  terrainSource:"aws",
   assetGraph:{relationship_type:"",asset_type:"",confidence_min:"0"},
   marketplace:{asset_type:"",location:"",min_price:"",max_price:"",min_acres:"",max_acres:"",min_square_feet:"",max_square_feet:"",zoning:"",listing_status:"active",owner_type:"",risk_max:"",soil_quality_min:"",infrastructure_distance_max:"",view:"cards",sort:"price"},
   dataLayers:{}

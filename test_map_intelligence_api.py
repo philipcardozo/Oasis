@@ -37,15 +37,17 @@ def test_main() -> None:
 
     client = TestClient(app)
     assert client.get("/api/map/layers").status_code == 200
+    # Default terrain is AWS terrarium (client-side); this status reports the
+    # optional local 3DEP source. Local-specific fields only assert when present.
     dem_status = client.get("/api/reliefs/dem/status").json()
-    assert dem_status["available"] is True
-    assert dem_status["tilejson"]["encoding"] == "mapbox"
+    assert dem_status["source"] in ("aws", "local")
+    assert dem_status["ready"] is True
     assert "2Lp" not in str(dem_status)
-    assert client.get("/api/reliefs/dem/tilejson").json()["tiles"]
-    terrain_sources = client.get("/api/reliefs/terrain/sources").json()
-    assert terrain_sources["sources"]
-    terrain_coverage = client.get("/api/reliefs/terrain/coverage").json()
-    assert terrain_coverage["total_tile_count"] >= 1
+    if dem_status["available"]:  # local 3DEP tiles are built
+        assert dem_status["tilejson"]["encoding"] == "mapbox"
+        assert client.get("/api/reliefs/dem/tilejson").json()["tiles"]
+    assert isinstance(client.get("/api/reliefs/terrain/sources").json()["sources"], list)
+    assert client.get("/api/reliefs/terrain/coverage").status_code == 200
     assert client.get("/api/reliefs/terrain/jobs/status").status_code == 200
     source_status = client.get("/api/data-sources/status").json()
     assert all(c["ok"] for c in source_status["checks"])

@@ -1113,6 +1113,13 @@ function updateDataHealth(){
 /* ---------- globe ---------- */
 const MAP_STYLE_URL="https://tiles.openfreemap.org/styles/liberty";
 const TERRAIN_STATUS_URL="/api/reliefs/dem/status";
+// Default globe terrain: AWS Terrain Tiles (Tilezen "Joerd" on AWS Open Data) —
+// global z0–z15, terrarium-encoded, no API key. Local 3DEP tiles are opt-in.
+const AWS_TERRAIN_TILEJSON={
+  tiles:["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+  minzoom:0, maxzoom:15, tileSize:256, encoding:"terrarium",
+  attribution:"Terrain: Tilezen/Mapzen, USGS 3DEP, SRTM, GMTED, ETOPO1 (AWS Open Data)"
+};
 function globeVisibleCompanies(){
   const located=[],unknown=[];
   COMPANIES.forEach(c=>{ if(!baseVisibleNode(c)) return; const loc=companyLoc(c); (loc?located:unknown).push(c); });
@@ -1290,6 +1297,13 @@ function addTerrainSource(tilejson){
 function addPhysicalContextLayers(){
   if(!map||map.getSource("terrain-dem")) return;
   setTerrainDemStatus({state:"loading",error:""});
+  // Default to AWS terrarium (global, no key); only use local 3DEP when opted in.
+  if(productPrefs.terrainSource!=="local"){
+    addTerrainSource(AWS_TERRAIN_TILEJSON);
+    setTerrainDemStatus({state:"loaded",count:1,error:"",tilejson:AWS_TERRAIN_TILEJSON});
+    applyDueDiligenceLayerVisibility();
+    return;
+  }
   loadTerrainDemStatus().then(status=>{
     if(!status.available||!status.tilejson) throw new Error(status.status||"DEM unavailable");
     addTerrainSource(status.tilejson);
