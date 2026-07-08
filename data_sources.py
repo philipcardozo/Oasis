@@ -19,6 +19,59 @@ UNIFIED_TILEJSON_PATH = UNIFIED_PUBLIC_TILE_DIR / "tiles.json"
 TERRAIN_COVERAGE_PATH = PROCESSED_DIR / "terrain_coverage.json"
 DEFAULT_TNM_URL = "https://tnmaccess.nationalmap.gov/api/v1/products"
 GEORGIA_BBOX = (-85.61, 30.35, -80.84, 35.01)
+FLORIDA_BBOX = (-87.64, 24.39, -79.97, 31.01)
+TERRAIN_PRODUCT_STATES = (
+    ("georgia", "Georgia"),
+    ("florida", "Florida"),
+    ("south_carolina", "South Carolina"),
+    ("north_carolina", "North Carolina"),
+    ("virginia", "Virginia + DC"),
+    ("west_virginia", "West Virginia"),
+    ("maryland", "Maryland"),
+    ("pennsylvania", "Pennsylvania"),
+    ("new_jersey", "New Jersey"),
+    ("new_york", "New York"),
+    ("delaware", "Delaware"),
+    ("connecticut", "Connecticut"),
+    ("rhode_island", "Rhode Island"),
+    ("massachusetts", "Massachusetts"),
+    ("vermont", "Vermont"),
+    ("maine", "Maine"),
+    ("ohio", "Ohio"),
+    ("kentucky", "Kentucky"),
+    ("tennessee", "Tennessee"),
+    ("alabama", "Alabama"),
+    ("mississippi", "Mississippi"),
+    ("louisiana", "Louisiana"),
+    ("arkansas", "Arkansas"),
+    ("missouri", "Missouri"),
+    ("indiana", "Indiana"),
+    ("illinois", "Illinois"),
+    ("michigan", "Michigan"),
+    ("wisconsin", "Wisconsin"),
+    ("minnesota", "Minnesota"),
+    ("iowa", "Iowa"),
+    ("north_dakota", "North Dakota"),
+    ("south_dakota", "South Dakota"),
+    ("nebraska", "Nebraska"),
+    ("kansas", "Kansas"),
+    ("oklahoma", "Oklahoma"),
+    ("texas", "Texas"),
+    ("new_mexico", "New Mexico"),
+    ("colorado", "Colorado"),
+    ("wyoming", "Wyoming"),
+    ("montana", "Montana"),
+    ("idaho", "Idaho"),
+    ("utah", "Utah"),
+    ("arizona", "Arizona"),
+    ("nevada", "Nevada"),
+    ("california", "California"),
+    ("oregon", "Oregon"),
+    ("washington", "Washington"),
+    ("new_hampshire", "New Hampshire"),
+    ("hawaii", "Hawaii"),
+    ("alaska", "Alaska"),
+)
 
 
 def load_env(path: Path = ENV_PATH) -> dict[str, str]:
@@ -147,9 +200,11 @@ def validation_status() -> dict[str, Any]:
     registry = terrain_coverage_registry()
     active_tilejson = registry.get("active_tilejson")
     georgia_pct = float(registry.get("georgia_bbox_coverage_pct") or 0)
-    georgia_products_pct = float(registry.get("georgia_available_products_coverage_pct") or 0)
+    completed_states = [label for key, label in TERRAIN_PRODUCT_STATES if float(registry.get(f"{key}_available_products_coverage_pct") or 0) >= 100]
+    in_progress_states = [label for key, label in TERRAIN_PRODUCT_STATES if 0 < float(registry.get(f"{key}_available_products_coverage_pct") or 0) < 100]
     coverage_label = (
-        "Georgia complete available 3DEP product coverage" if active_tilejson == "/tiles/terrain-rgb/tiles.json" and georgia_products_pct >= 100
+        f"{' + '.join(completed_states)} complete available 3DEP product coverage" if active_tilejson == "/tiles/terrain-rgb/tiles.json" and completed_states and not in_progress_states
+        else f"{' + '.join(completed_states)} complete + {' + '.join(in_progress_states)} terrain in progress" if active_tilejson == "/tiles/terrain-rgb/tiles.json" and completed_states and in_progress_states
         else
         "Georgia" if active_tilejson == "/tiles/terrain-rgb/tiles.json" and covers_bbox(registry.get("coverage_bbox"), GEORGIA_BBOX)
         else "Georgia high-coverage terrain foundation" if active_tilejson == "/tiles/terrain-rgb/tiles.json" and georgia_pct >= 90

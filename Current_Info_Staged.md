@@ -8,3 +8,4 @@
 - AI OASIS on excel (user MNDY DCF as basis)
 - Ships & Airplanes + Stalink & Satelites
 - Optons, futures & derivatives analysis with pre and after-Market data
+- Import a graph of configurations from other platformst, eg Trading View, Bloomberg, Interactive Brokers, and even importing mpas or visualizations and having OASIS system able to extract and then implement data that it has over user's file

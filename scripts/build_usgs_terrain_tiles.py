@@ -36,8 +36,8 @@ def inspect_dem(path: Path) -> dict:
             "resolution": list(src.res),
             "nodata": src.nodata,
             "dtype": src.dtypes[0],
-            "elevation_min_m": float(arr.min()),
-            "elevation_max_m": float(arr.max()),
+            "elevation_min_m": None if np.isnan(min_val := float(arr.min())) else min_val,
+            "elevation_max_m": None if np.isnan(max_val := float(arr.max())) else max_val,
         }
 
 

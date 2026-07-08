@@ -1,12 +1,13 @@
 # Reliefs: USGS 3DEP DEM
 
-This stage uses one local USGS 3DEP GeoTIFF as the first real Reliefs data source.
+This stage uses local USGS 3DEP GeoTIFFs as the first real Reliefs data source.
 
 ## Raw Data
 
-- Raw DEM: `data/raw/usgs_3dep/USGS_13_n34w085_20220725.tif`
+- Seed raw DEM: `data/raw/usgs_3dep/USGS_13_n34w085_20220725.tif`
 - Source family: USGS 3DEP / TNMAccess
 - Raw data is not mutated by the conversion script.
+- Most ingested raw DEMs are deleted after processing with `--delete-raw-after-process` to avoid filling local disk; their processed metadata remains in `data/processed/usgs_3dep/`.
 
 ## Generated Data
 
@@ -14,8 +15,8 @@ This stage uses one local USGS 3DEP GeoTIFF as the first real Reliefs data sourc
 - Terrain coverage registry: `data/processed/usgs_3dep/terrain_coverage.json`
 - TileJSON: `graph/tiles/usgs_3dep/tiles.json`
 - Terrain-RGB PNG tiles: `graph/tiles/usgs_3dep/terrain-rgb/{z}/{x}/{y}.png`
-- Unified Atlanta corridor TileJSON: `graph/tiles/terrain-rgb/tiles.json`
-- Unified Atlanta corridor Terrain-RGB PNG tiles: `graph/tiles/terrain-rgb/{z}/{x}/{y}.png`
+- Unified Southeast TileJSON: `graph/tiles/terrain-rgb/tiles.json`
+- Unified Southeast Terrain-RGB PNG tiles: `graph/tiles/terrain-rgb/{z}/{x}/{y}.png`
 
 The generated tiles use Mapbox Terrain-RGB encoding for MapLibre `raster-dem` sources.
 
@@ -35,7 +36,7 @@ python3 scripts/build_usgs_terrain_tiles.py --force
 
 Default coverage is z6-z13. The source DEM is about one degree around northwest Georgia/eastern Alabama, so TileJSON bounds prevent MapLibre from requesting it globally.
 
-## Atlanta Corridor TNMAccess Ingestion
+## TNMAccess Ingestion
 
 Dry-run Georgia DEM discovery without downloading:
 
@@ -69,11 +70,23 @@ python3 scripts/ingest_usgs_terrain.py --state GA --bbox=-85.61,30.35,-80.84,35.
 
 Current approved coverage:
 
-- Scope: Georgia complete available 3DEP product coverage
-- DEM products in the unified source: 35 of 35 returned by TNMAccess for the Georgia bbox
-- Available-product coverage: 100%
+- Scope: Georgia + Florida + South Carolina + North Carolina complete available 3DEP product coverage
+- Georgia DEM products in the unified source: 35 of 35 returned by TNMAccess for the Georgia bbox
+- Florida DEM products in the unified source: 35 of 35 returned by TNMAccess for the Florida bbox
+- South Carolina DEM products in the unified source: 23 of 23 returned by TNMAccess for the South Carolina bbox
+- North Carolina DEM products in the unified source: 38 of 38 returned by TNMAccess for the North Carolina bbox
+- Available-product coverage: 100% for all four states
 - Georgia rectangular bbox coverage: about 99.5%; the remaining sliver is from the coarse rectangular query boundary, not an unprocessed TNMAccess DEM product.
-- Unified Terrain-RGB tiles: 1,928 at z6-z11
+- Florida rectangular bbox coverage: about 50.3%; the rectangle includes large ocean areas outside useful land DEM coverage.
+- South Carolina rectangular bbox coverage: about 97.1%.
+- North Carolina rectangular bbox coverage: about 99.0%.
+- Unified Terrain-RGB tiles: 4,286 at z6-z11
+
+Process one state tile safely:
+
+```bash
+python3 scripts/ingest_usgs_terrain.py --state NC --tiles n37w085 --max-products 1 --no-dry-run --minzoom 6 --maxzoom 11 --incremental --delete-raw-after-process
+```
 
 Useful safety knobs:
 
@@ -82,8 +95,9 @@ Useful safety knobs:
 - `--max-mb 750` skips unexpectedly large products.
 - `--minzoom 6 --maxzoom 11` avoids high-zoom tile explosions while this remains corridor coverage.
 - `--force` clears the unified tile folder before processing the selected product.
+- `--delete-raw-after-process` keeps the generated tiles and metadata, then removes newly downloaded raw GeoTIFFs.
 
-Raw downloads go to `data/raw/usgs_3dep/`. Processed unified terrain tiles go to `graph/tiles/terrain-rgb/`. The current manual DEM remains available at `graph/tiles/usgs_3dep/tiles.json` as fallback. This is approved as the Atlanta-corridor terrain ingestion foundation, not full Georgia coverage.
+Raw downloads go to `data/raw/usgs_3dep/`. Processed unified terrain tiles go to `graph/tiles/terrain-rgb/`. The current manual DEM remains available at `graph/tiles/usgs_3dep/tiles.json` as fallback.
 
 If TNMAccess returns a warning payload instead of products, the script exits without updating the terrain registry. Re-run the same dry-run command later before using `--no-dry-run`.
 
@@ -144,13 +158,13 @@ If DEM tiles are missing, the map still loads and the Reliefs panel reports `DEM
 - Open `http://127.0.0.1:8792/?reliefDemo=1`.
 - Check `GET /api/reliefs/dem/status` returns `available: true`.
 - Check `GET /api/reliefs/dem/tilejson` returns `/tiles/usgs_3dep/terrain-rgb/{z}/{x}/{y}.png`.
-- If Atlanta-corridor ingestion has run, `GET /api/reliefs/dem/tilejson` returns `/tiles/terrain-rgb/{z}/{x}/{y}.png`.
+- If unified ingestion has run, `GET /api/reliefs/dem/tilejson` returns `/tiles/terrain-rgb/{z}/{x}/{y}.png`.
 - In browser Network, filter `terrain-rgb`; USGS 3DEP PNG tiles should return `200`.
 - Reliefs panel should show:
   - Terrain / relief: `loaded`
   - Hillshade: `loaded`
   - Other Reliefs layers: `not loaded yet`
-  - Status text: `DEM loaded · Coverage: Georgia complete available 3DEP product coverage · Zoom range: z6-z11 · Source: USGS 3DEP`
+  - Status text: `DEM loaded · Coverage: Georgia + Florida + South Carolina + North Carolina complete available 3DEP product coverage · Zoom range: z6-z11 · Source: USGS 3DEP`
 - Move the terrain exaggeration slider; `map.getTerrain().exaggeration` should update without reload.
 - Known non-fatal MapLibre warnings:
   - Same DEM source used for hillshade and terrain.
