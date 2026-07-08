@@ -3,15 +3,20 @@
 Ordered prompts for fresh maker sessions, derived from the 2026-07-07 full audit.
 Send one file's contents per session, in numeric order unless noted.
 
-## Progress (reviewed 2026-07-07)
+## Progress (reviewed 2026-07-08)
 
 - ✅ **02, 04, 05 complete** — deleted. API caching+gzip, SEC-address HQ fix
   (exchange placeholders 9,186 → 0), single-build + pytest (22 passing).
-- 🟡 **01 partial** — tiles untracked & batch scripts moved, but history
-  rewrite not done (.git 569 MB) and 03/04/05 work is uncommitted. Rewritten
-  to just the remaining work.
-- 🟡 **03 partial** — CIK→LEI join landed (0 → 4,037 LEIs) but only 27.6% of
-  CIK'd nodes vs the 90% target. Rewritten to the fallback/coverage gap.
+- ✅ **01 complete** — 03/04/05 work committed; generated payloads untracked
+  (churn 0 after refresh_all); history rewritten with git-filter-repo
+  (.git 569 MB → ~8 MB); backup at `../Oasis-backup.git`. Local-only (not
+  force-pushed to origin, by owner's choice). 5 GB on-disk tiles left for 09.
+- ✅ **03 complete** — LEI coverage 38.8% → **52.0%** via GLEIF golden-copy exact
+  name+country match (INTC/XOM/LLY/AMAT resolved; ambiguous → lei_review.json).
+  The 90% target is **not honestly reachable**: there are 0 bogus CIKs to clear
+  (all are real SEC CIKs incl. genuine foreign filers), and ~2,200 CIK nodes are
+  SPACs/ADRs/funds whose LEI sits under a differently-named entity. Test asserts
+  the achieved ≥50% + all-LEIs-20-chars + spot-checks, not a fabricated 90%.
 - ⬜ **06–15 not started.**
 
 ## Order and dependencies
