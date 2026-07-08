@@ -33,6 +33,18 @@ def test_main() -> None:
         'data-rail="engine"',
         'data-rail="maker"',
         'data-rail="lenses"',
+        # Prompt 07 product shell: left-nav surfaces, command bar, drawer, theme vars.
+        'class="rail"',
+        'data-rail="map"',
+        'data-rail="network"',
+        'data-rail="research"',
+        'data-rail="model"',
+        'id="search"',        # command bar input
+        "metaKey",            # Cmd/Ctrl-K command-bar focus
+        'id="detail"',        # right drawer
+        "--accent",           # theme custom properties (Engine hook)
+        "--panel",
+        "--border",
     ]:
         assert token in HTML, token
     assert 'class="panel-card filters"' not in HTML

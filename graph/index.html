@@ -33,13 +33,27 @@
 </header>
 
 <main>
-  <nav class="rail" id="rail" aria-label="Workspace">
-    <button type="button" data-rail="map" title="Map">MAP</button>
-    <button type="button" data-rail="network" title="Network">NET</button>
-    <button type="button" data-rail="engine" title="Engine">ENG</button>
-    <button type="button" data-rail="maker" title="Maker">MKR</button>
-    <button type="button" data-rail="lenses" title="Lenses">LNS</button>
-    <button type="button" data-rail="model" title="Model">MDL</button>
+  <nav class="rail" id="rail" aria-label="Workspace surfaces">
+    <button type="button" data-rail="map" title="Map (geographic view)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c4.5-4.4 7-8 7-11a7 7 0 1 0-14 0c0 3 2.5 6.6 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+      <span>Map</span>
+    </button>
+    <button type="button" data-rail="network" title="Network (relationship graph)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="7" r="2.2"/><circle cx="18" cy="8" r="2.2"/><circle cx="12" cy="17" r="2.2"/><path d="M7.8 8.3 10.6 15M16.4 9.6 13.4 15.6M8 7.3 16 8"/></svg>
+      <span>Network</span>
+    </button>
+    <button type="button" data-rail="research" title="Research (selected entity)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg>
+      <span>Research</span>
+    </button>
+    <button type="button" data-rail="model" title="Model (valuation & DCF)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-7"/></svg>
+      <span>Model</span>
+    </button>
+    <button type="button" data-rail="maker" title="Maker (scenarios — coming soon)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6a3.5 3.5 0 0 1 4.5 4.5l-9 9L6 20l.5-3.5 9-9Z"/><path d="M13 7 17 11"/></svg>
+      <span>Maker</span>
+    </button>
   </nav>
   <div class="panel-card workspace-panel" id="workspacePanel"></div>
   <div class="panel-card tool-panel" id="gearPanel">
