@@ -61,7 +61,13 @@ Send one file's contents per session, in numeric order unless noted.
   `/api/entity/{id}/reverse-dcf` + `/comps`; drawer Model block renders both, hides
   for no-CIK. NVDA: 35.5% priced-in growth (PV error 0%), 8 graph comps. Tests pass;
   verified end-to-end via map_api on :8788.
-- ⬜ **12–15 not started.**
+- 🟢 **12 complete** — Engine panel (terrain source, reset, workspace export/import),
+  real Lenses (`LENS_PRESETS` company/security applying surface+filters atomically,
+  save-current-as-custom-lens), workspace `.oasis.json` (spec_version 1, kind
+  "workspace", reloads via restore path), keyboard shortcuts (1–5 surfaces, e engine,
+  ? overlay, Esc, typing-guarded). Verified: accent/scale/lens persist across reload;
+  test asserts built-in lenses reference real kinds/rels.
+- ⬜ **13–15 not started.**
 
 ## Order and dependencies
 
