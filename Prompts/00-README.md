@@ -48,7 +48,14 @@ Send one file's contents per session, in numeric order unless noted.
   registry kept; disk 100%→98%). Docs updated; tests pass; git untouched by tiles.
   Cross-region visual render (GA/CO/AK/Alps) needs the owner's real browser (preview
   can't reach S3).
-- ⬜ **10–15 not started.**
+- 🟡 **10 foundation done, elimination deferred** — `build_store.py` writes the
+  canonical Parquet store `data/store/{nodes,edges,filings,prices}.parquet` (duckdb
+  dep, entity_model flattened, ragged fields as JSON); wired into `refresh_all.py`,
+  gitignored, self-checked (`test_store.py`), DuckDB node count matches the UI banner.
+  `requirements.txt` created; postgis schema moved to `docs/design/`. **Deferred:**
+  removing `universe.json` (17 Python readers; core/bulk aren't a mechanical swap)
+  and porting the hot API paths to DuckDB — larger refactor, called out in the commit.
+- ⬜ **11–15 not started.**
 
 ## Order and dependencies
 
