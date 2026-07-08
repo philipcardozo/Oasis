@@ -67,7 +67,13 @@ Send one file's contents per session, in numeric order unless noted.
   "workspace", reloads via restore path), keyboard shortcuts (1–5 surfaces, e engine,
   ? overlay, Esc, typing-guarded). Verified: accent/scale/lens persist across reload;
   test asserts built-in lenses reference real kinds/rels.
-- ⬜ **13–15 not started.**
+- 🟡 **13 data in, trades blocked** — `refresh_politicians.py` (537 POL_ Person nodes,
+  528 with committees), editorial `committee_policy_map.json`, `refresh_pol_trades.py`
+  (795 House-Clerk PTR filings, 81% filer-resolved, all with source_url+dates, 151
+  unresolved→review). Wired into refresh_all, idempotent, `test_political.py` passes.
+  **Blocked:** transaction-level tickers + POL_→company TRADED edges — free Stock
+  Watcher datasets are offline (403) and the durable Clerk source is PDF-only.
+- ⬜ **14–15 not started.**
 
 ## Order and dependencies
 
