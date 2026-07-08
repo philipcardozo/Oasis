@@ -138,3 +138,16 @@ export const COUNTRY_COORDS={
 export const COUNTRY_CODES={AE:"United Arab Emirates",CA:"Canada",CH:"Switzerland",CN:"China",DC:"United States",ES:"Spain",IL:"Israel",PT:"Portugal",SA:"Saudi Arabia",UK:"United Kingdom",US:"United States"};
 export const BAD_HQ_VALUES=new Set(["nasdaq","nyse","otc","cboe","—","-","none","null","n/a","na",""]);
 export const EXCHANGE_HQ_VALUES=new Set(["NYSE","Nasdaq","OTC","CBOE","B3","BVC","BVL","BCBA"]);
+
+// Per-type object-drawer field config (prompt 08). One drawer, config-driven;
+// covers every node_type in universe_core.json. Renderers skip missing fields
+// so no blank rows appear.
+export const DRAWER_TYPES={
+  company:{label:"Company",fields:["identifiers","hq","listing","sector","connections","counterparties","filing","price","news","confidence"]},
+  security:{label:"Security",fields:["class","issuer","listing","price","connections","confidence"]},
+  fund:{label:"Fund / ETF",fields:["class","listing","price","confidence"]},
+  warrant:{label:"Warrant / unit",fields:["class","issuer","listing","confidence"]},
+  counterparty:{label:"Counterparty",fields:["connections","counterparties","confidence"]},
+  government:{label:"Government",fields:["hq","connections","counterparties","confidence"]},
+  private:{label:"Private company",fields:["hq","sector","connections","counterparties","confidence"]},
+};

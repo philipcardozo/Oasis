@@ -1,5 +1,5 @@
 import {fmtBn,fmtPrice,fmtSignedMoney,fmtPct,yearOf,esc,jsq,normText} from "./util.js";
-import {kindMeta,EMPTY_GEOJSON,DUE_DILIGENCE_SOURCES,DUE_DILIGENCE_ENDPOINTS,DATA_ICON_SVG,dl,MARKETPLACE_ASSET_TYPES,DATA_LAYER_PRESETS,DATA_LAYER_BY_ID,DATA_LAYER_OPEN,HQ_CITY_COORDS,COUNTRY_COORDS,COUNTRY_CODES,BAD_HQ_VALUES,EXCHANGE_HQ_VALUES} from "./config.js";
+import {kindMeta,EMPTY_GEOJSON,DUE_DILIGENCE_SOURCES,DUE_DILIGENCE_ENDPOINTS,DATA_ICON_SVG,dl,MARKETPLACE_ASSET_TYPES,DATA_LAYER_PRESETS,DATA_LAYER_BY_ID,DATA_LAYER_OPEN,HQ_CITY_COORDS,COUNTRY_COORDS,COUNTRY_CODES,BAD_HQ_VALUES,EXCHANGE_HQ_VALUES,DRAWER_TYPES} from "./config.js";
 import {SECTORS,GROUPS,RELS,COMPANIES,LINKS,NEWS,EDGE_CANDIDATES,ALIASES,META,byId,adj,bulkLoaded,bulkPromise,grid,selected,hovEdge,mode,rafId,networkScope,hoverNodeId,visibleEdgeCache,visibleEdgeSet,linkedNodeCache,hoverFrame,pendingHover,globeSelectionLabel,map,mapReady,mapInitPromise,mapClusterIds,mapLayerEventsBound,mapSelectedId,mapSelectedSource,hoveredFarmId,activeRailPanel,manualSelectedId,maxEdgeVal,maxNodeVal,selfViewId,selfViewNodes,edgeEls,labelEls,nodeEls,nodeElsById,restoredView,restoringView,saveViewTimer,productPrefs,manualLayer,terrainDemStatus,terrainDemStatusPromise,dataQualityPromise,dataQualityLast,dueDiligenceLoadTimer,marketplaceListings,selectedEntityAssetFeatures,SVGNS,sectorOn,groupOn,relOn,kindOn,hoverFrozenIds,globe,mapData,params,svg,vp,canvas,ctx,gEdges,gLabels,gNodes,tip,asOfInput,CURRENT_YEAR,HOVER_LINK_CAP,VIEW_STATE_KEY,PRODUCT_PREF_KEY,MANUAL_LAYER_KEY,PRODUCT_DEFAULTS,dataSourceStatus,dataLayerCounts,loadViewState,cloneJson,loadStored,mergePrefs,saveProductPrefs,emptyManualLayer,normalizeManualLayer,saveManualLayer,downloadText,savedMode,assignSECTORS,assignGROUPS,assignRELS,assignCOMPANIES,assignLINKS,assignNEWS,assignEDGE_CANDIDATES,assignALIASES,assignMETA,assignById,assignAdj,assignBulkLoaded,assignBulkPromise,assignGrid,assignSelected,assignHovEdge,assignMode,assignRafId,assignNetworkScope,assignHoverNodeId,assignVisibleEdgeCache,assignVisibleEdgeSet,assignLinkedNodeCache,assignHoverFrame,assignPendingHover,assignGlobeSelectionLabel,assignMap,assignMapReady,assignMapInitPromise,assignMapClusterIds,assignMapLayerEventsBound,assignMapSelectedId,assignMapSelectedSource,assignHoveredFarmId,assignActiveRailPanel,assignManualSelectedId,assignMaxEdgeVal,assignMaxNodeVal,assignSelfViewId,assignSelfViewNodes,assignEdgeEls,assignLabelEls,assignNodeEls,assignNodeElsById,assignRestoredView,assignRestoringView,assignSaveViewTimer,assignProductPrefs,assignManualLayer,assignTerrainDemStatus,assignTerrainDemStatusPromise,assignDataQualityPromise,assignDataQualityLast,assignDueDiligenceLoadTimer,assignMarketplaceListings,assignSelectedEntityAssetFeatures} from "./state.js";
 
 const activeYear=()=>Math.min(Number(asOfInput.value)||CURRENT_YEAR,CURRENT_YEAR);
@@ -698,7 +698,28 @@ function draw(){
 
 /* ---------- view ---------- */
 let k=1,tx=0,ty=0;
-function applyView(){ vp.setAttribute("transform",`translate(${tx},${ty}) scale(${k})`); gNodes.classList.toggle("zoomed",k>1.4); if(mode==="index") drawCanvas(); queueSaveView(); }
+let labelCollideTimer=0;
+function queueLabelCollisions(){ clearTimeout(labelCollideTimer); labelCollideTimer=setTimeout(resolveLabelCollisions,140); }
+// Grid-bucket sweep: after layout/zoom settles, hide labels that overlap a
+// higher-degree label already placed. Cheapest effective de-crowding — no physics lib.
+function resolveLabelCollisions(){
+  if(mode!=="network") return; // debounced off zoom/pan; batched read/write keeps it cheap
+  const nodes=COMPANIES.filter(c=>c.deg>0&&visibleNode(c)&&nodeElsById[c.id]).sort((a,b)=>(b.deg||0)-(a.deg||0));
+  const labels=[];
+  for(const c of nodes){ const l=nodeElsById[c.id].label; if(l){ l.classList.remove("collide-hidden"); labels.push(l); } }
+  const rects=labels.map(l=>l.getBoundingClientRect()); // batch reads after batch writes — one reflow
+  const cell=42, occupied=new Set(), toHide=[];
+  for(let i=0;i<labels.length;i++){
+    const r=rects[i]; if(!r.width) continue; // dim/off-screen labels aren't laid out
+    const x0=Math.floor(r.left/cell),x1=Math.floor(r.right/cell),y0=Math.floor(r.top/cell),y1=Math.floor(r.bottom/cell);
+    let clash=false;
+    for(let x=x0;x<=x1&&!clash;x++) for(let y=y0;y<=y1;y++){ if(occupied.has(x+","+y)){ clash=true; break; } }
+    if(clash) toHide.push(labels[i]);
+    else for(let x=x0;x<=x1;x++) for(let y=y0;y<=y1;y++) occupied.add(x+","+y);
+  }
+  for(const l of toHide) l.classList.add("collide-hidden");
+}
+function applyView(){ vp.setAttribute("transform",`translate(${tx},${ty}) scale(${k})`); gNodes.classList.toggle("zoomed",k>1.4); if(mode==="index") drawCanvas(); if(mode==="network") queueLabelCollisions(); queueSaveView(); }
 function bounds(){ let a=1e9,b=1e9,c=-1e9,d=-1e9,any=false; COMPANIES.forEach(n=>{ if(!visibleNode(n))return; any=true; a=Math.min(a,n.x);b=Math.min(b,n.y);c=Math.max(c,n.x);d=Math.max(d,n.y); }); return any?{minX:a,minY:b,maxX:c,maxY:d}:{minX:0,minY:0,maxX:1000,maxY:700}; }
 function fit(){ const r=svg.getBoundingClientRect(),bb=bounds(),pad=mode==="network"?160:90,w=bb.maxX-bb.minX+pad*2,h=bb.maxY-bb.minY+pad*2; k=Math.min(r.width/w,r.height/h); tx=(r.width-w*k)/2-(bb.minX-pad)*k; ty=(r.height-h*k)/2-(bb.minY-pad)*k; applyView(); }
 function screenToGraph(sx,sy){ const r=svg.getBoundingClientRect(); return {x:(sx-r.left-tx)/k,y:(sy-r.top-ty)/k}; }
@@ -750,7 +771,12 @@ function showNodeTip(n,x,y){
   const more=links.length-shown.length;
   const preview=shown.length?`<div class="tip-list">${shown.map(({l,other})=>`<div class="tip-link">${esc(other.n)} · ${esc(RELS[l.rel]?.name||l.rel)}</div>`).join("")}</div>`:"";
   const moreText=more>0?`<div class="t3 tip-more">${shown.length} of ${links.length} connections shown · click for more connections</div>`:`<div class="t3">Click to pin and open the full panel</div>`;
-  tip.innerHTML=`<b>${esc(n.n)}</b><span class="t2">${esc(km.name)} · ${esc(n.group||SECTORS[n.sec].name)}</span>${n.tot>0?`<div class="t3">${fmtBn(n.tot)} mapped value · ${n.deg} links</div>`:`<div class="t3">No mapped value yet</div>`}${preview}${moreText}`;
+  // Reuse drawer data access (no new fetches on hover): HQ · exchange · confidence + latest signal.
+  const hq=hqSummary(n);
+  const meta=[hq.text&&hq.text!=="—"?hq.text:"",n.exchange||"",`${confidenceBand(n.source_confidence)} confidence`].filter(Boolean).join(" · ");
+  const f=latestFiling(n),news=(NEWS.items_by_node?.[n.id]||[])[0];
+  const sig=f?.filingDate?`${f.form||f.type||"Filing"} · ${f.filingDate}`:(news?.date?`News · ${news.date}`:"");
+  tip.innerHTML=`<b>${esc(n.n)}</b><span class="t2">${esc(entityTypeLabel(n))} · ${esc(n.group||SECTORS[n.sec]?.name||"")}</span>${meta?`<div class="t3">${esc(meta)}</div>`:""}${sig?`<div class="t3">Latest · ${esc(sig)}</div>`:""}${n.tot>0?`<div class="t3">${fmtBn(n.tot)} mapped value · ${n.deg} links</div>`:`<div class="t3">No mapped value yet</div>`}${preview}${moreText}`;
   place(x,y);
 }
 function showEdgeTip(l,x,y){
@@ -1617,8 +1643,7 @@ function subtitle(c){
   return "Private company";
 }
 function entityTypeLabel(c){
-  const labels={company:"Company",security:"Security",fund:"Fund / ETF",warrant:"Warrant / unit",counterparty:"Counterparty"};
-  return labels[c.node_type]||kindMeta[c.kind]?.name||"Entity";
+  return DRAWER_TYPES[c.node_type]?.label||kindMeta[c.kind]?.name||"Entity";
 }
 function confidencePct(v){ const n=Number(v); return Number.isFinite(n)?`${Math.round(n*100)}%`:"—"; }
 function confidenceBand(v){ const n=Number(v); if(!Number.isFinite(n)) return "Unknown"; if(n>=.85) return "High"; if(n>=.6) return "Medium"; return "Low"; }
@@ -1640,16 +1665,27 @@ function topCounterparties(inc,id,limit=5){
   inc.forEach(l=>{
     const other=byId[l.from===id?l.to:l.from];
     if(!other) return;
-    const row=rows.get(other.id)||{node:other,value:0,count:0,rels:new Set()};
+    const row=rows.get(other.id)||{node:other,value:0,count:0,rels:new Set(),edge:null};
     row.value+=Number(l.val||0); row.count+=1; row.rels.add(RELS[l.rel]?.name||l.rel);
+    if(!row.edge||Number(l.confidence||0)>Number(row.edge.confidence||0)) row.edge=l; // representative (highest-confidence) edge
     rows.set(other.id,row);
   });
   return [...rows.values()].sort((a,b)=>(b.value-a.value)||(b.count-a.count)||a.node.n.localeCompare(b.node.n)).slice(0,limit);
 }
+function sourceDomain(url){ try{ return new URL(url).hostname.replace(/^www\./,""); }catch(_e){ return ""; } }
+function confDotClass(v){ const n=Number(v); return n>=.85?"hi":n>=.6?"mid":"lo"; }
+function provenanceHtml(edge){
+  if(!edge) return "";
+  const dom=sourceDomain(edge.source_url);
+  const chip=edge.source_url&&dom?`<a class="src-chip" href="${esc(edge.source_url)}" target="_blank" rel="noopener noreferrer" title="${esc(edge.source_url)}">${esc(dom)}</a>`:"";
+  const dot=`<span class="conf-dot ${confDotClass(edge.confidence)}" title="Confidence ${confidencePct(edge.confidence)}"></span>`;
+  const date=edge.as_of?`<time class="as-of">${esc(edge.as_of)}</time>`:"";
+  return `<div class="provenance">${dot}${chip}${date}</div>`;
+}
 function topCounterpartiesHtml(inc,id){
   const rows=topCounterparties(inc,id);
   if(!rows.length) return "";
-  return `<div class="counterparties"><div class="section-h">Top counterparties</div><div class="counterparty-list">${rows.map(row=>`<div class="counterparty" data-select-id="${esc(row.node.id)}"><span class="sw" style="background:${SECTORS[row.node.sec]?.color||"#9aa6b6"}"></span><span class="nm">${esc(row.node.n)}</span><span class="why">${esc([...row.rels].slice(0,2).join(" / "))}${row.value>0?` · ${fmtBn(row.value)}`:""}</span></div>`).join("")}</div></div>`;
+  return `<div class="counterparties"><div class="section-h">Top counterparties</div><div class="counterparty-list">${rows.map(row=>`<div class="counterparty" data-select-id="${esc(row.node.id)}"><span class="sw" style="background:${SECTORS[row.node.sec]?.color||"#9aa6b6"}"></span><span class="nm">${esc(row.node.n)}</span><span class="why">${esc([...row.rels].slice(0,2).join(" / "))}${row.value>0?` · ${fmtBn(row.value)}`:""}</span>${provenanceHtml(row.edge)}</div>`).join("")}</div></div>`;
 }
 function companyAssetsBlock(id){
   return `<div class="counterparties" id="companyAssetsBlock" data-company-assets="${esc(id)}"><div class="section-h">Assets</div><div class="story-meta">Loading owned, operated, leased, financed, and supplied assets…</div></div>`;
@@ -1707,7 +1743,9 @@ function select(id){
   const km=kindMeta[c.kind]||{name:c.kind,color:"var(--text-2)"};
   const inbound=inc.filter(l=>l.to===id).length,outbound=inc.filter(l=>l.from===id).length;
   if(inc.length) kpis.unshift({v:inc.length,l:`visible links · ${inbound} in / ${outbound} out`});
-  const securityMeta=c.kind==="security"?`<div><span>Security type</span><b>${esc(c.security_type_group||c.security_type||"Security")}</b></div><div><span>Issuer</span><b>${esc(byId[c.issuer_id]?.n||c.issuer_id||"—")}</b></div>`:"";
+  const issuerNode=c.kind==="security"?byId[c.issuer_id]:null;
+  const issuerCell=issuerNode?`<b><a class="issuer-link" data-select-id="${esc(issuerNode.id)}" role="link" tabindex="0">${esc(issuerNode.n)}</a></b>`:`<b>${esc(c.issuer_id||"—")}</b>`;
+  const securityMeta=c.kind==="security"?`<div><span>Security type</span><b>${esc(c.security_type_group||c.security_type||"Security")}</b></div><div><span>Issuer</span>${issuerCell}</div>`:"";
   const hq=hqSummary(c),filing=latestFiling(c),sourceConf=Number(c.source_confidence||0),p=c.price||{};
   let html=`<div class="hd"><div class="top"><div>
     <h2>${esc(c.n)}</h2><div class="tick">${esc(subtitle(c))}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div>
@@ -2464,6 +2502,7 @@ async function setMode(m){
     draw();
   }
   updateStats(); if(m!=="globe") fit(); syncModeButton(); syncRailActive(); queueSaveView();
+  if(m==="network") setTimeout(()=>{ if(mode==="network") resolveLabelCollisions(); },2600); // de-crowd once the initial physics burst settles
 }
 function runPhysics(){
   const conn=COMPANIES.filter(visibleNode);

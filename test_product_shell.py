@@ -51,5 +51,21 @@ def test_main() -> None:
     print("product shell ok")
 
 
+def test_drawer_type_coverage() -> None:
+    # Prompt 08: the per-type drawer config must cover every node_type in the graph.
+    import json
+    core_path = Path("graph/data/universe_core.json")
+    if not core_path.exists():
+        import pytest
+        pytest.skip("universe_core.json not built")
+    types = {n.get("node_type") for n in json.loads(core_path.read_text())["nodes"] if n.get("node_type")}
+    config = Path("graph/js/config.js").read_text()
+    block = config[config.index("DRAWER_TYPES"):]
+    for t in sorted(types):
+        assert f"\n  {t}:" in block, f"DRAWER_TYPES missing node_type: {t}"
+    print(f"drawer config covers node_types: {sorted(types)}")
+
+
 if __name__ == "__main__":
     test_main()
+    test_drawer_type_coverage()
