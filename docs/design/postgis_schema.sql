@@ -1,3 +1,5 @@
+-- Legacy PostGIS schema — NOT used. The canonical store is Parquet + DuckDB (see build_store.py / prompt 10). Kept for reference only.
+
 CREATE EXTENSION IF NOT EXISTS postgis;
 
 CREATE TABLE IF NOT EXISTS entity (

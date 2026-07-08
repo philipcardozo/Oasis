@@ -40,6 +40,9 @@ graph/data/sources_meta/lei_map.json
 # Raw source downloads (regenerable; GLEIF golden copy, SEC, terrain, etc.)
 data/raw/
 
+# Parquet store — canonical query layer, regenerable via build_store.py (prompt 10)
+data/store/
+
 # SEC company facts cache (fetched on demand)
 graph/data/companyfacts/
 

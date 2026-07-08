@@ -33,7 +33,8 @@ def main() -> None:
     run("refresh_news.py")
     run("refresh_edge_candidates.py")
     run("expand_us.py")
-    
+    run("build_store.py")  # canonical Parquet store (prompt 10)
+
     elapsed = time.time() - start_time
     print(f"Refresh completed in {elapsed:.1f} seconds.")
 

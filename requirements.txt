@@ -1,0 +1,7 @@
+# Oasis runtime + build dependencies (loosely pinned).
+fastapi>=0.110
+uvicorn>=0.29
+openpyxl>=3.1
+duckdb>=0.10
+yfinance>=0.2
+pyyaml>=6.0
