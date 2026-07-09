@@ -5,9 +5,18 @@ from pathlib import Path
 
 import duckdb
 import pytest
+from datetime import date
+from political_trades_provider import NullPoliticalTradesProvider, PoliticalTradesProvider
 from store import load_nodes
 
 ROOT = Path(__file__).resolve().parent
+
+
+def test_null_political_trades_provider() -> None:
+    provider: PoliticalTradesProvider = NullPoliticalTradesProvider()
+    assert provider.provider_id == "null"
+    assert list(provider.fetch_transactions(date(2026, 1, 1), date(2026, 12, 31))) == []
+    assert "QuiverQuant" in provider.reason
 
 
 def _need(rel: str) -> str:

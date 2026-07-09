@@ -1,10 +1,19 @@
-# 17 — Political trades: wire a real ticker-level source (PARKED / optional)
+# 17 — Political trades: QuiverQuant adapter (PARKED until paid access)
 
 Repo: `/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis`. Ponytail rules apply.
 **Do not start this without first choosing a data source (see below).** It is
 blocked on external data availability, not on code.
 
-## Why it's parked
+## Decision (2026-07-09)
+
+**QuiverQuant is the selected launch source.** The provider boundary now exists
+in `political_trades_provider.py`, and `refresh_pol_trades.py` defaults to
+`NullPoliticalTradesProvider`. Building the authenticated Quiver adapter is
+postponed until the paid plan is purchased before launch.
+
+No API key, network call, or speculative Quiver client belongs in the tree yet.
+
+## Why the implementation is parked
 
 Prompts 13/14 delivered the political wedge *structure* — POL_ Person nodes,
 committee memberships, committee→policy map, House-Clerk PTR filing provenance,

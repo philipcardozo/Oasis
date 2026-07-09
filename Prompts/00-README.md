@@ -12,7 +12,8 @@ Send one file's contents per session, in numeric order unless noted.
 - The populated globe contains 11,338 company features. Map Studio ships
   Standard/Dark/Satellite basemaps, compatible terrain, Conditions placeholders,
   and three persistent local-dev map slots.
-- Prompt 17 remains parked pending a ticker-level political-trades source.
+- QuiverQuant is selected for prompt 17; its paid adapter remains parked until
+  launch funding. The provider seam currently uses `NullPoliticalTradesProvider`.
 
 ## Progress (reviewed 2026-07-08)
 
@@ -125,8 +126,8 @@ Send one file's contents per session, in numeric order unless noted.
 | 17 | Political trades — wire a real ticker-level source (blocked/optional) | 13, 14 | Wedge 1 backlog |
 | MAP-STUDIO | Map Studio: selectable basemaps + 3 map slots + Conditions placeholder | 16 | Feature |
 
-**Do next:** 17 stays parked until a real congressional-trade data source is
-chosen (see the prompt for options).
+**Do next:** purchase QuiverQuant before launch, then implement the adapter
+behind the existing provider seam in prompt 17.
 
 ## Rules for every session (paste applies automatically via prompt headers)
 

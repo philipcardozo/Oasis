@@ -29,6 +29,11 @@ Data sources: SEC company/submissions data, USAspending contracts, Google News R
 
 Accuracy rule: add edges only when they have a real source URL, date, and confidence. News-discovered relationships go to `graph/data/edge_candidates.json` first; only `status:"confirmed"` candidates with evidence enter the graph.
 
+Political transaction rows use the provider seam in
+`political_trades_provider.py`. QuiverQuant is selected for launch, but the
+current `NullPoliticalTradesProvider` intentionally makes no paid API calls
+until access is purchased.
+
 ## Daily events + briefing (prompt 15)
 
 `refresh_all.py` extracts append-only events (filings, contracts, ≥2σ price moves,

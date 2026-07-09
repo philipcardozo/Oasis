@@ -23,6 +23,7 @@ from xml.etree import ElementTree as ET
 import yaml
 
 from build_store import download, write_parquet
+from political_trades_provider import NullPoliticalTradesProvider, PoliticalTradesProvider
 
 ROOT = Path(__file__).resolve().parent
 RAW = ROOT / "data" / "raw" / "political"
@@ -57,9 +58,10 @@ def _ptr_filings(year: int):
                "doc": g("DocID"), "year": g("Year") or str(year)}
 
 
-def build(years: list[int] | None = None) -> dict:
+def build(years: list[int] | None = None, provider: PoliticalTradesProvider | None = None) -> dict:
     RAW.mkdir(parents=True, exist_ok=True)
     years = years or [date.today().year, date.today().year - 1]
+    provider = provider or NullPoliticalTradesProvider()
     if not (RAW / "legislators-current.yaml").exists():
         import refresh_politicians  # ensure the name index source exists
         refresh_politicians.build()
@@ -84,15 +86,19 @@ def build(years: list[int] | None = None) -> dict:
             if not hit:
                 unresolved.append({"filer": row["filer_name"], "reason": "no legislator name match", "doc_id": f["doc"]})
 
+    filings = len(rows)
     resolved = sum(1 for r in rows if r["politician_id"])
-    rate = resolved / len(rows) if rows else 0.0
+    rate = resolved / filings if filings else 0.0
+    transactions = list(provider.fetch_transactions(date(min(years), 1, 1), date(max(years), 12, 31)))
+    rows.extend(trade.as_store_row() for trade in transactions)
     write_parquet(rows, ROOT / "data" / "store" / "pol_trades.parquet")
     (RAW / "unresolved_filers.json").write_text(json.dumps(unresolved, ensure_ascii=False, indent=2), "utf-8")
-    print(f"PTR filings: {len(rows)} | filer-resolved to a legislator: {resolved} ({rate:.0%}) | "
+    print(f"PTR filings: {filings} | filer-resolved to a legislator: {resolved} ({rate:.0%}) | "
           f"unresolved: {len(unresolved)} -> {RAW / 'unresolved_filers.json'}")
     print("NOTE: transaction-level ticker resolution + POL_->company TRADED edges are blocked "
-          "(free transaction datasets offline; PDFs unparsed). Filing provenance only.")
-    return {"filings": len(rows), "resolved": resolved, "rate": rate}
+          f"({provider.reason}). Filing provenance only.")
+    return {"filings": filings, "transactions": len(transactions),
+            "provider": provider.provider_id, "resolved": resolved, "rate": rate}
 
 
 if __name__ == "__main__":
