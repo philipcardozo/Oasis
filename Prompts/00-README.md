@@ -3,6 +3,26 @@
 Ordered prompts for fresh maker sessions, derived from the 2026-07-07 full audit.
 Send one file's contents per session, in numeric order unless noted.
 
+## ⚠️ Current tree health (verified 2026-07-08, post-15)
+
+All 15 audit prompts are addressed, but the working tree is **not runnable or
+green as-is**:
+
+- `graph/data/universe.json` and **all** UI payloads (`companies.geojson`,
+  `securities.geojson`, `relationships.geojson`, `graph-index.json`,
+  `universe_core/bulk.json`) are **missing from disk** — wiped during the
+  disk-full cleanup, gitignored, never regenerated. A fresh `map_api` run
+  loads an **empty globe**.
+- `python3 -m pytest -q` → **12 failed / 19 passed / 8 skipped** (all failures
+  are `FileNotFoundError: universe.json`). The Parquet store persists; the
+  readers were never migrated to it (deferred prompt-10 tail).
+- `graph/tiles/` (USGS 3DEP) was deleted in prompt 09; terrain is now AWS
+  terrarium (same 3DEP source data, global).
+
+**→ Run prompt 16 before anything else.** It rebuilds the data and finishes
+the store migration so a clean checkout runs and tests pass. Then Map Studio
+(`MAP-STUDIO.md`) is the next feature.
+
 ## Progress (reviewed 2026-07-08)
 
 - ✅ **02, 04, 05 complete** — deleted. API caching+gzip, SEC-address HQ fix
@@ -103,9 +123,13 @@ Send one file's contents per session, in numeric order unless noted.
 | 13 | Political exposure — data ingest | 10 | Wedge 1 |
 | 14 | Political exposure — UI | 08, 13 | Wedge 1 |
 | 15 | Event pipeline v1 + daily briefing | 10, 13 | Wedge 1 |
+| **16** | **Rebuild data + finish store migration (fix red test suite)** | 10 | **Do next** |
+| 17 | Political trades — wire a real ticker-level source (blocked/optional) | 13, 14 | Wedge 1 backlog |
+| MAP-STUDIO | Map Studio: selectable basemaps + 3 map slots + Conditions placeholder | 16 | Feature |
 
-**Do next:** finish 01, then 03. Both are unblocking cleanup behind
-already-landed work. 06→07→08 are strictly sequential after that.
+**Do next:** **16** (unblocks a runnable/green tree — highest priority), then
+the **Map Studio** feature (`MAP-STUDIO.md`). 17 stays parked until a real
+congressional-trade data source is chosen (see the prompt for options).
 
 ## Rules for every session (paste applies automatically via prompt headers)
 

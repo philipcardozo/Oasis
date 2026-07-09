@@ -11,15 +11,24 @@ python3 refresh_all.py
 python3 build_map_geojson.py
 ```
 
-Serve:
+Serve (use `map_api.py` for the full app — it serves the UI **and** the
+`/api/*` endpoints the drawer's Model / Political / Events sections need; the
+plain `http.server` gives the globe only, no API):
 ```sh
+python3 map_api.py        # UI + API on http://127.0.0.1:8788
+# or, static globe only:
 python3 -m http.server 8778 --directory graph
 ```
 
 Open:
 ```sh
-open http://localhost:8778/index.html
+open http://127.0.0.1:8788/index.html
 ```
+
+> Current tree note (2026-07-08): the generated data was wiped in a disk-full
+> cleanup, so a checkout must run the refresh above before serving, and the
+> test suite is red until `Prompts/16` migrates readers to the Parquet store.
+> See `Prompts/00-README.md` for status.
 
 Data sources: SEC company/submissions data, USAspending contracts, Google News RSS, and curated cited relationship JSON.
 
