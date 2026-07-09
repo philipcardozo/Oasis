@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import re
 from datetime import date, datetime
-from functools import lru_cache
 from pathlib import Path
 import urllib.request
 import os
@@ -17,7 +16,7 @@ ROOT = Path(__file__).parent
 DATA = ROOT / "graph" / "data"
 FACTS = DATA / "companyfacts"
 OUTPUTS = ROOT / "outputs" / "dcf"
-UNIVERSE = DATA / "universe.json"
+from store import aliases as store_aliases, by_id as store_by_id
 
 USD = '$#,##0;[Red]($#,##0);-'
 USD_MM = '$#,##0.0;[Red]($#,##0.0);-'
@@ -77,21 +76,8 @@ TAGS = {
 def slug(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "_", text).strip("_")[:48] or "dcf"
 
-def _universe_mtime() -> float:
-    return UNIVERSE.stat().st_mtime if UNIVERSE.exists() else 0
-
-
-@lru_cache(maxsize=1)
-def _load_universe_nodes(mtime: float) -> tuple[dict, dict]:
-    nodes = json.load(UNIVERSE.open())["nodes"]
-    by_id = {n["id"]: n for n in nodes}
-    aliases = {str(n.get("t", "")).upper(): n["id"] for n in nodes if n.get("t")}
-    aliases.update({n["id"].upper(): n["id"] for n in nodes})
-    return by_id, aliases
-
-
 def load_node(entity_id: str) -> dict:
-    by_id, aliases = _load_universe_nodes(_universe_mtime())
+    by_id, aliases = store_by_id(), store_aliases()
     resolved = aliases.get(entity_id.upper(), entity_id)
     if resolved not in by_id:
         raise ValueError(f"unknown entity {entity_id}")

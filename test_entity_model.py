@@ -1,9 +1,8 @@
-import json
+from store import load_edges, load_nodes
 
 
 def test_main() -> None:
-    data = json.load(open("graph/data/universe.json"))
-    nodes = {n["id"]: n for n in data["nodes"]}
+    nodes = {n["id"]: n for n in load_nodes()}
     securities = [n for n in nodes.values() if n.get("kind") == "security"]
     assert securities, "expected security nodes in canonical universe"
 
@@ -18,7 +17,7 @@ def test_main() -> None:
         assert node.get("security_type")
         assert node.get("security_type_group")
 
-    issuer_edges = [l for l in data["links"] if l["rel"] == "same_issuer"]
+    issuer_edges = [l for l in load_edges() if l["rel"] == "same_issuer"]
     for edge in issuer_edges:
         left, right = nodes[edge["from"]], nodes[edge["to"]]
         assert {left.get("kind"), right.get("kind")} <= {"public", "security"}

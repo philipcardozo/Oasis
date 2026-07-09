@@ -3,25 +3,16 @@
 Ordered prompts for fresh maker sessions, derived from the 2026-07-07 full audit.
 Send one file's contents per session, in numeric order unless noted.
 
-## ⚠️ Current tree health (verified 2026-07-08, post-15)
+## Current tree health (verified 2026-07-09, post-Map Studio)
 
-All 15 audit prompts are addressed, but the working tree is **not runnable or
-green as-is**:
-
-- `graph/data/universe.json` and **all** UI payloads (`companies.geojson`,
-  `securities.geojson`, `relationships.geojson`, `graph-index.json`,
-  `universe_core/bulk.json`) are **missing from disk** — wiped during the
-  disk-full cleanup, gitignored, never regenerated. A fresh `map_api` run
-  loads an **empty globe**.
-- `python3 -m pytest -q` → **12 failed / 19 passed / 8 skipped** (all failures
-  are `FileNotFoundError: universe.json`). The Parquet store persists; the
-  readers were never migrated to it (deferred prompt-10 tail).
-- `graph/tiles/` (USGS 3DEP) was deleted in prompt 09; terrain is now AWS
-  terrarium (same 3DEP source data, global).
-
-**→ Run prompt 16 before anything else.** It rebuilds the data and finishes
-the store migration so a clean checkout runs and tests pass. Then Map Studio
-(`MAP-STUDIO.md`) is the next feature.
+- `python3 bootstrap.py` rebuilds the graph, UI payloads, and Parquet store
+  offline from committed sources, including the durable SEC ticker snapshot.
+- Library/API/model readers use the shared Parquet loader; `python3 -m pytest
+  -q` → **38 passed / 1 skipped**.
+- The populated globe contains 11,338 company features. Map Studio ships
+  Standard/Dark/Satellite basemaps, compatible terrain, Conditions placeholders,
+  and three persistent local-dev map slots.
+- Prompt 17 remains parked pending a ticker-level political-trades source.
 
 ## Progress (reviewed 2026-07-08)
 
@@ -106,6 +97,13 @@ the store migration so a clean checkout runs and tests pass. Then Map Studio
   `watchlists.json` + drawer star (`/api/watchlist/toggle`), `/api/entity/{id}/events`
   + drawer Events timeline. Wired into refresh_all; cron in README; `test_events.py`
   passes. Verified end-to-end (NVDA 8-K → P1 with source link; star persists).
+- 🟢 **16 complete** — committed offline SEC snapshot + `bootstrap.py`; shared
+  mtime-cached Parquet loader now serves API/model/test readers; 11,338 company
+  GeoJSON features; model, events, and LMT political endpoints spot-checked.
+- 🟢 **Map Studio complete** — Standard/OpenFreeMap, CARTO Dark, and ESRI
+  Satellite switch through the existing style-load path; terrain/data overlays
+  survive; Satellite warnings, disabled Conditions, and three local map slots
+  verified in-browser with persistence and no console errors.
 
 ## Order and dependencies
 
@@ -127,9 +125,8 @@ the store migration so a clean checkout runs and tests pass. Then Map Studio
 | 17 | Political trades — wire a real ticker-level source (blocked/optional) | 13, 14 | Wedge 1 backlog |
 | MAP-STUDIO | Map Studio: selectable basemaps + 3 map slots + Conditions placeholder | 16 | Feature |
 
-**Do next:** **16** (unblocks a runnable/green tree — highest priority), then
-the **Map Studio** feature (`MAP-STUDIO.md`). 17 stays parked until a real
-congressional-trade data source is chosen (see the prompt for options).
+**Do next:** 17 stays parked until a real congressional-trade data source is
+chosen (see the prompt for options).
 
 ## Rules for every session (paste applies automatically via prompt headers)
 

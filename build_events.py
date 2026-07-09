@@ -16,6 +16,7 @@ import duckdb
 
 import gates
 from build_store import write_parquet
+from store import by_id as store_by_id
 
 ROOT = Path(__file__).resolve().parent
 DATA = ROOT / "graph" / "data"
@@ -33,9 +34,7 @@ def _load_json(name, default):
 
 
 def _universe():
-    uni = _load_json("universe.json", {"nodes": [], "links": []})
-    by_id = {n["id"]: n for n in uni["nodes"]}
-    return by_id
+    return store_by_id()
 
 
 def _watchlisted() -> set:

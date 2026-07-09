@@ -5,6 +5,7 @@ from pathlib import Path
 
 import duckdb
 import pytest
+from store import load_nodes
 
 ROOT = Path(__file__).resolve().parent
 
@@ -40,8 +41,7 @@ def test_pol_trades_provenance() -> None:
 
 def test_committee_policy_map_valid() -> None:
     cmap = json.loads((ROOT / "graph/data/committee_policy_map.json").read_text())["map"]
-    uni = json.loads((ROOT / "graph/data/universe.json").read_text())
-    groups = {n.get("group") for n in uni["nodes"]}
+    groups = {n.get("group") for n in load_nodes()}
     assert len(cmap) >= 15
     for cid, gs in cmap.items():
         for g in gs:

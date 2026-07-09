@@ -25,6 +25,7 @@ from build_map_geojson import write_map_geojson
 
 ROOT = Path(__file__).parent
 TICKERS = Path("/tmp/sec_tickers.json")
+TICKERS_SNAPSHOT = ROOT / "graph" / "data" / "sources_meta" / "sec_tickers.json"
 SP500_CSV = Path("/tmp/sp500.csv")
 CACHE = ROOT / "graph" / "data" / "sic_cache.json"
 OUT = ROOT / "graph" / "data" / "universe.json"
@@ -303,6 +304,8 @@ def sic_to_sector(sic) -> str:
         return "Health Care"
     if 3570 <= s <= 3579 or 3670 <= s <= 3679 or 7370 <= s <= 7379 or 3661 <= s <= 3669 or 3820 <= s <= 3827:
         return "Information Technology"
+    if 3720 <= s <= 3769:
+        return "Industrials"
     if 4800 <= s <= 4899 or 2700 <= s <= 2799 or 7800 <= s <= 7899 or 4830 <= s <= 4841:
         return "Communication Services"
     if 1200 <= s <= 1399 or 2900 <= s <= 2999:
@@ -338,6 +341,8 @@ def load_sp500() -> dict:
 def load_tickers() -> dict:
     if TICKERS.exists():
         return json.load(TICKERS.open())
+    if TICKERS_SNAPSHOT.exists():
+        return json.load(TICKERS_SNAPSHOT.open())
     try:
         req = Request(SEC_TICKERS_URL, headers={"User-Agent": UA})
         try:
@@ -428,7 +433,7 @@ def company_group(node: dict) -> str:
             return "Internet & digital platforms"
         return "Media & entertainment"
     if sector == "Industrials":
-        if has_any(text, "aerospace", "defense"):
+        if has_any(text, "aerospace", "defense", "guided missile", "space vehicle"):
             return "Aerospace & defense"
         if has_any(text, "transportation", "freight", "cargo", "trucking", "air transportation", "water transportation"):
             return "Transport & logistics"

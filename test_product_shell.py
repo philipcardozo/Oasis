@@ -14,6 +14,8 @@ def test_main() -> None:
         'id="gearBtn"',
         'id="dataBtn"',
         'id="gearPanel"',
+        'id="studioBtn"',
+        'id="studioPanel"',
         'id="dataPanel"',
         'id="toolThemeBtn"',
         'id="toolGlobeBtn"',
@@ -29,6 +31,11 @@ def test_main() -> None:
         "function configureMapGestures",
         "map.dragRotate?.enable?.();",
         "function normalizeBaseMapLabels",
+        "function renderMapStudio",
+        "function switchBasemap",
+        "function saveMapSlot",
+        "Satellite Site Analysis",
+        "not loaded yet",
         "function buildToolKinds",
         'data-rail="engine"',
         'data-rail="maker"',
@@ -68,14 +75,13 @@ def test_drawer_type_coverage() -> None:
 
 def test_builtin_lenses_validate() -> None:
     # Prompt 12: built-in lens presets must reference real node kinds / edge rels.
-    import json
     import re
+    from store import load_edges, load_nodes
     main = Path("graph/js/main.js").read_text()
     block = main[main.index("const LENS_PRESETS="):main.index("const LENS_PRESETS=") + 400]
     assert "company:" in block and "security:" in block, block
-    uni = json.loads(Path("graph/data/universe.json").read_text())
-    kinds = {n.get("kind") for n in uni["nodes"]}
-    rels = {l.get("rel") for l in uni["links"]}
+    kinds = {n.get("kind") for n in load_nodes()}
+    rels = {l.get("rel") for l in load_edges()}
     for grp, valid in (("kind", kinds), ("rel", rels)):
         for m in re.finditer(grp + r":\{([^}]*)\}", block):
             for key in re.findall(r"(\w+):", m.group(1)):

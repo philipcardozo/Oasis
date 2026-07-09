@@ -39,6 +39,15 @@ export const PRODUCT_DEFAULTS={
   engine:{accent:"#ff3045",labels:"major",terrain:true,terrainExaggeration:1.12,nodeScale:1,edgeOpacity:1,motion:true},
   maker:{sections:{counterparties:true,relationships:true,lens:true,candidates:true,market:true,filings:true,research:true,news:true}},
   lens:"company",
+  basemap:"standard",
+  selectedMapSlot:0,
+  conditions:{clouds:false,storms:false,precipitation:false,temperature:false,wind:false,wildfire:false,floods:false,radar:false},
+  // Local profile only; production accounts intentionally remain out of scope.
+  mapSlots:[
+    {name:"Standard Research",basemap:"standard"},
+    {name:"Dark Network View",basemap:"dark"},
+    {name:"Satellite Site Analysis",basemap:"satellite"}
+  ],
   terrainSource:"aws",
   assetGraph:{relationship_type:"",asset_type:"",confidence_min:"0"},
   marketplace:{asset_type:"",location:"",min_price:"",max_price:"",min_acres:"",max_acres:"",min_square_feet:"",max_square_feet:"",zoning:"",listing_status:"active",owner_type:"",risk_max:"",soil_quality_min:"",infrastructure_distance_max:"",view:"cards",sort:"price"},
@@ -73,6 +82,12 @@ export function mergePrefs(saved={}){
   Object.assign(out.engine,saved.engine||{});
   Object.assign(out.maker.sections,saved.maker?.sections||{});
   if(saved.lens) out.lens=saved.lens;
+  if(saved.basemap) out.basemap=saved.basemap;
+  if(Number.isInteger(saved.selectedMapSlot)) out.selectedMapSlot=Math.max(0,Math.min(2,saved.selectedMapSlot));
+  if(Array.isArray(saved.mapSlots)) out.mapSlots=out.mapSlots.map((slot,i)=>({...slot,...(saved.mapSlots[i]||{})}));
+  Object.assign(out.conditions,saved.conditions||{});
+  if(saved.terrainSource) out.terrainSource=saved.terrainSource;
+  if(saved.customLenses) out.customLenses=saved.customLenses;
   Object.assign(out.assetGraph,saved.assetGraph||{});
   Object.assign(out.marketplace,saved.marketplace||{});
   Object.assign(out.dataLayers,saved.dataLayers||{});

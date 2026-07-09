@@ -29,6 +29,9 @@
     <button class="tool-btn" id="dataBtn" type="button" aria-label="Data and graph settings" title="Data and graph settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16v12H4z"/><path d="M8 10h8M8 14h5"/></svg>
     </button>
+    <button class="tool-btn" id="studioBtn" type="button" aria-label="Map Studio" title="Map Studio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></svg>
+    </button>
 </div>
 </header>
 
@@ -87,6 +90,7 @@
       <button type="button" class="btnish" id="toolModeBtn">All entities</button>
     </div>
   </div>
+  <div class="panel-card tool-panel studio-panel" id="studioPanel" aria-label="Map Studio"></div>
   <input id="manualImport" type="file" accept="application/json" hidden>
   <input id="workspaceImport" type="file" accept="application/json,.oasis.json" hidden>
   <div id="shortcutOverlay" class="shortcut-overlay" hidden>

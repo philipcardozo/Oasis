@@ -19,6 +19,7 @@ from fastapi.staticfiles import StaticFiles
 
 from dcf_export import build_dcf_workbook
 from data_sources import dem_tilejson, terrain_coverage_registry, validation_status
+from store import by_id as store_by_id
 
 ROOT = Path(__file__).parent
 DATA = ROOT / "graph" / "data"
@@ -47,7 +48,7 @@ from starlette.middleware.gzip import GZipMiddleware
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 
-STATIC_JSON = {"companies.geojson", "securities.geojson", "relationships.geojson", "universe.json", "graph-index.json", "map_intelligence.json"}
+STATIC_JSON = {"companies.geojson", "securities.geojson", "relationships.geojson", "graph-index.json", "map_intelligence.json"}
 
 
 @lru_cache(maxsize=16)
@@ -254,7 +255,7 @@ def map_relationships(bbox: list[float] | None = None) -> dict:
 
 
 def universe_nodes() -> dict[str, dict]:
-    return {n["id"]: n for n in load_json("universe.json", {"nodes": []})["nodes"]}
+    return store_by_id()
 
 
 def risk_summary(entity_id: str, node_ids: set[str]) -> dict:
@@ -352,7 +353,7 @@ def entity(entity_id: str | None) -> dict | None:
         "cik": n.get("cik"),
         "country": n.get("country"),
         "sector": n.get("sector"),
-        "source": "universe.json",
+        "source": "data/store/nodes.parquet",
         "confidence": n.get("source_confidence"),
         "updated_at": n.get("as_of"),
     }

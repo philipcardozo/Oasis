@@ -7,22 +7,12 @@ the network; max_attempts bounds how many peers it will pull.
 """
 from __future__ import annotations
 
-import json
-from functools import lru_cache
-
-from dcf_export import DATA, TAGS, get_latest_filed_annual, load_facts, load_node
-
-UNIVERSE = DATA / "universe.json"
+from dcf_export import TAGS, get_latest_filed_annual, load_facts, load_node
+from store import by_id as store_by_id, load_edges
 
 
 def _latest(series: dict) -> float | None:
     return series[max(series)] if series else None
-
-
-@lru_cache(maxsize=1)
-def _graph(_mtime: float):
-    d = json.loads(UNIVERSE.read_text("utf-8"))
-    return {n["id"]: n for n in d["nodes"]}, d.get("links", [])
 
 
 def _peer_metrics(p: dict) -> dict | None:
@@ -60,7 +50,7 @@ def comps(entity_id: str, cap: int = 12, max_attempts: int = 18) -> dict:
     if not str(node.get("cik") or "").strip().isdigit():  # '—' placeholder / blank -> no facts
         return {"available": False, "reason": "no SEC CIK"}
 
-    by_id, links = _graph(UNIVERSE.stat().st_mtime)
+    by_id, links = store_by_id(), load_edges()
     nid, ntype, group = node["id"], node.get("node_type"), node.get("group")
     nbrs = set()
     for l in links:

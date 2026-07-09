@@ -66,6 +66,27 @@
   .tool-panel .stack { display: grid; gap: 8px; }
   .tool-panel .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 34px; border-radius: 10px; border: 1px solid var(--border); background: var(--panel-2); padding: 0 10px; font-size: 12px; }
   .tool-panel .toggle-row input { accent-color: var(--accent); }
+  .studio-panel { width: 380px; }
+  .studio-kicker { color: var(--text-3); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+  .basemap-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; margin: 8px 0 14px; }
+  .basemap-card { min-width: 0; padding: 7px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel-2); color: var(--text); cursor: pointer; text-align: left; }
+  .basemap-card.active { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .basemap-preview { display: block; height: 42px; margin-bottom: 6px; border-radius: 6px; background: linear-gradient(145deg,#9cc7e8,#dfe9c8 55%,#8aab71); }
+  .basemap-card[data-basemap="dark"] .basemap-preview { background: linear-gradient(145deg,#080b11,#26313c 55%,#0e1720); }
+  .basemap-card[data-basemap="satellite"] .basemap-preview { background: linear-gradient(145deg,#183c2b,#706744 48%,#28465e); }
+  .basemap-card b, .basemap-card small { display: block; overflow: hidden; text-overflow: ellipsis; }
+  .basemap-card small { margin-top: 3px; color: var(--text-3); font-size: 9.5px; line-height: 1.2; }
+  .studio-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 30px; color: var(--text-2); font-size: 11.5px; }
+  .studio-row.warning { color: #f0b341; }
+  .condition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 7px 0 14px; }
+  .condition-grid label { display: flex; gap: 7px; align-items: center; padding: 6px; border-radius: 7px; background: var(--panel-2); color: var(--text-3); font-size: 10.5px; }
+  .map-slot { display: grid; grid-template-columns: 1fr auto; gap: 6px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .map-slot.active .slot-name { color: var(--accent); }
+  .slot-name { border: 0; background: transparent; color: var(--text); text-align: left; cursor: pointer; font-weight: 600; }
+  .slot-meta { grid-column: 1/-1; color: var(--text-3); font-size: 10px; }
+  .slot-actions { display: flex; gap: 4px; }
+  .slot-actions button, .studio-actions button { min-height: 28px; border: 1px solid var(--border); border-radius: 7px; background: var(--panel-2); color: var(--text-2); cursor: pointer; font-size: 10px; }
+  .studio-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 10px; }
   .layer-presets { display: grid; gap: 8px; }
   .layer-preset { border: 1px solid var(--border); border-radius: 12px; background: var(--layer); overflow: hidden; }
   .layer-preset.open { border-color: var(--hover-2); background: var(--layer-open); }

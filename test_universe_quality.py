@@ -1,17 +1,16 @@
 import json
 import pytest
 from pathlib import Path
+from store import load_edges, load_nodes
 
 ROOT = Path(__file__).resolve().parent
 
 
 def test_lei_quality() -> None:
-    universe_path = ROOT / "graph" / "data" / "universe.json"
-    if not universe_path.exists():
-        pytest.skip("universe.json does not exist")
-        
-    data = json.loads(universe_path.read_text("utf-8"))
-    nodes = data.get("nodes", [])
+    try:
+        nodes = load_nodes()
+    except FileNotFoundError as exc:
+        pytest.skip(str(exc))
     
     # Genuine CIK-holding nodes
     cik_nodes = [
@@ -71,16 +70,14 @@ def test_lei_quality() -> None:
 
 
 def test_hq_address_quality() -> None:
-    universe_path = ROOT / "graph" / "data" / "universe.json"
-    if not universe_path.exists():
-        pytest.skip("universe.json does not exist")
-        
-    data = json.loads(universe_path.read_text("utf-8"))
-    nodes = data.get("nodes", [])
+    try:
+        nodes = load_nodes()
+    except FileNotFoundError as exc:
+        pytest.skip(str(exc))
     
     placeholders = {"NYSE", "Nasdaq", "NYSE American", "NYSE Arca", "OTC", "Cboe BZX", "CBOE", "—", "", "-", "N/A"}
     
-    # Assert exchange-placeholder HQ count == 0 in rebuilt universe.json
+    # Assert exchange-placeholder HQ count == 0 in the rebuilt store.
     placeholder_nodes = [
         n for n in nodes
         if str(n.get("hq") or "").strip() in placeholders
@@ -97,7 +94,7 @@ def test_hq_address_quality() -> None:
     
     # Assert NVDA details
     nvda = [n for n in nodes if n.get("t") == "NVDA"][0]
-    assert "Santa Clara" in nvda.get("hq", ""), f"NVDA HQ wrong: {nvda.get('hq')}"
+    assert "santa clara" in nvda.get("hq", "").lower(), f"NVDA HQ wrong: {nvda.get('hq')}"
     
     em = nvda.get("entity_model")
     assert isinstance(em, dict), "NVDA has no entity_model"
@@ -106,27 +103,23 @@ def test_hq_address_quality() -> None:
 
 
 def test_universe_split_counts() -> None:
-    universe_path = ROOT / "graph" / "data" / "universe.json"
     core_path = ROOT / "graph" / "data" / "universe_core.json"
     bulk_path = ROOT / "graph" / "data" / "universe_bulk.json"
     
-    if not universe_path.exists() or not core_path.exists() or not bulk_path.exists():
+    if not core_path.exists() or not bulk_path.exists():
         pytest.skip("Universe files not fully built")
         
-    u = json.loads(universe_path.read_text("utf-8"))
     c = json.loads(core_path.read_text("utf-8"))
     b = json.loads(bulk_path.read_text("utf-8"))
     
-    assert len(c["nodes"]) + len(b["nodes"]) == len(u["nodes"]), "universe split node count mismatch"
+    assert len(c["nodes"]) + len(b["nodes"]) == len(load_nodes()), "universe split node count mismatch"
 
 
 def test_link_attributes() -> None:
-    universe_path = ROOT / "graph" / "data" / "universe.json"
-    if not universe_path.exists():
-        pytest.skip("universe.json not found")
-        
-    data = json.loads(universe_path.read_text("utf-8"))
-    links = data.get("links", [])
+    try:
+        links = load_edges()
+    except FileNotFoundError as exc:
+        pytest.skip(str(exc))
     
     for l in links:
         assert l.get("from"), "Link has no from node"
@@ -137,14 +130,13 @@ def test_link_attributes() -> None:
 
 
 def test_no_duplicate_canonical_ids() -> None:
-    universe_path = ROOT / "graph" / "data" / "universe.json"
-    if not universe_path.exists():
-        pytest.skip("universe.json not found")
-        
-    data = json.loads(universe_path.read_text("utf-8"))
+    try:
+        nodes = load_nodes()
+    except FileNotFoundError as exc:
+        pytest.skip(str(exc))
     seen = {}
     collisions = {}
-    for node in data["nodes"]:
+    for node in nodes:
         cid = node.get("canonical_id")
         assert cid
         if cid in seen:

@@ -113,10 +113,11 @@ def location_for(node: dict, coords: dict) -> dict | None:
             "location_confidence": float(row[6]) if len(row) > 6 else 0.9,
         }
     country = loc_country(node, hq)
-    fallback = jittered_country_point(node["id"], country)
+    fallback_country = COUNTRY_CODES.get(country, country)
+    fallback = jittered_country_point(node["id"], fallback_country)
     if fallback:
         return {
-            "lat": fallback[0], "lng": fallback[1], "city": "", "region": "", "country": country,
+            "lat": fallback[0], "lng": fallback[1], "city": "", "region": "", "country": fallback_country,
             "location_quality": "country_centroid", "location_source": "country_fallback", "location_confidence": 0.35,
         }
     return None

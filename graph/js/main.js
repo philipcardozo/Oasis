@@ -1,5 +1,5 @@
 import {fmtBn,fmtPrice,fmtSignedMoney,fmtPct,yearOf,esc,jsq,normText} from "./util.js";
-import {kindMeta,EMPTY_GEOJSON,DUE_DILIGENCE_SOURCES,DUE_DILIGENCE_ENDPOINTS,DATA_ICON_SVG,dl,MARKETPLACE_ASSET_TYPES,DATA_LAYER_PRESETS,DATA_LAYER_BY_ID,DATA_LAYER_OPEN,HQ_CITY_COORDS,COUNTRY_COORDS,COUNTRY_CODES,BAD_HQ_VALUES,EXCHANGE_HQ_VALUES,DRAWER_TYPES} from "./config.js";
+import {kindMeta,EMPTY_GEOJSON,BASEMAPS,DUE_DILIGENCE_SOURCES,DUE_DILIGENCE_ENDPOINTS,DATA_ICON_SVG,dl,MARKETPLACE_ASSET_TYPES,DATA_LAYER_PRESETS,DATA_LAYER_BY_ID,DATA_LAYER_OPEN,HQ_CITY_COORDS,COUNTRY_COORDS,COUNTRY_CODES,BAD_HQ_VALUES,EXCHANGE_HQ_VALUES,DRAWER_TYPES} from "./config.js";
 import {SECTORS,GROUPS,RELS,COMPANIES,LINKS,NEWS,EDGE_CANDIDATES,ALIASES,META,byId,adj,bulkLoaded,bulkPromise,grid,selected,hovEdge,mode,rafId,networkScope,hoverNodeId,visibleEdgeCache,visibleEdgeSet,linkedNodeCache,hoverFrame,pendingHover,globeSelectionLabel,map,mapReady,mapInitPromise,mapClusterIds,mapLayerEventsBound,mapSelectedId,mapSelectedSource,hoveredFarmId,activeRailPanel,manualSelectedId,maxEdgeVal,maxNodeVal,selfViewId,selfViewNodes,edgeEls,labelEls,nodeEls,nodeElsById,restoredView,restoringView,saveViewTimer,productPrefs,manualLayer,terrainDemStatus,terrainDemStatusPromise,dataQualityPromise,dataQualityLast,dueDiligenceLoadTimer,marketplaceListings,selectedEntityAssetFeatures,SVGNS,sectorOn,groupOn,relOn,kindOn,hoverFrozenIds,globe,mapData,params,svg,vp,canvas,ctx,gEdges,gLabels,gNodes,tip,asOfInput,CURRENT_YEAR,HOVER_LINK_CAP,VIEW_STATE_KEY,PRODUCT_PREF_KEY,MANUAL_LAYER_KEY,PRODUCT_DEFAULTS,dataSourceStatus,dataLayerCounts,loadViewState,cloneJson,loadStored,mergePrefs,saveProductPrefs,emptyManualLayer,normalizeManualLayer,saveManualLayer,downloadText,savedMode,assignSECTORS,assignGROUPS,assignRELS,assignCOMPANIES,assignLINKS,assignNEWS,assignEDGE_CANDIDATES,assignALIASES,assignMETA,assignById,assignAdj,assignBulkLoaded,assignBulkPromise,assignGrid,assignSelected,assignHovEdge,assignMode,assignRafId,assignNetworkScope,assignHoverNodeId,assignVisibleEdgeCache,assignVisibleEdgeSet,assignLinkedNodeCache,assignHoverFrame,assignPendingHover,assignGlobeSelectionLabel,assignMap,assignMapReady,assignMapInitPromise,assignMapClusterIds,assignMapLayerEventsBound,assignMapSelectedId,assignMapSelectedSource,assignHoveredFarmId,assignActiveRailPanel,assignManualSelectedId,assignMaxEdgeVal,assignMaxNodeVal,assignSelfViewId,assignSelfViewNodes,assignEdgeEls,assignLabelEls,assignNodeEls,assignNodeElsById,assignRestoredView,assignRestoringView,assignSaveViewTimer,assignProductPrefs,assignManualLayer,assignTerrainDemStatus,assignTerrainDemStatusPromise,assignDataQualityPromise,assignDataQualityLast,assignDueDiligenceLoadTimer,assignMarketplaceListings,assignSelectedEntityAssetFeatures} from "./state.js";
 
 const activeYear=()=>Math.min(Number(asOfInput.value)||CURRENT_YEAR,CURRENT_YEAR);
@@ -1111,7 +1111,6 @@ function updateDataHealth(){
 }
 
 /* ---------- globe ---------- */
-const MAP_STYLE_URL="https://tiles.openfreemap.org/styles/liberty";
 const TERRAIN_STATUS_URL="/api/reliefs/dem/status";
 // Default globe terrain: AWS Terrain Tiles (Tilezen "Joerd" on AWS Open Data) —
 // global z0–z15, terrarium-encoded, no API key. Local 3DEP tiles are opt-in.
@@ -1125,8 +1124,10 @@ function globeVisibleCompanies(){
   COMPANIES.forEach(c=>{ if(!baseVisibleNode(c)) return; const loc=companyLoc(c); (loc?located:unknown).push(c); });
   return {located,unknown};
 }
-async function loadBaseMapStyle(){
-  const res=await fetch(MAP_STYLE_URL,{cache:"force-cache"});
+async function loadBaseMapStyle(id=productPrefs.basemap){
+  const base=BASEMAPS[id]||BASEMAPS.standard;
+  if(base.styleSpec) return cloneJson(base.styleSpec);
+  const res=await fetch(base.styleUrl,{cache:"force-cache"});
   if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   return patchBaseMapStyle(await res.json());
 }
@@ -1151,7 +1152,9 @@ function initMapGlobe(){
   if(map||mapInitPromise||!window.maplibregl) return;
   assignMapInitPromise(loadBaseMapStyle().catch(err=>{
     console.warn("base map style patch skipped",err);
-    return MAP_STYLE_URL;
+    productPrefs.basemap="standard";
+    saveProductPrefs();
+    return BASEMAPS.standard.styleUrl;
   }).then(createMapGlobe));
 }
 function createMapGlobe(style){
@@ -1171,6 +1174,7 @@ function createMapGlobe(style){
     assignMapReady(true);
     addMapLayers();
     drawGlobe();
+    renderMapStudio();
   });
   map.on("moveend",()=>{ queueSaveView(); updateDueDiligenceSources(); });
   map.on("error",e=>console.warn("map globe",e.error||e));
@@ -1290,9 +1294,11 @@ function addTerrainSource(tilejson){
     encoding:tilejson.encoding||"mapbox",
     attribution:tilejson.attribution||"USGS 3DEP"
   });
-  map.addLayer({id:"terrain-hillshade",type:"hillshade",source:"terrain-dem",layout:{visibility:"none"},paint:{
+  const layer={id:"terrain-hillshade",type:"hillshade",source:"terrain-dem",layout:{visibility:"none"},paint:{
     "hillshade-shadow-color":"#3f4957","hillshade-highlight-color":"#ffffff","hillshade-accent-color":"#91a6be","hillshade-exaggeration":0.55
-  }},firstSymbolLayerId());
+  }};
+  const before=firstSymbolLayerId();
+  before?map.addLayer(layer,before):map.addLayer(layer);
 }
 function addPhysicalContextLayers(){
   if(!map||map.getSource("terrain-dem")) return;
@@ -2049,6 +2055,7 @@ window.stressIndex=async(n=50000)=>{
   return {nodes:COMPANIES.length,svgNodes:document.querySelectorAll("#nodes .node-g").length};
 };
 window.graphState=()=>({mode,companies:COMPANIES.length,bulkLoaded,selected,manualSelectedId,manualNodes:manualLayer.nodes.length,lens:productPrefs.lens,selfViewId,selfViewNodes:selfViewNodes.size,svgNodes:document.querySelectorAll("#nodes .node-g").length,canvasDisplay:getComputedStyle(canvas).display,stats:document.getElementById("stNodes").textContent});
+window.mapStudioState=()=>({basemap:productPrefs.basemap,selectedMapSlot:productPrefs.selectedMapSlot,mapSlots:cloneJson(productPrefs.mapSlots),terrain:!!productPrefs.engine.terrain,terrainExaggeration:productPrefs.engine.terrainExaggeration,activeOverlays:activeOverlayCount(),styleLoaded:!!mapReady});
 window.graphPoint=id=>{ const c=byId[id],r=svg.getBoundingClientRect(); return c?{x:r.left+c.x*k+tx,y:r.top+c.y*k+ty}:null; };
 
 /* ---------- product controls + manual layer ---------- */
@@ -2189,6 +2196,99 @@ function resetEngine(){
   productPrefs.terrainSource=PRODUCT_DEFAULTS.terrainSource;
   saveProductPrefs(); applyProductPrefs(); renderWorkspacePanel(); queueSaveView();
 }
+function activeOverlayCount(layers=productPrefs.dataLayers){
+  return Object.values(layers||{}).filter(Boolean).length;
+}
+function renderMapStudio(){
+  const panel=document.getElementById("studioPanel");
+  if(!panel) return;
+  const base=BASEMAPS[productPrefs.basemap]||BASEMAPS.standard;
+  const conditionLabels={clouds:"Clouds",storms:"Hurricanes / storms",precipitation:"Precipitation",temperature:"Temperature",wind:"Wind",wildfire:"Wildfire / smoke",floods:"Flood alerts",radar:"Weather radar"};
+  panel.innerHTML=`<div class="section-h">Map Studio</div><div class="studio-kicker">local profile (dev)</div>
+    <div class="section-h">Map Styles</div>
+    <div class="basemap-grid">${Object.values(BASEMAPS).map(b=>`<button class="basemap-card ${b.id===base.id?"active":""}" type="button" data-basemap="${b.id}"><span class="basemap-preview"></span><b>${esc(b.name)}</b><small>Available · ${esc(b.bestFor)}</small></button>`).join("")}</div>
+    <div class="section-h">Compatible overlays</div>
+    <div class="studio-row"><span>Terrain + hillshade</span><b>${productPrefs.engine.terrain?"active":"off"} · supported</b></div>
+    <div class="studio-row ${base.supports.labels?"":"warning"}"><span>Base labels</span><b>${base.supports.labels?"provided":"not provided by this basemap"}</b></div>
+    <div class="studio-row ${base.supports.boundaries?"":"warning"}"><span>Base boundaries</span><b>${base.supports.boundaries?"provided":"not provided"}</b></div>
+    <div class="studio-row"><span>Data layers</span><b>${activeOverlayCount()} active</b></div>
+    <div class="studio-row"><span>High-res local 3DEP</span><b>on-demand AOI</b></div>
+    <div class="section-h">Conditions</div><div class="condition-grid">${Object.entries(conditionLabels).map(([id,label])=>`<label><input type="checkbox" disabled ${productPrefs.conditions[id]?"checked":""}><span>${esc(label)}<br>not loaded yet</span></label>`).join("")}</div>
+    <div class="section-h">Map Slots</div>
+    ${(productPrefs.mapSlots||[]).map((slot,i)=>`<div class="map-slot ${i===productPrefs.selectedMapSlot?"active":""}" data-slot="${i}">
+      <button class="slot-name" type="button" data-action="slot-load">${esc(slot.name||`Slot ${i+1}`)}</button>
+      <div class="slot-actions"><button type="button" data-action="slot-save">Save</button><button type="button" data-action="slot-rename">Rename</button><button type="button" data-action="slot-reset">Reset</button></div>
+      <div class="slot-meta">${esc(BASEMAPS[slot.basemap]?.name||"Not saved")} · ${slot.dataLayers?activeOverlayCount(slot.dataLayers):0} active overlays</div></div>`).join("")}
+    <div class="studio-actions"><button type="button" data-action="map-save">Save current setup</button><button type="button" data-action="map-reset">Reset current map</button></div>`;
+}
+async function switchBasemap(id){
+  const base=BASEMAPS[id];
+  if(!base) return;
+  productPrefs.basemap=id;
+  saveProductPrefs();
+  renderMapStudio();
+  if(!map){ await setMode("globe"); return; }
+  assignMapReady(false);
+  try{ map.setStyle(await loadBaseMapStyle(id)); }
+  catch(err){
+    console.warn(`basemap ${id} unavailable`,err);
+    if(id!=="standard") await switchBasemap("standard");
+  }
+}
+function mapSlotSnapshot(name){
+  return {
+    name,basemap:productPrefs.basemap,engine:cloneJson(productPrefs.engine),
+    dataLayers:cloneJson(productPrefs.dataLayers),terrainSource:productPrefs.terrainSource,
+    viewState:captureViewState(),graphVisibility:{kind:filterSnapshot(kindOn),rel:filterSnapshot(relOn)},
+    conditions:cloneJson(productPrefs.conditions)
+  };
+}
+function saveMapSlot(index=productPrefs.selectedMapSlot){
+  const current=productPrefs.mapSlots[index]||{name:`Slot ${index+1}`};
+  productPrefs.selectedMapSlot=index;
+  productPrefs.mapSlots[index]=mapSlotSnapshot(current.name);
+  saveProductPrefs(); renderMapStudio();
+}
+async function loadMapSlot(index){
+  const slot=productPrefs.mapSlots[index];
+  if(!slot) return;
+  productPrefs.selectedMapSlot=index;
+  if(slot.engine) Object.assign(productPrefs.engine,cloneJson(slot.engine));
+  if(slot.dataLayers) productPrefs.dataLayers=cloneJson(slot.dataLayers);
+  if(slot.terrainSource) productPrefs.terrainSource=slot.terrainSource;
+  if(slot.conditions) Object.assign(productPrefs.conditions,slot.conditions);
+  if(slot.viewState){
+    assignRestoredView(cloneJson(slot.viewState));
+    applySavedFilters();
+  }
+  await switchBasemap(slot.basemap||"standard");
+  applyProductPrefs();
+  if(slot.viewState?.mode) await setMode(slot.viewState.mode);
+  if(map&&slot.viewState?.map) map.jumpTo(slot.viewState.map);
+  if(slot.viewState?.selected&&byId[slot.viewState.selected]) select(slot.viewState.selected);
+  saveProductPrefs(); queueSaveView(); renderMapStudio();
+}
+function renameMapSlot(index){
+  const slot=productPrefs.mapSlots[index];
+  const name=prompt("Map slot name",slot?.name||`Slot ${index+1}`);
+  if(!name?.trim()) return;
+  slot.name=name.trim().slice(0,60);
+  saveProductPrefs(); renderMapStudio();
+}
+function resetMapSlot(index){
+  productPrefs.mapSlots[index]=cloneJson(PRODUCT_DEFAULTS.mapSlots[index]);
+  saveProductPrefs(); renderMapStudio();
+}
+async function resetCurrentMap(){
+  Object.assign(productPrefs.engine,cloneJson(PRODUCT_DEFAULTS.engine));
+  productPrefs.terrainSource=PRODUCT_DEFAULTS.terrainSource;
+  productPrefs.conditions=cloneJson(PRODUCT_DEFAULTS.conditions);
+  Object.values(DATA_LAYER_BY_ID).forEach(layer=>productPrefs.dataLayers[layer.id]=!!layer.defaultOn);
+  await switchBasemap(PRODUCT_DEFAULTS.basemap);
+  applyProductPrefs();
+  if(map) map.easeTo({center:[-95,28],zoom:1.45,bearing:0,pitch:0,duration:450});
+  queueSaveView(); renderMapStudio();
+}
 // Workspace file: view-state snapshot + engine + lens, spec_version'd as the seed
 // of the vault Stage-6 manual-layer format. Import re-uses the reload restore path.
 function exportWorkspace(){
@@ -2233,6 +2333,20 @@ document.getElementById("gearPanel").addEventListener("click",async e=>{
 });
 document.getElementById("gearBtn").onclick=()=>toggleToolPanel("gearPanel");
 document.getElementById("dataBtn").onclick=()=>toggleToolPanel("dataPanel");
+document.getElementById("studioBtn").onclick=()=>{ renderMapStudio(); toggleToolPanel("studioPanel"); };
+document.getElementById("studioPanel").addEventListener("click",async e=>{
+  const base=e.target.closest("[data-basemap]");
+  if(base){ await switchBasemap(base.dataset.basemap); return; }
+  const slot=e.target.closest("[data-slot]");
+  const action=e.target.closest("[data-action]")?.dataset.action;
+  const index=Number(slot?.dataset.slot??productPrefs.selectedMapSlot);
+  if(action==="slot-load") await loadMapSlot(index);
+  if(action==="slot-save"){ productPrefs.selectedMapSlot=index; saveMapSlot(index); }
+  if(action==="slot-rename") renameMapSlot(index);
+  if(action==="slot-reset") resetMapSlot(index);
+  if(action==="map-save") saveMapSlot();
+  if(action==="map-reset") await resetCurrentMap();
+});
 document.getElementById("toolThemeBtn").onclick=function(){ const light=document.documentElement.getAttribute("data-theme")==="light"; document.documentElement.setAttribute("data-theme",light?"dark":"light"); syncThemeButton(); queueSaveView(); };
 document.getElementById("toolGlobeBtn").onclick=()=>setMode("globe");
 document.getElementById("toolModeBtn").onclick=()=>setMode(mode==="network"?"index":"network");
@@ -2324,7 +2438,7 @@ document.getElementById("dataPanel").addEventListener("click",e=>{
 });
 document.addEventListener("click",e=>{
   if(!document.body.contains(e.target)) return;
-  if(e.target.closest("#gearBtn,#dataBtn,.tool-panel")) return;
+  if(e.target.closest("#gearBtn,#dataBtn,#studioBtn,.tool-panel")) return;
   document.querySelectorAll(".tool-panel").forEach(p=>p.classList.remove("show"));
 });
 document.getElementById("workspacePanel").addEventListener("change",e=>{

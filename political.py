@@ -49,7 +49,10 @@ def _committee_stats() -> dict:
 
 @lru_cache(maxsize=1)
 def _contracts_by_recipient() -> tuple[dict, str]:
-    gc = json.loads((DATA / "gov_contracts.json").read_text("utf-8"))
+    path = DATA / "gov_contracts.json"
+    if not path.exists():
+        return {}, ""
+    gc = json.loads(path.read_text("utf-8"))
     by_to: dict = {}
     for l in gc.get("links", []):
         by_to.setdefault(l["to"], []).append(l)
