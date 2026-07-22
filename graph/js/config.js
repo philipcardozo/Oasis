@@ -12,6 +12,7 @@ export const BASEMAPS={
   dark:{id:"dark",name:"Dark",styleUrl:"https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",bestFor:"Company graph and arcs",supports:{labels:true,terrain:true,boundaries:true}},
   satellite:{id:"satellite",name:"Satellite",bestFor:"Physical site analysis",supports:{labels:false,terrain:true,boundaries:false},styleSpec:{
     version:8,
+    glyphs:"https://fonts.openmaptiles.org/{fontstack}/{range}.pbf",
     sources:{esri:{type:"raster",tiles:["https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"],tileSize:256,attribution:"Imagery © Esri, Maxar, Earthstar Geographics"}},
     layers:[{id:"esri-imagery",type:"raster",source:"esri"}]
   }}

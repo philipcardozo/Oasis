@@ -3,6 +3,21 @@ import {kindMeta,EMPTY_GEOJSON,BASEMAPS,DUE_DILIGENCE_SOURCES,DUE_DILIGENCE_ENDP
 import {SECTORS,GROUPS,RELS,COMPANIES,LINKS,NEWS,EDGE_CANDIDATES,ALIASES,META,byId,adj,bulkLoaded,bulkPromise,grid,selected,hovEdge,mode,rafId,networkScope,hoverNodeId,visibleEdgeCache,visibleEdgeSet,linkedNodeCache,hoverFrame,pendingHover,globeSelectionLabel,map,mapReady,mapInitPromise,mapClusterIds,mapLayerEventsBound,mapSelectedId,mapSelectedSource,hoveredFarmId,activeRailPanel,manualSelectedId,maxEdgeVal,maxNodeVal,selfViewId,selfViewNodes,edgeEls,labelEls,nodeEls,nodeElsById,restoredView,restoringView,saveViewTimer,productPrefs,manualLayer,terrainDemStatus,terrainDemStatusPromise,dataQualityPromise,dataQualityLast,dueDiligenceLoadTimer,marketplaceListings,selectedEntityAssetFeatures,SVGNS,sectorOn,groupOn,relOn,kindOn,hoverFrozenIds,globe,mapData,params,svg,vp,canvas,ctx,gEdges,gLabels,gNodes,tip,asOfInput,CURRENT_YEAR,HOVER_LINK_CAP,VIEW_STATE_KEY,PRODUCT_PREF_KEY,MANUAL_LAYER_KEY,PRODUCT_DEFAULTS,dataSourceStatus,dataLayerCounts,loadViewState,cloneJson,loadStored,mergePrefs,saveProductPrefs,emptyManualLayer,normalizeManualLayer,saveManualLayer,downloadText,savedMode,assignSECTORS,assignGROUPS,assignRELS,assignCOMPANIES,assignLINKS,assignNEWS,assignEDGE_CANDIDATES,assignALIASES,assignMETA,assignById,assignAdj,assignBulkLoaded,assignBulkPromise,assignGrid,assignSelected,assignHovEdge,assignMode,assignRafId,assignNetworkScope,assignHoverNodeId,assignVisibleEdgeCache,assignVisibleEdgeSet,assignLinkedNodeCache,assignHoverFrame,assignPendingHover,assignGlobeSelectionLabel,assignMap,assignMapReady,assignMapInitPromise,assignMapClusterIds,assignMapLayerEventsBound,assignMapSelectedId,assignMapSelectedSource,assignHoveredFarmId,assignActiveRailPanel,assignManualSelectedId,assignMaxEdgeVal,assignMaxNodeVal,assignSelfViewId,assignSelfViewNodes,assignEdgeEls,assignLabelEls,assignNodeEls,assignNodeElsById,assignRestoredView,assignRestoringView,assignSaveViewTimer,assignProductPrefs,assignManualLayer,assignTerrainDemStatus,assignTerrainDemStatusPromise,assignDataQualityPromise,assignDataQualityLast,assignDueDiligenceLoadTimer,assignMarketplaceListings,assignSelectedEntityAssetFeatures} from "./state.js";
 
 const activeYear=()=>Math.min(Number(asOfInput.value)||CURRENT_YEAR,CURRENT_YEAR);
+const MAPLIBRE_CSS_URL="vendor/maplibre-gl/5.6.2/maplibre-gl.css";
+const MAPLIBRE_JS_URL="vendor/maplibre-gl/5.6.2/maplibre-gl.js";
+var dataQualityDashboardMarkup="";
+var mapLibrePromise=null;
+var mapDataPromise=null;
+var mapGraphIndexPromise=null;
+var gridDirty=true;
+const mapWarningKeys=new Set();
+function warnMapOnce(label,err){
+  const message=err?.message||err?.statusText||String(err||"Error");
+  const key=`${label}:${message}`;
+  if(mapWarningKeys.has(key)) return;
+  mapWarningKeys.add(key);
+  console.warn(label,err);
+}
 function mapCamera(){
   if(!map) return restoredView.map||null;
   const c=map.getCenter();
@@ -163,7 +178,7 @@ function selectedEntityLinkFeatures(entityId,features){
 async function loadCompanyAssetOverlay(entityId){
   if(!mapReady||!entityId) return;
   try{
-    const res=await fetch(`/api/entity/${encodeURIComponent(entityId)}/asset-map.geojson`,{cache:"no-store"});
+    const res=await fetch(`/api/entity/${encodeURIComponent(entityId)}/asset-map.geojson`,{cache:"no-cache"});
     if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const data=await res.json();
     assignSelectedEntityAssetFeatures(data.features||[]);
@@ -188,7 +203,7 @@ async function loadDueDiligenceSource(source){
   dataSourceStatus[source]={state:"loading",count:dataSourceStatus[source]?.count||0,error:""};
   renderDataLayerPresets();
   try{
-    const res=await fetch(dataUrlForSource(source),{cache:"no-store"});
+    const res=await fetch(dataUrlForSource(source),{cache:"no-cache"});
     if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const data=await res.json();
     const features=Array.isArray(data.features)?data.features:[];
@@ -350,23 +365,21 @@ function toggleToolPanel(id){
   const el=document.getElementById(id);
   if(!el) return;
   const show=!el.classList.contains("show");
+  if(show&&rafId){ cancelAnimationFrame(rafId); assignRafId(null); }
   document.querySelectorAll(".tool-panel").forEach(p=>p.classList.remove("show"));
   assignActiveRailPanel("");
   document.getElementById("workspacePanel").classList.remove("show");
   document.querySelectorAll("#rail button, #gearPanel button[data-rail]").forEach(b=>b.classList.remove("active"));
   renderWorkspacePanel();
   if(show) el.classList.add("show");
+  if(show&&id==="dataPanel") queueHydrateDataQuality();
 }
 window.addEventListener("beforeunload",saveViewNow);
 syncThemeButton();
-buildToolKinds();
 applyProductPrefs();
 
 fetch("data/universe_core.json").then(r=>r.json()).then(init).catch(()=>{ document.getElementById("loading").textContent="Could not load data/universe_core.json — run expand_us.py and serve this folder."; });
-fetch("data/news.json").then(r=>r.ok?r.json():null).then(d=>{ if(d){ assignNEWS(d); updateFresh(); if(selected) select(selected); } }).catch(()=>{});
-fetch("data/edge_candidates.json").then(r=>r.ok?r.json():[]).then(d=>{ assignEDGE_CANDIDATES(d||[]); if(selected) select(selected); }).catch(()=>{});
-fetch("data/aliases.json").then(r=>r.ok?r.json():{}).then(d=>{ assignALIASES(d||{}); }).catch(()=>{});
-fetch("data/hq_coords.json").then(r=>r.ok?r.json():{}).then(d=>{ Object.assign(HQ_CITY_COORDS,d||{}); COMPANIES.forEach(c=>delete c._loc); updateDataHealth(); if(mode==="globe") drawGlobe(); }).catch(()=>{});
+fetch("/api/bootstrap/signals").then(r=>r.ok?r.json():{}).then(d=>{ if(d.aliases) assignALIASES(d.aliases||{}); if(d.hq_coords){ Object.assign(HQ_CITY_COORDS,d.hq_coords||{}); COMPANIES.forEach(c=>delete c._loc); updateDataHealth(); } if(Number.isFinite(Number(d.location_unknown_count))) globe.unknownCount=Number(d.location_unknown_count); if(d.news){ assignNEWS(d.news); updateFresh(); if(selected) select(selected); } assignEDGE_CANDIDATES(d.edge_candidates||[]); if(selected) select(selected); if(mode==="globe") drawGlobe(); }).catch(()=>{});
 
 function initNode(c){
   c.kind=c.kind||(c.private?"private":"public");
@@ -386,11 +399,11 @@ function loadBulk(){
   if(bulkLoaded) return Promise.resolve();
   if(!bulkPromise){
     document.body.dataset.bulkFetches=String(Number(document.body.dataset.bulkFetches||0)+1);
-    assignBulkPromise(fetch("data/universe_bulk.json")
+    assignBulkPromise(fetch("/api/universe/bulk")
     .then(r=>r.ok?r.json():{nodes:[]})
     .then(d=>{
       (d.nodes||[]).forEach(c=>{ initNode(c); c.r=5; COMPANIES.push(c); });
-      assignBulkLoaded(true); rebuildSelfView(); buildGrid(); invalidateVisibilityCache();
+      assignBulkLoaded(true); rebuildSelfView(); markGridDirty(); invalidateVisibilityCache();
     })
     .catch(err=>{ console.warn("bulk load skipped",err); assignBulkLoaded(true); }));
   }
@@ -414,7 +427,7 @@ function init(data){
   });
   COMPANIES.forEach(c=>{ assignMaxNodeVal(Math.max(maxNodeVal,c.tot)); });
   COMPANIES.forEach(c=>{ c.r=c.deg?9+15*Math.sqrt(c.tot)/Math.sqrt(maxNodeVal):5; });
-  buildGrid();
+  markGridDirty();
   Object.keys(SECTORS).forEach(k=>sectorOn[k]=true);
   Object.keys(GROUPS).forEach(k=>groupOn[k]=true);
   Object.keys(RELS).forEach(k=>relOn[k]=true);
@@ -449,6 +462,7 @@ function init(data){
     syncModeButton();
     assignRestoringView(false);
     saveViewNow();
+    scheduleMapRuntimeWarmup();
     if(params.has("reliefDemo")) setTimeout(()=>zoomToTerrainDem(),350);
     if(params.has("stress")) setTimeout(()=>window.stressIndex(50000),0);
   })();
@@ -483,6 +497,10 @@ function buildNode(c){
   return out;
 }
 function ensureNetworkNodes(){ COMPANIES.filter(c=>c.deg>0||(selfViewId&&selfViewNodes.has(c.id))).forEach(buildNode); }
+function markGridDirty(){
+  gridDirty=true;
+  assignGrid(new Map());
+}
 function buildGrid(){
   assignGrid(new Map());
   COMPANIES.forEach(c=>{
@@ -490,8 +508,13 @@ function buildGrid(){
     if(!grid.has(key)) grid.set(key,[]);
     grid.get(key).push(c);
   });
+  gridDirty=false;
+}
+function ensureGrid(){
+  if(gridDirty) buildGrid();
 }
 function canvasHit(sx,sy){
+  ensureGrid();
   const p=screenToGraph(sx,sy),gx=Math.floor(p.x/90),gy=Math.floor(p.y/90);
   let best=null,bestD=Infinity,reach=Math.max(1,Math.ceil(20/k/90));
   for(let x=gx-reach;x<=gx+reach;x++) for(let y=gy-reach;y<=gy+reach;y++) (grid.get(x+","+y)||[]).forEach(c=>{
@@ -843,7 +866,7 @@ async function hydrateValuation(assetId,caseName="base"){
   if(!host) return;
   host.dataset.case=caseName;
   try{
-    const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}/valuation?case=${encodeURIComponent(caseName)}`,{cache:"no-store"});
+    const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}/valuation?case=${encodeURIComponent(caseName)}`,{cache:"no-cache"});
     if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     renderValuation(host,await res.json());
   }catch(err){
@@ -897,7 +920,7 @@ async function hydrateEvidence(objectType,objectId){
   if(!host) return;
   try{
     const [evRes,ovRes]=await Promise.all([
-      fetch(`/api/evidence?object_type=${encodeURIComponent(objectType)}&object_id=${encodeURIComponent(objectId)}`,{cache:"no-store"}),
+      fetch(`/api/evidence?object_type=${encodeURIComponent(objectType)}&object_id=${encodeURIComponent(objectId)}`,{cache:"no-cache"}),
       fetch(`/api/overrides?object_type=${encodeURIComponent(objectType)}&object_id=${encodeURIComponent(objectId)}`,{cache:"no-store"})
     ]);
     if(!evRes.ok) throw new Error(`${evRes.status} evidence`);
@@ -962,7 +985,7 @@ async function showFarmWidget(assetId){
   detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Loading farm…</h2><div class="tick">${esc(assetId)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
   detail.classList.add("show");
   try{
-    const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}/due-diligence`,{cache:"no-store"});
+    const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}/due-diligence`,{cache:"no-cache"});
     if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const data=await res.json(),a=data.asset||{},f=a.farm_profile||{},owner=data.owner||a.owner||{},entities=a.connected_entities||{};
     highlightAssetCorporateNetwork(entities);
@@ -996,7 +1019,7 @@ async function showIndustrialWidget(assetId){
   detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Loading industrial asset…</h2><div class="tick">${esc(assetId)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
   detail.classList.add("show");
   try{
-    const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}/due-diligence`,{cache:"no-store"});
+    const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}/due-diligence`,{cache:"no-cache"});
     if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const data=await res.json(),a=data.asset||{},p=a.industrial_profile||{},owner=data.owner||a.owner||{},operator=data.operator||a.operator||{},entities=a.connected_entities||{};
     highlightAssetCorporateNetwork(entities);
@@ -1027,7 +1050,7 @@ async function showGovernmentWidget(assetId){
   detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Loading government facility…</h2><div class="tick">${esc(assetId)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
   detail.classList.add("show");
   try{
-    const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}/due-diligence`,{cache:"no-store"});
+    const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}/due-diligence`,{cache:"no-cache"});
     if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const data=await res.json(),a=data.asset||{},owner=data.owner||a.owner||{};
     highlightAssetCorporateNetwork(a.connected_entities||{owner});
@@ -1057,7 +1080,7 @@ async function showListingWidget(listingId){
   detail.innerHTML=`<div class="hd"><div class="top"><div><h2>Loading listing…</h2><div class="tick">${esc(listingId)}</div></div><button class="close" type="button" data-action="close-detail">&times;</button></div></div>`;
   detail.classList.add("show");
   try{
-    const res=await fetch(`/api/listings/${encodeURIComponent(listingId)}`,{cache:"no-store"});
+    const res=await fetch(`/api/listings/${encodeURIComponent(listingId)}`,{cache:"no-cache"});
     if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const data=await res.json(),l=data.listing||{},a=data.asset||{},entities=a.connected_entities||{};
     highlightAssetCorporateNetwork(entities);
@@ -1085,7 +1108,7 @@ async function showListingWidget(listingId){
 }
 async function openAssetWidget(assetId){
   try{
-    const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}`,{cache:"no-store"});
+    const res=await fetch(`/api/assets/${encodeURIComponent(assetId)}`,{cache:"no-cache"});
     if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const asset=await res.json();
     if(asset.asset_type==="farm"||asset.asset_type==="agricultural_complex"||asset.asset_type==="parcel") return showFarmWidget(assetId);
@@ -1126,12 +1149,13 @@ function globeVisibleCompanies(){
 }
 async function loadBaseMapStyle(id=productPrefs.basemap){
   const base=BASEMAPS[id]||BASEMAPS.standard;
-  if(base.styleSpec) return cloneJson(base.styleSpec);
+  if(base.styleSpec) return patchBaseMapStyle(cloneJson(base.styleSpec));
   const res=await fetch(base.styleUrl,{cache:"force-cache"});
   if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   return patchBaseMapStyle(await res.json());
 }
 function patchBaseMapStyle(style){
+  if(!style.glyphs) style.glyphs="https://fonts.openmaptiles.org/{fontstack}/{range}.pbf";
   const building=(style.layers||[]).find(layer=>layer.id==="building-3d");
   if(building?.paint){
     building.paint["fill-extrusion-base"]=["coalesce",["get","render_min_height"],0];
@@ -1148,18 +1172,76 @@ function coalesceNumericFilterGets(expr){
   if([">",">=","<","<=","==","!="].includes(op)&&typeof b==="number"&&Array.isArray(a)&&a[0]==="get") return [op,["coalesce",a,0],b];
   return expr.map(coalesceNumericFilterGets);
 }
+function ensureMapLibreCss(){
+  if(document.querySelector(`link[href="${MAPLIBRE_CSS_URL}"]`)) return Promise.resolve();
+  return new Promise((resolve,reject)=>{
+    const link=document.createElement("link");
+    link.rel="stylesheet";
+    link.href=MAPLIBRE_CSS_URL;
+    link.dataset.oasisMaplibre="css";
+    link.onload=()=>resolve();
+    link.onerror=()=>reject(new Error("Could not load MapLibre CSS"));
+    document.head.appendChild(link);
+  });
+}
+function ensureMapLibre(){
+  if(window.maplibregl) return Promise.resolve(window.maplibregl);
+  if(mapLibrePromise) return mapLibrePromise;
+  mapLibrePromise=Promise.all([
+    ensureMapLibreCss(),
+    new Promise((resolve,reject)=>{
+      const existing=document.querySelector(`script[src="${MAPLIBRE_JS_URL}"]`);
+      if(existing){
+        existing.addEventListener("load",resolve,{once:true});
+        existing.addEventListener("error",()=>reject(new Error("Could not load MapLibre JS")),{once:true});
+        return;
+      }
+      const script=document.createElement("script");
+      script.src=MAPLIBRE_JS_URL;
+      script.async=true;
+      script.dataset.oasisMaplibre="js";
+      script.onload=resolve;
+      script.onerror=()=>reject(new Error("Could not load MapLibre JS"));
+      document.head.appendChild(script);
+    })
+  ]).then(()=>{
+    if(!window.maplibregl) throw new Error("MapLibre did not initialize");
+    return window.maplibregl;
+  }).catch(err=>{
+    mapLibrePromise=null;
+    throw err;
+  });
+  return mapLibrePromise;
+}
+function scheduleMapRuntimeWarmup(){
+  if(savedMode()==="globe"||window.maplibregl||mapLibrePromise) return;
+  let warmed=false;
+  const warm=()=>{
+    if(warmed||window.maplibregl||mapLibrePromise) return;
+    warmed=true;
+    if(mode!=="globe") ensureMapLibre().catch(err=>warnMapOnce("map warmup",err));
+  };
+  const timer=setTimeout(warm,1800);
+  if("requestIdleCallback" in window) requestIdleCallback(()=>{ clearTimeout(timer); warm(); },{timeout:2500});
+}
 function initMapGlobe(){
-  if(map||mapInitPromise||!window.maplibregl) return;
-  assignMapInitPromise(loadBaseMapStyle().catch(err=>{
+  if(map) return Promise.resolve(map);
+  if(mapInitPromise) return mapInitPromise;
+  assignMapInitPromise(ensureMapLibre().then(()=>loadBaseMapStyle().catch(err=>{
     console.warn("base map style patch skipped",err);
     productPrefs.basemap="standard";
     saveProductPrefs();
     return BASEMAPS.standard.styleUrl;
-  }).then(createMapGlobe));
+  }).then(createMapGlobe)).catch(err=>{
+    warnMapOnce("map globe",err);
+    assignMapInitPromise(null);
+    return null;
+  }));
+  return mapInitPromise;
 }
 function createMapGlobe(style){
   const start=restoredView.mode==="globe"&&restoredView.map?restoredView.map:{};
-  assignMap(new maplibregl.Map({
+  assignMap(new window.maplibregl.Map({
     container:"map",style,
     center:Array.isArray(start.center)?start.center:[-95,28],
     zoom:Number.isFinite(start.zoom)?start.zoom:1.45,
@@ -1172,12 +1254,13 @@ function createMapGlobe(style){
     map.setProjection({type:"globe"});
     normalizeBaseMapLabels();
     assignMapReady(true);
-    addMapLayers();
+    addMapLayers().catch(err=>warnMapOnce("map data",err));
     drawGlobe();
     renderMapStudio();
   });
   map.on("moveend",()=>{ queueSaveView(); updateDueDiligenceSources(); });
-  map.on("error",e=>console.warn("map globe",e.error||e));
+  map.on("error",e=>warnMapOnce("map globe",e.error||e));
+  return map;
 }
 function configureMapGestures(){
   map.dragPan?.enable?.();
@@ -1211,24 +1294,34 @@ function normalizeBaseMapLabels(){
 }
 async function loadMapData(){
   if(mapData.companies) return mapData;
-  const [companies,securities,relationships,graphIndex,unknown]=await Promise.all([
-    fetch("data/companies.geojson").then(r=>r.json()),
-    fetch("data/securities.geojson").then(r=>r.json()),
-    fetch("data/relationships.geojson").then(r=>r.json()),
-    fetch("data/graph-index.json").then(r=>r.json()),
-    fetch("data/location_unknown.json").then(r=>r.ok?r.json():[]),
-  ]);
-  Object.assign(mapData,{companies,securities,relationships,graphIndex,unknown});
-  globe.unknownCount=unknown.length||0;
-  return mapData;
+  if(!mapDataPromise){
+    mapDataPromise=Promise.all([
+      fetch("data/companies.geojson").then(r=>r.json()),
+      fetch("data/securities.geojson").then(r=>r.json()),
+      fetch("data/relationships.geojson").then(r=>r.json()),
+    ]).then(([companies,securities,relationships])=>{
+      Object.assign(mapData,{companies,securities,relationships});
+      return mapData;
+    });
+  }
+  return mapDataPromise;
 }
-function addMapLayers(){
+function loadMapGraphIndex(){
+  if(mapData.graphIndex) return Promise.resolve(mapData.graphIndex);
+  if(!mapGraphIndexPromise){
+    mapGraphIndexPromise=fetch("data/graph-index.json").then(r=>r.json()).then(d=>{ mapData.graphIndex=d||{}; return mapData.graphIndex; });
+  }
+  return mapGraphIndexPromise;
+}
+async function addMapLayers(){
   if(map.getSource("companies")) return;
+  const data=await loadMapData();
+  if(map.getSource("companies")){ drawGlobe(); return; }
   addPhysicalContextLayers();
   addDueDiligenceLayers();
-  map.addSource("relationships",{type:"geojson",data:"data/relationships.geojson",promoteId:"id"});
-  map.addSource("companies",{type:"geojson",data:"data/companies.geojson",promoteId:"id",cluster:true,clusterRadius:55,clusterMaxZoom:5});
-  map.addSource("securities",{type:"geojson",data:"data/securities.geojson",promoteId:"id"});
+  map.addSource("relationships",{type:"geojson",data:data.relationships,promoteId:"id"});
+  map.addSource("companies",{type:"geojson",data:data.companies,promoteId:"id",cluster:true,clusterRadius:55,clusterMaxZoom:5});
+  map.addSource("securities",{type:"geojson",data:data.securities,promoteId:"id"});
   addRelationshipLayers();
   addCompanyClusterLayers();
   addCompanyNodeLayers();
@@ -1237,7 +1330,7 @@ function addMapLayers(){
   addManualLayers();
   wireMapInteractions();
   applyProductPrefs();
-  loadMapData().then(()=>drawGlobe()).catch(err=>console.warn("map data",err));
+  drawGlobe();
 }
 function firstSymbolLayerId(){
   return map.getStyle()?.layers?.find(layer=>layer.type==="symbol")?.id;
@@ -1267,7 +1360,7 @@ async function zoomToTerrainDem(){
 }
 async function loadTerrainDemStatus(){
   if(terrainDemStatusPromise) return terrainDemStatusPromise;
-  assignTerrainDemStatusPromise(fetch(TERRAIN_STATUS_URL,{cache:"no-store"})
+  assignTerrainDemStatusPromise(fetch(TERRAIN_STATUS_URL,{cache:"no-cache"})
     .then(r=>{ if(!r.ok) throw new Error(`${r.status} ${r.statusText}`); return r.json(); })
     .then(status=>{
       const tilejson=status.tilejson||{};
@@ -1484,6 +1577,7 @@ function applyMapSelection(id,sourceId=sourceForEntity(id)){
   if(mapSelectedId&&mapSelectedSource&&map.getSource(mapSelectedSource)) map.setFeatureState({source:mapSelectedSource,id:mapSelectedId},{selected:false});
   assignMapSelectedId(id); assignMapSelectedSource(sourceId);
   map.setFeatureState({source:sourceId,id},{selected:true});
+  if(!mapData.graphIndex) loadMapGraphIndex().then(()=>{ if(mapSelectedId===id) applyMapSelection(id,sourceId); }).catch(err=>console.warn("map graph index",err));
   const focus=mapData.graphIndex?.[id]||{neighbors:[],edges:[]};
   const nodeIds=[id,...(focus.neighbors||[])],edgeIds=focus.edges||[];
   const nodeOpacity=["case",["in",["get","id"],["literal",nodeIds]],0.95,0.12];
@@ -1716,8 +1810,8 @@ async function loadModel(id){
   const host=document.querySelector(`[data-model="${CSS.escape(id)}"]`);
   if(!host) return;
   const [rd,cp]=await Promise.all([
-    fetch(`/api/entity/${encodeURIComponent(id)}/reverse-dcf`).then(r=>r.json()).catch(()=>({available:false})),
-    fetch(`/api/entity/${encodeURIComponent(id)}/comps?cap=8`).then(r=>r.json()).catch(()=>({available:false})),
+    fetch(`/api/entity/${encodeURIComponent(id)}/reverse-dcf`,{cache:"no-cache"}).then(r=>r.json()).catch(()=>({available:false})),
+    fetch(`/api/entity/${encodeURIComponent(id)}/comps?cap=8`,{cache:"no-cache"}).then(r=>r.json()).catch(()=>({available:false})),
   ]);
   if(!rd.available && !cp.available){ host.remove(); return; }
   let h=`<div class="section-h">Model</div>`;
@@ -1736,7 +1830,7 @@ function eventsBlock(id){
 async function loadEvents(id){
   const host=document.querySelector(`[data-events="${CSS.escape(id)}"]`);
   if(!host) return;
-  const d=await fetch(`/api/entity/${encodeURIComponent(id)}/events`).then(r=>r.json()).catch(()=>({events:[],watchlisted:false}));
+  const d=await fetch(`/api/entity/${encodeURIComponent(id)}/events`,{cache:"no-cache"}).then(r=>r.json()).catch(()=>({events:[],watchlisted:false}));
   const star=`<button class="star-btn${d.watchlisted?" on":""}" type="button" data-action="watch-toggle" data-id="${esc(id)}">${d.watchlisted?"★":"☆"} Watchlist</button>`;
   const ic={filing:"📄",price:"📈",news:"📰",contract:"🏛️",trade:"💼"};
   const list=d.events.length?`<div class="events-list">`+d.events.map(e=>`<div class="event-row ${esc(e.priority||"")}"><span class="ev-ic">${ic[e.type]||"•"}</span><span class="ev-t">${esc(e.title)}</span><span class="ev-meta">${esc(e.ts||"")}${e.source_url?` · <a href="${esc(e.source_url)}" target="_blank" rel="noopener noreferrer">source</a>`:""} · ${esc(e.priority||"")}</span></div>`).join("")+`</div>`:`<div class="story-meta">No events recorded yet.</div>`;
@@ -1752,7 +1846,7 @@ function politicalBlock(id){
 async function loadPolitical(id){
   const host=document.querySelector(`[data-political="${CSS.escape(id)}"]`);
   if(!host) return;
-  const d=await fetch(`/api/entity/${encodeURIComponent(id)}/political`).then(r=>r.json()).catch(()=>({available:false}));
+  const d=await fetch(`/api/entity/${encodeURIComponent(id)}/political`,{cache:"no-cache"}).then(r=>r.json()).catch(()=>({available:false}));
   if(!d.available){ host.remove(); return; } // no section when there is no data
   let h=`<div class="section-h">Political exposure</div><div class="story-meta">Committee overlap and federal contract context — relevance and provenance only, not a claim of influence.</div>`;
   if(d.committees.length){
@@ -1770,7 +1864,7 @@ async function loadCompanyAssets(id){
   const host=document.querySelector(`[data-company-assets="${CSS.escape(id)}"]`);
   if(!host) return;
   try{
-    const res=await fetch(`/api/entity/${encodeURIComponent(id)}/assets`,{cache:"no-store"});
+    const res=await fetch(`/api/entity/${encodeURIComponent(id)}/assets`,{cache:"no-cache"});
     if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     const filters=selectedEntityFilters();
     const rows=((await res.json()).assets||[]).filter(a=>{
@@ -2049,7 +2143,7 @@ window.stressIndex=async(n=50000)=>{
   if(!byId.STRESS_0){
     const sec=Object.keys(SECTORS)[0]||"other";
     for(let i=0;i<n;i++){ const c={id:"STRESS_"+i,canonical_id:"STRESS_"+i,n:"Stress "+i,t:"S"+i,sec,sector:SECTORS[sec]?.name||"Other",sub:"Synthetic",hq:"—",cik:"—",f:"",kind:"public",status:"active",deg:0,tot:0,r:3,x:(i%250)*24,y:7000+Math.floor(i/250)*24}; c.ix=c.x; c.iy=c.y; COMPANIES.push(c); byId[c.id]=c; adj[c.id]=new Set(); }
-    META.companies=COMPANIES.length; buildGrid();
+    META.companies=COMPANIES.length; markGridDirty();
   }
   await setMode("index");
   return {nodes:COMPANIES.length,svgNodes:document.querySelectorAll("#nodes .node-g").length};
@@ -2487,20 +2581,23 @@ document.getElementById("manualImport").addEventListener("change",async e=>{
 /* ---------- filters ---------- */
 function buildFilters(){
   const sf=document.getElementById("sectorFilters");
+  const sectorCounts={},groupCounts={},relCounts={};
+  COMPANIES.forEach(c=>{ sectorCounts[c.sec]=(sectorCounts[c.sec]||0)+1; groupCounts[c.grp]=(groupCounts[c.grp]||0)+1; });
+  LINKS.forEach(l=>{ relCounts[l.rel]=(relCounts[l.rel]||0)+1; });
   Object.entries(SECTORS).sort((a,b)=>a[1].name.localeCompare(b[1].name)).forEach(([key,v])=>{
-    const count=COMPANIES.filter(c=>c.sec===key).length;
+    const count=sectorCounts[key]||0;
     const el=document.createElement("div"); el.className=`chip${sectorOn[key]?"":" off"}`; el.innerHTML=`<span class="sw" style="background:${v.color}"></span>${esc(v.name)}<span class="count">${count}</span>`;
     el.onclick=()=>{ sectorOn[key]=!sectorOn[key]; el.classList.toggle("off"); refresh(true); }; sf.appendChild(el);
   });
   const gf=document.getElementById("groupFilters");
   Object.entries(GROUPS).sort((a,b)=>a[1].name.localeCompare(b[1].name)).forEach(([key,v])=>{
-    const count=COMPANIES.filter(c=>c.grp===key).length;
+    const count=groupCounts[key]||0;
     const el=document.createElement("div"); el.className=`chip${groupOn[key]?"":" off"}`; el.innerHTML=`<span class="sw" style="background:${v.color}"></span>${esc(v.name)}<span class="count">${count}</span>`;
     el.onclick=()=>{ groupOn[key]=!groupOn[key]; el.classList.toggle("off"); refresh(true); }; gf.appendChild(el);
   });
   const rf=document.getElementById("relFilters");
   Object.entries(RELS).forEach(([key,v])=>{
-    const count=LINKS.filter(l=>l.rel===key).length;
+    const count=relCounts[key]||0;
     const el=document.createElement("div"); el.className=`chip${relOn[key]?"":" off"}`; el.innerHTML=`<span class="ln" style="border-color:${v.color}"></span>${esc(v.name)}<span class="dir">${esc(v.dir||"")}</span>`;
     el.onclick=()=>{ relOn[key]=!relOn[key]; el.classList.toggle("off"); refresh(true); }; rf.appendChild(el);
   });
@@ -2509,9 +2606,11 @@ function buildToolKinds(){
   const host=document.getElementById("toolKindFilters");
   if(!host) return;
   host.innerHTML="";
+  const kindCounts={};
+  COMPANIES.forEach(c=>{ kindCounts[c.kind]=(kindCounts[c.kind]||0)+1; });
   Object.keys(kindOn).sort((a,b)=>(kindMeta[a]?.name||a).localeCompare(kindMeta[b]?.name||b)).forEach(key=>{
     const meta=kindMeta[key]||{name:key,color:"#9aa6b6"};
-    const count=COMPANIES.filter(c=>c.kind===key).length;
+    const count=kindCounts[key]||0;
     const row=document.createElement("label");
     row.className="toggle-row";
     row.innerHTML=`<span><span class="sw" style="background:${meta.color};margin-right:8px"></span>${esc(meta.name)} <span style="color:var(--text-3)">(${count})</span></span><input type="checkbox" data-tool-kind="${esc(key)}" ${kindOn[key]?"checked":""}>`;
@@ -2567,7 +2666,7 @@ function dataQualityDashboardHtml(){
     <button class="preset-head" type="button" style="--layer-color:#fbbf24">
       <span class="layer-icon">${DATA_ICON_SVG.risk}</span><span class="preset-title">Data Quality</span><span class="preset-meta">audit</span><span class="preset-chevron">▾</span>
     </button>
-    <div class="preset-body"><div class="quality-grid" id="dataQualityDashboard"><div class="story-meta">Loading evidence coverage…</div></div></div>
+    <div class="preset-body"><div class="quality-grid" id="dataQualityDashboard">${dataQualityDashboardMarkup||'<div class="story-meta">Loading evidence coverage…</div>'}</div></div>
   </section>`;
 }
 function layerStatus(layer){
@@ -2579,30 +2678,32 @@ function layerStatus(layer){
 async function hydrateDataQuality(){
   const host=document.getElementById("dataQualityDashboard");
   if(!host) return;
+  if(dataQualityDashboardMarkup) host.innerHTML=dataQualityDashboardMarkup;
   if(dataQualityPromise) return dataQualityPromise;
   if(Date.now()-dataQualityLast<15000) return;
   assignDataQualityLast(Date.now());
   assignDataQualityPromise((async()=>{
   try{
-    const [summaryRes,farmsRes,industrialRes,govRes]=await Promise.all([
-      fetch("/api/data-quality/summary",{cache:"no-store"}),
-      fetch("/api/data-quality/layer/farms",{cache:"no-store"}),
-      fetch("/api/data-quality/layer/industrial",{cache:"no-store"}),
-      fetch("/api/data-quality/layer/government",{cache:"no-store"})
-    ]);
-    if(!summaryRes.ok) throw new Error(summaryRes.status===404?"not implemented yet":`${summaryRes.status} ${summaryRes.statusText}`);
-    const s=await summaryRes.json(),farm=(await farmsRes.json()).metrics||{},ind=(await industrialRes.json()).metrics||{},gov=(await govRes.json()).metrics||{};
+    const res=await fetch("/api/data-quality/dashboard",{cache:"no-cache"});
+    if(!res.ok) throw new Error(res.status===404?"not implemented yet":`${res.status} ${res.statusText}`);
+    const d=await res.json(),s=d.summary||{},farm=d.layers?.farms?.metrics||{},ind=d.layers?.industrial?.metrics||{},gov=d.layers?.government?.metrics||{};
     const rows=[
       ["Evidence records",s.total_evidence_records],["Assets missing location",s.assets_missing_location],["Assets missing owner",s.assets_missing_owner],["Low-confidence relationships",s.low_confidence_relationships],["Stale records",s.stale_records],["Needs review",s.records_needing_review],
       ["Farms missing acres",farm.farms_missing_acres],["Farms missing last sale",farm.farms_missing_last_sale_price],["Industrial missing project cost",ind.industrial_assets_missing_project_cost],["Data centers missing MW",ind.data_centers_missing_power_capacity],["Government missing source",gov.government_facilities_missing_source]
     ];
-    host.innerHTML=rows.map(([k,v])=>`<div class="quality-row"><span>${esc(k)}</span><b>${Number(v||0).toLocaleString()}</b></div>`).join("");
+    dataQualityDashboardMarkup=rows.map(([k,v])=>`<div class="quality-row"><span>${esc(k)}</span><b>${Number(v||0).toLocaleString()}</b></div>`).join("");
+    (document.getElementById("dataQualityDashboard")||host).innerHTML=dataQualityDashboardMarkup;
   }catch(err){
-    host.innerHTML=`<div class="story-meta">Data quality: ${esc(err.message||"data unavailable")}</div>`;
+    dataQualityDashboardMarkup=`<div class="story-meta">Data quality: ${esc(err.message||"data unavailable")}</div>`;
+    (document.getElementById("dataQualityDashboard")||host).innerHTML=dataQualityDashboardMarkup;
   }
-  finally{ dataQualityPromise=null; }
+  finally{ assignDataQualityPromise(null); }
   })());
   return dataQualityPromise;
+}
+function queueHydrateDataQuality(){
+  if(!document.getElementById("dataPanel")?.classList.contains("show")) return;
+  setTimeout(hydrateDataQuality,0);
 }
 function renderDataLayerPresets(){
   const host=document.getElementById("dataLayerPresets");
@@ -2643,7 +2744,7 @@ function renderDataLayerPresets(){
       <div class="preset-body">${reliefControls}${marketplaceControls}${rows}</div>
     </section>`;
   }).join("")+assetGraphControlsHtml()+dataQualityDashboardHtml();
-  setTimeout(hydrateDataQuality,0);
+  queueHydrateDataQuality();
 }
 function setDataLayer(id,on){
   if(!DATA_LAYER_BY_ID[id]) return;
@@ -2738,6 +2839,10 @@ document.getElementById("shortcutOverlay").addEventListener("click",e=>{
 /* ---------- mode + toolbar ---------- */
 async function setMode(m){
   if(rafId){ cancelAnimationFrame(rafId); assignRafId(null); }
+  if(m==="globe"){
+    ensureMapLibre().catch(err=>warnMapOnce("map globe",err));
+    loadMapData().catch(err=>warnMapOnce("map data",err));
+  }
   await loadBulk();
   assignMode(m);
   invalidateVisibilityCache();
@@ -2754,8 +2859,9 @@ async function setMode(m){
     runPhysics();
   } else if(m==="globe"){
     COMPANIES.forEach(c=>{ c.x=c.ix; c.y=c.iy; });
-    initMapGlobe(); drawGlobe(); if(map) requestAnimationFrame(()=>map.resize());
+    await initMapGlobe(); drawGlobe(); if(map) requestAnimationFrame(()=>map.resize());
   } else {
+    ensureGrid();
     COMPANIES.forEach(c=>{ c.x=c.ix; c.y=c.iy; });
     draw();
   }
@@ -2766,16 +2872,22 @@ function runPhysics(){
   const conn=COMPANIES.filter(visibleNode);
   const edges=visibleEdges().map(l=>({a:byId[l.from],b:byId[l.to],rest:120-Math.min(70,l.val/4)}));
   if(!conn.length){ draw(); return; }
-  let alpha=1;
+  let alpha=1,frames=0;
   function step(){
     if(physicsPaused()){ assignRafId(requestAnimationFrame(step)); return; }
+    frames++;
     for(let i=0;i<conn.length;i++){ const a=conn[i]; for(let j=i+1;j<conn.length;j++){ const b=conn[j]; let dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy||.01,d=Math.sqrt(d2),f=14000/d2*alpha,ux=dx/d,uy=dy/d; if(!nodeAnchored(a)){ a.x+=ux*f; a.y+=uy*f; } if(!nodeAnchored(b)){ b.x-=ux*f; b.y-=uy*f; } } }
     edges.forEach(e=>{ if(e.a.deg===0||e.b.deg===0)return; let dx=e.b.x-e.a.x,dy=e.b.y-e.a.y,d=Math.hypot(dx,dy)||.01,f=(d-e.rest)*.04*alpha,ux=dx/d,uy=dy/d; if(!nodeAnchored(e.a)){e.a.x+=ux*f;e.a.y+=uy*f;} if(!nodeAnchored(e.b)){e.b.x-=ux*f;e.b.y-=uy*f;} });
     let mx=0,my=0; conn.forEach(c=>{mx+=c.x;my+=c.y;}); mx/=conn.length; my/=conn.length;
     conn.forEach(c=>{ if(!nodeAnchored(c)){ c.x+=(700-mx)*.05; c.y+=(470-my)*.05; } });
     resolveNodeCollisions(conn,dragNode,2);
     alpha*=0.992; if(alpha<0.02) alpha=0.02;
-    draw(); assignRafId(requestAnimationFrame(step));
+    draw();
+    if(frames>=180){
+      assignRafId(null);
+      return;
+    }
+    assignRafId(requestAnimationFrame(step));
   }
   step();
 }
