@@ -70,3 +70,6 @@ Assets & Media/
 node_modules/
 test-results/
 playwright-report/
+
+# Local audit backups (never commit)
+.local-backups/
