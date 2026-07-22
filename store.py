@@ -7,8 +7,6 @@ from datetime import date, datetime
 from functools import lru_cache
 from pathlib import Path
 
-import duckdb
-
 ROOT = Path(__file__).resolve().parent
 STORE = ROOT / "data" / "store"
 NODES = STORE / "nodes.parquet"
@@ -23,6 +21,8 @@ def _mtime(path: Path) -> float:
 
 
 def _rows(path: Path) -> list[dict]:
+    import duckdb
+
     con = duckdb.connect()
     cur = con.execute(f"select * from '{path.as_posix()}'")
     cols = [d[0] for d in cur.description]
@@ -79,12 +79,32 @@ def load_edges() -> list[dict]:
     return list(_load_edges(_mtime(EDGES)))
 
 
+@lru_cache(maxsize=2)
+def _by_id(mtime: float) -> dict[str, dict]:
+    return {node["id"]: node for node in _load_nodes(mtime)}
+
+
 def by_id() -> dict[str, dict]:
-    return {node["id"]: node for node in load_nodes()}
+    return _by_id(_mtime(NODES))
 
 
-def aliases() -> dict[str, str]:
-    nodes = load_nodes()
+@lru_cache(maxsize=2)
+def _node_count(mtime: float) -> int:
+    import duckdb
+
+    con = duckdb.connect()
+    count = con.execute(f"select count(*) from '{NODES.as_posix()}'").fetchone()[0]
+    con.close()
+    return int(count)
+
+
+def node_count() -> int:
+    return _node_count(_mtime(NODES))
+
+
+@lru_cache(maxsize=2)
+def _aliases(nodes_mtime: float, aliases_mtime: float) -> dict[str, str]:
+    nodes = _load_nodes(nodes_mtime)
     out = {node["id"].upper(): node["id"] for node in nodes}
     for node in nodes:
         if node.get("t"):
@@ -94,3 +114,8 @@ def aliases() -> dict[str, str]:
     if ALIASES.exists():
         out.update({str(k).upper(): v for k, v in json.loads(ALIASES.read_text("utf-8")).items()})
     return out
+
+
+def aliases() -> dict[str, str]:
+    aliases_mtime = ALIASES.stat().st_mtime if ALIASES.exists() else 0
+    return _aliases(_mtime(NODES), aliases_mtime)

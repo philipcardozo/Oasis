@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -101,6 +102,10 @@ def dem_path() -> Path:
     return project_path(os.environ.get("USGS_3DEP_DEM_PATH"), DEFAULT_DEM)
 
 
+def path_mtime(path: Path) -> float:
+    return path.stat().st_mtime if path.exists() else 0
+
+
 def source_registry() -> dict[str, Any]:
     load_env()
     return {
@@ -128,17 +133,27 @@ def source_registry() -> dict[str, Any]:
     }
 
 
-def dem_tilejson() -> dict[str, Any] | None:
+@lru_cache(maxsize=4)
+def _dem_tilejson_cached(unified_mtime: float, legacy_mtime: float) -> dict[str, Any] | None:
     for path in (UNIFIED_TILEJSON_PATH, TILEJSON_PATH):
         if path.exists():
             return json.loads(path.read_text())
     return None
 
 
-def dem_metadata() -> dict[str, Any] | None:
+def dem_tilejson() -> dict[str, Any] | None:
+    return _dem_tilejson_cached(path_mtime(UNIFIED_TILEJSON_PATH), path_mtime(TILEJSON_PATH))
+
+
+@lru_cache(maxsize=4)
+def _dem_metadata_cached(mtime: float) -> dict[str, Any] | None:
     if not METADATA_PATH.exists():
         return None
     return json.loads(METADATA_PATH.read_text())
+
+
+def dem_metadata() -> dict[str, Any] | None:
+    return _dem_metadata_cached(path_mtime(METADATA_PATH))
 
 
 def public_tile_dir(tilejson: dict[str, Any] | None) -> Path:
@@ -150,7 +165,8 @@ def public_tile_dir(tilejson: dict[str, Any] | None) -> Path:
     return ROOT / "graph" / "tiles" / public
 
 
-def terrain_coverage_registry() -> dict[str, Any]:
+@lru_cache(maxsize=4)
+def _terrain_coverage_registry_cached(coverage_mtime: float, metadata_mtime: float, unified_tilejson_mtime: float, legacy_tilejson_mtime: float) -> dict[str, Any]:
     if TERRAIN_COVERAGE_PATH.exists():
         return json.loads(TERRAIN_COVERAGE_PATH.read_text())
     metadata = dem_metadata()
@@ -187,6 +203,15 @@ def terrain_coverage_registry() -> dict[str, Any]:
         ],
         "last_job": None,
     }
+
+
+def terrain_coverage_registry() -> dict[str, Any]:
+    return _terrain_coverage_registry_cached(
+        path_mtime(TERRAIN_COVERAGE_PATH),
+        path_mtime(METADATA_PATH),
+        path_mtime(UNIFIED_TILEJSON_PATH),
+        path_mtime(TILEJSON_PATH),
+    )
 
 
 def covers_bbox(coverage: list[float] | tuple[float, ...] | None, target: tuple[float, float, float, float]) -> bool:

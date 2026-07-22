@@ -1,6 +1,8 @@
+import json
+
 from fastapi.testclient import TestClient
 
-from map_api import app, features_for_layer, parse_bbox, public_cameras_geojson
+from map_api import DATA, app, features_for_layer, parse_bbox, public_cameras_geojson
 
 
 def test_main() -> None:
@@ -51,6 +53,97 @@ def test_main() -> None:
     assert client.get("/api/reliefs/terrain/jobs/status").status_code == 200
     source_status = client.get("/api/data-sources/status").json()
     assert all(c["ok"] for c in source_status["checks"])
+    html = client.get("/").text
+    assert "unpkg.com/maplibre-gl" not in html
+    assert "vendor/maplibre-gl/5.6.2/maplibre-gl.js" in client.get("/js/main.js").text
+    for cache_path in ("/vendor/maplibre-gl/5.6.2/maplibre-gl.css", "/vendor/maplibre-gl/5.6.2/maplibre-gl.js"):
+        first = client.get(cache_path, headers={"accept-encoding": "gzip"})
+        assert first.status_code == 200
+        assert first.headers["etag"]
+        assert first.headers["cache-control"] == "public, max-age=31536000, immutable"
+        second = client.get(cache_path, headers={"if-none-match": first.headers["etag"], "accept-encoding": "gzip"})
+        assert second.status_code == 304
+        assert not second.content
+    for cache_path in ("/", "/index.html", "/js/main.js", "/js/config.js", "/js/state.js", "/css/app.css"):
+        first = client.get(cache_path, headers={"accept-encoding": "gzip"})
+        assert first.status_code == 200
+        assert first.headers["etag"]
+        assert first.headers["cache-control"] == "public, max-age=60, must-revalidate"
+        second = client.get(cache_path, headers={"if-none-match": first.headers["etag"], "accept-encoding": "gzip"})
+        assert second.status_code == 304
+        assert not second.content
+    bootstrap_signals = client.get("/api/bootstrap/signals").json()
+    assert isinstance(bootstrap_signals["aliases"], dict)
+    assert isinstance(bootstrap_signals["hq_coords"], dict)
+    assert bootstrap_signals["news"] is None
+    assert bootstrap_signals["edge_candidates"] == []
+    assert bootstrap_signals["location_unknown_count"] == len(client.get("/api/location/unknown").json())
+    ui_bulk = client.get("/api/universe/bulk").json()
+    assert ui_bulk["nodes"]
+    assert "entity_model" not in ui_bulk["nodes"][0]
+    assert len(ui_bulk["nodes"]) == len(json.loads((DATA / "universe_bulk.json").read_text())["nodes"])
+    full_entities = client.get("/api/map/entities.geojson").json()
+    world_bbox_entities = client.get("/api/map/entities.geojson?bbox=-180,-90,180,90").json()
+    assert world_bbox_entities == full_entities
+    for cache_path in (
+        "/data/universe_core.json",
+        "/api/map/layers",
+        "/api/bootstrap/signals",
+        "/api/universe/bulk",
+        "/api/map/entities.geojson",
+        "/api/map/entities.geojson?bbox=-180,-90,180,90",
+        "/api/map/relationships.geojson",
+        "/api/map/relationships.geojson?bbox=-180,-90,180,90",
+        "/api/map/features.geojson?layer=industrial_assets",
+        "/api/map/features.geojson?layer=industrial_assets&bbox=-180,-90,180,90",
+        "/api/map/features.geojson?layer=marketplace&bbox=-180,-90,180,90",
+        "/api/assets/search?asset_type=farm&bbox=-180,-90,180,90",
+        "/api/assets/search?bbox=-180,-90,180,90",
+        "/api/listings/search?format=geojson&asset_type=farm&bbox=-180,-90,180,90",
+        "/api/listings/search?asset_type=house&bbox=-180,-90,180,90",
+        "/api/cameras/public.geojson?bbox=-180,-90,180,90",
+        "/api/permits/search?bbox=-180,-90,180,90",
+        "/api/location/unknown",
+        "/api/entity/GM",
+        "/api/entity/GM/neighborhood",
+        "/api/entity/GM/combined-neighborhood?depth=2",
+        "/api/entity/GM/reverse-dcf",
+        "/api/entity/GM/comps?cap=8",
+        "/api/entity/GM/events",
+        "/api/entity/GM/political",
+        "/api/entity/GM/risk",
+        "/api/entity/USDA/assets",
+        "/api/entity/USDA/asset-map.geojson",
+        "/api/data-quality/dashboard",
+        "/api/assets/asset%3Ademo-farm-iowa",
+        "/api/assets/asset%3Ademo-farm-iowa/due-diligence",
+        "/api/assets/asset%3Ademo-farm-iowa/valuation?case=base",
+        "/api/assets/asset%3Ademo-farm-iowa/risk-score",
+        "/api/assets/asset%3Ademo-farm-iowa/valuation-assumptions",
+        "/api/assets/asset%3Ademo-farm-iowa/scenario?case=bull",
+        "/api/assets/asset%3Ademo-farm-iowa/entities",
+        "/api/assets/asset%3Ademo-farm-iowa/relationship-graph",
+        "/api/assets/asset%3Ademo-farm-iowa/nearby-infrastructure",
+        "/api/assets/asset%3Ademo-farm-iowa/risk-summary",
+        "/api/listings/listing%3Ademo-farm-iowa",
+        "/api/evidence?object_type=asset&object_id=asset%3Ademo-farm-iowa",
+        "/api/evidence/ev%3Aasset_asset_demo-farm-iowa_acreage_public_seed_640",
+        "/api/data-quality/summary",
+        "/api/data-quality/layer/farms",
+        "/api/data-sources/status",
+        "/api/reliefs/dem/status",
+        "/api/reliefs/terrain/sources",
+        "/api/reliefs/terrain/coverage",
+        "/api/reliefs/terrain/jobs/status",
+        "/api/reports/asset/asset%3Ademo-farm-iowa",
+    ):
+        first = client.get(cache_path, headers={"accept-encoding": "gzip"})
+        assert first.status_code == 200
+        assert first.headers["etag"]
+        assert first.headers["cache-control"] == "public, max-age=60, must-revalidate"
+        second = client.get(cache_path, headers={"if-none-match": first.headers["etag"], "accept-encoding": "gzip"})
+        assert second.status_code == 304
+        assert not second.content
     assert client.get("/api/map/features.geojson?layer=farms&bbox=-180,-90,180,90").json()["features"]
     assert client.get("/api/map/features.geojson?layer=farm_parcels&bbox=-180,-90,180,90").json()["features"]
     assert client.get("/api/map/features.geojson?layer=industrial_assets&bbox=-180,-90,180,90").json()["features"]
@@ -90,6 +183,9 @@ def test_main() -> None:
     quality = client.get("/api/data-quality/summary").json()
     assert quality["total_evidence_records"] >= len(evidence)
     assert client.get("/api/data-quality/layer/farms").json()["metrics"]["farms_loaded"] >= 1
+    dashboard_quality = client.get("/api/data-quality/dashboard").json()
+    assert dashboard_quality["summary"]["total_evidence_records"] == quality["total_evidence_records"]
+    assert dashboard_quality["layers"]["farms"]["metrics"]["farms_loaded"] >= 1
     override = client.post("/api/overrides", json={"object_type": "asset", "object_id": asset["id"], "field_name": "acreage", "old_value": None, "new_value": "reviewed", "user_note": "test correction"}).json()["override"]
     assert client.get(f"/api/overrides?object_type=asset&object_id={asset['id']}").json()["overrides"]
     assert client.delete(f"/api/overrides/{override['id']}").json()["ok"] is True
@@ -99,6 +195,19 @@ def test_main() -> None:
     assert report["ok"] is True
     assert client.get(report["html"]).status_code == 200
     assert client.get(report["csv"]).status_code == 200
+    for download_path in (report["html"], report["json"], report["csv"]):
+        first = client.get(download_path)
+        assert first.status_code == 200
+        assert first.headers["etag"]
+        second = client.get(download_path, headers={"if-none-match": first.headers["etag"]})
+        assert second.status_code == 304
+        assert not second.content
+    dcf = client.get("/api/entity/BLK/dcf.xlsx?method=cash_flow")
+    assert dcf.status_code == 200
+    assert dcf.headers["etag"]
+    dcf_cached = client.get("/api/entity/BLK/dcf.xlsx?method=cash_flow", headers={"if-none-match": dcf.headers["etag"]})
+    assert dcf_cached.status_code == 304
+    assert not dcf_cached.content
     assert client.get("/api/entity/USDA/assets").json()["assets"]
     assert client.get("/api/evidence?object_type=entity&object_id=USDA").json()["evidence"]
     assert client.post("/api/reports/entity/USDA/generate", json={}).json()["html"]

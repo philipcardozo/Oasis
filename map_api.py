@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import json
 import csv
+import gzip
+import hashlib
 import re
 import os
-from contextlib import suppress
+import threading
+from contextlib import asynccontextmanager, suppress
 from datetime import date, datetime, timezone
 from functools import lru_cache
 from html import escape as html_escape
@@ -12,14 +15,27 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import unquote
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
-from dcf_export import build_dcf_workbook
-from data_sources import dem_tilejson, terrain_coverage_registry, validation_status
-from store import by_id as store_by_id
+from data_sources import (
+    METADATA_PATH,
+    TERRAIN_COVERAGE_PATH,
+    TILEJSON_PATH,
+    UNIFIED_TILEJSON_PATH,
+    dem_path,
+    dem_tilejson,
+    terrain_coverage_registry,
+    validation_status,
+)
+from store import EDGES as STORE_EDGES, NODES as STORE_NODES, aliases as store_aliases, by_id as store_by_id, node_count as store_node_count
+
+try:
+    import ujson as fast_json
+except ImportError:  # pragma: no cover - optional local speedup
+    fast_json = json
 
 ROOT = Path(__file__).parent
 DATA = ROOT / "graph" / "data"
@@ -28,15 +44,30 @@ OVERRIDES = DATA / "location_overrides.json"
 VALUATION_ASSUMPTIONS = DATA / "valuation_assumptions.json"
 USER_OVERRIDES = DATA / "user_overrides.json"
 REPORTS_DIR = DATA / "reports"
+WATCHLISTS = DATA / "watchlists.json"
+COMPANYFACTS = DATA / "companyfacts"
+EVENTS = ROOT / "data" / "store" / "events.parquet"
+POL_MEMBERS = ROOT / "data" / "store" / "pol_members.parquet"
+POL_TRADES = ROOT / "data" / "store" / "pol_trades.parquet"
+COMMITTEE_POLICY_MAP = DATA / "committee_policy_map.json"
+GOV_CONTRACTS = DATA / "gov_contracts.json"
 RAW_DATA_ROOT = Path(os.environ.get("OASIS_RAW_DATA_ROOT", "/data/raw"))
 RAW_FEEDS = {
     "usgs_3dep": {"source_layer": "relief_features", "default_layer": "relief-terrain"},
     "eia": {"source_layer": "industrial_assets", "default_layer": "industrial-energy"},
     "fbi_crime": {"source_layer": "relief_features", "default_layer": "relief-crime"},
 }
+FULL_WORLD_BBOX = (-180.0, -90.0, 180.0, 90.0)
 
 
-app = FastAPI(title="Oasis Map Intelligence API")
+@asynccontextmanager
+async def oasis_lifespan(app: FastAPI):
+    warm_startup_caches()
+    start_background_warm_caches()
+    yield
+
+
+app = FastAPI(title="Oasis Map Intelligence API", lifespan=oasis_lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -48,12 +79,23 @@ from starlette.middleware.gzip import GZipMiddleware
 app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 
-STATIC_JSON = {"companies.geojson", "securities.geojson", "relationships.geojson", "graph-index.json", "map_intelligence.json"}
+STATIC_JSON = {
+    "aliases.json",
+    "companies.geojson",
+    "edge_candidates.json",
+    "graph-index.json",
+    "hq_coords.json",
+    "location_unknown.json",
+    "map_intelligence.json",
+    "news.json",
+    "relationships.geojson",
+    "securities.geojson",
+}
 
 
 @lru_cache(maxsize=16)
 def _load_json_cached(path: str, mtime: float):
-    return json.load(Path(path).open())
+    return fast_json.loads(Path(path).read_bytes())
 
 
 def load_static_json(path: str):
@@ -70,9 +112,163 @@ def load_json(name: str | Path, fallback):
     return json.load(path.open()) if path.exists() else fallback
 
 
+def path_mtime(path: Path) -> float:
+    return path.stat().st_mtime if path.exists() else 0
+
+
+def latest_mtime(path: Path, pattern: str = "*") -> float:
+    if not path.exists():
+        return 0
+    if path.is_file():
+        return path_mtime(path)
+    latest = path.stat().st_mtime
+    for child in path.glob(pattern):
+        if child.is_file():
+            latest = max(latest, child.stat().st_mtime)
+    return latest
+
+
 
 def feature_collection(features: list[dict]) -> dict:
     return {"type": "FeatureCollection", "features": features}
+
+
+def compact_json_bytes(payload: Any) -> bytes:
+    if fast_json is json:
+        return json.dumps(payload, separators=(",", ":")).encode()
+    return fast_json.dumps(payload).encode()
+
+
+def gzip_api_bytes(raw: bytes) -> bytes:
+    level = 4 if len(raw) > 1_000_000 else 3
+    return gzip.compress(raw, compresslevel=level)
+
+
+def cache_etag(key: str, *parts: Any) -> str:
+    digest = hashlib.sha1("|".join(str(p) for p in (key, *parts)).encode()).hexdigest()[:16]
+    return f'W/"oasis-{digest}"'
+
+
+def request_has_etag(request: Request, etag: str) -> bool:
+    return any(tag.strip() in {etag, "*"} for tag in request.headers.get("if-none-match", "").split(","))
+
+
+def cached_bytes_response(
+    request: Request,
+    raw: bytes,
+    gzipped: bytes,
+    media_type: str,
+    etag: str,
+    cache_control: str = "public, max-age=60, must-revalidate",
+) -> Response:
+    base_headers = {"ETag": etag, "Vary": "Accept-Encoding", "Cache-Control": cache_control}
+    if request_has_etag(request, etag):
+        return Response(status_code=304, headers=base_headers)
+    if "gzip" in request.headers.get("accept-encoding", "").lower():
+        return Response(
+            gzipped,
+            media_type=media_type,
+            headers={**base_headers, "Content-Encoding": "gzip"},
+        )
+    return Response(raw, media_type=media_type, headers=base_headers)
+
+
+def not_modified_response(request: Request, etag: str, cache_control: str = "public, max-age=60, must-revalidate") -> Response | None:
+    headers = {"ETag": etag, "Vary": "Accept-Encoding", "Cache-Control": cache_control}
+    if request_has_etag(request, etag):
+        return Response(status_code=304, headers=headers)
+    return None
+
+
+@lru_cache(maxsize=8)
+def _static_asset_bytes_cached(path: str, mtime: float):
+    raw = Path(path).read_bytes()
+    return raw, gzip.compress(raw, compresslevel=6)
+
+
+def cached_static_data_response(name: str, request: Request, media_type: str = "application/json") -> Response:
+    path = DATA / name
+    mtime = path_mtime(path)
+    raw, gzipped = _static_asset_bytes_cached(str(path), mtime)
+    return cached_bytes_response(request, raw, gzipped, media_type, cache_etag(name, mtime, len(raw)))
+
+
+def cached_graph_asset_response(
+    relative_path: str,
+    request: Request,
+    media_type: str,
+    cache_control: str = "public, max-age=31536000, immutable",
+) -> Response:
+    path = ROOT / "graph" / relative_path
+    mtime = path_mtime(path)
+    raw, gzipped = _static_asset_bytes_cached(str(path), mtime)
+    return cached_bytes_response(
+        request,
+        raw,
+        gzipped,
+        media_type,
+        cache_etag(relative_path, mtime, len(raw)),
+        cache_control=cache_control,
+    )
+
+
+def file_etag(path: Path) -> str:
+    stat = path.stat()
+    return f'"{hashlib.md5(f"{stat.st_mtime}-{stat.st_size}".encode(), usedforsecurity=False).hexdigest()}"'
+
+
+def conditional_file_response(request: Request, path: Path, media_type: str, filename: str | None = None) -> Response:
+    etag = file_etag(path)
+    headers = {"ETag": etag, "Cache-Control": "public, max-age=60, must-revalidate"}
+    if request_has_etag(request, etag):
+        return Response(status_code=304, headers=headers)
+    return FileResponse(path, media_type=media_type, filename=filename, headers=headers)
+
+
+def terrain_status_cache_parts() -> tuple:
+    dem = dem_path()
+    return (
+        path_mtime(TERRAIN_COVERAGE_PATH),
+        path_mtime(METADATA_PATH),
+        path_mtime(UNIFIED_TILEJSON_PATH),
+        path_mtime(TILEJSON_PATH),
+        str(dem),
+        path_mtime(dem),
+        os.environ.get("EIA_API_KEY", ""),
+        os.environ.get("DATA_GOV_API_KEY", ""),
+        os.environ.get("TNM_ACCESS_PRODUCTS_URL", ""),
+        os.environ.get("USGS_3DEP_DEM_PATH", ""),
+    )
+
+
+@lru_cache(maxsize=16)
+def _json_payload_cached(cache_name: str, parts: tuple):
+    if cache_name == "data-sources-status":
+        payload = validation_status()
+    elif cache_name == "reliefs-dem-status":
+        status = validation_status()
+        payload = status["dem"] | {"checks": status["checks"], "sources": status["sources"]}
+    elif cache_name == "reliefs-terrain-sources":
+        registry = terrain_coverage_registry()
+        payload = {
+            "active_source": registry.get("active_source"),
+            "active_tilejson": registry.get("active_tilejson"),
+            "sources": registry.get("sources", []),
+        }
+    elif cache_name == "reliefs-terrain-coverage":
+        payload = terrain_coverage_payload()
+    elif cache_name == "reliefs-terrain-jobs":
+        payload = terrain_coverage_registry().get("last_job") or {"status": "not run"}
+    else:
+        payload = {}
+    raw = compact_json_bytes(payload)
+    return raw, gzip_api_bytes(raw)
+
+
+def cached_json_payload_response(cache_name: str, request: Request) -> Response:
+    parts = terrain_status_cache_parts()
+    raw, gzipped = _json_payload_cached(cache_name, parts)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag(cache_name, *parts, len(raw)))
 
 
 def raw_layer_type(feed: str, path: Path, row: dict | None = None) -> str:
@@ -247,11 +443,38 @@ def map_entities(bbox: list[float] | None = None) -> dict:
     return feature_collection([f for f in features if in_bbox(f["geometry"]["coordinates"], bbox)])
 
 
+def feature_collection_bytes_from_files(paths: tuple[Path, ...]) -> bytes:
+    parts = []
+    for path in paths:
+        raw = path.read_bytes().strip()
+        key = raw.find(b'"features"')
+        start = raw.find(b"[", key)
+        end = raw.rfind(b"]")
+        if key < 0 or start < 0 or end < start or raw[end + 1:].strip() != b"}":
+            raise ValueError(f"{path.name} is not a supported FeatureCollection")
+        body = raw[start + 1:end].strip()
+        if body:
+            parts.append(body)
+    return b'{"type":"FeatureCollection","features":[' + b",".join(parts) + b"]}"
+
+
+@lru_cache(maxsize=4)
+def _map_entities_json_cached(companies_mtime: float, securities_mtime: float):
+    raw = feature_collection_bytes_from_files((DATA / "companies.geojson", DATA / "securities.geojson"))
+    return raw, gzip_api_bytes(raw)
+
+
 def map_relationships(bbox: list[float] | None = None) -> dict:
     features = load_json("relationships.geojson", feature_collection([]))["features"]
     if bbox:
         features = [f for f in features if any(in_bbox(c, bbox) for c in f["geometry"]["coordinates"])]
     return feature_collection(features)
+
+
+@lru_cache(maxsize=4)
+def _map_relationships_json_cached(relationships_mtime: float):
+    raw = (DATA / "relationships.geojson").read_bytes().strip()
+    return raw, gzip_api_bytes(raw)
 
 
 def universe_nodes() -> dict[str, dict]:
@@ -302,6 +525,38 @@ def intel() -> dict[str, list[dict]]:
     return data
 
 
+@lru_cache(maxsize=4)
+def _intel_indexes_cached(mtime: float):
+    data = intel()
+    relationships_by_object: dict[str, list[dict]] = {}
+    for rel in data.get("asset_relationships", []):
+        for key in (rel.get("source_id"), rel.get("target_id")):
+            if key:
+                relationships_by_object.setdefault(key, []).append(rel)
+    return {
+        "entities_by_id": {r.get("id"): r for r in data.get("entities", []) if r.get("id")},
+        "assets_by_id": {r.get("id"): r for r in data.get("assets", []) if r.get("id")},
+        "farm_by_asset": {r.get("asset_id"): r for r in data.get("farm_profiles", []) if r.get("asset_id")},
+        "industrial_by_asset": {r.get("asset_id"): r for r in data.get("industrial_profiles", []) if r.get("asset_id")},
+        "permits_by_asset": group_by_key(data.get("permits", []), "asset_id"),
+        "listings_by_asset": group_by_key(data.get("asset_listings", []), "asset_id"),
+        "relationships_by_object": relationships_by_object,
+    }
+
+
+def group_by_key(rows: list[dict], key: str) -> dict[str, list[dict]]:
+    out: dict[str, list[dict]] = {}
+    for row in rows:
+        value = row.get(key)
+        if value:
+            out.setdefault(value, []).append(row)
+    return out
+
+
+def intel_indexes():
+    return _intel_indexes_cached(path_mtime(INTEL))
+
+
 def valid_point(row: dict) -> list[float] | None:
     lat, lon = row.get("latitude"), row.get("longitude")
     if isinstance(lat, (int, float)) and isinstance(lon, (int, float)):
@@ -335,15 +590,37 @@ def centroid(geometry: dict) -> list[float] | None:
     return [sum(p[0] for p in flat) / len(flat), sum(p[1] for p in flat) / len(flat)]
 
 
+NON_ENTITY_ID_PREFIXES = ("asset:", "listing:", "layer:", "permit:", "assetrel:")
+
+
 def entity(entity_id: str | None) -> dict | None:
     if not entity_id:
         return None
-    rows = {r["id"]: r for r in intel()["entities"]}
-    if entity_id in rows:
-        return rows[entity_id]
-    n = universe_nodes().get(entity_id)
-    if not n:
+    row = intel_entity(entity_id)
+    if row:
+        return row
+    if entity_id.startswith(NON_ENTITY_ID_PREFIXES):
         return None
+    n = universe_nodes().get(entity_id)
+    if n:
+        return entity_from_universe_node(n)
+    return universe_entity(entity_id)
+
+
+def intel_entity(entity_id: str) -> dict | None:
+    return _intel_entities_by_id_cached(path_mtime(INTEL)).get(entity_id)
+
+
+@lru_cache(maxsize=4)
+def _intel_entities_by_id_cached(intel_mtime: float) -> dict[str, dict]:
+    return {
+        row["id"]: row
+        for row in load_static_json(str(INTEL)).get("entities", [])
+        if row.get("id")
+    }
+
+
+def entity_from_universe_node(n: dict) -> dict:
     return {
         "id": n["id"],
         "name": n.get("n"),
@@ -356,6 +633,49 @@ def entity(entity_id: str | None) -> dict | None:
         "source": "data/store/nodes.parquet",
         "confidence": n.get("source_confidence"),
         "updated_at": n.get("as_of"),
+    }
+
+
+def universe_entity(entity_id: str) -> dict | None:
+    path = DATA / "universe_bulk.json"
+    nodes = _universe_nodes_by_id_cached(str(path), path_mtime(path))
+    row = nodes.get(entity_id)
+    return entity_from_universe_node(row) if row else None
+
+
+@lru_cache(maxsize=4)
+def _universe_nodes_by_id_cached(path: str, mtime: float) -> dict[str, dict]:
+    data = load_static_json(path)
+    return {row["id"]: row for row in data.get("nodes", []) if row.get("id")}
+
+
+def entity_display_names(entity_ids: set[str]) -> dict[str, str]:
+    indexes = _intel_entities_by_id_cached(path_mtime(INTEL))
+    names = {
+        entity_id: row.get("name") or entity_id
+        for entity_id in entity_ids
+        if (row := indexes.get(entity_id))
+    }
+    universe_names = universe_display_names()
+    names.update({
+        entity_id: universe_names.get(entity_id, entity_id)
+        for entity_id in entity_ids - set(names)
+    })
+    return names
+
+
+def universe_display_names() -> dict[str, str]:
+    path = DATA / "universe_bulk.json"
+    return _universe_display_names_cached(str(path), path_mtime(path))
+
+
+@lru_cache(maxsize=4)
+def _universe_display_names_cached(path: str, mtime: float) -> dict[str, str]:
+    data = load_static_json(path)
+    return {
+        row["id"]: row.get("n") or row["id"]
+        for row in data.get("nodes", [])
+        if row.get("id")
     }
 
 
@@ -487,7 +807,13 @@ def listing_rows(filters: dict | None = None, bbox: list[float] | None = None) -
 
 
 def asset_relationships(asset_id: str | None = None, entity_id: str | None = None) -> list[dict]:
-    rows = intel().get("asset_relationships", [])
+    index = intel_indexes()["relationships_by_object"]
+    if asset_id:
+        rows = list(index.get(asset_id, []))
+    elif entity_id:
+        rows = list(index.get(entity_id, []))
+    else:
+        rows = intel().get("asset_relationships", [])
     if asset_id:
         rows = [r for r in rows if r.get("target_id") == asset_id or r.get("source_id") == asset_id]
     if entity_id:
@@ -496,8 +822,7 @@ def asset_relationships(asset_id: str | None = None, entity_id: str | None = Non
 
 
 def asset_entities(asset_id: str) -> dict:
-    data = intel()
-    asset = next((a for a in data["assets"] if a["id"] == asset_id), {}) or {}
+    asset = intel_indexes()["assets_by_id"].get(asset_id, {}) or {}
     out: dict[str, list[dict] | dict | None] = {
         "owner": entity(asset.get("owner_entity_id")),
         "operator": entity(asset.get("operator_entity_id")),
@@ -567,8 +892,26 @@ LAYER_GROUPS = [
 
 
 def features_for_layer(layer: str, bbox: list[float] | None = None) -> dict:
+    if not bbox:
+        return _features_for_layer_cached(layer, path_mtime(INTEL), path_mtime(DATA / "universe_bulk.json"))
+    return _features_for_layer(layer, bbox)
+
+
+@lru_cache(maxsize=64)
+def _features_for_layer_cached(layer: str, intel_mtime: float, universe_mtime: float) -> dict:
+    return _features_for_layer(layer)
+
+
+@lru_cache(maxsize=64)
+def _features_for_layer_json_cached(layer: str, intel_mtime: float, universe_mtime: float):
+    raw = compact_json_bytes(_features_for_layer_cached(layer, intel_mtime, universe_mtime))
+    return raw, gzip_api_bytes(raw)
+
+
+def _features_for_layer(layer: str, bbox: list[float] | None = None) -> dict:
     data = intel()
-    assets = {a["id"]: a for a in data["assets"]}
+    indexes = intel_indexes()
+    assets = indexes["assets_by_id"]
     features: list[dict] = []
     aliases = {
         "reliefs": {"relief_features"},
@@ -613,12 +956,19 @@ def features_for_layer(layer: str, bbox: list[float] | None = None) -> dict:
     if "marketplace_listings" in wanted:
         return feature_collection([f for row in listing_rows({}, bbox) if (f := listing_feature(row))])
 
-    for asset in data["assets"]:
-        if asset_source(asset) not in wanted:
-            continue
-        farm = next((p for p in data["farm_profiles"] if p["asset_id"] == asset["id"]), None)
-        industrial = next((p for p in data["industrial_profiles"] if p["asset_id"] == asset["id"]), None)
-        permits = [p for p in data["permits"] if p.get("asset_id") == asset["id"]]
+    candidate_assets = [asset for asset in data["assets"] if asset_source(asset) in wanted]
+    display_ids = {
+        entity_id
+        for asset in candidate_assets
+        for entity_id in (asset.get("owner_entity_id"), asset.get("operator_entity_id"))
+        if entity_id
+    }
+    display_names = entity_display_names(display_ids)
+
+    for asset in candidate_assets:
+        farm = indexes["farm_by_asset"].get(asset["id"])
+        industrial = indexes["industrial_by_asset"].get(asset["id"])
+        permits = indexes["permits_by_asset"].get(asset["id"], [])
         for layer_id in asset_layers(asset):
             if only_layers and layer_id not in only_layers:
                 continue
@@ -629,8 +979,8 @@ def features_for_layer(layer: str, bbox: list[float] | None = None) -> dict:
             feature = geo_feature(asset, layer_id, "asset")
             if feature:
                 feature["properties"].update({
-                    "owner_name": (entity(asset.get("owner_entity_id")) or {}).get("name") or asset.get("owner_entity_id"),
-                    "operator_name": (entity(asset.get("operator_entity_id")) or {}).get("name") or asset.get("operator_entity_id"),
+                    "owner_name": display_names.get(asset.get("owner_entity_id")) or asset.get("owner_entity_id"),
+                    "operator_name": display_names.get(asset.get("operator_entity_id")) or asset.get("operator_entity_id"),
                     "permit_status": permits[0].get("approval_status") if permits else "not loaded",
                 })
                 if farm:
@@ -697,7 +1047,7 @@ def public_cameras_geojson(bbox: list[float] | None = None) -> dict:
 
 def public_permits(bbox: list[float] | None = None, permit_type: str | None = None) -> list[dict]:
     data = intel()
-    assets = {a["id"]: a for a in data["assets"]}
+    assets = intel_indexes()["assets_by_id"]
     rows = []
     for permit in data["permits"]:
         if permit_type and permit.get("permit_type") != permit_type:
@@ -710,14 +1060,14 @@ def public_permits(bbox: list[float] | None = None, permit_type: str | None = No
 
 
 def asset_profile(asset_id: str) -> dict:
-    data = intel()
-    asset = next((a for a in data["assets"] if a["id"] == asset_id), None)
+    indexes = intel_indexes()
+    asset = indexes["assets_by_id"].get(asset_id)
     if not asset:
         raise HTTPException(404, "asset not found")
-    farm = next((p for p in data["farm_profiles"] if p["asset_id"] == asset_id), None)
-    industrial = next((p for p in data["industrial_profiles"] if p["asset_id"] == asset_id), None)
-    permits = [p for p in data["permits"] if p.get("asset_id") == asset_id]
-    listings = [p for p in data.get("asset_listings", []) if p.get("asset_id") == asset_id]
+    farm = indexes["farm_by_asset"].get(asset_id)
+    industrial = indexes["industrial_by_asset"].get(asset_id)
+    permits = indexes["permits_by_asset"].get(asset_id, [])
+    listings = indexes["listings_by_asset"].get(asset_id, [])
     relationships = asset_relationships(asset_id=asset_id)
     return {
         **asset,
@@ -729,6 +1079,20 @@ def asset_profile(asset_id: str) -> dict:
         "connected_entities": asset_entities(asset_id),
         "farm_profile": farm,
         "industrial_profile": industrial,
+    }
+
+
+def asset_model_profile(asset_id: str) -> dict:
+    indexes = intel_indexes()
+    asset = indexes["assets_by_id"].get(asset_id)
+    if not asset:
+        raise HTTPException(404, "asset not found")
+    return {
+        **asset,
+        "permits": indexes["permits_by_asset"].get(asset_id, []),
+        "listings": indexes["listings_by_asset"].get(asset_id, []),
+        "farm_profile": indexes["farm_by_asset"].get(asset_id),
+        "industrial_profile": indexes["industrial_by_asset"].get(asset_id),
     }
 
 
@@ -748,7 +1112,9 @@ def first_listing(profile: dict) -> dict:
 
 
 def valuation_overrides() -> dict:
-    return load_json(VALUATION_ASSUMPTIONS, {})
+    if VALUATION_ASSUMPTIONS.exists():
+        return load_static_json(str(VALUATION_ASSUMPTIONS))
+    return {}
 
 
 def save_valuation_overrides(rows: dict) -> None:
@@ -809,7 +1175,11 @@ def default_assumptions(profile: dict) -> dict:
 
 
 def asset_assumptions(asset_id: str, case: str = "base") -> dict:
-    profile = asset_profile(asset_id)
+    profile = asset_model_profile(asset_id)
+    return asset_assumptions_for_profile(asset_id, profile, case)
+
+
+def asset_assumptions_for_profile(asset_id: str, profile: dict, case: str = "base") -> dict:
     assumptions = default_assumptions(profile)
     overrides = valuation_overrides().get(asset_id, {})
     assumptions.update(overrides.get("custom", {}))
@@ -849,9 +1219,13 @@ def valuation_label(score: float, good: str = "buy", mid: str = "watch", bad: st
 
 
 def valuation_model(asset_id: str, case: str = "base") -> dict:
-    profile = asset_profile(asset_id)
+    profile = asset_model_profile(asset_id)
+    return valuation_model_for_profile(asset_id, profile, case)
+
+
+def valuation_model_for_profile(asset_id: str, profile: dict, case: str = "base") -> dict:
     listing, farm, industrial = first_listing(profile), profile.get("farm_profile") or {}, profile.get("industrial_profile") or {}
-    assumptions = asset_assumptions(asset_id, case)
+    assumptions = asset_assumptions_for_profile(asset_id, profile, case)
     kind = model_kind(profile)
     acquisition = num(listing.get("price"), None)
     acres = num(listing.get("acreage") or farm.get("acres") or profile.get("area_acres"), 0) or 0
@@ -957,30 +1331,80 @@ def valuation_model(asset_id: str, case: str = "base") -> dict:
 
 
 @app.get("/api/map/layers")
-def api_layers():
-    return {
+def api_layers(request: Request):
+    raw, gzipped = _map_layers_json_cached()
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("map-layers", hashlib.sha1(raw).hexdigest()[:16], len(raw)))
+
+
+@lru_cache(maxsize=1)
+def _map_layers_json_cached():
+    raw = compact_json_bytes({
         "groups": LAYER_GROUPS,
         "sources": ["relief_features", "industrial_assets", "farm_parcels", "government_facilities", "public_cameras", "weather_overlays", "infrastructure_lines", "marketplace_listings", "usgs_3dep", "eia", "fbi_crime"],
-    }
+    })
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/map/entities.geojson")
-def api_map_entities(bbox: str | None = None):
-    return map_entities(bbox_or_400(bbox))
+def api_map_entities(request: Request, bbox: str | None = None):
+    box = bbox_or_400(bbox)
+    mtimes = (path_mtime(DATA / "companies.geojson"), path_mtime(DATA / "securities.geojson"))
+    if box is None:
+        raw, gzipped = _map_entities_json_cached(*mtimes)
+        return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("map-entities", *mtimes, len(raw)))
+    bbox_key = tuple(box)
+    if bbox_key == FULL_WORLD_BBOX:
+        raw, gzipped = _map_entities_json_cached(*mtimes)
+        return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("map-entities-bbox", bbox_key, *mtimes, len(raw)))
+    raw, gzipped = _map_entities_bbox_json_cached(bbox_key, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("map-entities-bbox", bbox_key, *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=256)
+def _map_entities_bbox_json_cached(bbox_key: tuple, companies_mtime: float, securities_mtime: float):
+    raw = compact_json_bytes(map_entities(list(bbox_key)))
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/map/relationships.geojson")
-def api_map_relationships(bbox: str | None = None):
-    return map_relationships(bbox_or_400(bbox))
+def api_map_relationships(request: Request, bbox: str | None = None):
+    box = bbox_or_400(bbox)
+    mtime = path_mtime(DATA / "relationships.geojson")
+    if box is None:
+        raw, gzipped = _map_relationships_json_cached(mtime)
+        return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("map-relationships", mtime, len(raw)))
+    bbox_key = tuple(box)
+    raw, gzipped = _map_relationships_bbox_json_cached(bbox_key, mtime)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("map-relationships-bbox", bbox_key, mtime, len(raw)))
+
+
+@lru_cache(maxsize=256)
+def _map_relationships_bbox_json_cached(bbox_key: tuple, relationships_mtime: float):
+    raw = compact_json_bytes(map_relationships(list(bbox_key)))
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/map/features.geojson")
-def api_map_features(layer: str = Query(...), bbox: str | None = None):
-    return features_for_layer(layer, bbox_or_400(bbox))
+def api_map_features(request: Request, layer: str = Query(...), bbox: str | None = None):
+    box = bbox_or_400(bbox)
+    mtimes = (path_mtime(INTEL), path_mtime(DATA / "universe_bulk.json"))
+    if box is None:
+        raw, gzipped = _features_for_layer_json_cached(layer, *mtimes)
+        return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("map-features", layer, *mtimes, len(raw)))
+    bbox_key = tuple(box)
+    raw, gzipped = _features_for_layer_bbox_json_cached(layer, bbox_key, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("map-features-bbox", layer, bbox_key, *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=512)
+def _features_for_layer_bbox_json_cached(layer: str, bbox_key: tuple, intel_mtime: float, universe_mtime: float):
+    raw = compact_json_bytes(features_for_layer(layer, list(bbox_key)))
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/assets/search")
 def api_assets_search(
+    request: Request,
     asset_type: str | None = None,
     bbox: str | None = None,
     min_price: float | None = None,
@@ -994,6 +1418,40 @@ def api_assets_search(
     infrastructure_distance_max: float | None = None,
 ):
     box = bbox_or_400(bbox)
+    key = (
+        asset_type or "",
+        tuple(box or ()),
+        min_price if min_price is not None else "",
+        max_price if max_price is not None else "",
+        min_acres if min_acres is not None else "",
+        max_acres if max_acres is not None else "",
+        zoning or "",
+        listing_status or "",
+        risk_max if risk_max is not None else "",
+        soil_quality_min or "",
+        infrastructure_distance_max if infrastructure_distance_max is not None else "",
+    )
+    mtime = path_mtime(INTEL)
+    raw, gzipped = _assets_search_json_cached(*key, mtime)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("assets-search", *key, mtime, len(raw)))
+
+
+@lru_cache(maxsize=256)
+def _assets_search_json_cached(
+    asset_type: str,
+    bbox_key: tuple,
+    min_price,
+    max_price,
+    min_acres,
+    max_acres,
+    zoning: str,
+    listing_status: str,
+    risk_max,
+    soil_quality_min: str,
+    infrastructure_distance_max,
+    intel_mtime: float,
+):
+    box = list(bbox_key) if bbox_key else None
     filters = {k: v for k, v in {
         "asset_type": asset_type, "min_price": min_price, "max_price": max_price, "min_acres": min_acres,
         "max_acres": max_acres, "zoning": zoning, "listing_status": listing_status, "risk_max": risk_max,
@@ -1011,18 +1469,36 @@ def api_assets_search(
             continue
         if in_bbox(coords, box):
             rows.append(asset)
-    return {"assets": rows, "needs_location": intel().get("needs_location", [])}
+    raw = compact_json_bytes({"assets": rows, "needs_location": intel().get("needs_location", [])})
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/assets/{asset_id}")
-def api_asset(asset_id: str):
-    return asset_profile(unquote(asset_id))
+def api_asset(asset_id: str, request: Request):
+    aid = unquote(asset_id)
+    mtimes = (path_mtime(INTEL), path_mtime(DATA / "universe_bulk.json"))
+    raw, gzipped = _asset_profile_json_cached(aid, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("asset-profile", aid, *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=256)
+def _asset_profile_json_cached(asset_id: str, intel_mtime: float, universe_mtime: float):
+    raw = compact_json_bytes(asset_profile(asset_id))
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/assets/{asset_id}/due-diligence")
-def api_asset_due_diligence(asset_id: str):
-    profile = asset_profile(unquote(asset_id))
-    return {
+def api_asset_due_diligence(asset_id: str, request: Request):
+    aid = unquote(asset_id)
+    mtimes = (path_mtime(INTEL), path_mtime(DATA / "universe_bulk.json"))
+    raw, gzipped = _asset_due_diligence_json_cached(aid, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("asset-due-diligence", aid, *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=256)
+def _asset_due_diligence_json_cached(asset_id: str, intel_mtime: float, universe_mtime: float):
+    profile = asset_profile(asset_id)
+    payload = {
         "asset": profile,
         "owner": profile.get("owner"),
         "operator": profile.get("operator"),
@@ -1036,18 +1512,54 @@ def api_asset_due_diligence(asset_id: str):
             "status": "placeholder",
         },
     }
+    raw = compact_json_bytes(payload)
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/assets/{asset_id}/nearby-infrastructure")
-def api_asset_nearby_infrastructure(asset_id: str):
-    asset = asset_profile(unquote(asset_id))
+def api_asset_nearby_infrastructure(asset_id: str, request: Request):
+    aid = unquote(asset_id)
+    mtimes = (path_mtime(INTEL), path_mtime(DATA / "universe_bulk.json"), path_mtime(STORE_NODES))
+    raw, gzipped = _asset_nearby_infrastructure_json_cached(aid, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("asset-nearby-infrastructure", aid, *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=512)
+def _asset_nearby_infrastructure_json_cached(asset_id: str, intel_mtime: float, universe_mtime: float, store_mtime: float):
+    raw = compact_json_bytes(asset_nearby_infrastructure_payload(asset_id))
+    return raw, gzip_api_bytes(raw)
+
+
+def asset_nearby_infrastructure_payload(asset_id: str) -> dict:
+    asset = asset_profile(asset_id)
+    return asset_nearby_infrastructure_payload_from_profile(asset)
+
+
+def asset_nearby_infrastructure_payload_from_profile(asset: dict) -> dict:
     rows = [r for r in intel().get("layer_features", []) if r.get("source_layer") == "infrastructure_lines"]
     return {"asset_id": asset["id"], "nearby_infrastructure": rows[:8], "status": "placeholder"}
 
 
 @app.get("/api/assets/{asset_id}/risk-summary")
-def api_asset_risk_summary(asset_id: str):
-    asset = asset_profile(unquote(asset_id))
+def api_asset_risk_summary(asset_id: str, request: Request):
+    aid = unquote(asset_id)
+    mtimes = (path_mtime(INTEL), path_mtime(DATA / "universe_bulk.json"), path_mtime(STORE_NODES))
+    raw, gzipped = _asset_risk_summary_json_cached(aid, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("asset-risk-summary", aid, *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=512)
+def _asset_risk_summary_json_cached(asset_id: str, intel_mtime: float, universe_mtime: float, store_mtime: float):
+    raw = compact_json_bytes(asset_risk_summary_payload(asset_id))
+    return raw, gzip_api_bytes(raw)
+
+
+def asset_risk_summary_payload(asset_id: str) -> dict:
+    asset = asset_profile(asset_id)
+    return asset_risk_summary_payload_from_profile(asset)
+
+
+def asset_risk_summary_payload_from_profile(asset: dict) -> dict:
     listing = (asset.get("listings") or [{}])[0]
     profile = asset.get("farm_profile") or asset.get("industrial_profile") or {}
     return {
@@ -1063,15 +1575,32 @@ def api_asset_risk_summary(asset_id: str):
 
 
 @app.get("/api/assets/{asset_id}/valuation")
-def api_asset_valuation(asset_id: str, case: str = "base"):
-    return valuation_model(unquote(asset_id), case)
+def api_asset_valuation(asset_id: str, request: Request, case: str = "base"):
+    aid = unquote(asset_id)
+    mtimes = (path_mtime(INTEL), path_mtime(VALUATION_ASSUMPTIONS))
+    raw, gzipped = _asset_valuation_json_cached(aid, case, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("asset-valuation", aid, case, *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=512)
+def _asset_valuation_json_cached(asset_id: str, case: str, intel_mtime: float, assumptions_mtime: float):
+    raw = compact_json_bytes(valuation_model(asset_id, case))
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/assets/{asset_id}/risk-score")
-def api_asset_risk_score(asset_id: str, case: str = "base"):
-    valuation = valuation_model(unquote(asset_id), case)
-    return {
-        "asset_id": unquote(asset_id),
+def api_asset_risk_score(asset_id: str, request: Request, case: str = "base"):
+    aid = unquote(asset_id)
+    mtimes = (path_mtime(INTEL), path_mtime(VALUATION_ASSUMPTIONS))
+    raw, gzipped = _asset_risk_score_json_cached(aid, case, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("asset-risk-score", aid, case, *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=512)
+def _asset_risk_score_json_cached(asset_id: str, case: str, intel_mtime: float, assumptions_mtime: float):
+    valuation = valuation_model(asset_id, case)
+    raw = compact_json_bytes({
+        "asset_id": asset_id,
         "case": case,
         "risk_score": valuation["risk_score"],
         "score": valuation["score"],
@@ -1079,19 +1608,28 @@ def api_asset_risk_score(asset_id: str, case: str = "base"):
         "breakdown": valuation["score_breakdown"],
         "confidence_score": valuation["confidence_score"],
         "missing_data_fields": valuation["missing_data_fields"],
-    }
+    })
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/assets/{asset_id}/valuation-assumptions")
-def api_asset_valuation_assumptions(asset_id: str, case: str = "base"):
+def api_asset_valuation_assumptions(asset_id: str, request: Request, case: str = "base"):
     aid = unquote(asset_id)
-    return {
-        "asset_id": aid,
+    mtimes = (path_mtime(INTEL), path_mtime(VALUATION_ASSUMPTIONS))
+    raw, gzipped = _asset_valuation_assumptions_json_cached(aid, case, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("asset-valuation-assumptions", aid, case, *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=512)
+def _asset_valuation_assumptions_json_cached(asset_id: str, case: str, intel_mtime: float, assumptions_mtime: float):
+    raw = compact_json_bytes({
+        "asset_id": asset_id,
         "case": case,
-        "assumptions": asset_assumptions(aid, case),
-        "overrides": valuation_overrides().get(aid, {}),
+        "assumptions": asset_assumptions(asset_id, case),
+        "overrides": valuation_overrides().get(asset_id, {}),
         "editable_fields": ["revenue", "cost", "growth", "discount_rate", "utilization", "yield", "capex", "tax_incentives", "risk_adjustment"],
-    }
+    })
+    return raw, gzip_api_bytes(raw)
 
 
 @app.post("/api/assets/{asset_id}/valuation-assumptions")
@@ -1108,33 +1646,64 @@ async def api_post_asset_valuation_assumptions(asset_id: str, payload: dict[str,
 
 
 @app.get("/api/assets/{asset_id}/scenario")
-def api_asset_scenario(asset_id: str, case: str = "base"):
-    return valuation_model(unquote(asset_id), case)
+def api_asset_scenario(asset_id: str, request: Request, case: str = "base"):
+    aid = unquote(asset_id)
+    mtimes = (path_mtime(INTEL), path_mtime(VALUATION_ASSUMPTIONS))
+    raw, gzipped = _asset_valuation_json_cached(aid, case, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("asset-scenario", aid, case, *mtimes, len(raw)))
 
 
 @app.get("/api/assets/{asset_id}/entities")
-def api_asset_entities(asset_id: str):
-    return {"asset_id": unquote(asset_id), **asset_entities(unquote(asset_id))}
+def api_asset_entities(asset_id: str, request: Request):
+    aid = unquote(asset_id)
+    mtimes = (path_mtime(INTEL), path_mtime(DATA / "universe_bulk.json"), path_mtime(STORE_NODES))
+    raw, gzipped = _asset_entities_json_cached(aid, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("asset-entities", aid, *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=512)
+def _asset_entities_json_cached(asset_id: str, intel_mtime: float, universe_mtime: float, store_mtime: float):
+    raw = compact_json_bytes({"asset_id": asset_id, **asset_entities(asset_id)})
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/assets/{asset_id}/relationship-graph")
-def api_asset_relationship_graph(asset_id: str):
+def api_asset_relationship_graph(asset_id: str, request: Request):
     aid = unquote(asset_id)
-    profile = asset_profile(aid)
-    nodes = [{"id": aid, "type": "asset", "label": profile.get("name")}]
+    mtimes = (path_mtime(INTEL), path_mtime(DATA / "universe_bulk.json"), path_mtime(STORE_NODES))
+    raw, gzipped = _asset_relationship_graph_json_cached(aid, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("asset-relationship-graph", aid, *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=512)
+def _asset_relationship_graph_json_cached(asset_id: str, intel_mtime: float, universe_mtime: float, store_mtime: float):
+    raw = compact_json_bytes(asset_relationship_graph_payload(asset_id))
+    return raw, gzip_api_bytes(raw)
+
+
+def asset_relationship_graph_payload(asset_id: str) -> dict:
+    profile = asset_profile(asset_id)
+    return asset_relationship_graph_payload_from_profile(profile)
+
+
+def asset_relationship_graph_payload_from_profile(profile: dict) -> dict:
+    asset_id = profile["id"]
+    nodes = [{"id": asset_id, "type": "asset", "label": profile.get("name")}]
     edges = []
     for rel in profile.get("asset_relationships", []):
-        other = rel["source_id"] if rel.get("target_id") == aid else rel.get("target_id")
-        nodes.append({"id": other, "type": "entity" if entity(other) else "object", "label": (entity(other) or {}).get("name", other)})
+        other = rel["source_id"] if rel.get("target_id") == asset_id else rel.get("target_id")
+        other_entity = entity(other)
+        nodes.append({"id": other, "type": "entity" if other_entity else "object", "label": (other_entity or {}).get("name", other)})
         edges.append(rel)
     for listing in profile.get("listings", []):
         nodes.append({"id": listing["id"], "type": "listing", "label": listing.get("title")})
-        edges.append({"id": f"{aid}:listed:{listing['id']}", "source_id": aid, "target_id": listing["id"], "relationship_type": "LISTED_AS", "source": listing.get("source"), "confidence": listing.get("confidence"), "updated_at": listing.get("last_updated")})
+        edges.append({"id": f"{asset_id}:listed:{listing['id']}", "source_id": asset_id, "target_id": listing["id"], "relationship_type": "LISTED_AS", "source": listing.get("source"), "confidence": listing.get("confidence"), "updated_at": listing.get("last_updated")})
     return {"nodes": nodes, "edges": edges}
 
 
 @app.get("/api/listings/search")
 def api_listings_search(
+    request: Request,
     bbox: str | None = None,
     asset_type: str | None = None,
     location: str | None = None,
@@ -1152,56 +1721,175 @@ def api_listings_search(
     infrastructure_distance_max: float | None = None,
     format: str = "json",
 ):
+    box = bbox_or_400(bbox)
+    key = (
+        tuple(box or ()),
+        asset_type or "",
+        location or "",
+        min_price if min_price is not None else "",
+        max_price if max_price is not None else "",
+        min_acres if min_acres is not None else "",
+        max_acres if max_acres is not None else "",
+        min_square_feet if min_square_feet is not None else "",
+        max_square_feet if max_square_feet is not None else "",
+        zoning or "",
+        listing_status or "",
+        owner_type or "",
+        risk_max if risk_max is not None else "",
+        soil_quality_min or "",
+        infrastructure_distance_max if infrastructure_distance_max is not None else "",
+        format,
+    )
+    mtime = path_mtime(INTEL)
+    raw, gzipped = _listings_search_json_cached(*key, mtime)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("listings-search", *key, mtime, len(raw)))
+
+
+@lru_cache(maxsize=256)
+def _listings_search_json_cached(
+    bbox_key: tuple,
+    asset_type: str,
+    location: str,
+    min_price,
+    max_price,
+    min_acres,
+    max_acres,
+    min_square_feet,
+    max_square_feet,
+    zoning: str,
+    listing_status: str,
+    owner_type: str,
+    risk_max,
+    soil_quality_min: str,
+    infrastructure_distance_max,
+    format: str,
+    intel_mtime: float,
+):
     filters = {k: v for k, v in locals().items() if k not in {"bbox", "format"} and v not in (None, "")}
-    rows = listing_rows(filters, bbox_or_400(bbox))
+    filters.pop("bbox_key", None)
+    filters.pop("intel_mtime", None)
+    rows = listing_rows(filters, list(bbox_key) if bbox_key else None)
     if format == "geojson":
-        return feature_collection([f for row in rows if (f := listing_feature(row))])
-    return {"listings": rows}
+        raw = compact_json_bytes(feature_collection([f for row in rows if (f := listing_feature(row))]))
+    else:
+        raw = compact_json_bytes({"listings": rows})
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/listings/{listing_id}")
-def api_listing(listing_id: str):
+def api_listing(listing_id: str, request: Request):
     lid = unquote(listing_id)
-    listing = next((r for r in intel().get("asset_listings", []) if r.get("id") == lid), None)
+    mtimes = (path_mtime(INTEL), path_mtime(DATA / "universe_bulk.json"))
+    raw, gzipped = _listing_json_cached(lid, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("listing", lid, *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=256)
+def _listing_json_cached(listing_id: str, intel_mtime: float, universe_mtime: float):
+    listing = next((r for r in intel().get("asset_listings", []) if r.get("id") == listing_id), None)
     if not listing:
         raise HTTPException(404, "listing not found")
     asset = asset_profile(listing["asset_id"]) if listing.get("asset_id") else None
-    return {"listing": listing, "asset": asset}
+    raw = compact_json_bytes({"listing": listing, "asset": asset})
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/entity/{entity_id}")
-def api_entity(entity_id: str):
-    row = entity(unquote(entity_id))
+def api_entity(entity_id: str, request: Request):
+    eid = unquote(entity_id)
+    mtimes = (path_mtime(INTEL), path_mtime(DATA / "universe_bulk.json"), path_mtime(STORE_NODES))
+    raw, gzipped = _entity_json_cached(eid, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("entity", eid, *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=1024)
+def _entity_json_cached(entity_id: str, intel_mtime: float, universe_mtime: float, store_mtime: float):
+    row = entity(entity_id)
     if not row:
         raise HTTPException(404, "entity not found")
-    return row
+    raw = compact_json_bytes(row)
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/entity/{entity_id}/neighborhood")
-def api_entity_neighborhood(entity_id: str, depth: int = 1):
-    return neighborhood(unquote(entity_id), depth)
+def api_entity_neighborhood(entity_id: str, request: Request, depth: int = 1):
+    eid = unquote(entity_id)
+    parts = (path_mtime(DATA / "graph-index.json"), path_mtime(STORE_NODES), path_mtime(DATA / "relationships.geojson"))
+    raw, gzipped = _entity_neighborhood_json_cached(eid, depth, *parts)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("entity-neighborhood", eid, depth, *parts, len(raw)))
+
+
+@lru_cache(maxsize=256)
+def _entity_neighborhood_json_cached(entity_id: str, depth: int, graph_mtime: float, nodes_mtime: float, relationships_mtime: float):
+    raw = compact_json_bytes(neighborhood(entity_id, depth))
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/entity/{entity_id}/reverse-dcf")
-def api_entity_reverse_dcf(entity_id: str, discount: float = 0.09, terminal_growth: float = 0.025,
+def api_entity_reverse_dcf(entity_id: str, request: Request, discount: float = 0.09, terminal_growth: float = 0.025,
                            method: str = "cash_flow"):
     from reverse_dcf import reverse_dcf
-    return reverse_dcf(unquote(entity_id), discount=discount, terminal_growth=terminal_growth, method=method)
+    eid = unquote(entity_id)
+    parts = (path_mtime(STORE_NODES), path_mtime(DATA / "aliases.json"), latest_mtime(COMPANYFACTS, "CIK*.json"))
+    raw, gzipped = _entity_reverse_dcf_json_cached(eid, discount, terminal_growth, method, *parts)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("entity-reverse-dcf", eid, discount, terminal_growth, method, *parts, len(raw)))
+
+
+@lru_cache(maxsize=256)
+def _entity_reverse_dcf_json_cached(entity_id: str, discount: float, terminal_growth: float, method: str, nodes_mtime: float, aliases_mtime: float, facts_mtime: float):
+    from reverse_dcf import reverse_dcf
+    raw = compact_json_bytes(reverse_dcf(entity_id, discount=discount, terminal_growth=terminal_growth, method=method))
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/entity/{entity_id}/comps")
-def api_entity_comps(entity_id: str, cap: int = 12):
+def api_entity_comps(entity_id: str, request: Request, cap: int = 12):
     from comps import comps
-    return comps(unquote(entity_id), cap=cap)
+    eid = unquote(entity_id)
+    parts = (path_mtime(STORE_NODES), path_mtime(STORE_EDGES), path_mtime(DATA / "aliases.json"), latest_mtime(COMPANYFACTS, "CIK*.json"))
+    raw, gzipped = _entity_comps_json_cached(eid, cap, *parts)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("entity-comps", eid, cap, *parts, len(raw)))
+
+
+@lru_cache(maxsize=256)
+def _entity_comps_json_cached(entity_id: str, cap: int, nodes_mtime: float, edges_mtime: float, aliases_mtime: float, facts_mtime: float):
+    from comps import comps
+    raw = compact_json_bytes(comps(entity_id, cap=cap))
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/entity/{entity_id}/political")
-def api_entity_political(entity_id: str):
+def api_entity_political(entity_id: str, request: Request):
+    eid = unquote(entity_id)
+    parts = (
+        path_mtime(STORE_NODES),
+        path_mtime(DATA / "aliases.json"),
+        path_mtime(COMMITTEE_POLICY_MAP),
+        path_mtime(POL_MEMBERS),
+        path_mtime(POL_TRADES),
+        path_mtime(GOV_CONTRACTS),
+        path_mtime(INTEL),
+        path_mtime(DATA / "universe_core.json"),
+    )
+    raw, gzipped = _entity_political_json_cached(eid, *parts)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("entity-political", eid, *parts, len(raw)))
+
+
+@lru_cache(maxsize=512)
+def _entity_political_json_cached(
+    entity_id: str,
+    nodes_mtime: float,
+    aliases_mtime: float,
+    committee_mtime: float,
+    members_mtime: float,
+    trades_mtime: float,
+    contracts_mtime: float,
+    intel_mtime: float,
+    universe_mtime: float,
+):
     from political import political_context
-    return political_context(unquote(entity_id))
-
-
-WATCHLISTS = DATA / "watchlists.json"
+    raw = compact_json_bytes(political_context(entity_id))
+    return raw, gzip_api_bytes(raw)
 
 
 def _watchlist_ids() -> set:
@@ -1212,18 +1900,25 @@ def _watchlist_ids() -> set:
 
 
 @app.get("/api/entity/{entity_id}/events")
-def api_entity_events(entity_id: str, limit: int = 40):
-    import duckdb
+def api_entity_events(entity_id: str, request: Request, limit: int = 40):
     eid = unquote(entity_id)
-    p = ROOT / "data" / "store" / "events.parquet"
+    parts = (path_mtime(EVENTS), path_mtime(WATCHLISTS))
+    raw, gzipped = _entity_events_json_cached(eid, limit, *parts)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("entity-events", eid, limit, *parts, len(raw)))
+
+
+@lru_cache(maxsize=512)
+def _entity_events_json_cached(entity_id: str, limit: int, events_mtime: float, watchlists_mtime: float):
+    import duckdb
     events = []
-    if p.exists():
+    if EVENTS.exists():
         rows = duckdb.execute(
-            f"select event_id, event_type, ts, title, source_url, priority from '{p.as_posix()}' "
-            f"where oasis_id = ? order by ts desc limit ?", [eid, limit]).fetchall()
+            f"select event_id, event_type, ts, title, source_url, priority from '{EVENTS.as_posix()}' "
+            f"where oasis_id = ? order by ts desc limit ?", [entity_id, limit]).fetchall()
         events = [{"id": r[0], "type": r[1], "ts": r[2], "title": r[3],
                    "source_url": r[4], "priority": r[5]} for r in rows]
-    return {"events": events, "watchlisted": eid in _watchlist_ids()}
+    raw = compact_json_bytes({"events": events, "watchlisted": entity_id in _watchlist_ids()})
+    return raw, gzip_api_bytes(raw)
 
 
 @app.post("/api/watchlist/toggle")
@@ -1244,21 +1939,46 @@ def api_watchlist_toggle(payload: dict):
 
 
 @app.get("/api/entity/{entity_id}/risk")
-def api_entity_risk(entity_id: str):
-    focus = load_json("graph-index.json", {}).get(unquote(entity_id), {})
-    return risk_summary(unquote(entity_id), {unquote(entity_id), *focus.get("neighbors", [])})
+def api_entity_risk(entity_id: str, request: Request):
+    eid = unquote(entity_id)
+    mtimes = (path_mtime(DATA / "graph-index.json"), path_mtime(STORE_NODES))
+    raw, gzipped = _entity_risk_json_cached(eid, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("entity-risk", eid, *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=1024)
+def _entity_risk_json_cached(entity_id: str, graph_mtime: float, store_mtime: float):
+    focus = load_json("graph-index.json", {}).get(entity_id, {})
+    raw = compact_json_bytes(risk_summary(entity_id, {entity_id, *focus.get("neighbors", [])}))
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/entity/{entity_id}/assets")
-def api_entity_assets(entity_id: str):
+def api_entity_assets(entity_id: str, request: Request):
     eid = unquote(entity_id)
-    rows = entity_asset_rows(eid)
-    return {"entity": entity(eid), "assets": rows}
+    mtimes = (path_mtime(INTEL), path_mtime(DATA / "universe_bulk.json"), path_mtime(STORE_NODES))
+    raw, gzipped = _entity_assets_json_cached(eid, *mtimes)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("entity-assets", eid, *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=128)
+def _entity_assets_json_cached(entity_id: str, intel_mtime: float, universe_mtime: float, store_mtime: float):
+    rows = entity_asset_rows(entity_id)
+    raw = compact_json_bytes({"entity": entity(entity_id), "assets": rows})
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/entity/{entity_id}/asset-map.geojson")
-def api_entity_asset_map(entity_id: str):
-    rows = entity_asset_rows(unquote(entity_id))
+def api_entity_asset_map(entity_id: str, request: Request):
+    eid = unquote(entity_id)
+    mtime = path_mtime(INTEL)
+    raw, gzipped = _entity_asset_map_json_cached(eid, mtime)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("entity-asset-map", eid, mtime, len(raw)))
+
+
+@lru_cache(maxsize=128)
+def _entity_asset_map_json_cached(entity_id: str, intel_mtime: float):
+    rows = entity_asset_rows(entity_id)
     features = []
     for row in rows:
         rel = row.get("asset_relationship", {})
@@ -1266,47 +1986,166 @@ def api_entity_asset_map(entity_id: str):
         if feature:
             feature["properties"]["asset_relationship"] = rel
             features.append(feature)
-    return feature_collection(features)
+    raw = compact_json_bytes(feature_collection(features))
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/entity/{entity_id}/combined-neighborhood")
-def api_entity_combined_neighborhood(entity_id: str, depth: int = 2):
+def api_entity_combined_neighborhood(entity_id: str, request: Request, depth: int = 2):
     eid = unquote(entity_id)
-    graph = neighborhood(eid, depth)
-    assets = entity_asset_rows(eid)
+    parts = (
+        path_mtime(DATA / "graph-index.json"),
+        path_mtime(DATA / "relationships.geojson"),
+        path_mtime(INTEL),
+        path_mtime(DATA / "universe_bulk.json"),
+        path_mtime(STORE_NODES),
+    )
+    raw, gzipped = _entity_combined_neighborhood_json_cached(eid, depth, *parts)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("entity-combined-neighborhood", eid, depth, *parts, len(raw)))
+
+
+@lru_cache(maxsize=256)
+def _entity_combined_neighborhood_json_cached(entity_id: str, depth: int, graph_mtime: float, relationships_mtime: float, intel_mtime: float, universe_mtime: float, store_mtime: float):
+    graph = neighborhood(entity_id, depth)
+    assets = entity_asset_rows(entity_id)
     asset_edges = [a.get("asset_relationship") for a in assets if a.get("asset_relationship")]
-    return {**graph, "assets": assets, "asset_edges": asset_edges}
+    raw = compact_json_bytes({**graph, "assets": assets, "asset_edges": asset_edges})
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/entity/{entity_id}/dcf.xlsx")
-def api_entity_dcf(entity_id: str, method: str = "cash_flow"):
-    return FileResponse(build_dcf_workbook(unquote(entity_id), method))
+def api_entity_dcf(entity_id: str, request: Request, method: str = "cash_flow"):
+    from dcf_export import build_dcf_workbook
+
+    path = build_dcf_workbook(unquote(entity_id), method)
+    return conditional_file_response(request, path, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", path.name)
 
 
 @app.get("/api/cameras/public.geojson")
-def api_cameras_public(bbox: str | None = None):
-    return public_cameras_geojson(bbox_or_400(bbox))
+def api_cameras_public(request: Request, bbox: str | None = None):
+    box = bbox_or_400(bbox)
+    key = tuple(box or ())
+    mtime = path_mtime(INTEL)
+    raw, gzipped = _cameras_public_json_cached(key, mtime)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("cameras-public", key, mtime, len(raw)))
+
+
+@lru_cache(maxsize=128)
+def _cameras_public_json_cached(bbox_key: tuple, intel_mtime: float):
+    raw = compact_json_bytes(public_cameras_geojson(list(bbox_key) if bbox_key else None))
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/permits/search")
-def api_permits_search(bbox: str | None = None, permit_type: str | None = None):
-    return {"permits": public_permits(bbox_or_400(bbox), permit_type)}
+def api_permits_search(request: Request, bbox: str | None = None, permit_type: str | None = None):
+    box = bbox_or_400(bbox)
+    key = (tuple(box or ()), permit_type or "")
+    mtime = path_mtime(INTEL)
+    raw, gzipped = _permits_search_json_cached(*key, mtime)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("permits-search", *key, mtime, len(raw)))
+
+
+@lru_cache(maxsize=128)
+def _permits_search_json_cached(bbox_key: tuple, permit_type: str, intel_mtime: float):
+    raw = compact_json_bytes({"permits": public_permits(list(bbox_key) if bbox_key else None, permit_type or None)})
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/location/unknown")
-def api_location_unknown():
-    return load_json("location_unknown.json", [])
+def api_location_unknown(request: Request):
+    mtime = path_mtime(DATA / "location_unknown.json")
+    raw, gzipped = _location_unknown_json_cached(mtime)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("location-unknown", mtime, len(raw)))
+
+
+@lru_cache(maxsize=4)
+def _location_unknown_json_cached(unknown_mtime: float):
+    raw = compact_json_bytes(load_json("location_unknown.json", []))
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/data-sources/status")
-def api_data_sources_status():
-    return validation_status()
+def api_data_sources_status(request: Request):
+    return cached_json_payload_response("data-sources-status", request)
+
+
+@lru_cache(maxsize=8)
+def _bootstrap_signals_json_cached(aliases_mtime: float, hq_mtime: float, news_mtime: float, edge_mtime: float, unknown_mtime: float):
+    location_unknown = load_json("location_unknown.json", [])
+    payload = {
+        "aliases": load_json("aliases.json", {}),
+        "hq_coords": load_json("hq_coords.json", {}),
+        "news": load_json("news.json", None),
+        "edge_candidates": load_json("edge_candidates.json", []),
+        "location_unknown_count": len(location_unknown) if isinstance(location_unknown, list) else 0,
+    }
+    raw = compact_json_bytes(payload)
+    return raw, gzip_api_bytes(raw)
+
+
+@app.get("/api/bootstrap/signals")
+def api_bootstrap_signals(request: Request):
+    mtimes = (
+        path_mtime(DATA / "aliases.json"),
+        path_mtime(DATA / "hq_coords.json"),
+        path_mtime(DATA / "news.json"),
+        path_mtime(DATA / "edge_candidates.json"),
+        path_mtime(DATA / "location_unknown.json"),
+    )
+    raw, gzipped = _bootstrap_signals_json_cached(
+        *mtimes,
+    )
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("bootstrap-signals", *mtimes, len(raw)))
+
+
+@lru_cache(maxsize=4)
+def _ui_bulk_json_cached(path: str, mtime: float):
+    data = load_static_json(path)
+    nodes = []
+    for node in data.get("nodes", []):
+        slim = dict(node)
+        slim.pop("entity_model", None)
+        nodes.append(slim)
+    raw = compact_json_bytes({**data, "nodes": nodes})
+    return raw, gzip_api_bytes(raw)
+
+
+@app.get("/api/universe/bulk")
+def api_universe_bulk(request: Request):
+    path = DATA / "universe_bulk.json"
+    mtime = path.stat().st_mtime if path.exists() else 0
+    raw, gzipped = _ui_bulk_json_cached(str(path), mtime)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("universe-bulk", mtime, len(raw)))
+
+
+@app.get("/data/universe_core.json", include_in_schema=False)
+def static_universe_core(request: Request):
+    return cached_static_data_response("universe_core.json", request)
+
+
+@app.get("/data/companies.geojson", include_in_schema=False)
+def static_companies_geojson(request: Request):
+    return cached_static_data_response("companies.geojson", request)
+
+
+@app.get("/data/securities.geojson", include_in_schema=False)
+def static_securities_geojson(request: Request):
+    return cached_static_data_response("securities.geojson", request)
+
+
+@app.get("/data/relationships.geojson", include_in_schema=False)
+def static_relationships_geojson(request: Request):
+    return cached_static_data_response("relationships.geojson", request)
+
+
+@app.get("/data/graph-index.json", include_in_schema=False)
+def static_graph_index(request: Request):
+    return cached_static_data_response("graph-index.json", request)
 
 
 @app.get("/api/reliefs/dem/status")
-def api_reliefs_dem_status():
-    status = validation_status()
-    return status["dem"] | {"checks": status["checks"], "sources": status["sources"]}
+def api_reliefs_dem_status(request: Request):
+    return cached_json_payload_response("reliefs-dem-status", request)
 
 
 @app.get("/api/reliefs/dem/tilejson")
@@ -1318,17 +2157,11 @@ def api_reliefs_dem_tilejson():
 
 
 @app.get("/api/reliefs/terrain/sources")
-def api_reliefs_terrain_sources():
-    registry = terrain_coverage_registry()
-    return {
-        "active_source": registry.get("active_source"),
-        "active_tilejson": registry.get("active_tilejson"),
-        "sources": registry.get("sources", []),
-    }
+def api_reliefs_terrain_sources(request: Request):
+    return cached_json_payload_response("reliefs-terrain-sources", request)
 
 
-@app.get("/api/reliefs/terrain/coverage")
-def api_reliefs_terrain_coverage():
+def terrain_coverage_payload():
     registry = terrain_coverage_registry()
     active = registry.get("active_tilejson")
     active_sources = [s for s in registry.get("sources", []) if s.get("public_tilejson") == active]
@@ -1541,9 +2374,14 @@ def api_reliefs_terrain_coverage():
     }
 
 
+@app.get("/api/reliefs/terrain/coverage")
+def api_reliefs_terrain_coverage(request: Request):
+    return cached_json_payload_response("reliefs-terrain-coverage", request)
+
+
 @app.get("/api/reliefs/terrain/jobs/status")
-def api_reliefs_terrain_jobs_status():
-    return terrain_coverage_registry().get("last_job") or {"status": "not run"}
+def api_reliefs_terrain_jobs_status(request: Request):
+    return cached_json_payload_response("reliefs-terrain-jobs", request)
 
 
 @app.post("/api/location/override")
@@ -1619,7 +2457,8 @@ def add_evidence(rows: list[dict], kind: str, oid: str | None, claims: dict[str,
         rows.append(evidence_row(kind, oid, claim_type, claim_value, source, confidence, notes=notes))
 
 
-def generated_evidence() -> list[dict]:
+@lru_cache(maxsize=4)
+def _generated_evidence_cached(intel_mtime: float, assumptions_mtime: float, evidence_date: str) -> tuple[dict, ...]:
     data = intel()
     rows: list[dict] = []
     for e in data.get("entities", []):
@@ -1684,7 +2523,26 @@ def generated_evidence() -> list[dict]:
     dedup = {}
     for row in rows:
         dedup[row["id"]] = row
-    return sorted(dedup.values(), key=lambda r: (r["linked_object_type"], r["linked_object_id"], r["claim_type"]))
+    return tuple(sorted(dedup.values(), key=lambda r: (r["linked_object_type"], r["linked_object_id"], r["claim_type"])))
+
+
+def generated_evidence() -> list[dict]:
+    rows = _generated_evidence_cached(path_mtime(INTEL), path_mtime(VALUATION_ASSUMPTIONS), today())
+    return [dict(row) for row in rows]
+
+
+@lru_cache(maxsize=128)
+def _evidence_json_cached(object_type: str, object_id: str, intel_mtime: float, assumptions_mtime: float, evidence_date: str):
+    rows = generated_evidence()
+    if object_type:
+        wanted = {object_type}
+        if object_type == "asset":
+            wanted |= {"valuation", "risk_score"}
+        rows = [r for r in rows if r.get("linked_object_type") in wanted]
+    if object_id:
+        rows = [r for r in rows if r.get("linked_object_id") == object_id]
+    raw = compact_json_bytes({"evidence": rows})
+    return raw, gzip_api_bytes(raw)
 
 
 def user_override_rows() -> list[dict]:
@@ -1709,21 +2567,53 @@ def is_stale(row: dict) -> bool:
     return (date.today() - d).days > 365
 
 
+def data_quality_cache_parts() -> tuple:
+    return (
+        path_mtime(INTEL),
+        path_mtime(VALUATION_ASSUMPTIONS),
+        path_mtime(USER_OVERRIDES),
+        path_mtime(DATA / "relationships.geojson"),
+        path_mtime(STORE_NODES),
+        today(),
+    )
+
+
 def quality_summary() -> dict:
+    return {**_quality_summary_cached(*data_quality_cache_parts()), "generated_at": now_iso()}
+
+
+@lru_cache(maxsize=8)
+def _quality_summary_cached(intel_mtime: float, assumptions_mtime: float, user_overrides_mtime: float, relationships_mtime: float, store_mtime: float, evidence_date: str) -> dict:
     data = intel()
     evidence = generated_evidence()
     rels = data.get("asset_relationships", [])
     assets = data.get("assets", [])
+    farm_profiles = {p.get("asset_id"): p for p in data.get("farm_profiles", [])}
+    industrial_profiles = {p.get("asset_id"): p for p in data.get("industrial_profiles", [])}
+    permits_by_asset: dict[str, list[dict]] = {}
+    for permit in data.get("permits", []):
+        permits_by_asset.setdefault(permit.get("asset_id"), []).append(permit)
+    listings_by_asset: dict[str, list[dict]] = {}
+    for listing in data.get("asset_listings", []):
+        listings_by_asset.setdefault(listing.get("asset_id"), []).append(listing)
     valuation_missing = 0
     for asset in assets:
         try:
-            if valuation_model(asset["id"]).get("missing_data_fields"):
+            asset_id = asset["id"]
+            profile = {
+                **asset,
+                "permits": permits_by_asset.get(asset_id, []),
+                "listings": listings_by_asset.get(asset_id, []),
+                "farm_profile": farm_profiles.get(asset_id),
+                "industrial_profile": industrial_profiles.get(asset_id),
+            }
+            if missing_fields(profile, asset_assumptions_for_profile(asset["id"], profile)):
                 valuation_missing += 1
         except Exception:
             valuation_missing += 1
     owned_asset_ids = {r.get("target_id") for r in rels if r.get("relationship_type") == "OWNS"}
     return {
-        "total_entities": len(universe_nodes()) + len(data.get("entities", [])),
+        "total_entities": store_node_count() + len(data.get("entities", [])),
         "total_assets": len(assets),
         "total_relationships": len(map_relationships()["features"]) + len(rels),
         "total_evidence_records": len(evidence),
@@ -1733,11 +2623,15 @@ def quality_summary() -> dict:
         "low_confidence_relationships": sum(1 for r in rels if num(r.get("confidence"), 0) < 0.5),
         "stale_records": sum(1 for r in evidence if is_stale(r)),
         "records_needing_review": sum(1 for r in evidence if not r.get("source_name") or num(r.get("confidence"), 0) < 0.5 or is_stale(r)),
-        "generated_at": now_iso(),
     }
 
 
 def layer_quality(layer_name: str) -> dict:
+    return {"layer_name": layer_name, "metrics": _layer_quality_metrics_cached(*data_quality_cache_parts()), "generated_at": now_iso()}
+
+
+@lru_cache(maxsize=8)
+def _layer_quality_metrics_cached(intel_mtime: float, assumptions_mtime: float, user_overrides_mtime: float, relationships_mtime: float, store_mtime: float, evidence_date: str) -> dict:
     data = intel()
     assets = data.get("assets", [])
     listings = data.get("asset_listings", [])
@@ -1756,10 +2650,43 @@ def layer_quality(layer_name: str) -> dict:
         "listings_missing_geometry": sum(1 for l in listings if not listing_geometry(l)),
         "permits_missing_public_url": sum(1 for p in permits if not p.get("public_url")),
     }
-    return {"layer_name": layer_name, "metrics": metrics, "generated_at": now_iso()}
+    return metrics
+
+
+def quality_dashboard() -> dict:
+    base_layer = layer_quality("dashboard")
+    layers = {name: {**base_layer, "layer_name": name} for name in ("farms", "industrial", "government")}
+    return {"summary": quality_summary(), "layers": layers, "generated_at": now_iso()}
+
+
+def report_cache_parts() -> tuple:
+    return (
+        path_mtime(INTEL),
+        path_mtime(VALUATION_ASSUMPTIONS),
+        path_mtime(DATA / "graph-index.json"),
+        path_mtime(DATA / "relationships.geojson"),
+        path_mtime(DATA / "universe_bulk.json"),
+        path_mtime(STORE_NODES),
+        today(),
+    )
 
 
 def report_payload(object_type: str, object_id: str) -> dict:
+    return {**_report_payload_core_cached(object_type, object_id, *report_cache_parts()), "generated_at": now_iso()}
+
+
+@lru_cache(maxsize=256)
+def _report_payload_core_cached(
+    object_type: str,
+    object_id: str,
+    intel_mtime: float,
+    assumptions_mtime: float,
+    graph_mtime: float,
+    relationships_mtime: float,
+    universe_mtime: float,
+    store_mtime: float,
+    evidence_date: str,
+) -> dict:
     sections: dict[str, Any] = {}
     if object_type == "entity":
         obj = entity(object_id) or {}
@@ -1777,11 +2704,11 @@ def report_payload(object_type: str, object_id: str) -> dict:
     else:
         obj = asset_profile(object_id)
         sections["permits"] = obj.get("permits", [])
-        sections["relationship_graph"] = api_asset_relationship_graph(object_id)
-        sections["nearby_infrastructure"] = api_asset_nearby_infrastructure(object_id)
-        sections["risk_summary"] = api_asset_risk_summary(object_id)
-        sections["valuation"] = valuation_model(object_id)
-        sections["scenarios"] = {case: valuation_model(object_id, case) for case in ("bear", "base", "bull")}
+        sections["relationship_graph"] = asset_relationship_graph_payload_from_profile(obj)
+        sections["nearby_infrastructure"] = asset_nearby_infrastructure_payload_from_profile(obj)
+        sections["risk_summary"] = asset_risk_summary_payload_from_profile(obj)
+        sections["valuation"] = valuation_model_for_profile(object_id, obj)
+        sections["scenarios"] = {case: valuation_model_for_profile(object_id, obj, case) for case in ("bear", "base", "bull")}
     evidence = [
         r for r in generated_evidence()
         if (r["linked_object_type"] == object_type and r["linked_object_id"] == object_id)
@@ -1802,7 +2729,6 @@ def report_payload(object_type: str, object_id: str) -> dict:
         "evidence_source_appendix": evidence,
         "missing_data_appendix": missing,
         "confidence_score": round(sum(confidences) / len(confidences), 3) if confidences else None,
-        "generated_at": now_iso(),
     }
 
 
@@ -1829,34 +2755,59 @@ def write_report_exports(report: dict) -> dict:
 
 
 @app.get("/api/evidence")
-def api_evidence(object_type: str | None = None, object_id: str | None = None):
-    rows = generated_evidence()
-    if object_type:
-        wanted = {object_type}
-        if object_type == "asset":
-            wanted |= {"valuation", "risk_score"}
-        rows = [r for r in rows if r.get("linked_object_type") in wanted]
-    if object_id:
-        rows = [r for r in rows if r.get("linked_object_id") == object_id]
-    return {"evidence": rows}
+def api_evidence(request: Request, object_type: str | None = None, object_id: str | None = None):
+    filters = (object_type or "", object_id or "")
+    parts = (path_mtime(INTEL), path_mtime(VALUATION_ASSUMPTIONS), today())
+    raw, gzipped = _evidence_json_cached(*filters, *parts)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("evidence", *filters, *parts, len(raw)))
 
 
 @app.get("/api/evidence/{evidence_id}")
-def api_evidence_one(evidence_id: str):
-    row = next((r for r in generated_evidence() if r["id"] == unquote(evidence_id)), None)
+def api_evidence_one(evidence_id: str, request: Request):
+    eid = unquote(evidence_id)
+    parts = (path_mtime(INTEL), path_mtime(VALUATION_ASSUMPTIONS), today())
+    raw, gzipped = _evidence_one_json_cached(eid, *parts)
+    return cached_bytes_response(request, raw, gzipped, "application/json", cache_etag("evidence-one", eid, *parts, len(raw)))
+
+
+@lru_cache(maxsize=512)
+def _evidence_one_json_cached(evidence_id: str, intel_mtime: float, assumptions_mtime: float, evidence_date: str):
+    row = next((r for r in generated_evidence() if r["id"] == evidence_id), None)
     if not row:
         raise HTTPException(404, "evidence not found")
-    return row
+    raw = compact_json_bytes(row)
+    return raw, gzip_api_bytes(raw)
 
 
 @app.get("/api/data-quality/summary")
-def api_data_quality_summary():
-    return quality_summary()
+def api_data_quality_summary(request: Request):
+    parts = data_quality_cache_parts()
+    etag = cache_etag("data-quality-summary", *parts)
+    if response := not_modified_response(request, etag):
+        return response
+    raw = compact_json_bytes(quality_summary())
+    return cached_bytes_response(request, raw, gzip_api_bytes(raw), "application/json", etag)
 
 
 @app.get("/api/data-quality/layer/{layer_name}")
-def api_data_quality_layer(layer_name: str):
-    return layer_quality(unquote(layer_name))
+def api_data_quality_layer(layer_name: str, request: Request):
+    name = unquote(layer_name)
+    parts = data_quality_cache_parts()
+    etag = cache_etag("data-quality-layer", name, *parts)
+    if response := not_modified_response(request, etag):
+        return response
+    raw = compact_json_bytes(layer_quality(name))
+    return cached_bytes_response(request, raw, gzip_api_bytes(raw), "application/json", etag)
+
+
+@app.get("/api/data-quality/dashboard")
+def api_data_quality_dashboard(request: Request):
+    parts = data_quality_cache_parts()
+    etag = cache_etag("data-quality-dashboard", *parts)
+    if response := not_modified_response(request, etag):
+        return response
+    raw = compact_json_bytes(quality_dashboard())
+    return cached_bytes_response(request, raw, gzip_api_bytes(raw), "application/json", etag)
 
 
 @app.post("/api/overrides")
@@ -1902,18 +2853,24 @@ def api_delete_override(override_id: str):
 
 
 @app.get("/api/reports/{report_id}/download")
-def api_report_download(report_id: str, format: str = "html"):
+def api_report_download(report_id: str, request: Request, format: str = "html"):
     ext = {"html": ".html", "json": ".json", "csv": ".csv", "pdf": ".html"}.get(format, ".html")
     path = REPORTS_DIR / f"{slug(unquote(report_id))}{ext}"
     if not path.exists():
         raise HTTPException(404, "report export not found")
     media = {"html": "text/html", "json": "application/json", "csv": "text/csv", "pdf": "text/html"}.get(format, "text/html")
-    return FileResponse(path, media_type=media, filename=path.name)
+    return conditional_file_response(request, path, media, path.name)
 
 
 @app.get("/api/reports/{object_type}/{object_id}")
-def api_report_preview(object_type: str, object_id: str):
-    return report_payload(unquote(object_type), unquote(object_id))
+def api_report_preview(object_type: str, object_id: str, request: Request):
+    kind, oid = unquote(object_type), unquote(object_id)
+    parts = report_cache_parts()
+    etag = cache_etag("report-preview", kind, oid, *parts)
+    if response := not_modified_response(request, etag):
+        return response
+    raw = compact_json_bytes(report_payload(kind, oid))
+    return cached_bytes_response(request, raw, gzip_api_bytes(raw), "application/json", etag)
 
 
 @app.post("/api/reports/{object_type}/{object_id}/generate")
@@ -1923,6 +2880,154 @@ async def api_report_generate(object_type: str, object_id: str, payload: dict[st
         report["requested_sections"] = payload.get("sections")
         report["requested_report_type"] = payload.get("report_type")
     return {"ok": True, **write_report_exports(report)}
+
+
+def warm_latency_caches() -> None:
+    warm_startup_caches()
+    warm_payload_caches()
+    warm_research_caches()
+
+
+def start_background_warm_caches() -> None:
+    thread = threading.Thread(target=warm_background_caches, name="oasis-cache-warmup", daemon=True)
+    thread.start()
+
+
+def warm_background_caches() -> None:
+    warm_payload_caches()
+    warm_research_caches()
+
+
+def warm_payload_caches() -> None:
+    with suppress(Exception):
+        path = DATA / "universe_bulk.json"
+        _ui_bulk_json_cached(str(path), path_mtime(path))
+    with suppress(Exception):
+        _map_entities_json_cached(path_mtime(DATA / "companies.geojson"), path_mtime(DATA / "securities.geojson"))
+    with suppress(Exception):
+        _map_relationships_json_cached(path_mtime(DATA / "relationships.geojson"))
+    for cache_name in (
+        "data-sources-status",
+        "reliefs-dem-status",
+        "reliefs-terrain-sources",
+        "reliefs-terrain-coverage",
+        "reliefs-terrain-jobs",
+    ):
+        with suppress(Exception):
+            _json_payload_cached(cache_name, terrain_status_cache_parts())
+    for name in ("universe_core.json", "companies.geojson", "securities.geojson", "relationships.geojson", "graph-index.json"):
+        with suppress(Exception):
+            path = DATA / name
+            _static_asset_bytes_cached(str(path), path_mtime(path))
+    for name in ("vendor/maplibre-gl/5.6.2/maplibre-gl.css", "vendor/maplibre-gl/5.6.2/maplibre-gl.js"):
+        with suppress(Exception):
+            path = ROOT / "graph" / name
+            _static_asset_bytes_cached(str(path), path_mtime(path))
+
+
+def warm_research_caches() -> None:
+    with suppress(Exception):
+        __import__("duckdb")
+    for module in ("political", "comps", "reverse_dcf"):
+        with suppress(Exception):
+            __import__(module)
+    with suppress(Exception):
+        store_by_id()
+    with suppress(Exception):
+        store_aliases()
+    with suppress(Exception):
+        intel_indexes()
+    with suppress(Exception):
+        generated_evidence()
+    for entity_id in ("GM", "USDA"):
+        with suppress(Exception):
+            _entity_events_json_cached(entity_id, 40, path_mtime(EVENTS), path_mtime(WATCHLISTS))
+        with suppress(Exception):
+            parts = (path_mtime(STORE_NODES), path_mtime(DATA / "aliases.json"), latest_mtime(COMPANYFACTS, "CIK*.json"))
+            _entity_reverse_dcf_json_cached(entity_id, 0.09, 0.025, "cash_flow", *parts)
+        with suppress(Exception):
+            from dcf_export import build_dcf_workbook
+
+            build_dcf_workbook(entity_id, "cash_flow")
+        with suppress(Exception):
+            parts = (path_mtime(STORE_NODES), path_mtime(STORE_EDGES), path_mtime(DATA / "aliases.json"), latest_mtime(COMPANYFACTS, "CIK*.json"))
+            _entity_comps_json_cached(entity_id, 8, *parts)
+        with suppress(Exception):
+            parts = (
+                path_mtime(STORE_NODES),
+                path_mtime(DATA / "aliases.json"),
+                path_mtime(COMMITTEE_POLICY_MAP),
+                path_mtime(POL_MEMBERS),
+                path_mtime(POL_TRADES),
+                path_mtime(GOV_CONTRACTS),
+                path_mtime(INTEL),
+                path_mtime(DATA / "universe_core.json"),
+            )
+            _entity_political_json_cached(entity_id, *parts)
+
+
+def warm_startup_caches() -> None:
+    with suppress(Exception):
+        _bootstrap_signals_json_cached(
+            path_mtime(DATA / "aliases.json"),
+            path_mtime(DATA / "hq_coords.json"),
+            path_mtime(DATA / "news.json"),
+            path_mtime(DATA / "edge_candidates.json"),
+            path_mtime(DATA / "location_unknown.json"),
+        )
+    with suppress(Exception):
+        store_node_count()
+    with suppress(Exception):
+        store_by_id()
+    with suppress(Exception):
+        load_static_json(str(DATA / "graph-index.json"))
+    with suppress(Exception):
+        load_static_json(str(DATA / "relationships.geojson"))
+
+
+@app.get("/vendor/maplibre-gl/5.6.2/maplibre-gl.css", include_in_schema=False)
+def vendor_maplibre_css(request: Request):
+    return cached_graph_asset_response("vendor/maplibre-gl/5.6.2/maplibre-gl.css", request, "text/css")
+
+
+@app.get("/vendor/maplibre-gl/5.6.2/maplibre-gl.js", include_in_schema=False)
+def vendor_maplibre_js(request: Request):
+    return cached_graph_asset_response("vendor/maplibre-gl/5.6.2/maplibre-gl.js", request, "application/javascript")
+
+
+@app.get("/js/main.js", include_in_schema=False)
+def app_main_js(request: Request):
+    return cached_graph_asset_response("js/main.js", request, "application/javascript", "public, max-age=60, must-revalidate")
+
+
+@app.get("/js/config.js", include_in_schema=False)
+def app_config_js(request: Request):
+    return cached_graph_asset_response("js/config.js", request, "application/javascript", "public, max-age=60, must-revalidate")
+
+
+@app.get("/js/state.js", include_in_schema=False)
+def app_state_js(request: Request):
+    return cached_graph_asset_response("js/state.js", request, "application/javascript", "public, max-age=60, must-revalidate")
+
+
+@app.get("/css/app.css", include_in_schema=False)
+def app_css(request: Request):
+    return cached_graph_asset_response("css/app.css", request, "text/css", "public, max-age=60, must-revalidate")
+
+
+@app.get("/Logo_Dark_BG_96.png", include_in_schema=False)
+def app_logo(request: Request):
+    return cached_graph_asset_response("Logo_Dark_BG_96.png", request, "image/png", "public, max-age=31536000, immutable")
+
+
+@app.get("/", include_in_schema=False)
+def app_index(request: Request):
+    return cached_graph_asset_response("index.html", request, "text/html", "public, max-age=60, must-revalidate")
+
+
+@app.get("/index.html", include_in_schema=False)
+def app_index_html(request: Request):
+    return cached_graph_asset_response("index.html", request, "text/html", "public, max-age=60, must-revalidate")
 
 
 app.mount("/", StaticFiles(directory=str(ROOT / "graph"), html=True), name="graph")
