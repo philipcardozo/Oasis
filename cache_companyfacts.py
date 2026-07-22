@@ -8,7 +8,9 @@ from urllib.request import Request, urlopen
 
 ROOT = Path(__file__).parent
 UNIVERSE = ROOT / "graph" / "data" / "universe.json"
-OUT_DIR = ROOT / "graph" / "data" / "companyfacts"
+from oasis_paths import facts_dir
+
+OUT_DIR = facts_dir()  # must match dcf_export.FACTS
 UA = "OasisGraph/0.1 (companyfacts cache; local research use)"
 
 

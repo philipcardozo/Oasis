@@ -4,7 +4,7 @@ XBRL TAGS map is imported, never duplicated.
 """
 from __future__ import annotations
 
-from dcf_export import TAGS, get_latest_filed_annual, load_facts, load_node
+from dcf_export import FactsUnavailable, TAGS, get_latest_filed_annual, load_facts, load_node
 
 YEARS = 10
 
@@ -48,8 +48,11 @@ def reverse_dcf(entity_id: str, discount: float = 0.09, terminal_growth: float =
     if not str(node.get("cik") or "").strip().isdigit():  # '—' placeholder / blank -> no facts
         return {"available": False, "reason": "no SEC CIK"}
     try:
-        facts, _ = load_facts(node)
-    except Exception as e:  # network / parse — degrade cleanly
+        facts, _ = load_facts(node)  # local-only by default
+    except FactsUnavailable as e:
+        return {"available": False, "reason": str(e), "facts_cached": False,
+                "hint": "run refresh_financial_facts.py to acquire SEC facts"}
+    except Exception as e:  # parse / unexpected — degrade cleanly
         return {"available": False, "reason": f"facts unavailable: {e}"}
 
     shares = _latest(get_latest_filed_annual(facts, TAGS["shares"]))
