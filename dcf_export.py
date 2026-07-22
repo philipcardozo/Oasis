@@ -3,20 +3,20 @@ from __future__ import annotations
 import json
 import re
 from datetime import date, datetime
+from functools import lru_cache
 from pathlib import Path
-import urllib.request
 import os
-
-from openpyxl import Workbook
-from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
-from openpyxl.utils import get_column_letter
-from openpyxl.drawing.image import Image as OpenpyxlImage
 
 ROOT = Path(__file__).parent
 DATA = ROOT / "graph" / "data"
 FACTS = DATA / "companyfacts"
 OUTPUTS = ROOT / "outputs" / "dcf"
-from store import aliases as store_aliases, by_id as store_by_id
+from store import ALIASES, NODES, aliases as store_aliases, by_id as store_by_id
+
+try:
+    import ujson as fast_json
+except ImportError:  # pragma: no cover - optional local speedup
+    fast_json = json
 
 USD = '$#,##0;[Red]($#,##0);-'
 USD_MM = '$#,##0.0;[Red]($#,##0.0);-'
@@ -32,6 +32,15 @@ BLUE_TEXT = "0070C0"
 RED_TEXT = "FF0000"
 GREEN_TEXT = "196B24"
 WHITE = "FFFFFF"
+
+
+def load_openpyxl():
+    global Workbook, Alignment, Border, Font, PatternFill, Side, get_column_letter, OpenpyxlImage
+
+    from openpyxl import Workbook
+    from openpyxl.drawing.image import Image as OpenpyxlImage
+    from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+    from openpyxl.utils import get_column_letter
 
 # Mapping tickers to domains for logo downloads
 TICKER_DOMAINS = {
@@ -92,7 +101,39 @@ def load_facts(node: dict) -> tuple[dict, Path]:
     path = FACTS / f"CIK{cik}.json"
     if not path.exists():
         path = cache_one(cik)
-    return json.load(path.open()), path
+    return _load_facts_cached(str(path), path.stat().st_mtime), path
+
+
+@lru_cache(maxsize=256)
+def _load_facts_cached(path: str, mtime: float) -> dict:
+    return fast_json.loads(Path(path).read_bytes())
+
+
+def facts_path_for_node(node: dict) -> Path:
+    from cache_companyfacts import cache_one, cik10
+
+    cik = cik10(node.get("cik", ""))
+    path = FACTS / f"CIK{cik}.json"
+    return path if path.exists() else cache_one(cik)
+
+
+def latest_existing_mtime(paths: list[Path]) -> float:
+    return max((p.stat().st_mtime for p in paths if p.exists()), default=0)
+
+
+def fresh_cached_workbook_path(ticker: str, facts_path: Path) -> Path | None:
+    path = OUTPUTS / f"{ticker}_DCF.xlsx"
+    if not path.exists():
+        return None
+    dependencies = [
+        facts_path,
+        Path(__file__),
+        NODES,
+        ALIASES,
+        ROOT / "Assets & Media" / "Logos" / f"{ticker}_logo.png",
+        ROOT / "Assets & Media" / "Logos" / "Logo_Dark_BG.png",
+    ]
+    return path if path.stat().st_mtime >= latest_existing_mtime(dependencies) else None
 
 def get_latest_filed_annual(facts: dict, tags: list[str]) -> dict[int, float]:
     picked: dict[int, float] = {}
@@ -145,6 +186,8 @@ def get_company_logo(ticker: str, name: str) -> Path | None:
             domain = f"{ticker.lower()}.com"
             
     # Try downloading from clearbit
+    import urllib.request
+
     url = f"https://logo.clearbit.com/{domain}"
     try:
         urllib.request.urlretrieve(url, str(local_path))
@@ -174,8 +217,13 @@ def apply_base_styles(ws):
 
 def build_dcf_workbook(entity_id: str, method: str = "cash_flow") -> Path:
     node = load_node(entity_id)
-    facts, facts_path = load_facts(node)
     ticker = node.get("t") or node["id"]
+    facts_path = facts_path_for_node(node)
+    if cached := fresh_cached_workbook_path(ticker, facts_path):
+        return cached
+
+    load_openpyxl()
+    facts = _load_facts_cached(str(facts_path), facts_path.stat().st_mtime)
     
     # Retrieve historical years (last 5 years)
     revenue_series = get_latest_filed_annual(facts, TAGS["revenue"])
