@@ -65,3 +65,8 @@ archive/data/
 
 # Media assets (large binary files)
 Assets & Media/
+
+# Playwright
+node_modules/
+test-results/
+playwright-report/
