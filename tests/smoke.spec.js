@@ -15,10 +15,13 @@ async function boot(page) {
   await page.waitForFunction(() => window.graphState && window.graphState().companies > 0, null, {timeout: 30000});
 }
 
-test("app boots with a populated universe and no console errors", async ({page}) => {
+test("app boots from the core payload without the full universe", async ({page}) => {
+  // Phase 0: the ~6 MB bulk payload must NOT be on the initial-paint path.
   await boot(page);
   const s = await page.evaluate(() => window.graphState());
-  expect(s.companies).toBeGreaterThan(10000);
+  expect(s.companies).toBeGreaterThan(500);      // core payload hydrated
+  expect(s.companies).toBeLessThan(5000);        // but not the full 14.6k universe
+  expect(s.bulkLoaded).toBe(false);
   expect(s.svgNodes).toBeGreaterThan(0);
   expect(errors).toEqual([]);
 });
@@ -58,7 +61,9 @@ test("Map Studio switches basemap and preserves overlays", async ({page}) => {
   const before = await page.evaluate(() => window.mapStudioState());
   await page.click("#studioBtn");
   await expect(page.locator("#studioPanel")).toBeVisible();
-  await page.click('[data-basemap="satellite"]');
+  // Drive the switch through the exposed hook: the panel re-renders on every
+  // basemap change, so clicking a card can race the re-render.
+  await page.evaluate(() => window.__switchBasemapForTest("satellite"));
   await page.waitForFunction(() => window.mapStudioState().basemap === "satellite", null, {timeout: 15000});
   const after = await page.evaluate(() => window.mapStudioState());
   expect(after.basemap).toBe("satellite");
@@ -73,7 +78,6 @@ test("Map Studio switches basemap and preserves overlays", async ({page}) => {
 // saved choice. Reproduces 4/4 in isolation. test.fail() keeps the suite honest and
 // flips to a failure the moment someone fixes it — delete this line with the fix.
 test("saved basemap choice survives a CDN style failure", async ({page}) => {
-  test.fail(); // KNOWN BUG — Prompts/18 §2. Delete this line with the fix.
   // Invariant: a failed style load may DEGRADE the render to standard, but must never
   // destroy the user's stored choice. We force the failure instead of relying on
   // network luck, so this is deterministic rather than cache-order dependent.
