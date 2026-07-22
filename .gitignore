@@ -73,3 +73,6 @@ playwright-report/
 
 # Local audit backups (never commit)
 .local-backups/
+
+# Editable-install metadata
+*.egg-info/
