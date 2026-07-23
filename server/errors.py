@@ -32,6 +32,6 @@ def install_error_handlers(app: FastAPI) -> None:
         }
         if cid := correlation_id():
             headers["X-Request-ID"] = cid
-        if get_settings().is_secure:
-            headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        if hsts := get_settings().hsts_header:
+            headers["Strict-Transport-Security"] = hsts
         return JSONResponse({"detail": "internal server error"}, status_code=500, headers=headers)

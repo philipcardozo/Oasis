@@ -587,6 +587,155 @@ Only treat the headless shader warning as classified if every diagnostic variant
 has styleLoaded true, basemapPreserved true, and zero unclassified errors.
 ```
 
+### Prompt 12: Public Staging DNS/TLS/Security Preflight
+
+```text
+Run the public staging preflight without editing product code.
+
+Work in:
+/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis
+
+Prerequisites:
+- STAGING_URL is set to the approved staging HTTPS URL.
+- If Cloudflare Access service-token auth is required, set:
+  OASIS_CF_ACCESS_CLIENT_ID
+  OASIS_CF_ACCESS_CLIENT_SECRET
+
+Run:
+python3 scripts/public_staging_preflight.py \
+  --base-url="$STAGING_URL" \
+  --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID \
+  --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET
+
+Inspect:
+- docs/evidence/public-staging/00-public-staging-preflight.json
+
+Verify:
+- DNS resolves.
+- TLS certificate is valid.
+- HTTP redirects to HTTPS.
+- /healthz, /readyz, /version, and /index.html are reachable through the
+  intended access boundary.
+- HSTS has max-age but does not include includeSubDomains or preload.
+- CSP, no-sniff, referrer policy, permissions policy, cache, vary, ETag, and
+  cookie flags are recorded.
+
+Do not paste secrets, private access URLs, cookies, or full auth headers into
+evidence.
+```
+
+### Prompt 13: Public Staging Route And Attack-Surface Probe
+
+```text
+Probe public staging route families without product-code changes.
+
+Work in:
+/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis
+
+Run a safe read-mostly route probe:
+python3 scripts/compose_route_family_probe.py \
+  --base-url="$STAGING_URL" \
+  --samples=3 \
+  --verify-tls \
+  --output-file=25-public-route-family-probe.json
+
+If Cloudflare Access blocks direct CLI traffic, configure service-token headers
+in a temporary local wrapper or use an authenticated Proxyman browser capture
+for this gate; do not commit the token values.
+
+Verify:
+- public health/version routes are reachable.
+- unauthenticated auth/map-slot routes reject as expected.
+- no worker-only route is public.
+- no internal service port is exposed.
+- route count and classification are compared with docs/AUTHORIZATION-MATRIX.md
+  and docs/evidence/phase-1-5/route-authorization-inventory.json.
+- trusted-host/CORS/CSRF/rate-limit behavior remains explicit.
+
+Record findings in:
+- docs/evidence/public-staging/09-route-security.md
+```
+
+### Prompt 14: Public Staging Proxyman Browser Matrix
+
+```text
+Capture real public staging browser behavior through Proxyman.
+
+Work in:
+/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis
+
+Prerequisites:
+- Proxyman running with session cleared.
+- SSL proxying enabled for the staging host and approved map hosts.
+- Browser can pass Cloudflare Access.
+
+Run Chrome capture:
+node scripts/browser_performance_capture.js \
+  --base-url="$STAGING_URL" \
+  --no-start-server=true \
+  --proxy-server=http://127.0.0.1:9090 \
+  --flow-prefix=26-public-staging \
+  --summary-file=26-public-staging-browser-har-summary.json
+
+Repeat manually or with equivalent tooling for:
+- Brave or Edge
+- Firefox
+- Safari on macOS
+- Mobile Safari where available
+- Chrome on Android where available
+
+Verify:
+- application shell
+- registration, verification, login, session persistence, password reset, logout
+- Standard, Dark, and disabled/failed Satellite behavior
+- search, entity selection, drawer/rail interactions
+- exactly three Map Studio slots
+- slot sync, version conflict, export/import
+- responsive layout, keyboard navigation, basic accessibility
+- no unexpected console errors
+- no /api/universe/bulk during first paint
+- no unpkg.com
+
+Record browser/OS versions in:
+- docs/evidence/public-staging/07-browser-matrix.md
+- docs/evidence/public-staging/08-map-provider-capture.md
+- docs/evidence/public-staging/15-performance.md
+```
+
+### Prompt 15: Public Staging Auth, Worker, Backup, Rollback Gate
+
+```text
+Complete the public private-beta gate checks without changing product behavior.
+
+Work in:
+/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis
+
+Using the real staging URL and provider dashboards/logs, verify and record:
+- authentication email delivery for registration verification and password reset
+- secure session cookie flags, no reusable localStorage token, CSRF rejection
+- two users, exactly three map slots per user, cross-user denial, conflict
+  handling, API restart persistence, deploy revision compatibility
+- controlled noop worker job claim/progress/completion/failure/retry/restart
+- API remains responsive while worker runs
+- API normal user requests perform zero external acquisition
+- object storage private export behavior and bounded failure behavior
+- PostgreSQL backup restore into a separate database
+- API replacement and failed-health deployment rollback
+- observability signals and alert definitions
+- licensing-sensitive providers remain disabled
+
+Record:
+- docs/evidence/public-staging/06-auth-email.md
+- docs/evidence/public-staging/10-worker-jobs.md
+- docs/evidence/public-staging/11-network-isolation.md
+- docs/evidence/public-staging/12-backup-restore.md
+- docs/evidence/public-staging/13-failure-rollback.md
+- docs/evidence/public-staging/14-observability-alerts.md
+
+Final verdict stays NOT APPROVED unless every public-staging acceptance item is
+proven by current evidence.
+```
+
 ## First Optimization Hypotheses
 
 These are hypotheses only; require evidence before implementation.

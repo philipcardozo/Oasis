@@ -22,6 +22,26 @@ verified against current primary-source terms. Esri and yfinance are the two
 that block commercial launch and need a purchase/substitution decision — they are
 upstream of offline dataset packaging.
 
+## Phase 1.75 Public Staging
+
+For public staging and private beta, unresolved providers remain disabled in
+secure modes:
+
+```text
+OASIS_FEATURE_SATELLITE=false
+OASIS_FEATURE_PRICES=false
+OASIS_FEATURE_LOGOS=false
+```
+
+This permits a controlled beta only for functionality that does not depend on
+unapproved imagery, market-data redistribution, logo redistribution, news
+full-text caching, political-trading feeds, or other commercial datasets.
+
+Before enabling any disabled provider, record current official terms, commercial
+use permission, caching rules, redistribution rules, attribution, offline-use
+rights, account/API-key requirements, and the replacement provider if permission
+is not sufficient.
+
 Covered by:
 
 - `test_phase1_security.py::test_valid_production_config_passes`

@@ -169,8 +169,8 @@ def _apply_response_headers(response, settings: Settings, request_id: str) -> No
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     response.headers.setdefault("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
     response.headers.setdefault("Content-Security-Policy", CSP)
-    if settings.is_secure:
-        response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+    if settings.hsts_header:
+        response.headers.setdefault("Strict-Transport-Security", settings.hsts_header)
 
 
 def _log_request(request: Request, status_code: int, started: float, request_id: str, *, failed: bool = False) -> None:

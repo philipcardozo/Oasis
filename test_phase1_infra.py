@@ -57,6 +57,15 @@ def test_all_modes_valid():
     assert set(VALID_MODES) == {"development", "test", "staging", "production"}
 
 
+def test_database_url_falls_back_to_provider_database_url(monkeypatch):
+    from server.config import load_settings
+
+    monkeypatch.delenv("OASIS_DATABASE_URL", raising=False)
+    monkeypatch.setenv("DATABASE_URL", "postgres://user:pass@db.example.com/oasis")
+
+    assert load_settings().database_url == "postgresql+psycopg://user:pass@db.example.com/oasis"
+
+
 def test_composed_app_has_no_duplicate_route_methods(app_client):
     rows = _route_methods(app_client.app)
     duplicates = [item for item, count in Counter(rows).items() if count > 1]

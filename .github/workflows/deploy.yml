@@ -8,48 +8,141 @@ on:
       target:
         description: "deploy target"
         type: choice
-        options: [staging, production]
+        options: [staging]
         default: staging
 
 permissions:
   contents: read
   packages: write
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: oasis-${{ github.event_name == 'workflow_dispatch' && inputs.target || 'staging' }}-deploy
+  cancel-in-progress: false
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/oasis
 
 jobs:
-  # Auto staging deploy on main.
   staging:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-22.04
     environment: staging
     steps:
       - uses: actions/checkout@v4
-      - name: Build & push image
-        run: echo "build+push oasis:staging-${GITHUB_SHA::7} to registry (configure registry secrets)"
-      - name: Run migrations on staging
-        run: echo "run alembic upgrade head against staging DB"
-      - name: Deploy api + worker
-        run: echo "deploy staging; blue-green via image tag"
-      - name: Smoke test
-        run: echo "curl https://staging/healthz && https://staging/readyz"
 
-  # Production requires an explicit protected-environment approval.
-  production:
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'production'
-    runs-on: ubuntu-22.04
-    environment: production   # protected: requires reviewer approval in repo settings
-    steps:
-      - uses: actions/checkout@v4
-      - name: Migrate production DB
-        run: echo "alembic upgrade head (backward-compatible migration)"
-      - name: Deploy
-        run: echo "deploy production; keep previous tag for rollback"
-      - name: Post-deploy verification
-        run: echo "canary: /healthz /readyz + basemap render check"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-  rollback:
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'production'
-    runs-on: ubuntu-22.04
-    environment: production
-    steps:
-      - name: Manual rollback to previous image tag
-        run: echo "re-deploy previous known-good tag"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip
+          pip install -e ".[dev]" \
+            "sqlalchemy>=2.0" "alembic>=1.13" "argon2-cffi>=23.1" "itsdangerous>=2.1" "httpx>=0.27"
+          npm ci || npm install
+          npx playwright install --with-deps chromium firefox webkit
+
+      - name: Validate migrations
+        env:
+          OASIS_DATABASE_URL: sqlite:///./data/deploy-ci.db
+        run: |
+          mkdir -p data
+          python -m alembic upgrade head
+          python -m alembic downgrade base
+
+      - name: Python tests
+        run: python -m pytest -q
+
+      - name: Playwright tests
+        run: npx playwright test
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=staging-${{ github.sha }}
+
+      - name: Build and publish immutable image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          provenance: mode=max
+          sbom: true
+
+      - name: Scan published image
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}
+          format: table
+          exit-code: "1"
+          severity: CRITICAL,HIGH
+
+      - name: Record image manifest
+        run: |
+          mkdir -p docs/evidence/public-staging
+          cat > docs/evidence/public-staging/01-image-manifest.json <<EOF
+          {
+            "commit": "${GITHUB_SHA}",
+            "image": "${IMAGE_NAME}@${{ steps.build.outputs.digest }}",
+            "digest": "${{ steps.build.outputs.digest }}",
+            "built_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "architecture": "linux/amd64",
+            "registry": "ghcr.io"
+          }
+          EOF
+
+      - name: Trigger Render API deploy
+        env:
+          RENDER_API_DEPLOY_HOOK_URL: ${{ secrets.RENDER_API_DEPLOY_HOOK_URL }}
+        run: |
+          test -n "$RENDER_API_DEPLOY_HOOK_URL"
+          curl --fail --silent --show-error -X POST "${RENDER_API_DEPLOY_HOOK_URL}&ref=${GITHUB_SHA}"
+
+      - name: Trigger Render worker deploy
+        env:
+          RENDER_WORKER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_WORKER_DEPLOY_HOOK_URL }}
+        run: |
+          test -n "$RENDER_WORKER_DEPLOY_HOOK_URL"
+          curl --fail --silent --show-error -X POST "${RENDER_WORKER_DEPLOY_HOOK_URL}&ref=${GITHUB_SHA}"
+
+      - name: Public staging preflight
+        env:
+          STAGING_URL: ${{ vars.STAGING_URL }}
+          OASIS_CF_ACCESS_CLIENT_ID: ${{ secrets.OASIS_CF_ACCESS_CLIENT_ID }}
+          OASIS_CF_ACCESS_CLIENT_SECRET: ${{ secrets.OASIS_CF_ACCESS_CLIENT_SECRET }}
+        run: |
+          python scripts/public_staging_preflight.py \
+            --base-url="$STAGING_URL" \
+            --expect-commit="$GITHUB_SHA" \
+            --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID \
+            --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET
+
+      - name: Upload public staging evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-staging-evidence-${{ github.sha }}
+          path: docs/evidence/public-staging/
+          if-no-files-found: ignore

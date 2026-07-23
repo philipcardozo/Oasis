@@ -48,6 +48,15 @@ def _list(name: str, default: list[str] | None = None) -> list[str]:
     return [item.strip() for item in v.split(",") if item.strip()]
 
 
+def _database_url() -> str:
+    url = _env("OASIS_DATABASE_URL") or _env("DATABASE_URL") or "sqlite:///./data/oasis_dev.db"
+    if url.startswith("postgres://"):
+        return "postgresql+psycopg://" + url.removeprefix("postgres://")
+    if url.startswith("postgresql://"):
+        return "postgresql+psycopg://" + url.removeprefix("postgresql://")
+    return url
+
+
 @dataclass(frozen=True)
 class Settings:
     mode: str = "development"
@@ -68,6 +77,9 @@ class Settings:
     allowed_origins: list[str] = field(default_factory=lambda: ["http://localhost:8788"])
     trusted_hosts: list[str] = field(default_factory=lambda: ["localhost", "127.0.0.1", "testserver"])
     trust_proxy: bool = False
+    hsts_max_age_seconds: int = 31536000
+    hsts_include_subdomains: bool = False
+    hsts_preload: bool = False
 
     # Email (transactional). Console backend in dev; provider in prod.
     email_backend: str = "console"      # console | smtp | memory
@@ -113,6 +125,17 @@ class Settings:
     def is_production(self) -> bool:
         return self.mode == "production"
 
+    @property
+    def hsts_header(self) -> str | None:
+        if not self.is_secure or self.hsts_max_age_seconds <= 0:
+            return None
+        parts = [f"max-age={self.hsts_max_age_seconds}"]
+        if self.hsts_include_subdomains:
+            parts.append("includeSubDomains")
+        if self.hsts_preload:
+            parts.append("preload")
+        return "; ".join(parts)
+
 
 def _build(overrides: dict | None = None) -> Settings:
     mode = (overrides or {}).get("mode") or _env("OASIS_MODE") or _env("OASIS_ENV") or "development"
@@ -126,7 +149,7 @@ def _build(overrides: dict | None = None) -> Settings:
         "mode": mode,
         "public_base_url": _env("OASIS_PUBLIC_BASE_URL", "http://localhost:8788"),
         "api_base_url": _env("OASIS_API_BASE_URL", _env("OASIS_PUBLIC_BASE_URL", "http://localhost:8788")),
-        "database_url": _env("OASIS_DATABASE_URL", "sqlite:///./data/oasis_dev.db"),
+        "database_url": _database_url(),
         "session_secret": _env("OASIS_SESSION_SECRET", ""),
         "session_cookie_name": _env("OASIS_SESSION_COOKIE", "oasis_session"),
         "session_ttl_seconds": int(_env("OASIS_SESSION_TTL", str(60 * 60 * 24 * 14))),
@@ -135,6 +158,9 @@ def _build(overrides: dict | None = None) -> Settings:
         "allowed_origins": _list("OASIS_ALLOWED_ORIGINS", ["http://localhost:8788"]),
         "trusted_hosts": _list("OASIS_TRUSTED_HOSTS", ["localhost", "127.0.0.1", "testserver"]),
         "trust_proxy": _bool("OASIS_TRUST_PROXY", False),
+        "hsts_max_age_seconds": int(_env("OASIS_HSTS_MAX_AGE", "31536000")),
+        "hsts_include_subdomains": _bool("OASIS_HSTS_INCLUDE_SUBDOMAINS", False),
+        "hsts_preload": _bool("OASIS_HSTS_PRELOAD", False),
         "email_backend": _env("OASIS_EMAIL_BACKEND", "console"),
         "smtp_host": _env("OASIS_SMTP_HOST", ""),
         "smtp_port": int(_env("OASIS_SMTP_PORT", "587")),
@@ -185,6 +211,12 @@ def _validate(s: Settings) -> None:
         problems.append("OASIS_TRUSTED_HOSTS must be explicit (no '*')")
     if not s.cookie_secure:
         problems.append("OASIS_COOKIE_SECURE must be true in secure modes")
+    if s.hsts_max_age_seconds < 0:
+        problems.append("OASIS_HSTS_MAX_AGE must be >= 0")
+    if s.hsts_preload and not s.hsts_include_subdomains:
+        problems.append("OASIS_HSTS_PRELOAD requires OASIS_HSTS_INCLUDE_SUBDOMAINS=true")
+    if s.hsts_preload and s.hsts_max_age_seconds < 31536000:
+        problems.append("OASIS_HSTS_PRELOAD requires OASIS_HSTS_MAX_AGE >= 31536000")
     if not s.public_base_url.startswith("https://") and s.is_production:
         problems.append("OASIS_PUBLIC_BASE_URL must be https:// in production")
     if s.email_backend == "console" and s.is_production:

@@ -14,7 +14,7 @@ from server.db import db_healthy
 router = APIRouter(tags=["health"])
 
 _VERSION = os.environ.get("OASIS_BUILD_VERSION", "dev")
-_COMMIT = os.environ.get("OASIS_BUILD_COMMIT", "unknown")
+_COMMIT = os.environ.get("OASIS_BUILD_COMMIT") or os.environ.get("RENDER_GIT_COMMIT", "unknown")
 
 
 @router.get("/healthz")

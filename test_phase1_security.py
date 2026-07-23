@@ -201,6 +201,44 @@ def test_valid_staging_config_disables_unresolved_providers(monkeypatch):
     assert s.feature_satellite_esri is False
     assert s.feature_prices_yfinance is False
     assert s.feature_company_logos is False
+    assert s.hsts_header == "max-age=31536000"
+
+
+def test_staging_hsts_does_not_cover_subdomains_or_preload_by_default(monkeypatch):
+    from server.config import load_settings
+
+    monkeypatch.setenv("OASIS_MODE", "staging")
+    monkeypatch.setenv("OASIS_SESSION_SECRET", "x" * 40)
+    monkeypatch.setenv("OASIS_DATABASE_URL", "postgresql+psycopg://u:p@h/db")
+    monkeypatch.setenv("OASIS_PUBLIC_BASE_URL", "https://staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_COOKIE_SECURE", "true")
+    monkeypatch.setenv("OASIS_TRUSTED_HOSTS", "staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_ALLOWED_ORIGINS", "https://staging.oasis.example.com")
+
+    hsts = load_settings().hsts_header
+    assert hsts == "max-age=31536000"
+    assert "includeSubDomains" not in hsts
+    assert "preload" not in hsts
+
+
+def test_hsts_preload_requires_full_domain_policy(monkeypatch):
+    from server.config import ConfigError, load_settings
+
+    monkeypatch.setenv("OASIS_MODE", "staging")
+    monkeypatch.setenv("OASIS_SESSION_SECRET", "x" * 40)
+    monkeypatch.setenv("OASIS_DATABASE_URL", "postgresql+psycopg://u:p@h/db")
+    monkeypatch.setenv("OASIS_PUBLIC_BASE_URL", "https://staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_COOKIE_SECURE", "true")
+    monkeypatch.setenv("OASIS_TRUSTED_HOSTS", "staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_ALLOWED_ORIGINS", "https://staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_HSTS_PRELOAD", "true")
+
+    try:
+        load_settings()
+        raised = False
+    except ConfigError:
+        raised = True
+    assert raised
 
 
 def test_no_secrets_logged():
