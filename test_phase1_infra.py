@@ -66,6 +66,31 @@ def test_repositories_create_three_slots_transactionally(app_client):
     assert len(slots) == 3
 
 
+def test_worker_processes_and_retries_jobs(app_client):
+    from server.db import session_scope
+    from server import repositories as repo
+    from server.models import Job
+    from server.worker import run_once
+
+    with session_scope() as db:
+        good = repo.enqueue_job(db, "noop", {"x": 1}); good_id = good.id
+        bad = repo.enqueue_job(db, "unknown_kind", {}, max_attempts=2); bad_id = bad.id
+    run_once(); run_once()  # two passes to exhaust the bad job's retries
+    with session_scope() as db:
+        assert db.get(Job, good_id).status == "done"
+        failed = db.get(Job, bad_id)
+        assert failed.status == "failed" and failed.attempts == 2 and failed.error
+
+
+def test_backup_restore_drill(app_client, tmp_path):
+    """A backup is valid only if a restore round-trips users and map slots."""
+    from server.backup import run_drill
+    result = run_drill(tmp_path / "backups")
+    assert result["ok"] is True
+    assert result["user_restored"] is True
+    assert result["slots"] == 3
+
+
 def _path():
     import os
     return os.environ.get("PATH", "")
