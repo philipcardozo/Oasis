@@ -1224,14 +1224,36 @@ function scheduleMapRuntimeWarmup(){
   const timer=setTimeout(warm,1800);
   if("requestIdleCallback" in window) requestIdleCallback(()=>{ clearTimeout(timer); warm(); },{timeout:2500});
 }
+// Basemap has THREE distinct states, deliberately not collapsed into one value:
+//   productPrefs.basemap - the user's PREFERRED basemap (persisted, never
+//                          overwritten by a provider failure)
+//   activeBasemap        - what is actually rendered right now (in-memory)
+//   basemapNotice        - why active differs from preferred, for the UI
+// A provider outage must never mutate a saved preference.
+let activeBasemap=null;
+let basemapNotice=null;
+let basemapGeneration=0;   // guards against a stale style resolving last
+
+function setBasemapNotice(preferredId,err){
+  const name=BASEMAPS[preferredId]?.name||preferredId;
+  basemapNotice={preferred:preferredId,message:`${name} is unavailable right now — showing Standard.`,
+                 detail:String(err&&err.message||err||"").slice(0,140)};
+}
+function clearBasemapNotice(){ basemapNotice=null; }
+function preferredBasemapId(){ return BASEMAPS[productPrefs.basemap]?productPrefs.basemap:"standard"; }
+
 function initMapGlobe(){
   if(map) return Promise.resolve(map);
   if(mapInitPromise) return mapInitPromise;
-  assignMapInitPromise(ensureMapLibre().then(()=>loadBaseMapStyle().catch(err=>{
-    console.warn("base map style patch skipped",err);
-    productPrefs.basemap="standard";
-    saveProductPrefs();
-    return BASEMAPS.standard.styleUrl;
+  const preferred=preferredBasemapId();
+  assignMapInitPromise(ensureMapLibre().then(()=>loadBaseMapStyle(preferred).then(style=>{
+    activeBasemap=preferred; clearBasemapNotice(); return style;
+  }).catch(err=>{
+    // Render Standard as a TEMPORARY fallback. Do NOT touch productPrefs.basemap.
+    warnMapOnce("basemap unavailable, using fallback",err);
+    setBasemapNotice(preferred,err);
+    activeBasemap="standard";
+    return loadBaseMapStyle("standard");
   }).then(createMapGlobe)).catch(err=>{
     warnMapOnce("map globe",err);
     assignMapInitPromise(null);
@@ -2149,7 +2171,8 @@ window.stressIndex=async(n=50000)=>{
   return {nodes:COMPANIES.length,svgNodes:document.querySelectorAll("#nodes .node-g").length};
 };
 window.graphState=()=>({mode,companies:COMPANIES.length,bulkLoaded,selected,manualSelectedId,manualNodes:manualLayer.nodes.length,lens:productPrefs.lens,selfViewId,selfViewNodes:selfViewNodes.size,svgNodes:document.querySelectorAll("#nodes .node-g").length,canvasDisplay:getComputedStyle(canvas).display,stats:document.getElementById("stNodes").textContent});
-window.mapStudioState=()=>({basemap:productPrefs.basemap,selectedMapSlot:productPrefs.selectedMapSlot,mapSlots:cloneJson(productPrefs.mapSlots),terrain:!!productPrefs.engine.terrain,terrainExaggeration:productPrefs.engine.terrainExaggeration,activeOverlays:activeOverlayCount(),styleLoaded:!!mapReady});
+window.__switchBasemapForTest=id=>switchBasemap(id);
+window.mapStudioState=()=>({basemap:productPrefs.basemap,preferredBasemap:productPrefs.basemap,activeBasemap,basemapNotice:basemapNotice?basemapNotice.message:null,selectedMapSlot:productPrefs.selectedMapSlot,mapSlots:cloneJson(productPrefs.mapSlots),terrain:!!productPrefs.engine.terrain,terrainExaggeration:productPrefs.engine.terrainExaggeration,activeOverlays:activeOverlayCount(),styleLoaded:!!mapReady});
 window.graphPoint=id=>{ const c=byId[id],r=svg.getBoundingClientRect(); return c?{x:r.left+c.x*k+tx,y:r.top+c.y*k+ty}:null; };
 
 /* ---------- product controls + manual layer ---------- */
@@ -2300,7 +2323,8 @@ function renderMapStudio(){
   const conditionLabels={clouds:"Clouds",storms:"Hurricanes / storms",precipitation:"Precipitation",temperature:"Temperature",wind:"Wind",wildfire:"Wildfire / smoke",floods:"Flood alerts",radar:"Weather radar"};
   panel.innerHTML=`<div class="section-h">Map Studio</div><div class="studio-kicker">local profile (dev)</div>
     <div class="section-h">Map Styles</div>
-    <div class="basemap-grid">${Object.values(BASEMAPS).map(b=>`<button class="basemap-card ${b.id===base.id?"active":""}" type="button" data-basemap="${b.id}"><span class="basemap-preview"></span><b>${esc(b.name)}</b><small>Available · ${esc(b.bestFor)}</small></button>`).join("")}</div>
+    <div class="basemap-grid">${Object.values(BASEMAPS).map(b=>`<button class="basemap-card ${b.id===base.id?"active":""}" type="button" data-basemap="${b.id}"><span class="basemap-preview"></span><b>${esc(b.name)}</b><small>${b.id===activeBasemap?"Showing":"Available"} · ${esc(b.bestFor)}</small></button>`).join("")}</div>
+    ${basemapNotice?`<div class="studio-row warning basemap-notice"><span>${esc(basemapNotice.message)}</span><button type="button" data-action="retry-basemap">Retry</button></div>`:""}
     <div class="section-h">Compatible overlays</div>
     <div class="studio-row"><span>Terrain + hillshade</span><b>${productPrefs.engine.terrain?"active":"off"} · supported</b></div>
     <div class="studio-row ${base.supports.labels?"":"warning"}"><span>Base labels</span><b>${base.supports.labels?"provided":"not provided by this basemap"}</b></div>
@@ -2318,16 +2342,39 @@ function renderMapStudio(){
 async function switchBasemap(id){
   const base=BASEMAPS[id];
   if(!base) return;
+  // Persist the PREFERENCE immediately — it records intent, not availability.
   productPrefs.basemap=id;
   saveProductPrefs();
+  clearBasemapNotice();
   renderMapStudio();
   if(!map){ await setMode("globe"); return; }
+  const generation=++basemapGeneration;
   assignMapReady(false);
-  try{ map.setStyle(await loadBaseMapStyle(id)); }
-  catch(err){
-    console.warn(`basemap ${id} unavailable`,err);
-    if(id!=="standard") await switchBasemap("standard");
+  try{
+    const style=await loadBaseMapStyle(id);
+    if(generation!==basemapGeneration) return;   // a newer selection won
+    map.setStyle(style);
+    activeBasemap=id;
+  }catch(err){
+    if(generation!==basemapGeneration) return;   // a newer selection won
+    warnMapOnce(`basemap ${id} unavailable`,err);
+    setBasemapNotice(id,err);
+    if(id!=="standard"){
+      // Fall back WITHOUT rewriting the preference.
+      try{
+        const style=await loadBaseMapStyle("standard");
+        if(generation!==basemapGeneration) return;
+        map.setStyle(style);
+        activeBasemap="standard";
+      }catch(fallbackErr){ warnMapOnce("standard fallback unavailable",fallbackErr); }
+    }
   }
+  renderMapStudio();
+}
+async function retryPreferredBasemap(){
+  clearBasemapNotice();
+  renderMapStudio();
+  await switchBasemap(preferredBasemapId());
 }
 function mapSlotSnapshot(name){
   return {
@@ -2429,6 +2476,7 @@ document.getElementById("gearBtn").onclick=()=>toggleToolPanel("gearPanel");
 document.getElementById("dataBtn").onclick=()=>toggleToolPanel("dataPanel");
 document.getElementById("studioBtn").onclick=()=>{ renderMapStudio(); toggleToolPanel("studioPanel"); };
 document.getElementById("studioPanel").addEventListener("click",async e=>{
+  if(e.target.closest('[data-action="retry-basemap"]')){ retryPreferredBasemap(); return; }
   const base=e.target.closest("[data-basemap]");
   if(base){ await switchBasemap(base.dataset.basemap); return; }
   const slot=e.target.closest("[data-slot]");
@@ -2780,7 +2828,18 @@ function searchScore(c,raw){
   if(EXCHANGE_HQ_VALUES.has(String(c.hq||""))) score-=60;
   return score;
 }
+// The full entity list is needed to search, but not to paint. Load it on the
+// first sign of search intent, then re-run the query once it lands.
+function ensureSearchUniverse(){
+  if(bulkLoaded) return;
+  loadBulk().then(()=>{
+    if(searchInput.value.trim()) searchInput.dispatchEvent(new Event("input"));
+  }).catch(()=>{});
+}
+searchInput.addEventListener("focus",ensureSearchUniverse,{once:true});
+
 searchInput.addEventListener("input",()=>{ const q=searchInput.value.toLowerCase().trim(); if(!q){ results.classList.remove("show"); return; }
+  ensureSearchUniverse();
   const raw=searchInput.value.trim(),seen=new Set(),m=[];
   const add=c=>{ if(c&&existsInYear(c)&&!seen.has(c.id)){ seen.add(c.id); m.push(c); } };
   add(byId[ALIASES[raw]]);
@@ -2843,7 +2902,10 @@ async function setMode(m){
     ensureMapLibre().catch(err=>warnMapOnce("map globe",err));
     loadMapData().catch(err=>warnMapOnce("map data",err));
   }
-  await loadBulk();
+  // Only the index/canvas view needs every entity. Globe renders from the
+  // geojson layers and network renders from the core payload, so the ~6 MB bulk
+  // payload must not be on the initial-paint path.
+  if(m==="index") await loadBulk();
   assignMode(m);
   invalidateVisibilityCache();
   clearHoverFreeze();

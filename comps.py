@@ -7,7 +7,7 @@ the network; max_attempts bounds how many peers it will pull.
 """
 from __future__ import annotations
 
-from dcf_export import TAGS, get_latest_filed_annual, load_facts, load_node
+from dcf_export import FactsUnavailable, TAGS, get_latest_filed_annual, load_facts, load_node
 from store import by_id as store_by_id, load_edges
 
 
@@ -19,7 +19,9 @@ def _peer_metrics(p: dict) -> dict | None:
     if not str(p.get("cik") or "").strip().isdigit():
         return None
     try:
-        facts, _ = load_facts(p)
+        facts, _ = load_facts(p)  # local-only; raises FactsUnavailable on cache miss
+    except FactsUnavailable:
+        raise
     except Exception:
         return None
     rev = _latest(get_latest_filed_annual(facts, TAGS["revenue"]))
@@ -63,7 +65,7 @@ def comps(entity_id: str, cap: int = 12, max_attempts: int = 18) -> dict:
     group_peers = [n["id"] for n in by_id.values()
                    if n["id"] != nid and n["id"] not in graph_set and group and n.get("group") == group]
 
-    rows, attempts = [], 0
+    rows, attempts, skipped_uncached = [], 0, 0
     for pid in graph_peers + group_peers:  # graph neighbors ranked first
         if len(rows) >= cap or attempts >= max_attempts:
             break
@@ -71,14 +73,22 @@ def comps(entity_id: str, cap: int = 12, max_attempts: int = 18) -> dict:
         if not p.get("cik"):
             continue
         attempts += 1
-        m = _peer_metrics(p)
+        try:
+            m = _peer_metrics(p)
+        except FactsUnavailable:
+            # Local cache miss. Never fetch here — report it instead.
+            skipped_uncached += 1
+            continue
         if not m:
             continue
         rows.append({"id": pid, "name": p.get("n"), "ticker": p.get("t"),
                      "peer_source": "graph" if pid in graph_set else "sector", **m})
     if not rows:
-        return {"available": False, "reason": "no peers with usable SEC facts"}
-    return {"available": True, "entity_id": nid, "name": node.get("n"), "peers": rows}
+        return {"available": False,
+                "reason": "no peers with locally cached SEC facts" if skipped_uncached else "no peers with usable SEC facts",
+                "peers_skipped_uncached": skipped_uncached}
+    return {"available": True, "entity_id": nid, "name": node.get("n"), "peers": rows,
+            "peers_skipped_uncached": skipped_uncached}
 
 
 if __name__ == "__main__":

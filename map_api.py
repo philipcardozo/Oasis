@@ -20,6 +20,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
+from oasis_paths import raw_data_root
 from data_sources import (
     METADATA_PATH,
     TERRAIN_COVERAGE_PATH,
@@ -51,7 +52,7 @@ POL_MEMBERS = ROOT / "data" / "store" / "pol_members.parquet"
 POL_TRADES = ROOT / "data" / "store" / "pol_trades.parquet"
 COMMITTEE_POLICY_MAP = DATA / "committee_policy_map.json"
 GOV_CONTRACTS = DATA / "gov_contracts.json"
-RAW_DATA_ROOT = Path(os.environ.get("OASIS_RAW_DATA_ROOT", "/data/raw"))
+RAW_DATA_ROOT = raw_data_root()  # cross-platform; OASIS_RAW_DATA_ROOT overrides
 RAW_FEEDS = {
     "usgs_3dep": {"source_layer": "relief_features", "default_layer": "relief-terrain"},
     "eia": {"source_layer": "industrial_assets", "default_layer": "industrial-energy"},
@@ -2015,9 +2016,19 @@ def _entity_combined_neighborhood_json_cached(entity_id: str, depth: int, graph_
 
 @app.get("/api/entity/{entity_id}/dcf.xlsx")
 def api_entity_dcf(entity_id: str, request: Request, method: str = "cash_flow"):
-    from dcf_export import build_dcf_workbook
+    from dcf_export import FactsUnavailable, build_dcf_workbook
 
-    path = build_dcf_workbook(unquote(entity_id), method)
+    try:
+        path = build_dcf_workbook(unquote(entity_id), method)
+    except FactsUnavailable as exc:
+        # Local-only by design: never fetch from SEC inside a request.
+        raise HTTPException(
+            503,
+            f"SEC facts for CIK{exc.cik} are not cached locally. "
+            "Run `python3 refresh_financial_facts.py` to acquire them.",
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(404, str(exc)) from exc
     return conditional_file_response(request, path, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", path.name)
 
 

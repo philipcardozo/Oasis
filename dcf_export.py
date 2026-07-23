@@ -9,7 +9,9 @@ import os
 
 ROOT = Path(__file__).parent
 DATA = ROOT / "graph" / "data"
-FACTS = DATA / "companyfacts"
+from oasis_paths import facts_dir
+
+FACTS = facts_dir()  # OASIS_FACTS_DIR overrides
 OUTPUTS = ROOT / "outputs" / "dcf"
 from store import ALIASES, NODES, aliases as store_aliases, by_id as store_by_id
 
@@ -41,16 +43,6 @@ def load_openpyxl():
     from openpyxl.drawing.image import Image as OpenpyxlImage
     from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
-
-# Mapping tickers to domains for logo downloads
-TICKER_DOMAINS = {
-    "MNDY": "monday.com",
-    "NVDA": "nvidia.com",
-    "BLK": "blackrock.com",
-    "JPM": "jpmorgan.com",
-    "PFE": "pfizer.com",
-    "WTW": "wtwco.com"
-}
 
 TAGS = {
     "revenue": ["RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues", "SalesRevenueNet", "Revenue", "RevenueFromContractsWithCustomers"],
@@ -95,12 +87,21 @@ def load_node(entity_id: str) -> dict:
         return by_id[node["issuer_id"]]
     return node
 
-def load_facts(node: dict) -> tuple[dict, Path]:
-    from cache_companyfacts import cache_one, cik10
-    cik = cik10(node.get("cik", ""))
-    path = FACTS / f"CIK{cik}.json"
-    if not path.exists():
-        path = cache_one(cik)
+class FactsUnavailable(RuntimeError):
+    """Local companyfacts cache miss while network acquisition was not permitted.
+
+    Request paths must never fetch from SEC. Acquisition happens only in the
+    explicit refresh operation (`refresh_financial_facts.py`), which passes
+    allow_network=True.
+    """
+
+    def __init__(self, cik: str):
+        self.cik = cik
+        super().__init__(f"companyfacts not cached locally for CIK{cik}")
+
+
+def load_facts(node: dict, *, allow_network: bool = False) -> tuple[dict, Path]:
+    path = facts_path_for_node(node, allow_network=allow_network)
     return _load_facts_cached(str(path), path.stat().st_mtime), path
 
 
@@ -109,12 +110,23 @@ def _load_facts_cached(path: str, mtime: float) -> dict:
     return fast_json.loads(Path(path).read_bytes())
 
 
-def facts_path_for_node(node: dict) -> Path:
-    from cache_companyfacts import cache_one, cik10
+def facts_path_for_node(node: dict, *, allow_network: bool = False) -> Path:
+    """Resolve the local companyfacts path.
+
+    Local-only by default: raises FactsUnavailable instead of downloading, so no
+    user-facing request can trigger an uncontrolled external fetch.
+    """
+    from cache_companyfacts import cik10
 
     cik = cik10(node.get("cik", ""))
     path = FACTS / f"CIK{cik}.json"
-    return path if path.exists() else cache_one(cik)
+    if path.exists():
+        return path
+    if not allow_network:
+        raise FactsUnavailable(cik)
+    from cache_companyfacts import cache_one
+
+    return cache_one(cik)
 
 
 def latest_existing_mtime(paths: list[Path]) -> float:
@@ -163,39 +175,17 @@ def get_latest_filed_annual(facts: dict, tags: list[str]) -> dict[int, float]:
                         picked_filed[fy] = filed
     return picked
 
-def get_company_logo(ticker: str, name: str) -> Path | None:
-    # Check if local MNDY logo was cached
-    if ticker == "MNDY":
-        p = ROOT / "Assets & Media" / "Logos" / "MNDY_logo.png"
-        if p.exists():
-            return p
-    
-    # Check if we already have it in assets
-    local_path = ROOT / "Assets & Media" / "Logos" / f"{ticker}_logo.png"
-    if local_path.exists():
-        return local_path
-        
-    # Determine domain
-    domain = TICKER_DOMAINS.get(ticker)
-    if not domain:
-        if "." in name:
-            match = re.search(r"([a-zA-Z0-9\-]+\.[a-zA-Z]{2,})", name)
-            if match:
-                domain = match.group(1).lower()
-        if not domain:
-            domain = f"{ticker.lower()}.com"
-            
-    # Try downloading from clearbit
-    import urllib.request
+def get_company_logo(ticker: str, name: str = "") -> Path | None:
+    """Local-only logo lookup: approved cached logo, then bundled placeholder.
 
-    url = f"https://logo.clearbit.com/{domain}"
-    try:
-        urllib.request.urlretrieve(url, str(local_path))
-        print(f"Downloaded logo for {ticker} from {url}")
-        return local_path
-    except Exception as e:
-        print(f"Failed to download logo for {ticker}: {e}")
-        return None
+    Never fetches from a logo provider and never guesses a domain from a ticker —
+    a guessed domain could embed the wrong company's mark in an export.
+    """
+    logos = ROOT / "Assets & Media" / "Logos"
+    for candidate in (logos / f"{ticker}_logo.png", logos / "Logo_Dark_BG.png"):
+        if candidate.exists():
+            return candidate
+    return None
 
 def write_borders(ws, start_row, start_col, end_row, end_col, style="thin", color="808080"):
     side = Side(style=style, color=color)

@@ -1,7 +1,24 @@
-# Oasis runtime + build dependencies (loosely pinned).
+# Runtime + pipeline dependencies.
+# Canonical source is pyproject.toml; this file mirrors the common local install
+# so `pip install -r requirements.txt` keeps working.
+#
+#   serve only:  pip install fastapi uvicorn duckdb certifi
+#   everything:  pip install -e ".[all]"
+#   with tests:  pip install -e ".[dev]"
+
+# --- runtime (serving the app; no third-party calls at request time) ---
 fastapi>=0.110
 uvicorn>=0.29
-openpyxl>=3.1
 duckdb>=0.10
+certifi>=2024.2.2
+
+# --- export (imported lazily by dcf_export) ---
+openpyxl>=3.1
+
+# --- ingestion / refresh pipeline (not needed to serve) ---
+requests>=2.31
 yfinance>=0.2
 pyyaml>=6.0
+
+# --- optional accelerator; stdlib json is used when absent ---
+ujson>=5.9

@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oasis"
+version = "0.1.0"
+description = "OASIS — map-native company, facility and political intelligence workspace"
+requires-python = ">=3.11"
+
+# Serving the app and reading local data. Nothing here reaches a third party at
+# request time; external acquisition lives in the `ingest` extra.
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "duckdb>=0.10",
+    "certifi>=2024.2.2",
+]
+
+[project.optional-dependencies]
+# Excel workbook generation (imported lazily by dcf_export.load_openpyxl).
+export = ["openpyxl>=3.1"]
+
+# Faster JSON. dcf_export/map_api fall back to the stdlib json module when this
+# is absent, so it is a genuine accelerator, never a hard requirement.
+performance = ["ujson>=5.9"]
+
+# Data pipeline: refresh_*.py, expand_us.py, bootstrap.py. Not needed to serve.
+ingest = [
+    "requests>=2.31",
+    "yfinance>=0.2",
+    "pyyaml>=6.0",
+]
+
+# Terrain AOI tile building (scripts/terrain_aoi). Heavy, geospatial, optional.
+terrain = [
+    "rasterio>=1.3",
+    "mercantile>=1.2",
+    "numpy>=1.26",
+]
+
+dev = [
+    "pytest>=8.0",
+    "httpx>=0.27",          # required by starlette.testclient (API tests)
+    "oasis[export,performance,ingest]",
+]
+
+# Everything an ordinary local install wants.
+all = ["oasis[export,performance,ingest]"]
+
+[tool.setuptools]
+# Phase 0 declares dependencies only. Full application/CLI packaging is Phase 5;
+# the existing startup commands (python3 map_api.py, python3 bootstrap.py) are
+# unchanged and do not require installation.
+py-modules = []
+
+[tool.pytest.ini_options]
+testpaths = ["."]
+python_files = ["test_*.py"]
+norecursedirs = ["node_modules", "tests", "archive", "data", "graph", "outputs", ".local-backups"]
