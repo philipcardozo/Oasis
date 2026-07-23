@@ -158,6 +158,19 @@ npx playwright test
 15 passed
 ```
 
+After safe-error response hardening:
+
+```text
+python3 -m pytest -q test_phase1_security.py
+19 passed
+
+python3 -m pytest -q
+124 passed, 1 skipped, 1 warning in 25.73s
+
+npx playwright test
+15 passed
+```
+
 The direct `pytest -q` shell command was unavailable because the `pytest` console script was not on `PATH`; `python3 -m pytest -q` was used successfully.
 
 ## 3. Environment And Host
@@ -435,6 +448,17 @@ password reset: 10 accepted requests then HTTP 429
 report/export job creation: write limiter returns HTTP 429 with Retry-After: 60
 ```
 
+Local safe-error evidence:
+
+```text
+evidence: docs/evidence/phase-1-5/safe-error-responses.json
+unhandled exception response: HTTP 500 {"detail":"internal server error"}
+stack trace in response: no
+exception text in response: no
+security headers on 500 response: yes
+intentional HTTP errors preserve intended status/detail
+```
+
 Reverse-proxy security boundary tests have not been run because the compose/reverse-proxy stack could not be started.
 
 Pending:
@@ -451,7 +475,6 @@ X-Content-Type-Options
 frame restrictions
 authenticated caching behavior
 request-size limits
-safe errors
 secret-free logs
 open redirect/path traversal checks
 spreadsheet formula injection checks
@@ -641,6 +664,7 @@ docs/evidence/phase-1-5/secure-feature-gates.json
 docs/evidence/phase-1-5/observability-request-logs.json
 docs/evidence/phase-1-5/composed-api-network-isolation.json
 docs/evidence/phase-1-5/security-rate-limits.json
+docs/evidence/phase-1-5/safe-error-responses.json
 ```
 
 Local command evidence recorded in this report:
@@ -657,6 +681,7 @@ Docker availability check
 local observability request-log checks
 local composed API network-isolation checks
 local security rate-limit checks
+local safe-error response checks
 ```
 
 ## 19. Remaining Risks
@@ -673,4 +698,4 @@ local security rate-limit checks
 NOT APPROVED
 ```
 
-OASIS has passed the Phase 1 merge, local Python tests, local Playwright tests, secure-config validation, disposable migration wiring, installed-Chrome Standard/Dark/Satellite render checks, local route-inventory reconciliation, local secure licensing feature-gate checks, local observability request-log/redaction checks, local composed API network-isolation checks, and local security rate-limit checks. It is not approved for controlled private beta until the unverified staging-host gates are executed successfully.
+OASIS has passed the Phase 1 merge, local Python tests, local Playwright tests, secure-config validation, disposable migration wiring, installed-Chrome Standard/Dark/Satellite render checks, local route-inventory reconciliation, local secure licensing feature-gate checks, local observability request-log/redaction checks, local composed API network-isolation checks, local security rate-limit checks, and local safe-error response checks. It is not approved for controlled private beta until the unverified staging-host gates are executed successfully.

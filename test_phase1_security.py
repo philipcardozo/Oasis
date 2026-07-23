@@ -50,6 +50,29 @@ def test_short_circuit_security_responses_are_logged_and_headered(app_client, mo
     assert complete["request_id"] == "req-auth-blocked"
 
 
+def test_unhandled_errors_are_safe_and_headered(app_client, monkeypatch):
+    from fastapi.testclient import TestClient
+
+    import server.health as health
+
+    monkeypatch.setattr(health, "db_healthy", lambda: (_ for _ in ()).throw(RuntimeError("secret stack trace token")))
+    client = TestClient(app_client.app, raise_server_exceptions=False)
+    r = client.get("/readyz")
+
+    assert r.status_code == 500
+    assert r.json() == {"detail": "internal server error"}
+    assert "secret stack trace token" not in r.text
+    assert "Traceback" not in r.text
+    assert r.headers["x-content-type-options"] == "nosniff"
+    assert "default-src 'self'" in r.headers["content-security-policy"]
+
+
+def test_http_errors_keep_intended_detail(app_client):
+    r = app_client.get("/api/entity/NOT_A_REAL_ENTITY")
+    assert r.status_code == 404
+    assert r.json()["detail"] == "entity not found"
+
+
 def test_csp_is_not_wildcard(app_client):
     csp = app_client.get("/healthz").headers["content-security-policy"]
     assert "default-src *" not in csp

@@ -33,6 +33,7 @@ def create_app() -> FastAPI:
     from map_api import app as core_app
 
     from server.auth import router as auth_router
+    from server.errors import install_error_handlers
     from server.health import router as health_router
     from server.mapslots import router as mapslots_router
     from server.middleware import install_security
@@ -67,6 +68,8 @@ def create_app() -> FastAPI:
 
     # Preserve the Phase 0 gzip behaviour on the fresh app.
     app.add_middleware(GZipMiddleware, minimum_size=1024)
+
+    install_error_handlers(app)
 
     # Security middleware wraps everything (incl. reused map_api write routes).
     install_security(app, settings)
