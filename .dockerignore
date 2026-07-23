@@ -1,0 +1,21 @@
+.git
+.github
+node_modules
+test-results
+playwright-report
+tests
+.local-backups
+.pytest_cache
+__pycache__
+*.pyc
+*.egg-info
+data/*.db
+data/raw
+outputs
+docs
+Prompts
+Assets & Media
+.env
+.env.*
+!.env.example
+*.md

@@ -1,0 +1,88 @@
+# Local staging simulation: postgres + api + worker + migration + reverse proxy.
+# Secrets come from a local .env (never committed). See .env.example.
+name: oasis
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: oasis
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-oasis_dev}
+      POSTGRES_DB: oasis
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oasis"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  migrate:
+    build: .
+    command: ["python", "-m", "alembic", "upgrade", "head"]
+    environment:
+      OASIS_MODE: staging
+      OASIS_DATABASE_URL: postgresql+psycopg://oasis:${POSTGRES_PASSWORD:-oasis_dev}@db/oasis
+      OASIS_SESSION_SECRET: ${OASIS_SESSION_SECRET}
+      OASIS_ALLOWED_ORIGINS: ${OASIS_ALLOWED_ORIGINS}
+      OASIS_TRUSTED_HOSTS: ${OASIS_TRUSTED_HOSTS}
+      OASIS_PUBLIC_BASE_URL: ${OASIS_PUBLIC_BASE_URL}
+      OASIS_EMAIL_BACKEND: smtp
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build: .
+    environment: &app_env
+      OASIS_MODE: staging
+      OASIS_DATABASE_URL: postgresql+psycopg://oasis:${POSTGRES_PASSWORD:-oasis_dev}@db/oasis
+      OASIS_SESSION_SECRET: ${OASIS_SESSION_SECRET}
+      OASIS_ALLOWED_ORIGINS: ${OASIS_ALLOWED_ORIGINS}
+      OASIS_TRUSTED_HOSTS: ${OASIS_TRUSTED_HOSTS}
+      OASIS_PUBLIC_BASE_URL: ${OASIS_PUBLIC_BASE_URL}
+      OASIS_COOKIE_SECURE: "true"
+      OASIS_EMAIL_BACKEND: smtp
+      OASIS_SMTP_HOST: ${OASIS_SMTP_HOST}
+      OASIS_SMTP_USER: ${OASIS_SMTP_USER}
+      OASIS_SMTP_PASSWORD: ${OASIS_SMTP_PASSWORD}
+      OASIS_LOG_JSON: "true"
+    volumes:
+      - appdata:/app/data
+      - exports:/app/outputs
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  worker:
+    build: .
+    # Same image, different role: runs scheduled refresh + queued jobs, never serves HTTP.
+    command: ["python", "-m", "server.worker"]
+    environment: *app_env
+    volumes:
+      - appdata:/app/data
+      - exports:/app/outputs
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  proxy:
+    image: caddy:2-alpine
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  appdata:
+  exports:
+  caddydata:
