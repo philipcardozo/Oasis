@@ -129,6 +129,22 @@ npx playwright test
 15 passed
 ```
 
+After composed API network-isolation evidence:
+
+```text
+python3 -m pytest -q test_phase15_worker_isolation.py
+2 passed
+
+python3 -m pytest -q test_phase15_worker_isolation.py test_phase0_launch_safety.py
+18 passed
+
+python3 -m pytest -q
+120 passed, 1 skipped, 1 warning in 25.14s
+
+npx playwright test
+15 passed
+```
+
 The direct `pytest -q` shell command was unavailable because the `pytest` console script was not on `PATH`; `python3 -m pytest -q` was used successfully.
 
 ## 3. Environment And Host
@@ -333,12 +349,21 @@ direct fourth-slot creation rejection
 
 Not verified in containers. Docker is unavailable.
 
+Local composed-API isolation evidence:
+
+```text
+evidence: docs/evidence/phase-1-5/composed-api-network-isolation.json
+socket attempts during composed API health/financial requests: 0
+financial-fact files created during composed API health/financial requests: 0
+reverse DCF with empty facts: local unavailable response
+comps with empty facts: local unavailable response
+DCF export with empty facts: HTTP 503 with explicit refresh guidance
+```
+
 Pending:
 
 ```text
 API container makes no SEC/logo/data-refresh outbound calls
-API startup creates no financial-fact files
-missing facts degrade safely
 worker explicit refresh jobs
 worker quotas/rate limits/retries/timeouts
 failed job status
@@ -592,6 +617,7 @@ docs/evidence/phase-1-5/chrome-satellite-maplibre.json
 docs/evidence/phase-1-5/route-authorization-inventory.json
 docs/evidence/phase-1-5/secure-feature-gates.json
 docs/evidence/phase-1-5/observability-request-logs.json
+docs/evidence/phase-1-5/composed-api-network-isolation.json
 ```
 
 Local command evidence recorded in this report:
@@ -606,6 +632,7 @@ disposable Alembic upgrade/downgrade
 installed Chrome render checks
 Docker availability check
 local observability request-log checks
+local composed API network-isolation checks
 ```
 
 ## 19. Remaining Risks
@@ -622,4 +649,4 @@ local observability request-log checks
 NOT APPROVED
 ```
 
-OASIS has passed the Phase 1 merge, local Python tests, local Playwright tests, secure-config validation, disposable migration wiring, installed-Chrome Standard/Dark/Satellite render checks, local route-inventory reconciliation, local secure licensing feature-gate checks, and local observability request-log/redaction checks. It is not approved for controlled private beta until the unverified staging-host gates are executed successfully.
+OASIS has passed the Phase 1 merge, local Python tests, local Playwright tests, secure-config validation, disposable migration wiring, installed-Chrome Standard/Dark/Satellite render checks, local route-inventory reconciliation, local secure licensing feature-gate checks, local observability request-log/redaction checks, and local composed API network-isolation checks. It is not approved for controlled private beta until the unverified staging-host gates are executed successfully.

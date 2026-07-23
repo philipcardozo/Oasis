@@ -1,0 +1,47 @@
+{
+  "facts_files_created": [],
+  "generated_on": "2026-07-23",
+  "network_socket_attempts": [],
+  "responses": {
+    "comps": {
+      "body": {
+        "available": false,
+        "peers_skipped_uncached": 18,
+        "reason": "no peers with locally cached SEC facts"
+      },
+      "status_code": 200
+    },
+    "dcf_xlsx": {
+      "body": {
+        "detail": "SEC facts for CIK0000018230 are not cached locally. Run `python3 refresh_financial_facts.py` to acquire them."
+      },
+      "status_code": 503
+    },
+    "healthz": {
+      "body": {
+        "status": "ok"
+      },
+      "status_code": 200
+    },
+    "reverse_dcf": {
+      "body": {
+        "available": false,
+        "facts_cached": false,
+        "hint": "run refresh_financial_facts.py to acquire SEC facts",
+        "reason": "companyfacts not cached locally for CIK0000018230"
+      },
+      "status_code": 200
+    }
+  },
+  "source": "server.app:create_app via fastapi.testclient.TestClient with socket connect blocked",
+  "test_evidence": {
+    "covered_behaviors": [
+      "composed API startup/health does not open outbound sockets",
+      "composed financial endpoints do not contact SEC when facts are missing",
+      "composed financial endpoints do not create companyfacts files",
+      "missing facts degrade with explicit unavailable/refresh guidance"
+    ],
+    "focused_command": "python3 -m pytest -q test_phase15_worker_isolation.py",
+    "focused_result": "2 passed"
+  }
+}

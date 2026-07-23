@@ -2,8 +2,8 @@
 ∪ same-group members (graph neighbors ranked first, capped), each valued from SEC
 company facts. Reuses dcf_export's extraction — TAGS imported, never duplicated.
 
-Facts are fetched on demand via dcf_export.load_facts (SEC), so a real call touches
-the network; max_attempts bounds how many peers it will pull.
+Facts are read from the local cache via dcf_export.load_facts. Request paths never
+fetch from SEC; cache misses are counted and reported.
 """
 from __future__ import annotations
 
