@@ -95,6 +95,8 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
 - `13-failure-rollback.md`
 - `14-observability-alerts.md`
 - `15-performance.md`
+- `99-public-staging-gate-audit.json`
+- `99-public-staging-gate-audit.md`
 
 ## Acceptance Status
 
@@ -116,3 +118,9 @@ Current status:
 - Performance: local/compose evidence exists; public latency evidence pending.
 
 Private-beta verdict remains `NOT APPROVED`.
+
+Run the strict audit before changing that verdict:
+
+```bash
+python3 scripts/public_staging_gate_audit.py
+```

@@ -51,6 +51,15 @@ For private-beta registration, set `OASIS_REGISTRATION_ALLOWED_EMAILS` to the
 comma-separated tester list before inviting users. Denied registrations return
 the same generic response and do not create users or send verification email.
 
+Before any final verdict, run:
+
+```bash
+python3 scripts/public_staging_gate_audit.py
+```
+
+The script writes `docs/evidence/public-staging/99-public-staging-gate-audit.*`
+and returns non-zero until every required evidence item is present and clean.
+
 ## Rotate Secrets
 
 Rotate in this order:

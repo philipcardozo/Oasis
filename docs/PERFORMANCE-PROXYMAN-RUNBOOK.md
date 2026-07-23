@@ -734,6 +734,10 @@ Record:
 
 Final verdict stays NOT APPROVED unless every public-staging acceptance item is
 proven by current evidence.
+
+Run the strict gate audit last:
+
+python3 scripts/public_staging_gate_audit.py
 ```
 
 ## First Optimization Hypotheses
