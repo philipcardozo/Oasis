@@ -82,6 +82,19 @@ def test_register_rate_limited(app_client):
     assert 429 in codes  # register limit is 5/window
 
 
+def test_password_reset_rate_limited(app_client):
+    codes = [app_client.post("/api/auth/password-reset/request", json={"email": "nobody@example.com"}).status_code
+             for _ in range(15)]
+    assert 429 in codes  # password-reset uses the login-class limiter
+
+
+def test_export_job_creation_rate_limited(app_client):
+    codes = [app_client.post("/api/reports/company/CAT/generate").status_code for _ in range(65)]
+    assert codes.count(401) == 60  # write limiter runs before auth, then auth blocks
+    assert codes[-1] == 429
+    assert app_client.post("/api/reports/company/CAT/generate").headers["retry-after"] == "60"
+
+
 def test_storage_rejects_path_traversal():
     from server.storage import LocalStorage
     import tempfile

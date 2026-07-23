@@ -1,0 +1,57 @@
+{
+  "generated_on": "2026-07-23",
+  "limits": {
+    "login": 10,
+    "register": 5,
+    "window_seconds": 60,
+    "write": 60
+  },
+  "samples": {
+    "export_job_creation": {
+      "last_status": 429,
+      "rate_limited": true,
+      "requests": 65,
+      "retry_after": "60",
+      "status_counts": {
+        "401": 60,
+        "429": 5
+      }
+    },
+    "login": {
+      "rate_limited": true,
+      "requests": 15,
+      "status_counts": {
+        "401": 10,
+        "429": 5
+      }
+    },
+    "password_reset": {
+      "rate_limited": true,
+      "requests": 15,
+      "status_counts": {
+        "200": 10,
+        "429": 5
+      }
+    },
+    "register": {
+      "rate_limited": true,
+      "requests": 10,
+      "status_counts": {
+        "201": 5,
+        "429": 5
+      }
+    }
+  },
+  "source": "server.app:create_app, server.middleware:RateLimiter",
+  "test_evidence": {
+    "covered_behaviors": [
+      "login is rate limited",
+      "registration is rate limited",
+      "password reset is rate limited",
+      "report/export job creation writes are rate limited before auth",
+      "rate-limited responses include Retry-After"
+    ],
+    "focused_command": "python3 -m pytest -q test_phase1_security.py",
+    "focused_result": "17 passed"
+  }
+}
