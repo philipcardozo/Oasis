@@ -155,8 +155,10 @@ def main() -> int:
         "branch": git_value("branch", "--show-current"),
         "image_url": args.image_url,
         "sequence": [
-            "deploy API image",
-            "wait for API deploy terminal success",
+            "deploy API image with Render preDeployCommand",
+            "Render preDeployCommand runs alembic upgrade head",
+            "Render preDeployCommand runs server.migration_check against the deployed database",
+            "wait for API deploy terminal success before worker deploy",
             "deploy worker image",
             "wait for worker deploy terminal success",
         ],

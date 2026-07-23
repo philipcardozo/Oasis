@@ -27,6 +27,43 @@ def test_empty_database_migration(tmp_path):
         assert expected in tables
 
 
+def test_migration_check_confirms_expected_revision(tmp_path):
+    db = tmp_path / "mig.db"
+    env = _env({"OASIS_DATABASE_URL": f"sqlite:///{db}"})
+    upgrade = subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], capture_output=True, text=True, env=env)
+    assert upgrade.returncode == 0, upgrade.stderr
+
+    check = subprocess.run(
+        [sys.executable, "-m", "server.migration_check", "--expected", "29995ef61d8e"],
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+
+    assert check.returncode == 0, check.stderr
+    assert '"current": ["29995ef61d8e"]' in check.stdout
+    assert '"ok": true' in check.stdout
+
+
+def test_migration_check_rejects_wrong_revision(tmp_path):
+    db = tmp_path / "mig.db"
+    env = _env({"OASIS_DATABASE_URL": f"sqlite:///{db}"})
+    upgrade = subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], capture_output=True, text=True, env=env)
+    assert upgrade.returncode == 0, upgrade.stderr
+
+    check = subprocess.run(
+        [sys.executable, "-m", "server.migration_check", "--expected", "wrong-revision"],
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+
+    assert check.returncode == 1
+    assert '"current": ["29995ef61d8e"]' in check.stdout
+    assert '"expected": "wrong-revision"' in check.stdout
+    assert '"ok": false' in check.stdout
+
+
 def test_migration_downgrade(tmp_path):
     db = tmp_path / "mig.db"
     env = _env({"OASIS_DATABASE_URL": f"sqlite:///{db}"})

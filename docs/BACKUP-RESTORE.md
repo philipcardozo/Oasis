@@ -26,4 +26,5 @@ run the same drill against a staging Postgres before relying on it).
 
 ## Schema versions
 Restores carry the `alembic_version`. After restore, run `alembic upgrade head`
-if the running code is newer; migrations are backward-compatible one release.
+and `python -m server.migration_check --expected 29995ef61d8e` if the running
+code is newer; migrations are backward-compatible one release.

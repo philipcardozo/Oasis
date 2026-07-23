@@ -33,8 +33,13 @@ use `main` after review/merge.
 - `.github/workflows/deploy.yml` runs tests, validates migrations, publishes an
   immutable GHCR image with SBOM/provenance, scans it, triggers Render deploy
   through the Render API using the exact image digest, and runs public preflight.
+- `render.yaml` runs `python -m alembic upgrade head && python -m
+  server.migration_check --expected 29995ef61d8e` as the API predeploy step, so
+  migration failure or revision mismatch stops the release before the worker
+  deploy.
 - `scripts/render_deploy_image.py` deploys the tested image to API first, waits
-  for terminal success, then deploys the worker with the same image.
+  for terminal success after the migration check, then deploys the worker with
+  the same image.
 - `scripts/public_staging_preflight.py` records DNS, TLS, HTTP-to-HTTPS redirect,
   headers, `/healthz`, `/readyz`, and `/version`.
 - `server.config.Settings.hsts_header` makes staging HSTS explicit and avoids
@@ -92,7 +97,9 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
 - `02-dns-tls-edge.md`
 - `03-cloudflare-access.md`
 - `04-render-services.md`
-- `05-migration-version.md`
+- `05-migration-version.md` with the Render predeploy log showing Alembic
+  upgrade, `server.migration_check` output, database type, and no SQLite
+  fallback.
 - `06-auth-email.md`
 - `07-browser-matrix.md`
 - `08-map-provider-capture.md`

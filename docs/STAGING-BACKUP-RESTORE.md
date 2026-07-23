@@ -16,7 +16,7 @@
 6. Create on-demand PostgreSQL backup.
 7. Record checksum and size.
 8. Restore into a separate database.
-9. Run `python -m alembic upgrade head`.
+9. Run `python -m alembic upgrade head && python -m server.migration_check --expected 29995ef61d8e`.
 10. Point a temporary OASIS service at the restored database.
 11. Verify authentication, authorization, map slots, and job metadata.
 

@@ -18,7 +18,9 @@ Prefer forward-compatible migrations. For a failed deploy:
 
 - If migration did not run, roll back application only.
 - If migration ran and is forward-compatible, roll back application only after
-  verifying old code tolerates the new schema.
+  verifying old code tolerates the new schema and `python -m
+  server.migration_check --expected 29995ef61d8e` still reports the intended
+  deployed revision.
 - If migration is irreversible or data-destructive, stop traffic and restore
   into a separate database first. Do not overwrite primary staging during the
   first drill.

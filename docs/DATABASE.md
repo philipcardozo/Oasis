@@ -24,11 +24,12 @@ scripts/worker.
 ## Migrations (Alembic)
 ```bash
 python -m alembic upgrade head        # apply
+python -m server.migration_check      # verify deployed revision
 python -m alembic downgrade base      # roll back
 python -m alembic revision --autogenerate -m "msg"
 ```
 - Versioned; env pulls the URL from validated config.
-- CI validates empty-DB upgrade + downgrade.
+- CI validates empty-DB upgrade, exact revision, and downgrade.
 - Application startup does NOT run migrations — the `migrate` service / an
   explicit step does, so production never silently runs destructive DDL.
 - Migrations must stay backward-compatible for one release (rollback safety).

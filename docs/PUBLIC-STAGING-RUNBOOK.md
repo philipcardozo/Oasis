@@ -36,10 +36,24 @@ install dependencies
 -> run Playwright tests
 -> build/publish immutable GHCR image
 -> scan image
--> deploy exact image digest to Render API and wait
+-> deploy exact image digest to Render API
+-> run API predeploy migration and revision verification
+-> wait for API deploy terminal success
 -> deploy exact image digest to Render worker and wait
 -> run public preflight
 ```
+
+Render API predeploy runs:
+
+```bash
+python -m alembic upgrade head && python -m server.migration_check --expected 29995ef61d8e
+```
+
+Copy the non-secret migration log lines and the JSON output from
+`server.migration_check` into
+`docs/evidence/public-staging/05-migration-version.md`. The verifier must show
+`"current": ["29995ef61d8e"]` and `"ok": true`; any mismatch is a failed
+release.
 
 ## Verify
 

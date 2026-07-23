@@ -54,6 +54,7 @@ jobs:
         run: |
           mkdir -p data
           python -m alembic upgrade head
+          python -m server.migration_check --expected 29995ef61d8e
           python -m alembic downgrade base
 
       - name: Python tests

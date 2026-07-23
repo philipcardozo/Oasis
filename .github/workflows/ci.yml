@@ -32,6 +32,7 @@ jobs:
         run: |
           mkdir -p data
           python -m alembic upgrade head
+          python -m server.migration_check --expected 29995ef61d8e
           python -m alembic downgrade base
       - name: Tests
         run: python -m pytest -q
@@ -96,8 +97,12 @@ jobs:
             -e OASIS_ALLOWED_ORIGINS='https://ci.example.com' \
             -e OASIS_TRUSTED_HOSTS='ci.example.com' \
             -e OASIS_PUBLIC_BASE_URL='https://ci.example.com' \
+            -e OASIS_EMAIL_FROM='OASIS <no-reply@example.com>' \
+            -e OASIS_SMTP_HOST='smtp.example.com' \
+            -e OASIS_SMTP_USER='ci-smtp-user' \
+            -e OASIS_SMTP_PASSWORD='ci-smtp-password' \
             -e OASIS_COOKIE_SECURE=true -e OASIS_EMAIL_BACKEND=smtp \
-            oasis:ci python -m alembic upgrade head
+            oasis:ci sh -lc 'python -m alembic upgrade head && python -m server.migration_check --expected 29995ef61d8e'
       - name: SBOM
         uses: anchore/sbom-action@v0
         with:

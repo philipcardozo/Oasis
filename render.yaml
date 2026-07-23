@@ -16,7 +16,7 @@ services:
     region: oregon
     numInstances: 1
     healthCheckPath: /healthz
-    preDeployCommand: python -m alembic upgrade head
+    preDeployCommand: python -m alembic upgrade head && python -m server.migration_check --expected 29995ef61d8e
     envVars:
       - fromGroup: oasis-staging-shared
       - key: OASIS_DATABASE_URL

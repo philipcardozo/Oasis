@@ -21,8 +21,8 @@
 
 - Restart API in Render only after confirming no migration is running.
 - Restart worker independently; API browsing must continue.
-- Re-run migrations with `python -m alembic upgrade head` as a controlled release
-  step only.
+- Re-run migrations only as a controlled release step with `python -m alembic
+  upgrade head && python -m server.migration_check --expected 29995ef61d8e`.
 - Trigger refresh jobs only through the worker and only with bounded staging caps.
 
 ## Incident Response
