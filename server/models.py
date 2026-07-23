@@ -16,6 +16,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    TypeDecorator,
     UniqueConstraint,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -27,6 +28,24 @@ def _uuid() -> str:
 
 def utcnow() -> datetime:
     return datetime.now(timezone.utc)
+
+
+class TZDateTime(TypeDecorator):
+    """Timezone-aware UTC datetime that behaves identically on SQLite (which
+    drops tzinfo) and Postgres. Stores as UTC, always reads back aware."""
+
+    impl = DateTime(timezone=True)
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if value is not None and value.tzinfo is not None:
+            return value.astimezone(timezone.utc)
+        return value
+
+    def process_result_value(self, value, dialect):
+        if value is not None and value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value
 
 
 class Base(DeclarativeBase):
@@ -41,10 +60,10 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     status: Mapped[str] = mapped_column(String(20), default="active", nullable=False)  # active|disabled|deleted
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
-    last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    anonymized_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(TZDateTime, default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(TZDateTime, default=utcnow, onupdate=utcnow, nullable=False)
+    last_login_at: Mapped[datetime | None] = mapped_column(TZDateTime)
+    anonymized_at: Mapped[datetime | None] = mapped_column(TZDateTime)
 
     sessions: Mapped[list["SessionRow"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     map_slots: Mapped[list["MapSlot"]] = relationship(back_populates="user", cascade="all, delete-orphan")
@@ -55,10 +74,10 @@ class SessionRow(Base):
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
-    last_used_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(TZDateTime, default=utcnow, nullable=False)
+    last_used_at: Mapped[datetime] = mapped_column(TZDateTime, default=utcnow, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(TZDateTime, nullable=False)
+    revoked_at: Mapped[datetime | None] = mapped_column(TZDateTime)
     user_agent: Mapped[str | None] = mapped_column(String(400))
     ip_prefix: Mapped[str | None] = mapped_column(String(64))  # privacy: truncated, not full IP
 
@@ -72,9 +91,9 @@ class EmailToken(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
     purpose: Mapped[str] = mapped_column(String(20), nullable=False)  # verify|reset
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(TZDateTime, default=utcnow, nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(TZDateTime, nullable=False)
+    consumed_at: Mapped[datetime | None] = mapped_column(TZDateTime)
 
 
 class Organization(Base):
@@ -84,7 +103,7 @@ class Organization(Base):
     slug: Mapped[str] = mapped_column(String(80), unique=True, nullable=False, index=True)
     owner_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"), nullable=False)
     status: Mapped[str] = mapped_column(String(20), default="active", nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(TZDateTime, default=utcnow, nullable=False)
 
 
 class OrgMembership(Base):
@@ -95,7 +114,7 @@ class OrgMembership(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     role: Mapped[str] = mapped_column(String(20), default="member", nullable=False)  # owner|admin|member
     status: Mapped[str] = mapped_column(String(20), default="active", nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(TZDateTime, default=utcnow, nullable=False)
 
 
 class MapSlot(Base):
@@ -111,9 +130,9 @@ class MapSlot(Base):
     config: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)  # layers, camera, conditions, prefs
     version: Mapped[int] = mapped_column(Integer, default=1, nullable=False)  # optimistic concurrency
     is_active: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
-    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(TZDateTime, default=utcnow, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(TZDateTime, default=utcnow, onupdate=utcnow, nullable=False)
+    archived_at: Mapped[datetime | None] = mapped_column(TZDateTime)
 
     user: Mapped[User] = relationship(back_populates="map_slots")
 
@@ -131,9 +150,9 @@ class Job(Base):
     correlation_id: Mapped[str | None] = mapped_column(String(64), index=True)
     owner_id: Mapped[str | None] = mapped_column(String(32), index=True)
     error: Mapped[str | None] = mapped_column(Text)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
-    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(TZDateTime, default=utcnow, nullable=False)
+    started_at: Mapped[datetime | None] = mapped_column(TZDateTime)
+    finished_at: Mapped[datetime | None] = mapped_column(TZDateTime)
 
 
 class AuditEvent(Base):
@@ -146,4 +165,4 @@ class AuditEvent(Base):
     result: Mapped[str] = mapped_column(String(20), default="ok", nullable=False)
     correlation_id: Mapped[str | None] = mapped_column(String(64))
     meta: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)  # never secrets/tokens
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(TZDateTime, default=utcnow, nullable=False)

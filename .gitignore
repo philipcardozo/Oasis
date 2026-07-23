@@ -76,3 +76,7 @@ playwright-report/
 
 # Editable-install metadata
 *.egg-info/
+
+# Local databases
+*.db
+data/oasis_*.db

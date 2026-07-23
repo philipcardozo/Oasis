@@ -1,0 +1,55 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "deploy target"
+        type: choice
+        options: [staging, production]
+        default: staging
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  # Auto staging deploy on main.
+  staging:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-22.04
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build & push image
+        run: echo "build+push oasis:staging-${GITHUB_SHA::7} to registry (configure registry secrets)"
+      - name: Run migrations on staging
+        run: echo "run alembic upgrade head against staging DB"
+      - name: Deploy api + worker
+        run: echo "deploy staging; blue-green via image tag"
+      - name: Smoke test
+        run: echo "curl https://staging/healthz && https://staging/readyz"
+
+  # Production requires an explicit protected-environment approval.
+  production:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'production'
+    runs-on: ubuntu-22.04
+    environment: production   # protected: requires reviewer approval in repo settings
+    steps:
+      - uses: actions/checkout@v4
+      - name: Migrate production DB
+        run: echo "alembic upgrade head (backward-compatible migration)"
+      - name: Deploy
+        run: echo "deploy production; keep previous tag for rollback"
+      - name: Post-deploy verification
+        run: echo "canary: /healthz /readyz + basemap render check"
+
+  rollback:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.target == 'production'
+    runs-on: ubuntu-22.04
+    environment: production
+    steps:
+      - name: Manual rollback to previous image tag
+        run: echo "re-deploy previous known-good tag"
