@@ -10,7 +10,7 @@ RUN pip install --prefix=/install \
     "fastapi>=0.110" "uvicorn[standard]>=0.29" "duckdb>=0.10" "certifi>=2024.2.2" \
     "openpyxl>=3.1" "ujson>=5.9" \
     "sqlalchemy>=2.0" "alembic>=1.13" "argon2-cffi>=23.1" "itsdangerous>=2.1" \
-    "psycopg[binary]>=3.1" "httpx>=0.27"
+    "pydantic[email]>=2.5" "psycopg[binary]>=3.1" "httpx>=0.27"
 
 FROM python:3.12-slim AS runtime
 LABEL org.opencontainers.image.title="OASIS" \
