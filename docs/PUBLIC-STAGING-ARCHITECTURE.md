@@ -29,7 +29,7 @@ flowchart LR
 
 Render was chosen for the first public staging target because it keeps the
 existing Docker image, separate worker, managed PostgreSQL, secrets, health
-checks, logs, rollbacks, and deploy hooks with low operational burden.
+checks, logs, rollbacks, and image-backed deploys with low operational burden.
 
 Cloudflare is used where it is strongest: DNS, Access, edge controls, and R2
 S3-compatible object storage.

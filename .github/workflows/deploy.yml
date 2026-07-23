@@ -85,6 +85,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -113,19 +114,14 @@ jobs:
           }
           EOF
 
-      - name: Trigger Render API deploy
+      - name: Deploy exact image to Render API and worker
         env:
-          RENDER_API_DEPLOY_HOOK_URL: ${{ secrets.RENDER_API_DEPLOY_HOOK_URL }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_API_SERVICE_ID: ${{ secrets.RENDER_API_SERVICE_ID }}
+          RENDER_WORKER_SERVICE_ID: ${{ secrets.RENDER_WORKER_SERVICE_ID }}
         run: |
-          test -n "$RENDER_API_DEPLOY_HOOK_URL"
-          curl --fail --silent --show-error -X POST "${RENDER_API_DEPLOY_HOOK_URL}&ref=${GITHUB_SHA}"
-
-      - name: Trigger Render worker deploy
-        env:
-          RENDER_WORKER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_WORKER_DEPLOY_HOOK_URL }}
-        run: |
-          test -n "$RENDER_WORKER_DEPLOY_HOOK_URL"
-          curl --fail --silent --show-error -X POST "${RENDER_WORKER_DEPLOY_HOOK_URL}&ref=${GITHUB_SHA}"
+          python scripts/render_deploy_image.py \
+            --image-url="${IMAGE_NAME}@${{ steps.build.outputs.digest }}"
 
       - name: Public staging preflight
         env:

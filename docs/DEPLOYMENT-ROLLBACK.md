@@ -31,4 +31,5 @@ deploy status, previous revision health, and public preflight evidence.
 ## Command Evidence
 
 Record rollback evidence in `docs/evidence/public-staging/13-failure-rollback.md`
-without secrets or private deploy hook URLs.
+without secrets, raw service IDs, private image credentials, or authorization
+headers.

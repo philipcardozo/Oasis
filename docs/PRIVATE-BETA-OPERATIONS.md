@@ -25,7 +25,8 @@
 ## Incident Response
 
 - Suspected credential exposure: rotate provider secret, revoke affected sessions,
-  check logs for token/cookie/header leakage, and regenerate deploy hook if needed.
+  check logs for token/cookie/header leakage, and rotate the Render API key or
+  registry credential if affected.
 - Elevated rate limits/auth failures: tighten Cloudflare rule, inspect OASIS
   structured logs, keep registration closed or invitation-only.
 - Map provider outage: keep Standard available; do not enable unresolved providers

@@ -8,12 +8,12 @@ SBOM/provenance, and vulnerability scanning.
 
 ## Rationale
 GHCR is close to the existing CI/CD system and supports immutable image
-references tied to repository permissions. The deploy workflow records commit,
-digest, build time, architecture, and registry evidence before triggering
-staging deployment.
+references tied to repository permissions. Render pulls the image through a
+workspace registry credential, and the deploy workflow passes the scanned digest
+to Render as `imageUrl`.
 
 Reference: https://docs.docker.com/build/ci/github-actions/attestations/
 
 ## Changes this if
-Render image-backed services become the deployment source of truth, or an
-enterprise registry is mandated.
+An enterprise registry is mandated or Render cannot pull private GHCR images
+reliably.

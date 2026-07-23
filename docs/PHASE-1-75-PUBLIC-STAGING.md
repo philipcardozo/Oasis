@@ -17,7 +17,7 @@ Provider split:
 - Cloudflare: DNS, TLS edge, WAF/rate rules, Access private-beta boundary, R2
   S3-compatible object storage.
 - Render: API web service, worker service, managed PostgreSQL, service secrets,
-  logs, health checks, deploy hooks, rollback.
+  logs, health checks, image-backed deploys, rollback.
 - GitHub Actions + GHCR: tests, image build, SBOM/provenance, vulnerability scan,
   immutable image publication, protected staging deploy workflow.
 - Postmark SMTP: staging transactional email for registration verification and
@@ -28,11 +28,13 @@ use `main` after review/merge.
 
 ## Implemented In Repo
 
-- `render.yaml` defines separate `oasis-api-staging` and
+- `render.yaml` defines image-backed `oasis-api-staging` and
   `oasis-worker-staging` services plus isolated Render PostgreSQL.
 - `.github/workflows/deploy.yml` runs tests, validates migrations, publishes an
   immutable GHCR image with SBOM/provenance, scans it, triggers Render deploy
-  hooks, and runs public preflight.
+  through the Render API using the exact image digest, and runs public preflight.
+- `scripts/render_deploy_image.py` deploys the tested image to API first, waits
+  for terminal success, then deploys the worker with the same image.
 - `scripts/public_staging_preflight.py` records DNS, TLS, HTTP-to-HTTPS redirect,
   headers, `/healthz`, `/readyz`, and `/version`.
 - `server.config.Settings.hsts_header` makes staging HSTS explicit and avoids
@@ -45,10 +47,19 @@ use `main` after review/merge.
 GitHub environment `staging`:
 
 - variable: `STAGING_URL`
-- secret: `RENDER_API_DEPLOY_HOOK_URL`
-- secret: `RENDER_WORKER_DEPLOY_HOOK_URL`
+- secret: `RENDER_API_KEY`
+- secret: `RENDER_API_SERVICE_ID`
+- secret: `RENDER_WORKER_SERVICE_ID`
 - secret: `OASIS_CF_ACCESS_CLIENT_ID`
 - secret: `OASIS_CF_ACCESS_CLIENT_SECRET`
+
+Render workspace:
+
+- registry credential named `ghcr-oasis` with read access to
+  `ghcr.io/philipcardozo/oasis`.
+- image-backed services initially configured with
+  `ghcr.io/philipcardozo/oasis:staging-bootstrap`; CI replaces this with the
+  tested digest for every deploy.
 
 Render environment group `oasis-staging-shared`:
 
@@ -91,6 +102,7 @@ Current status:
 - Outer access control: scaffolded, not verified.
 - Managed PostgreSQL: scaffolded, not provisioned.
 - API/worker separation: scaffolded, not deployed.
+- Exact image digest deployment: workflow scaffolded, not run.
 - Email delivery: selected, not verified.
 - Object storage: selected, not verified.
 - Browser matrix: pending public URL.

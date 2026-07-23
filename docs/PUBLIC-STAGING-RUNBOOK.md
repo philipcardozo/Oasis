@@ -8,7 +8,8 @@
 4. Sync `render.yaml` in Render.
 5. Fill Render environment values marked `sync: false`.
 6. Create GitHub `staging` environment and required secrets/variables.
-7. Configure Render deploy hooks as GitHub environment secrets.
+7. Create Render registry credential `ghcr-oasis` with GHCR package read access.
+8. Add Render API key and API/worker service IDs as GitHub environment secrets.
 
 ## Deploy
 
@@ -25,8 +26,8 @@ install dependencies
 -> run Playwright tests
 -> build/publish immutable GHCR image
 -> scan image
--> trigger Render API deploy
--> trigger Render worker deploy
+-> deploy exact image digest to Render API and wait
+-> deploy exact image digest to Render worker and wait
 -> run public preflight
 ```
 

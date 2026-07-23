@@ -8,12 +8,16 @@ Use a protected GitHub Actions `Deploy` workflow for public staging.
 ## Rationale
 The workflow runs dependency install, migration validation, Python tests,
 Playwright tests, immutable image build, SBOM/provenance, image scan, Render API
-deploy, Render worker deploy, and public staging preflight.
+deploy with exact `imageUrl`, Render worker deploy with the same image digest,
+and public staging preflight.
 
-Deploy hooks remain secrets. Production deployment is intentionally absent from
-this workflow.
+Render API keys and raw service IDs remain GitHub environment secrets.
+Production deployment is intentionally absent from this workflow.
 
-Reference: https://render.com/docs/deploy-hooks
+References:
+
+- https://api-docs.render.com/reference/create-deploy
+- https://api-docs.render.com/reference/retrieve-deploy
 
 ## Changes this if
 Render native auto-deploy with required CI checks can prove the same migration,

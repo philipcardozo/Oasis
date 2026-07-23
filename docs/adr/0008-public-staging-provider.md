@@ -4,14 +4,15 @@
 
 ## Decision
 Use Render for the first public staging deployment: one Docker web service for
-the API, one Docker worker service, and Render PostgreSQL. Use Cloudflare for
-DNS/edge/private access and R2 storage.
+the API, one Docker worker service, and Render PostgreSQL. The API and worker
+are image-backed services that pull the exact tested GHCR image digest. Use
+Cloudflare for DNS/edge/private access and R2 storage.
 
 ## Rationale
 Render preserves the existing container architecture with low operational
 burden: Docker services, workers, managed PostgreSQL, private networking,
-secrets, health checks, deploy hooks, logs, and rollbacks. The current OASIS
-image can run without an application rewrite.
+secrets, health checks, image-backed deploys, logs, and rollbacks. The current
+OASIS image can run without an application rewrite.
 
 Cloudflare remains the better edge layer for DNS, Access, WAF/rate controls, and
 R2 S3-compatible object storage.
@@ -29,7 +30,8 @@ Rejected alternatives:
 References:
 
 - Render Blueprints: https://render.com/docs/blueprint-spec
-- Render deploy hooks: https://render.com/docs/deploy-hooks
+- Render prebuilt images: https://render.com/docs/deploying-an-image
+- Render deploy API: https://api-docs.render.com/reference/create-deploy
 
 ## Changes this if
 The beta needs multi-region traffic, stricter enterprise networking, or a shared
