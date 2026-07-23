@@ -1,0 +1,71 @@
+{
+  "browser": "Google Chrome",
+  "version": "150.0.7871.129",
+  "os": "darwin arm64",
+  "url": "http://127.0.0.1:8788/index.html",
+  "state": {
+    "mode": "globe",
+    "companies": 958,
+    "bulkLoaded": false,
+    "selected": null,
+    "manualSelectedId": null,
+    "manualNodes": 0,
+    "lens": "company",
+    "selfViewId": "",
+    "selfViewNodes": 0,
+    "svgNodes": 958,
+    "canvasDisplay": "none",
+    "stats": "950"
+  },
+  "studio": {
+    "basemap": "standard",
+    "preferredBasemap": "standard",
+    "activeBasemap": "standard",
+    "basemapNotice": null,
+    "selectedMapSlot": 0,
+    "mapSlots": [
+      {
+        "name": "Standard Research",
+        "basemap": "standard"
+      },
+      {
+        "name": "Dark Network View",
+        "basemap": "dark"
+      },
+      {
+        "name": "Satellite Site Analysis",
+        "basemap": "satellite"
+      }
+    ],
+    "terrain": true,
+    "terrainExaggeration": 1.12,
+    "activeOverlays": 1,
+    "styleLoaded": true
+  },
+  "maplibreCanvases": 1,
+  "canvasBox": {
+    "x": 0,
+    "y": 61,
+    "width": 1440,
+    "height": 939
+  },
+  "hasUnpkg": false,
+  "hasVendoredMapLibre": true,
+  "failedRequests": [],
+  "consoleErrors": [],
+  "consoleWarnings": [
+    "You are using the same source for a hillshade layer and for 3D terrain. Please consider using two separate sources to improve rendering quality.",
+    "calculateFogMatrix is not supported on globe projection.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+  ],
+  "pageErrors": [],
+  "screenshotPath": "docs/evidence/phase-1-5/chrome-standard-maplibre.png",
+  "visualVerdict": "standard basemap and geographic overlays visible in screenshot"
+}

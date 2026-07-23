@@ -1,0 +1,54 @@
+{
+  "browser": "Google Chrome",
+  "version": "150.0.7871.129",
+  "os": "darwin arm64",
+  "url": "http://127.0.0.1:8788/index.html",
+  "state": {
+    "mode": "network",
+    "companies": 958,
+    "bulkLoaded": false,
+    "selected": null,
+    "manualSelectedId": null,
+    "manualNodes": 0,
+    "lens": "company",
+    "selfViewId": "",
+    "selfViewNodes": 0,
+    "svgNodes": 958,
+    "canvasDisplay": "none",
+    "stats": "907"
+  },
+  "studio": {
+    "basemap": "standard",
+    "preferredBasemap": "standard",
+    "activeBasemap": null,
+    "basemapNotice": null,
+    "selectedMapSlot": 0,
+    "mapSlots": [
+      {
+        "name": "Standard Research",
+        "basemap": "standard"
+      },
+      {
+        "name": "Dark Network View",
+        "basemap": "dark"
+      },
+      {
+        "name": "Satellite Site Analysis",
+        "basemap": "satellite"
+      }
+    ],
+    "terrain": true,
+    "terrainExaggeration": 1.12,
+    "activeOverlays": 1,
+    "styleLoaded": false
+  },
+  "svgNodes": 958,
+  "maplibreCanvases": 0,
+  "rootCanvasBox": null,
+  "hasUnpkg": false,
+  "hasVendoredMapLibre": true,
+  "failedRequests": [],
+  "consoleMessages": [],
+  "pageErrors": [],
+  "screenshotPath": "docs/evidence/phase-1-5/chrome-standard-map.png"
+}

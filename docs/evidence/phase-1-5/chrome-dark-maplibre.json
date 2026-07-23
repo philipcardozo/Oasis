@@ -1,0 +1,75 @@
+{
+  "browser": "Google Chrome",
+  "version": "150.0.7871.129",
+  "basemap": "dark",
+  "state": {
+    "mode": "globe",
+    "companies": 958,
+    "bulkLoaded": false,
+    "selected": null,
+    "manualSelectedId": null,
+    "manualNodes": 0,
+    "lens": "company",
+    "selfViewId": "",
+    "selfViewNodes": 0,
+    "svgNodes": 958,
+    "canvasDisplay": "none",
+    "stats": "950"
+  },
+  "studio": {
+    "basemap": "dark",
+    "preferredBasemap": "dark",
+    "activeBasemap": "dark",
+    "basemapNotice": null,
+    "selectedMapSlot": 0,
+    "mapSlots": [
+      {
+        "name": "Standard Research",
+        "basemap": "standard"
+      },
+      {
+        "name": "Dark Network View",
+        "basemap": "dark"
+      },
+      {
+        "name": "Satellite Site Analysis",
+        "basemap": "satellite"
+      }
+    ],
+    "terrain": true,
+    "terrainExaggeration": 1.12,
+    "activeOverlays": 1,
+    "styleLoaded": true
+  },
+  "canvasBox": {
+    "x": 0,
+    "y": 61,
+    "width": 1440,
+    "height": 939
+  },
+  "hasUnpkg": false,
+  "hasVendoredMapLibre": true,
+  "failedRequests": [
+    "https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/0.png net::ERR_ABORTED",
+    "https://tiles.openfreemap.org/natural_earth/ne2sr/2/2/0.png net::ERR_ABORTED",
+    "https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/1.png net::ERR_ABORTED",
+    "https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/1.png net::ERR_ABORTED",
+    "https://tiles.openfreemap.org/natural_earth/ne2sr/2/2/1.png net::ERR_ABORTED",
+    "https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/2.png net::ERR_ABORTED",
+    "https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/0.png net::ERR_ABORTED",
+    "https://tiles.openfreemap.org/natural_earth/ne2sr/2/3/1.png net::ERR_ABORTED",
+    "https://tiles.openfreemap.org/natural_earth/ne2sr/2/3/0.png net::ERR_ABORTED",
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/0/0/0.png net::ERR_ABORTED",
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/1.png net::ERR_ABORTED",
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/0.png net::ERR_ABORTED",
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/0.png net::ERR_ABORTED",
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/0/0/0.png net::ERR_ABORTED",
+    "https://tiles.basemaps.cartocdn.com/fonts/Noto%20Sans%20Bold/0-255.pbf net::ERR_FAILED"
+  ],
+  "consoleErrors": [
+    "Access to fetch at 'https://tiles.basemaps.cartocdn.com/fonts/Noto%20Sans%20Bold/0-255.pbf' from origin 'http://127.0.0.1:8788' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "screenshotPath": "docs/evidence/phase-1-5/chrome-dark-maplibre.png",
+  "verdict": "dark basemap rendered based on activeBasemap/styleLoaded and screenshot"
+}
