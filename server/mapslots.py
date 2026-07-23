@@ -53,6 +53,21 @@ def _sanitize_text(value: str) -> str:
     return value.replace("<", "").replace(">", "").strip()
 
 
+def _allowed_basemaps(settings: Settings) -> set[str]:
+    allowed = set(ALLOWED_BASEMAPS)
+    if not settings.feature_satellite_esri:
+        allowed.discard("satellite")
+    return allowed
+
+
+def _validate_basemap(basemap: str, settings: Settings) -> str:
+    allowed = _allowed_basemaps(settings)
+    if basemap not in allowed:
+        suffix = " while Esri imagery is disabled" if basemap == "satellite" else ""
+        raise HTTPException(422, f"basemap must be one of {sorted(allowed)}{suffix}")
+    return basemap
+
+
 def _validate_config(config: dict, settings: Settings) -> dict:
     if not isinstance(config, dict):
         raise HTTPException(422, "config must be an object")
@@ -146,9 +161,7 @@ def update_slot(slot_id: str, body: SlotUpdateIn, user: User = Depends(require_c
     slot = _require_slot(db, user, slot_id)
     _check_version(slot, body.version)
     if body.basemap is not None:
-        if body.basemap not in ALLOWED_BASEMAPS:
-            raise HTTPException(422, f"basemap must be one of {sorted(ALLOWED_BASEMAPS)}")
-        slot.basemap = body.basemap
+        slot.basemap = _validate_basemap(body.basemap, settings)
     if body.name is not None:
         slot.name = _sanitize_text(body.name) or slot.name
     if body.description is not None:
@@ -171,9 +184,11 @@ def rename_slot(slot_id: str, body: RenameIn, user: User = Depends(require_csrf)
 
 
 @router.post("/{slot_id}/reset")
-def reset_slot(slot_id: str, user: User = Depends(require_csrf), db: Session = Depends(get_db)):
+def reset_slot(slot_id: str, user: User = Depends(require_csrf), db: Session = Depends(get_db),
+               settings: Settings = Depends(get_settings)):
     slot = _require_slot(db, user, slot_id)
-    default = next((d for d in repo.DEFAULT_SLOTS if d[0] == slot.slot_number), (slot.slot_number, slot.name, "standard"))
+    defaults = repo.default_map_slots(feature_satellite_esri=settings.feature_satellite_esri)
+    default = next((d for d in defaults if d[0] == slot.slot_number), (slot.slot_number, slot.name, "standard"))
     slot.name, slot.basemap, slot.config = default[1], default[2], {}
     slot.version += 1
     repo.record_audit(db, "mapslot.reset", actor_id=user.id, resource_type="map_slot", resource_id=slot.id)
@@ -188,11 +203,12 @@ def activate_slot(slot_id: str, user: User = Depends(require_csrf), db: Session 
 
 
 @router.post("/{slot_id}/duplicate-to/{target_id}")
-def duplicate_slot(slot_id: str, target_id: str, user: User = Depends(require_csrf), db: Session = Depends(get_db)):
+def duplicate_slot(slot_id: str, target_id: str, user: User = Depends(require_csrf), db: Session = Depends(get_db),
+                   settings: Settings = Depends(get_settings)):
     src = _require_slot(db, user, slot_id)
     dst = _require_slot(db, user, target_id)
     # Copy settings between existing slots — never exceeds the 3-slot limit.
-    dst.basemap, dst.config = src.basemap, dict(src.config)
+    dst.basemap, dst.config = _validate_basemap(src.basemap, settings), dict(src.config)
     dst.version += 1
     return _slot_dto(dst)
 
@@ -212,9 +228,7 @@ def import_slot(body: ImportIn, user: User = Depends(require_csrf), db: Session 
         raise HTTPException(422, "config_json is not valid JSON")
     if not isinstance(data, dict) or data.get("kind") != "map_slot":
         raise HTTPException(422, "not a map_slot export")
-    basemap = data.get("basemap", "standard")
-    if basemap not in ALLOWED_BASEMAPS:
-        raise HTTPException(422, "invalid basemap in import")
+    basemap = _validate_basemap(data.get("basemap", "standard"), settings)
     slot = next((s for s in repo.list_map_slots(db, user.id) if s.slot_number == body.slot_number), None)
     if not slot:
         raise HTTPException(404, "target slot not found")

@@ -103,6 +103,19 @@ npx playwright test
 15 passed
 ```
 
+After secure licensing feature-gate hardening:
+
+```text
+python3 -m pytest -q test_phase1_security.py test_phase1_mapslots.py
+27 passed
+
+python3 -m pytest -q
+115 passed, 1 skipped, 1 warning in 26.23s
+
+npx playwright test
+15 passed
+```
+
 The direct `pytest -q` shell command was unavailable because the `pytest` console script was not on `PATH`; `python3 -m pytest -q` was used successfully.
 
 ## 3. Environment And Host
@@ -351,6 +364,16 @@ staging with explicit PostgreSQL-style URL, strong session secret, explicit orig
 CONFIG_STAGING_OK
 ```
 
+Secure provider defaults:
+
+```text
+evidence: docs/evidence/phase-1-5/secure-feature-gates.json
+staging defaults: Esri satellite OFF, yfinance/Yahoo prices OFF, company logos OFF
+production defaults: Esri satellite OFF, yfinance/Yahoo prices OFF, company logos OFF
+disabled satellite map slots: exactly three defaults remain; slot 3 degrades to Standard Site Analysis
+disabled satellite writes: HTTP 422 instead of persisting an Esri-backed basemap
+```
+
 Reverse-proxy security boundary tests have not been run because the compose/reverse-proxy stack could not be started.
 
 Pending:
@@ -512,7 +535,13 @@ Existing documentation:
 docs/LICENSING-GATES.md
 ```
 
-Secure configuration defaults unresolved providers off only in production; staging still needs explicit feature-flag confirmation before beta.
+Secure configuration now defaults unresolved providers off in both `staging` and `production`. The local map-slot API rejects satellite selections while Esri imagery is disabled, resets disabled satellite defaults to a standard basemap, and still creates exactly three slots for new accounts. Evidence is recorded in:
+
+```text
+docs/evidence/phase-1-5/secure-feature-gates.json
+```
+
+Staging still needs deployed verification that the frontend and reverse-proxy path observe these settings without calling restricted providers.
 
 Pending current-source licensing verification:
 
@@ -540,6 +569,7 @@ docs/evidence/phase-1-5/chrome-dark-maplibre.json
 docs/evidence/phase-1-5/chrome-satellite-maplibre.png
 docs/evidence/phase-1-5/chrome-satellite-maplibre.json
 docs/evidence/phase-1-5/route-authorization-inventory.json
+docs/evidence/phase-1-5/secure-feature-gates.json
 ```
 
 Local command evidence recorded in this report:
@@ -561,7 +591,7 @@ Docker availability check
 2. Firefox and Safari real-browser rendering are not verified.
 3. Deployed authentication, authorization, map-slot synchronization, backup/restore, security headers, observability, failure recovery, and staging performance targets remain unproven.
 4. Deployment workflow still contains placeholder deploy commands and needs real staging/registry integration evidence.
-5. Licensing checks require current official source review before commercial launch; disabled providers do not block private beta, but staging flag state still needs explicit verification.
+5. Licensing checks require current official source review before commercial launch; disabled providers do not block private beta, but deployed frontend/reverse-proxy behavior still needs explicit verification.
 
 ## 20. Final Verdict
 
@@ -569,4 +599,4 @@ Docker availability check
 NOT APPROVED
 ```
 
-OASIS has passed the Phase 1 merge, local Python tests, local Playwright tests, secure-config validation, disposable migration wiring, installed-Chrome Standard/Dark/Satellite render checks, and local route-inventory reconciliation. It is not approved for controlled private beta until the unverified staging-host gates are executed successfully.
+OASIS has passed the Phase 1 merge, local Python tests, local Playwright tests, secure-config validation, disposable migration wiring, installed-Chrome Standard/Dark/Satellite render checks, local route-inventory reconciliation, and local secure licensing feature-gate checks. It is not approved for controlled private beta until the unverified staging-host gates are executed successfully.

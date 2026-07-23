@@ -106,6 +106,24 @@ def test_valid_production_config_passes(monkeypatch):
     # Licensing-sensitive providers default OFF in production.
     assert s.feature_satellite_esri is False
     assert s.feature_prices_yfinance is False
+    assert s.feature_company_logos is False
+
+
+def test_valid_staging_config_disables_unresolved_providers(monkeypatch):
+    from server.config import load_settings
+
+    monkeypatch.setenv("OASIS_MODE", "staging")
+    monkeypatch.setenv("OASIS_SESSION_SECRET", "x" * 40)
+    monkeypatch.setenv("OASIS_DATABASE_URL", "postgresql+psycopg://u:p@h/db")
+    monkeypatch.setenv("OASIS_PUBLIC_BASE_URL", "https://staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_COOKIE_SECURE", "true")
+    monkeypatch.setenv("OASIS_TRUSTED_HOSTS", "staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_ALLOWED_ORIGINS", "https://staging.oasis.example.com")
+    s = load_settings()
+    assert s.is_secure and not s.is_production
+    assert s.feature_satellite_esri is False
+    assert s.feature_prices_yfinance is False
+    assert s.feature_company_logos is False
 
 
 def test_no_secrets_logged():

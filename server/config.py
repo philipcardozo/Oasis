@@ -15,8 +15,8 @@ from pathlib import Path
 VALID_MODES = ("development", "test", "staging", "production")
 SECURE_MODES = ("staging", "production")
 
-# Settings that must never fall back to an insecure default in production.
-PRODUCTION_REQUIRED = (
+# Settings that must never fall back to an insecure default in secure modes.
+SECURE_REQUIRED = (
     "session_secret",
     "database_url",
     "allowed_origins",
@@ -95,7 +95,7 @@ class Settings:
     log_json: bool = False              # forced True in secure modes
     otel_enabled: bool = False
 
-    # Feature flags (licensing-sensitive providers default OFF in production).
+    # Feature flags (licensing-sensitive providers default OFF in secure modes).
     feature_satellite_esri: bool = True
     feature_prices_yfinance: bool = True
     feature_company_logos: bool = True
@@ -119,7 +119,7 @@ def _build(overrides: dict | None = None) -> Settings:
         raise ConfigError(f"OASIS_MODE must be one of {VALID_MODES}, got {mode!r}")
 
     secure = mode in SECURE_MODES
-    licensing_default = not (mode == "production")  # off in prod until approved
+    licensing_default = not secure  # off in staging/prod until approved
 
     data = {
         "mode": mode,

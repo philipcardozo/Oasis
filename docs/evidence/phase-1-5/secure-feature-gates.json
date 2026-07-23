@@ -1,0 +1,75 @@
+{
+  "default_map_slots_with_satellite_disabled": [
+    {
+      "basemap": "standard",
+      "name": "Standard Research",
+      "slot_number": 1
+    },
+    {
+      "basemap": "dark",
+      "name": "Dark Network View",
+      "slot_number": 2
+    },
+    {
+      "basemap": "standard",
+      "name": "Standard Site Analysis",
+      "slot_number": 3
+    }
+  ],
+  "default_map_slots_with_satellite_enabled": [
+    {
+      "basemap": "standard",
+      "name": "Standard Research",
+      "slot_number": 1
+    },
+    {
+      "basemap": "dark",
+      "name": "Dark Network View",
+      "slot_number": 2
+    },
+    {
+      "basemap": "satellite",
+      "name": "Satellite Site Analysis",
+      "slot_number": 3
+    }
+  ],
+  "development_defaults": {
+    "feature_company_logos": true,
+    "feature_prices_yfinance": true,
+    "feature_satellite_esri": true,
+    "mode": "development"
+  },
+  "generated_on": "2026-07-23",
+  "production_defaults": {
+    "cookie_secure": true,
+    "feature_company_logos": false,
+    "feature_prices_yfinance": false,
+    "feature_satellite_esri": false,
+    "log_json": true,
+    "mode": "production",
+    "production": true,
+    "secure": true
+  },
+  "source": "server.config:load_settings, server.repositories:default_map_slots",
+  "staging_defaults": {
+    "cookie_secure": true,
+    "feature_company_logos": false,
+    "feature_prices_yfinance": false,
+    "feature_satellite_esri": false,
+    "log_json": true,
+    "mode": "staging",
+    "production": false,
+    "secure": true
+  },
+  "test_evidence": {
+    "covered_behaviors": [
+      "staging secure config defaults unresolved providers off",
+      "production secure config defaults unresolved providers off",
+      "three default map slots are still created when satellite is disabled",
+      "disabled satellite basemap updates return HTTP 422",
+      "slot reset degrades disabled satellite default to standard"
+    ],
+    "focused_command": "python3 -m pytest -q test_phase1_security.py test_phase1_mapslots.py",
+    "focused_result": "27 passed"
+  }
+}

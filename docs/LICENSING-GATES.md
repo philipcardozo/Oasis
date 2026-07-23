@@ -1,7 +1,7 @@
 # Licensing Feature Gates
 
 Licensing-sensitive providers are code-level feature flags, not footnotes. In
-`server/config.py` they default **OFF in production** and ON in dev/staging, and
+`server/config.py` they default **OFF in secure modes** (`staging` and `production`) and ON in development, and
 can be overridden per environment. When a provider is disabled the UI must show a
 clear unavailable state and an approved alternative — never a silent fallback to
 another restricted provider.
@@ -22,5 +22,10 @@ verified against current primary-source terms. Esri and yfinance are the two
 that block commercial launch and need a purchase/substitution decision — they are
 upstream of offline dataset packaging.
 
-Covered by `test_phase1_security.py::test_valid_production_config_passes`
-(asserts satellite + prices default OFF in production).
+Covered by:
+
+- `test_phase1_security.py::test_valid_production_config_passes`
+- `test_phase1_security.py::test_valid_staging_config_disables_unresolved_providers`
+- `test_phase1_mapslots.py::test_default_slots_degrade_disabled_satellite`
+- `test_phase1_mapslots.py::test_disabled_satellite_basemap_rejected`
+- `test_phase1_mapslots.py::test_reset_uses_available_default_when_satellite_disabled`

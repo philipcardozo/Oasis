@@ -12,6 +12,19 @@ def test_exactly_three_default_slots(registered):
     assert slots[0]["is_active"] is True  # slot 1 = current default experience
 
 
+def test_default_slots_degrade_disabled_satellite(app_client):
+    from server import repositories as repo
+    from server.db import session_scope
+    from server.security import hash_password
+
+    with session_scope() as db:
+        user = repo.create_user(db, "secure-slots@example.com", hash_password("correcthorse"),
+                                feature_satellite_esri=False)
+        slots = repo.list_map_slots(db, user.id)
+    assert len(slots) == 3
+    assert [slot.basemap for slot in slots] == ["standard", "dark", "standard"]
+
+
 def test_update_and_rename(registered):
     client, _, csrf = registered
     slot = client.get("/api/map-slots").json()["slots"][1]
@@ -50,6 +63,32 @@ def test_invalid_basemap_rejected(registered):
     r = client.put(f"/api/map-slots/{slot['id']}", json={"basemap": "http://evil/style.json", "version": slot["version"]},
                    headers={"X-CSRF-Token": csrf})
     assert r.status_code == 422
+
+
+def test_disabled_satellite_basemap_rejected(registered):
+    client, _, csrf = registered
+    override_key = _override_settings(client, feature_satellite_esri=False)
+    try:
+        slot = client.get("/api/map-slots").json()["slots"][0]
+        r = client.put(f"/api/map-slots/{slot['id']}",
+                       json={"basemap": "satellite", "version": slot["version"]},
+                       headers={"X-CSRF-Token": csrf})
+    finally:
+        client.app.dependency_overrides.pop(override_key, None)
+    assert r.status_code == 422
+    assert "Esri imagery is disabled" in r.json()["detail"]
+
+
+def test_reset_uses_available_default_when_satellite_disabled(registered):
+    client, _, csrf = registered
+    override_key = _override_settings(client, feature_satellite_esri=False)
+    try:
+        slot = client.get("/api/map-slots").json()["slots"][2]
+        r = client.post(f"/api/map-slots/{slot['id']}/reset", headers={"X-CSRF-Token": csrf})
+    finally:
+        client.app.dependency_overrides.pop(override_key, None)
+    assert r.status_code == 200
+    assert r.json()["basemap"] == "standard"
 
 
 def test_invalid_layer_rejected(registered):
@@ -117,3 +156,15 @@ def test_duplicate_between_slots_stays_within_limit(registered):
     r = client.post(f"/api/map-slots/{slots[0]['id']}/duplicate-to/{slots[1]['id']}", headers={"X-CSRF-Token": csrf})
     assert r.status_code == 200 and r.json()["basemap"] == "satellite"
     assert len(client.get("/api/map-slots").json()["slots"]) == 3  # never exceeds 3
+
+
+def _override_settings(client, **overrides):
+    from server.config import get_settings, load_settings
+
+    settings = load_settings(
+        mode="development",
+        session_secret="test-secret-least-thirty-two-chars-long!!",
+        **overrides,
+    )
+    client.app.dependency_overrides[get_settings] = lambda: settings
+    return get_settings

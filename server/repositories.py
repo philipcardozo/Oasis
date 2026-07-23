@@ -30,6 +30,17 @@ DEFAULT_SLOTS = [
 ]
 
 
+def default_map_slots(*, feature_satellite_esri: bool = True) -> list[tuple[int, str, str]]:
+    """Return three starter slots, degrading restricted basemaps when disabled."""
+    slots = []
+    for number, name, basemap in DEFAULT_SLOTS:
+        if basemap == "satellite" and not feature_satellite_esri:
+            slots.append((number, "Standard Site Analysis", "standard"))
+        else:
+            slots.append((number, name, basemap))
+    return slots
+
+
 def normalize_email(email: str) -> str:
     return email.strip().lower()
 
@@ -44,11 +55,11 @@ def get_user(db: Session, user_id: str) -> User | None:
     return db.get(User, user_id)
 
 
-def create_user(db: Session, email: str, password_hash: str) -> User:
+def create_user(db: Session, email: str, password_hash: str, *, feature_satellite_esri: bool = True) -> User:
     user = User(email=email.strip(), email_normalized=normalize_email(email), password_hash=password_hash)
     db.add(user)
     db.flush()
-    create_default_map_slots(db, user.id)
+    create_default_map_slots(db, user.id, feature_satellite_esri=feature_satellite_esri)
     return user
 
 
@@ -139,9 +150,9 @@ def consume_email_token(db: Session, raw_token: str, purpose: str) -> EmailToken
 
 # --- map slots ---------------------------------------------------------------
 
-def create_default_map_slots(db: Session, user_id: str) -> list[MapSlot]:
+def create_default_map_slots(db: Session, user_id: str, *, feature_satellite_esri: bool = True) -> list[MapSlot]:
     slots = []
-    for number, name, basemap in DEFAULT_SLOTS:
+    for number, name, basemap in default_map_slots(feature_satellite_esri=feature_satellite_esri):
         slot = MapSlot(user_id=user_id, slot_number=number, name=name, basemap=basemap,
                        is_active=(number == 1), config={})
         db.add(slot)

@@ -95,7 +95,8 @@ def register(body: RegisterIn, request: Request, db: Session = Depends(get_db),
         # Do not reveal that the email is taken; behave like a fresh registration.
         log_event(log, logging.INFO, "register duplicate", correlation_id=correlation_id())
         return {"ok": True, "message": "check your email to verify your account"}
-    user = repo.create_user(db, body.email, hash_password(body.password))
+    user = repo.create_user(db, body.email, hash_password(body.password),
+                            feature_satellite_esri=settings.feature_satellite_esri)
     raw = new_token()
     repo.create_email_token(db, user.id, raw, "verify", VERIFY_TTL)
     email_mod.send_verification(user.email, raw, settings)
