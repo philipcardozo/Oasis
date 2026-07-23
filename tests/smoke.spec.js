@@ -38,11 +38,15 @@ test("reload is served from cache", async ({page}) => {
   await boot(page);
   await page.reload();
   await page.waitForFunction(() => window.graphState && window.graphState().companies > 0);
-  const uncached = await page.evaluate(() =>
+  // "Served from cache" means no resource re-downloads its full body. A cache hit
+  // has transferSize 0; a 304 revalidation (which happens once max-age=60 lapses
+  // during a slow suite) transfers only headers. A full re-download transfers a
+  // body comparable to its encoded size — that is what must not happen.
+  const redownloaded = await page.evaluate(() =>
     performance.getEntriesByType("resource")
-      .filter(r => r.transferSize > 0 && r.decodedBodySize > 0)
+      .filter(r => r.encodedBodySize > 0 && r.transferSize >= r.encodedBodySize)
       .map(r => r.name.split("/").pop()));
-  expect(uncached).toEqual([]);
+  expect(redownloaded).toEqual([]);
 });
 
 test("search focuses an entity and opens the drawer", async ({page}) => {
