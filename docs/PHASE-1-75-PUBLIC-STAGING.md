@@ -69,6 +69,9 @@ Render environment group `oasis-staging-shared`:
 - `OASIS_TRUSTED_HOSTS=staging.<approved-domain>`
 - Postmark SMTP settings.
 - Cloudflare R2 bucket, endpoint, and least-privilege access keys.
+- `OASIS_REGISTRATION_ALLOWED_EMAILS` with the approved private-beta tester
+  emails, unless the Cloudflare Access policy is the documented sole invitation
+  boundary for that drill.
 
 Do not commit any real secret or private token-bearing URL.
 
@@ -100,6 +103,7 @@ Current status:
 - Public hostname: missing.
 - Public TLS: missing.
 - Outer access control: scaffolded, not verified.
+- OASIS registration allowlist: implemented, not configured/proven publicly.
 - Managed PostgreSQL: scaffolded, not provisioned.
 - API/worker separation: scaffolded, not deployed.
 - Exact image digest deployment: workflow scaffolded, not run.

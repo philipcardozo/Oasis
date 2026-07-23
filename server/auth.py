@@ -90,11 +90,17 @@ def _issue_session(response: Response, request: Request, db: Session, user: User
 @router.post("/register", status_code=201)
 def register(body: RegisterIn, request: Request, db: Session = Depends(get_db),
              settings: Settings = Depends(get_settings)):
+    generic = {"ok": True, "message": "check your email to verify your account"}
+    if not settings.registration_allowed(body.email):
+        log_event(log, logging.INFO, "register allowlist blocked", correlation_id=correlation_id())
+        repo.record_audit(db, "auth.register", result="denied", correlation_id=correlation_id(),
+                          meta={"reason": "registration_allowlist"})
+        return generic
     existing = repo.get_user_by_email(db, body.email)
     if existing:
         # Do not reveal that the email is taken; behave like a fresh registration.
         log_event(log, logging.INFO, "register duplicate", correlation_id=correlation_id())
-        return {"ok": True, "message": "check your email to verify your account"}
+        return generic
     user = repo.create_user(db, body.email, hash_password(body.password),
                             feature_satellite_esri=settings.feature_satellite_esri)
     raw = new_token()
@@ -102,7 +108,7 @@ def register(body: RegisterIn, request: Request, db: Session = Depends(get_db),
     email_mod.send_verification(user.email, raw, settings)
     repo.record_audit(db, "auth.register", actor_id=user.id, resource_type="user", resource_id=user.id,
                       correlation_id=correlation_id())
-    return {"ok": True, "message": "check your email to verify your account"}
+    return generic
 
 
 @router.post("/verify-email")

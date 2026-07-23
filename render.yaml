@@ -79,6 +79,8 @@ envVarGroups:
         value: "true"
       - key: OASIS_COOKIE_SAMESITE
         value: lax
+      - key: OASIS_REGISTRATION_ALLOWED_EMAILS
+        sync: false
       - key: OASIS_TRUST_PROXY
         value: "true"
       - key: OASIS_HSTS_MAX_AGE

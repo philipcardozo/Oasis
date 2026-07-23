@@ -47,6 +47,10 @@ python3 scripts/public_staging_preflight.py \
 Then run the Proxyman/browser capture from `docs/PERFORMANCE-PROXYMAN-RUNBOOK.md`
 Prompt 8 and the public prompts appended there.
 
+For private-beta registration, set `OASIS_REGISTRATION_ALLOWED_EMAILS` to the
+comma-separated tester list before inviting users. Denied registrations return
+the same generic response and do not create users or send verification email.
+
 ## Rotate Secrets
 
 Rotate in this order:

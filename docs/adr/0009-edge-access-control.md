@@ -3,12 +3,19 @@
 ## Status: accepted
 
 ## Decision
-Protect public staging with Cloudflare Access in front of OASIS authentication.
+Protect public staging with Cloudflare Access in front of OASIS authentication,
+and keep an optional OASIS registration allowlist for private-beta tester
+invites.
 
 ## Rationale
 The staging hostname must not be generally usable by the public. Cloudflare
 Access provides an identity-aware outer boundary while preserving the existing
 OASIS account/session/CSRF flow inside the boundary.
+
+`OASIS_REGISTRATION_ALLOWED_EMAILS` provides a second, application-level control
+for tester onboarding and fallback-host protection. If set, non-allowlisted
+registration attempts receive the same generic response but no user or email is
+created.
 
 Expected request path:
 

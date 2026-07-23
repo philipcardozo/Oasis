@@ -22,6 +22,41 @@ def test_duplicate_registration_does_not_enumerate(app_client):
     assert "verify" in r.json()["message"].lower()
 
 
+def test_registration_allowlist_blocks_without_enumerating(app_client, monkeypatch):
+    from server import email as email_mod
+    from server import repositories as repo
+    from server.config import get_settings
+    from server.db import session_scope
+
+    monkeypatch.setenv("OASIS_REGISTRATION_ALLOWED_EMAILS", "invited@example.com")
+    get_settings.cache_clear()
+    try:
+        r = app_client.post("/api/auth/register", json={"email": "outsider@example.com", "password": "correcthorse"})
+
+        assert r.status_code == 201
+        assert r.json() == {"ok": True, "message": "check your email to verify your account"}
+        assert email_mod.SENT == []
+        with session_scope() as db:
+            assert repo.get_user_by_email(db, "outsider@example.com") is None
+    finally:
+        get_settings.cache_clear()
+
+
+def test_registration_allowlist_allows_invited_email_case_insensitive(app_client, monkeypatch):
+    from server import email as email_mod
+    from server.config import get_settings
+
+    monkeypatch.setenv("OASIS_REGISTRATION_ALLOWED_EMAILS", "Invited@Example.com")
+    get_settings.cache_clear()
+    try:
+        r = app_client.post("/api/auth/register", json={"email": "invited@example.com", "password": "correcthorse"})
+
+        assert r.status_code == 201
+        assert len(email_mod.SENT) == 1
+    finally:
+        get_settings.cache_clear()
+
+
 def test_email_is_normalized(app_client):
     app_client.post("/api/auth/register", json={"email": "Mixed@Case.COM", "password": "correcthorse"})
     from server.db import session_scope

@@ -3,10 +3,13 @@
 ## Tester Access
 
 - Add tester email to Cloudflare Access policy.
+- Add tester email to `OASIS_REGISTRATION_ALLOWED_EMAILS` or document why the
+  Cloudflare Access policy is the sole registration boundary for that drill.
 - Invite/register the user inside OASIS.
 - Confirm email verification link uses the staging hostname.
 - Remove a tester by removing Cloudflare Access permission, revoking OASIS
-  sessions, and disabling/deleting the account according to the test plan.
+  sessions, removing the email from `OASIS_REGISTRATION_ALLOWED_EMAILS`, and
+  disabling/deleting the account according to the test plan.
 
 ## Account Recovery
 

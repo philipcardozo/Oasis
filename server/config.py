@@ -72,6 +72,7 @@ class Settings:
     session_ttl_seconds: int = 60 * 60 * 24 * 14
     cookie_secure: bool = False         # forced True in secure modes
     cookie_samesite: str = "lax"
+    registration_allowed_emails: list[str] = field(default_factory=list)
 
     # Origins / hosts.
     allowed_origins: list[str] = field(default_factory=lambda: ["http://localhost:8788"])
@@ -136,6 +137,13 @@ class Settings:
             parts.append("preload")
         return "; ".join(parts)
 
+    def registration_allowed(self, email: str) -> bool:
+        if not self.registration_allowed_emails:
+            return True
+        normalized = email.strip().lower()
+        allowed = {item.strip().lower() for item in self.registration_allowed_emails}
+        return normalized in allowed
+
 
 def _build(overrides: dict | None = None) -> Settings:
     mode = (overrides or {}).get("mode") or _env("OASIS_MODE") or _env("OASIS_ENV") or "development"
@@ -155,6 +163,7 @@ def _build(overrides: dict | None = None) -> Settings:
         "session_ttl_seconds": int(_env("OASIS_SESSION_TTL", str(60 * 60 * 24 * 14))),
         "cookie_secure": _bool("OASIS_COOKIE_SECURE", secure),
         "cookie_samesite": _env("OASIS_COOKIE_SAMESITE", "lax"),
+        "registration_allowed_emails": _list("OASIS_REGISTRATION_ALLOWED_EMAILS", []),
         "allowed_origins": _list("OASIS_ALLOWED_ORIGINS", ["http://localhost:8788"]),
         "trusted_hosts": _list("OASIS_TRUSTED_HOSTS", ["localhost", "127.0.0.1", "testserver"]),
         "trust_proxy": _bool("OASIS_TRUST_PROXY", False),
