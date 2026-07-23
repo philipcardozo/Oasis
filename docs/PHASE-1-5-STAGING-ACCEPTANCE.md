@@ -6,6 +6,59 @@ Verdict: NOT APPROVED
 
 This report records the Phase 1.5 private-beta gate evidence gathered locally. OASIS is not yet approved for controlled private beta because the Docker Compose, PostgreSQL staging, reverse-proxy authentication, backup/restore, worker-isolation, security-boundary, observability, failure-recovery, and deployed performance gates still require a Docker-capable staging host and production-style secrets.
 
+## 2026-07-23 Compose Update
+
+Docker later became available on this machine:
+
+```text
+Docker version 29.6.2, build dfc4efb
+Docker Compose version v5.3.1
+```
+
+The compose staging stack now builds and starts with:
+
+```text
+docker compose --env-file .env.staging.local up --build -d
+```
+
+Verified through `https://localhost:8443`:
+
+```text
+services: db, migrate, api, worker, proxy
+migration: 29995ef61d8e
+healthz: 200
+readyz: 200
+version: 200
+first paint: 9 requests, no /api/universe/bulk, no unpkg.com
+auth/map-slot probe: pass
+default map slots: 1, 2, 3
+cross-user slot read: denied with 404
+API restart persistence: pass
+```
+
+New evidence:
+
+```text
+docs/PERFORMANCE-EVIDENCE.md
+docs/PROXYMAN-COMPOSE-CAPTURE.md
+docs/evidence/performance/15-staging-capture-status.json
+docs/evidence/performance/15-compose-browser-har-summary.json
+docs/evidence/performance/19-compose-auth-map-slots.json
+docs/evidence/performance/20-compose-route-family-probe.json
+docs/evidence/performance/21-compose-route-family-proxyman-probe.json
+docs/evidence/performance/22-compose-backup-restore-drill.json
+docs/evidence/performance/23-compose-failure-exercises.json
+docs/evidence/performance/24-compose-map-gate.json
+```
+
+This update replaces the earlier "Docker unavailable" blocker for compose
+performance evidence. Direct and Proxyman-routed compose route probes now pass,
+the PostgreSQL backup/restore drill passes, controlled failure exercises pass,
+and the headed Chrome compose map gate passes with screenshots.
+
+The final private-beta verdict remains `NOT APPROVED` because a public deployed
+staging URL and full production-style deploy evidence are still pending.
+
 ## 1. Commit And Merge History
 
 Authoritative repository:
@@ -186,6 +239,9 @@ Firefox: not found in /Applications
 Docker: unavailable; `docker: command not found`
 ```
 
+Superseded by the 2026-07-23 compose update above: Docker 29.6.2 and Docker
+Compose v5.3.1 later became available on this host.
+
 The configured Codex workspace `/Users/felipecardozo/Documents/Oasis` is an empty git repository. The populated OASIS repository used for this gate is `/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis`.
 
 ## 4. Real-Browser Map Results
@@ -253,7 +309,7 @@ Reload persistence in real Chrome beyond automated Playwright coverage
 
 ## 5. Docker Compose Results
 
-Not run. Docker is unavailable in this environment:
+Earlier audit state: not run because Docker was unavailable in that environment:
 
 ```text
 docker: command not found
@@ -371,9 +427,15 @@ import/export validation and size limits
 direct fourth-slot creation rejection
 ```
 
+2026-07-23 update: compose now builds and starts locally. Reverse-proxy health,
+readiness, migration, auth, stale update behavior, cross-user denial, and
+three-slot persistence have evidence in `docs/PERFORMANCE-EVIDENCE.md`.
+
 ## 10. Worker Isolation Results
 
-Not verified in containers. Docker is unavailable.
+Earlier audit state: not verified in containers because Docker was unavailable.
+2026-07-23 update: API and worker now run as separate compose services; worker
+job behavior still needs a dedicated compose job drill.
 
 Local composed-API isolation evidence:
 
@@ -686,9 +748,9 @@ local safe-error response checks
 
 ## 19. Remaining Risks
 
-1. Docker is not installed in the current environment, so compose deployment, container isolation, reverse proxy, and staging PostgreSQL gates are unverified.
+1. Docker was unavailable during the first audit, but later became available. Compose deployment, reverse proxy, PostgreSQL migration, Proxyman-routed browser capture, auth/map-slot persistence, route-family proxy probing, backup/restore, failure exercises, and headed Chrome map-gate screenshots now have local evidence; public deployed staging remains unverified.
 2. Firefox and Safari real-browser rendering are not verified.
-3. Deployed authentication, authorization, map-slot synchronization, backup/restore, security headers, observability, failure recovery, and staging performance targets remain unproven.
+3. Public deployed authentication, authorization, map-slot synchronization, backup/restore, security headers, observability, failure recovery, and staging performance targets remain unproven.
 4. Deployment workflow still contains placeholder deploy commands and needs real staging/registry integration evidence.
 5. Licensing checks require current official source review before commercial launch; disabled providers do not block private beta, but deployed frontend/reverse-proxy behavior still needs explicit verification.
 
