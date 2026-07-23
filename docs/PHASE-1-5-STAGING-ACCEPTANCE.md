@@ -116,6 +116,19 @@ npx playwright test
 15 passed
 ```
 
+After observability request-log hardening:
+
+```text
+python3 -m pytest -q test_phase1_security.py
+15 passed
+
+python3 -m pytest -q
+118 passed, 1 skipped, 1 warning in 58.38s
+
+npx playwright test
+15 passed
+```
+
 The direct `pytest -q` shell command was unavailable because the `pytest` console script was not on `PATH`; `python3 -m pytest -q` was used successfully.
 
 ## 3. Environment And Host
@@ -402,22 +415,30 @@ raw response headers
 
 Not fully verified in staging. CI and code declarations exist, but no deployed log pipeline was exercised.
 
+Local request-log and redaction evidence:
+
+```text
+evidence: docs/evidence/phase-1-5/observability-request-logs.json
+staging log format: structured JSON enabled
+request IDs: accepted from X-Request-ID and returned as X-Request-ID
+request log fields: request_id, method, route, status_code, duration_ms
+short-circuit auth failures: logged and returned with security headers
+redaction: authorization, cookies, tokens, sessions, and passwords redacted in JSON formatting
+```
+
 Pending:
 
 ```text
-structured JSON logs
-request/correlation IDs
-route templates
-duration/status codes
-auth failures
+deployed structured JSON log capture
+reverse-proxy request ID propagation
+route-template verification from deployed traffic
+controlled error trace from browser to reverse proxy/API/DB or worker/logs
 rate-limit events
 worker lifecycle
 export failures
 cache metrics
 dataset freshness
 disk usage
-controlled error trace from browser to logs
-redaction checks
 ```
 
 ## 14. Failure Recovery Results
@@ -570,6 +591,7 @@ docs/evidence/phase-1-5/chrome-satellite-maplibre.png
 docs/evidence/phase-1-5/chrome-satellite-maplibre.json
 docs/evidence/phase-1-5/route-authorization-inventory.json
 docs/evidence/phase-1-5/secure-feature-gates.json
+docs/evidence/phase-1-5/observability-request-logs.json
 ```
 
 Local command evidence recorded in this report:
@@ -583,6 +605,7 @@ secure config fail-fast checks
 disposable Alembic upgrade/downgrade
 installed Chrome render checks
 Docker availability check
+local observability request-log checks
 ```
 
 ## 19. Remaining Risks
@@ -599,4 +622,4 @@ Docker availability check
 NOT APPROVED
 ```
 
-OASIS has passed the Phase 1 merge, local Python tests, local Playwright tests, secure-config validation, disposable migration wiring, installed-Chrome Standard/Dark/Satellite render checks, local route-inventory reconciliation, and local secure licensing feature-gate checks. It is not approved for controlled private beta until the unverified staging-host gates are executed successfully.
+OASIS has passed the Phase 1 merge, local Python tests, local Playwright tests, secure-config validation, disposable migration wiring, installed-Chrome Standard/Dark/Satellite render checks, local route-inventory reconciliation, local secure licensing feature-gate checks, and local observability request-log/redaction checks. It is not approved for controlled private beta until the unverified staging-host gates are executed successfully.

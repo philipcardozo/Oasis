@@ -1,0 +1,64 @@
+{
+  "captured_events": [
+    {
+      "fields": {
+        "duration_ms": 13.51,
+        "method": "GET",
+        "request_id": "evidence-health-1",
+        "route": "/healthz",
+        "status_code": 200
+      },
+      "level": "INFO",
+      "msg": "request_complete"
+    },
+    {
+      "fields": {
+        "duration_ms": 0.16,
+        "method": "POST",
+        "request_id": "evidence-auth-blocked",
+        "route": "/api/overrides",
+        "status_code": 401
+      },
+      "level": "INFO",
+      "msg": "request_complete"
+    }
+  ],
+  "formatted_redaction_sample": {
+    "authorization": "<redacted>",
+    "cookie": "<redacted>",
+    "csrf_token": "<redacted>",
+    "level": "INFO",
+    "logger": "oasis.test",
+    "msg": "redaction_check",
+    "route": "/api/auth/login",
+    "status_code": 401,
+    "ts": "2026-07-23T05:40:25"
+  },
+  "generated_on": "2026-07-23",
+  "request_samples": {
+    "healthz": {
+      "status_code": 200,
+      "x_request_id": "evidence-health-1"
+    },
+    "unauthenticated_write": {
+      "content_security_policy_present": true,
+      "status_code": 401,
+      "x_request_id": "evidence-auth-blocked"
+    }
+  },
+  "secure_mode_logging": {
+    "log_json": true,
+    "mode": "staging"
+  },
+  "source": "server.middleware:_security_stack, server.observability:_JsonFormatter",
+  "test_evidence": {
+    "covered_behaviors": [
+      "request completion events include request_id, method, route, status_code, and duration_ms",
+      "X-Request-ID is propagated to responses",
+      "short-circuit authentication failures receive security headers and request logs",
+      "JSON log formatting redacts authorization, cookies, tokens, sessions, and passwords"
+    ],
+    "focused_command": "python3 -m pytest -q test_phase1_security.py",
+    "focused_result": "15 passed"
+  }
+}

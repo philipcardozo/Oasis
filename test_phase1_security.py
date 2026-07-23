@@ -4,10 +4,50 @@ from __future__ import annotations
 
 def test_security_headers_present(app_client):
     r = app_client.get("/healthz")
+    assert r.headers["x-request-id"]
     assert r.headers["x-content-type-options"] == "nosniff"
     assert "strict-origin" in r.headers["referrer-policy"]
     assert "geolocation=()" in r.headers["permissions-policy"]
     assert "default-src 'self'" in r.headers["content-security-policy"]
+
+
+def test_request_logging_includes_template_duration_status(app_client, monkeypatch):
+    events = []
+    import server.middleware as middleware
+
+    monkeypatch.setattr(
+        middleware,
+        "log_event",
+        lambda _logger, _level, msg, **fields: events.append((msg, fields)),
+    )
+    r = app_client.get("/api/assets/{not-real}", headers={"X-Request-ID": "req-test-1"})
+    complete = [fields for msg, fields in events if msg == "request_complete"][-1]
+
+    assert r.headers["x-request-id"] == "req-test-1"
+    assert complete["request_id"] == "req-test-1"
+    assert complete["method"] == "GET"
+    assert complete["route"] == "/api/assets/{asset_id}"
+    assert complete["status_code"] == r.status_code
+    assert isinstance(complete["duration_ms"], float)
+
+
+def test_short_circuit_security_responses_are_logged_and_headered(app_client, monkeypatch):
+    events = []
+    import server.middleware as middleware
+
+    monkeypatch.setattr(
+        middleware,
+        "log_event",
+        lambda _logger, _level, msg, **fields: events.append((msg, fields)),
+    )
+    r = app_client.post("/api/overrides", headers={"X-Request-ID": "req-auth-blocked"})
+    complete = [fields for msg, fields in events if msg == "request_complete"][-1]
+
+    assert r.status_code == 401
+    assert r.headers["x-request-id"] == "req-auth-blocked"
+    assert "default-src 'self'" in r.headers["content-security-policy"]
+    assert complete["status_code"] == 401
+    assert complete["request_id"] == "req-auth-blocked"
 
 
 def test_csp_is_not_wildcard(app_client):
@@ -128,7 +168,29 @@ def test_valid_staging_config_disables_unresolved_providers(monkeypatch):
 
 def test_no_secrets_logged():
     from server.observability import redact
-    out = redact({"authorization": "Bearer x", "password": "p", "email": "a@b.com"})
+    out = redact({"authorization": "Bearer x", "password": "p", "csrf_token": "t", "session_id": "s", "email": "a@b.com"})
     assert out["authorization"] == "<redacted>"
     assert out["password"] == "<redacted>"
+    assert out["csrf_token"] == "<redacted>"
+    assert out["session_id"] == "<redacted>"
     assert out["email"] == "a@b.com"
+
+
+def test_json_formatter_redacts_sensitive_fields():
+    import json
+    import logging
+
+    from server.observability import _JsonFormatter
+
+    record = logging.LogRecord("oasis.test", logging.INFO, __file__, 1, "event", (), None)
+    record.extra_fields = {
+        "route": "/api/auth/login",
+        "authorization": "Bearer secret",
+        "csrf_token": "secret",
+        "password": "secret",
+    }
+    body = json.loads(_JsonFormatter().format(record))
+    assert body["route"] == "/api/auth/login"
+    assert body["authorization"] == "<redacted>"
+    assert body["csrf_token"] == "<redacted>"
+    assert body["password"] == "<redacted>"

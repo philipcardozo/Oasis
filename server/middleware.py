@@ -19,7 +19,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from server import repositories as repo
 from server.config import Settings
-from server.observability import log_event, new_correlation_id
+from server.observability import log_event, new_correlation_id, set_correlation_id
 
 log = logging.getLogger("oasis.mw")
 
@@ -34,6 +34,18 @@ def _client_id(request: Request, trust_proxy: bool) -> str:
         if fwd:
             return fwd.split(",")[0].strip()
     return request.client.host if request.client else "unknown"
+
+
+def _request_id(request: Request) -> str:
+    incoming = request.headers.get("x-request-id", "").strip()
+    if incoming and len(incoming) <= 128 and all(ch.isalnum() or ch in "-_." for ch in incoming):
+        return incoming
+    return new_correlation_id()
+
+
+def _route_template(request: Request) -> str:
+    route = request.scope.get("route")
+    return getattr(route, "path", None) or request.url.path
 
 
 class RateLimiter:
@@ -104,7 +116,9 @@ def install_security(app: FastAPI, settings: Settings) -> None:
 
     @app.middleware("http")
     async def _security_stack(request: Request, call_next):
-        new_correlation_id()
+        started = time.perf_counter()
+        request_id = _request_id(request)
+        set_correlation_id(request_id)
 
         # Rate limit (before auth for login/register).
         cls = _rate_class(request.url.path, request.method)
@@ -112,8 +126,11 @@ def install_security(app: FastAPI, settings: Settings) -> None:
             cid = _client_id(request, settings.trust_proxy)
             if not _limiter.allow(f"{cls}:{cid}", _limit_for(settings, cls), settings.rate_limit_window_seconds):
                 log_event(log, logging.WARNING, "rate_limited", endpoint_class=cls)
-                return JSONResponse({"detail": "rate limit exceeded"}, status_code=429,
-                                    headers={"Retry-After": str(settings.rate_limit_window_seconds)})
+                response = JSONResponse({"detail": "rate limit exceeded"}, status_code=429,
+                                        headers={"Retry-After": str(settings.rate_limit_window_seconds)})
+                _apply_response_headers(response, settings, request_id)
+                _log_request(request, response.status_code, started, request_id)
+                return response
 
         # Global write-protection: state-changing methods need a valid session
         # AND a valid CSRF token, unless the path is a deliberately public write
@@ -122,20 +139,49 @@ def install_security(app: FastAPI, settings: Settings) -> None:
         path = request.url.path
         if request.method not in SAFE_METHODS and not any(path.startswith(p) for p in PUBLIC_WRITE_PREFIXES):
             if not _has_valid_session(request, settings):
-                return JSONResponse({"detail": "authentication required"}, status_code=401)
+                response = JSONResponse({"detail": "authentication required"}, status_code=401)
+                _apply_response_headers(response, settings, request_id)
+                _log_request(request, response.status_code, started, request_id)
+                return response
             if not _valid_csrf(request, settings):
-                return JSONResponse({"detail": "invalid or missing CSRF token"}, status_code=403)
+                response = JSONResponse({"detail": "invalid or missing CSRF token"}, status_code=403)
+                _apply_response_headers(response, settings, request_id)
+                _log_request(request, response.status_code, started, request_id)
+                return response
 
-        response = await call_next(request)
+        try:
+            response = await call_next(request)
+        except Exception:
+            _log_request(request, 500, started, request_id, failed=True)
+            raise
 
         # Security headers on every response.
-        response.headers.setdefault("X-Content-Type-Options", "nosniff")
-        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
-        response.headers.setdefault("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
-        response.headers.setdefault("Content-Security-Policy", CSP)
-        if settings.is_secure:
-            response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+        _apply_response_headers(response, settings, request_id)
+        _log_request(request, response.status_code, started, request_id)
         return response
+
+
+def _apply_response_headers(response, settings: Settings, request_id: str) -> None:
+    response.headers.setdefault("X-Request-ID", request_id)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Permissions-Policy", "geolocation=(), microphone=(), camera=()")
+    response.headers.setdefault("Content-Security-Policy", CSP)
+    if settings.is_secure:
+        response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+
+
+def _log_request(request: Request, status_code: int, started: float, request_id: str, *, failed: bool = False) -> None:
+    log_event(
+        log,
+        logging.ERROR if failed else logging.INFO,
+        "request_failed" if failed else "request_complete",
+        request_id=request_id,
+        method=request.method,
+        route=_route_template(request),
+        status_code=status_code,
+        duration_ms=round((time.perf_counter() - started) * 1000, 2),
+    )
 
 
 def _has_valid_session(request: Request, settings: Settings) -> bool:

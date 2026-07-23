@@ -20,6 +20,11 @@ _correlation_id: ContextVar[str | None] = ContextVar("correlation_id", default=N
 _REDACT = {"authorization", "cookie", "set-cookie", "password", "token", "secret", "session"}
 
 
+def _sensitive(name: str) -> bool:
+    lowered = name.lower()
+    return any(part in lowered for part in _REDACT)
+
+
 def new_correlation_id() -> str:
     cid = uuid.uuid4().hex
     _correlation_id.set(cid)
@@ -37,7 +42,7 @@ def correlation_id() -> str | None:
 def redact(mapping: dict) -> dict:
     out = {}
     for k, v in (mapping or {}).items():
-        out[k] = "<redacted>" if k.lower() in _REDACT else v
+        out[k] = "<redacted>" if _sensitive(k) else v
     return out
 
 
@@ -53,8 +58,7 @@ class _JsonFormatter(logging.Formatter):
         if cid:
             payload["correlation_id"] = cid
         for key, val in getattr(record, "extra_fields", {}).items():
-            if key.lower() not in _REDACT:
-                payload[key] = val
+            payload[key] = "<redacted>" if _sensitive(key) else val
         if record.exc_info:
             payload["exc"] = self.formatException(record.exc_info)
         return json.dumps(payload, separators=(",", ":"))
