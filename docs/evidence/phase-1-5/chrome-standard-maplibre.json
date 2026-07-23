@@ -1,8 +1,7 @@
 {
   "browser": "Google Chrome",
   "version": "150.0.7871.129",
-  "os": "darwin arm64",
-  "url": "http://127.0.0.1:8788/index.html",
+  "basemap": "standard",
   "state": {
     "mode": "globe",
     "companies": 958,
@@ -42,7 +41,6 @@
     "activeOverlays": 1,
     "styleLoaded": true
   },
-  "maplibreCanvases": 1,
   "canvasBox": {
     "x": 0,
     "y": 61,
@@ -51,21 +49,15 @@
   },
   "hasUnpkg": false,
   "hasVendoredMapLibre": true,
-  "failedRequests": [],
-  "consoleErrors": [],
-  "consoleWarnings": [
-    "You are using the same source for a hillshade layer and for 3D terrain. Please consider using two separate sources to improve rendering quality.",
-    "calculateFogMatrix is not supported on globe projection.",
-    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
-    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
-    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
-    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
-    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
-    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
-    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
-    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback."
+  "glyphRequests": [
+    "https://fonts.openmaptiles.org/Noto%20Sans%20Italic/0-255.pbf",
+    "https://fonts.openmaptiles.org/Noto%20Sans%20Bold/0-255.pbf"
   ],
-  "pageErrors": [],
+  "cartoFontRequests": [],
+  "failedRequests": [],
+  "relevantFailures": [],
+  "consoleErrors": [],
+  "relevantErrors": [],
   "screenshotPath": "docs/evidence/phase-1-5/chrome-standard-maplibre.png",
-  "visualVerdict": "standard basemap and geographic overlays visible in screenshot"
+  "verdict": "standard basemap rendered with no unexpected console errors"
 }

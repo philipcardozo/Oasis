@@ -49,6 +49,11 @@
   },
   "hasUnpkg": false,
   "hasVendoredMapLibre": true,
+  "glyphRequests": [
+    "https://fonts.openmaptiles.org/Noto%20Sans%20Bold/0-255.pbf",
+    "https://fonts.openmaptiles.org/Montserrat%20Medium,Open%20Sans%20Bold,Noto%20Sans%20Regular,HanWangHeiLight%20Regular,NanumBarunGothic%20Regular/0-255.pbf"
+  ],
+  "cartoFontRequests": [],
   "failedRequests": [
     "https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/0.png net::ERR_ABORTED",
     "https://tiles.openfreemap.org/natural_earth/ne2sr/2/2/0.png net::ERR_ABORTED",
@@ -63,13 +68,25 @@
     "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/1.png net::ERR_ABORTED",
     "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/0.png net::ERR_ABORTED",
     "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/0.png net::ERR_ABORTED",
-    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/0/0/0.png net::ERR_ABORTED",
-    "https://tiles.basemaps.cartocdn.com/fonts/Noto%20Sans%20Bold/0-255.pbf net::ERR_FAILED"
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/0/0/0.png net::ERR_ABORTED"
   ],
-  "consoleErrors": [
-    "Access to fetch at 'https://tiles.basemaps.cartocdn.com/fonts/Noto%20Sans%20Bold/0-255.pbf' from origin 'http://127.0.0.1:8788' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.",
-    "Failed to load resource: net::ERR_FAILED"
+  "relevantFailures": [],
+  "consoleErrors": [],
+  "relevantErrors": [],
+  "consoleWarnings": [
+    "You are using the same source for a hillshade layer and for 3D terrain. Please consider using two separate sources to improve rendering quality.",
+    "calculateFogMatrix is not supported on globe projection.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
+    "Unable to perform style diff: Cannot read properties of undefined (reading 'type').  Rebuilding the style from scratch.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
+    "performance warning: READ-usage buffer was written, then fenced, but written again before being read back. This discarded the shadow copy that was created to accelerate readback.",
+    "map globe Error"
   ],
   "screenshotPath": "docs/evidence/phase-1-5/chrome-dark-maplibre.png",
-  "verdict": "dark basemap rendered based on activeBasemap/styleLoaded and screenshot"
+  "verdict": "dark basemap rendered with no unexpected console errors or font CORS failures"
 }

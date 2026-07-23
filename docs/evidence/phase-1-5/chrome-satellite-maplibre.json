@@ -49,6 +49,10 @@
   },
   "hasUnpkg": false,
   "hasVendoredMapLibre": true,
+  "glyphRequests": [
+    "https://fonts.openmaptiles.org/Noto%20Sans%20Bold/0-255.pbf"
+  ],
+  "cartoFontRequests": [],
   "failedRequests": [
     "https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/0.png net::ERR_ABORTED",
     "https://tiles.openfreemap.org/natural_earth/ne2sr/2/2/0.png net::ERR_ABORTED",
@@ -61,9 +65,11 @@
     "https://tiles.openfreemap.org/natural_earth/ne2sr/2/3/1.png net::ERR_ABORTED",
     "https://tiles.openfreemap.org/natural_earth/ne2sr/2/3/0.png net::ERR_ABORTED"
   ],
+  "relevantFailures": [],
   "consoleErrors": [
     "AbortError: The user aborted a request."
   ],
+  "relevantErrors": [],
   "screenshotPath": "docs/evidence/phase-1-5/chrome-satellite-maplibre.png",
-  "verdict": "satellite rendered"
+  "verdict": "satellite basemap rendered with no unexpected console errors"
 }

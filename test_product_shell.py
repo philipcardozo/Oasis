@@ -33,6 +33,7 @@ def test_main() -> None:
         "function normalizeBaseMapLabels",
         "function renderMapStudio",
         "function switchBasemap",
+        'style.glyphs="https://fonts.openmaptiles.org/{fontstack}/{range}.pbf";',
         "function saveMapSlot",
         "Satellite Site Analysis",
         "not loaded yet",

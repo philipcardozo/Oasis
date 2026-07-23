@@ -76,6 +76,20 @@ npx playwright test
 15 passed
 ```
 
+After the dark-basemap glyph normalization fix:
+
+```text
+node --check graph/js/main.js
+python3 -m pytest -q test_product_shell.py
+3 passed
+
+python3 -m pytest -q
+109 passed, 1 skipped, 1 warning in 24.98s
+
+npx playwright test
+15 passed
+```
+
 The direct `pytest -q` shell command was unavailable because the `pytest` console script was not on `PATH`; `python3 -m pytest -q` was used successfully.
 
 ## 3. Environment And Host
@@ -122,18 +136,14 @@ styleLoaded: true
 MapLibre canvas: visible, 1440 x 939
 unpkg.com requests: none
 vendored MapLibre 5.6.2 requested: yes
+glyph endpoint: https://fonts.openmaptiles.org/{fontstack}/{range}.pbf
+unexpected console errors: none
+CARTO font requests: none
 evidence: docs/evidence/phase-1-5/chrome-dark-maplibre.png
 metadata: docs/evidence/phase-1-5/chrome-dark-maplibre.json
 ```
 
-Finding: dark basemap produced a CARTO font CORS console error:
-
-```text
-Access to fetch at 'https://tiles.basemaps.cartocdn.com/fonts/Noto%20Sans%20Bold/0-255.pbf'
-from origin 'http://127.0.0.1:8788' has been blocked by CORS policy
-```
-
-The dark map rendered visually, but the Phase 1.5 "no unexpected console errors" gate is not clean until this is triaged or documented as expected provider behavior.
+Follow-up fix: `graph/js/main.js` now normalizes all basemap glyph URLs to the CORS-safe OpenMapTiles endpoint already used by the satellite style. `test_product_shell.py` asserts this guardrail. The previous CARTO font CORS console error is no longer observed in installed Chrome.
 
 Satellite basemap:
 
@@ -527,12 +537,11 @@ Docker availability check
 ## 19. Remaining Risks
 
 1. Docker is not installed in the current environment, so compose deployment, container isolation, reverse proxy, and staging PostgreSQL gates are unverified.
-2. Dark basemap renders but emits a CARTO font CORS console error in installed Chrome.
-3. Firefox and Safari real-browser rendering are not verified.
-4. The route inventory differs from the objective baseline: `server.app` currently assembles 100 routes, not 79.
-5. Deployed authentication, authorization, map-slot synchronization, backup/restore, security headers, observability, failure recovery, and staging performance targets remain unproven.
-6. Deployment workflow still contains placeholder deploy commands and needs real staging/registry integration evidence.
-7. Licensing checks require current official source review before commercial launch; disabled providers do not block private beta, but staging flag state still needs explicit verification.
+2. Firefox and Safari real-browser rendering are not verified.
+3. The route inventory differs from the objective baseline: `server.app` currently assembles 100 routes, not 79.
+4. Deployed authentication, authorization, map-slot synchronization, backup/restore, security headers, observability, failure recovery, and staging performance targets remain unproven.
+5. Deployment workflow still contains placeholder deploy commands and needs real staging/registry integration evidence.
+6. Licensing checks require current official source review before commercial launch; disabled providers do not block private beta, but staging flag state still needs explicit verification.
 
 ## 20. Final Verdict
 
@@ -540,4 +549,4 @@ Docker availability check
 NOT APPROVED
 ```
 
-OASIS has passed the Phase 1 merge, local Python tests, local Playwright tests, secure-config validation, disposable migration wiring, and installed-Chrome Standard/Dark/Satellite render checks. It is not approved for controlled private beta until the unverified staging-host gates are executed successfully and the dark basemap console error plus route-count discrepancy are resolved or formally accepted.
+OASIS has passed the Phase 1 merge, local Python tests, local Playwright tests, secure-config validation, disposable migration wiring, and installed-Chrome Standard/Dark/Satellite render checks. It is not approved for controlled private beta until the unverified staging-host gates are executed successfully and the route-count discrepancy is resolved or formally accepted.

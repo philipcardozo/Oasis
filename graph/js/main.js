@@ -1155,7 +1155,7 @@ async function loadBaseMapStyle(id=productPrefs.basemap){
   return patchBaseMapStyle(await res.json());
 }
 function patchBaseMapStyle(style){
-  if(!style.glyphs) style.glyphs="https://fonts.openmaptiles.org/{fontstack}/{range}.pbf";
+  style.glyphs="https://fonts.openmaptiles.org/{fontstack}/{range}.pbf";
   const building=(style.layers||[]).find(layer=>layer.id==="building-3d");
   if(building?.paint){
     building.paint["fill-extrusion-base"]=["coalesce",["get","render_min_height"],0];
