@@ -1,0 +1,437 @@
+{
+  "captured_at": "2026-07-23T06:33:51.171915+00:00",
+  "commit": "9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e",
+  "snapshots": [
+    {
+      "body_bytes": 8842,
+      "body_sha256": "ac786b25fb22ef8db1858386b03d30b1fcd57fd09e483c36029cf8bd105f9ee0",
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "2496",
+        "content-type": "text/html; charset=utf-8",
+        "etag": "W/\"oasis-799fcb2a801b9170\""
+      },
+      "method": "GET",
+      "path": "/",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 8842,
+      "body_sha256": "ac786b25fb22ef8db1858386b03d30b1fcd57fd09e483c36029cf8bd105f9ee0",
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "2496",
+        "content-type": "text/html; charset=utf-8",
+        "etag": "W/\"oasis-799fcb2a801b9170\""
+      },
+      "method": "GET",
+      "path": "/index.html",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 1638522,
+      "body_sha256": "d8c23005a24379744752945705485bfbf8e10ba2c0ed71c879776f61d133f9b5",
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "246189",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-77b857a740c05fff\""
+      },
+      "json_shape": {
+        "counts": {
+          "groups": 43,
+          "links": 744,
+          "meta": 11,
+          "nodes": 958,
+          "rels": 8,
+          "sectors": 23
+        },
+        "json_type": "object",
+        "top_level_keys": [
+          "groups",
+          "links",
+          "meta",
+          "nodes",
+          "rels",
+          "sectors"
+        ]
+      },
+      "method": "GET",
+      "path": "/data/universe_core.json",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 769,
+      "body_sha256": "77b966f86c3d2298c71ab4e7c9fa2df9aea9402c18cdec74d35ed747815e6b4e",
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "304",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-8b79058947e16fa3\""
+      },
+      "json_shape": {
+        "counts": {
+          "groups": 8,
+          "sources": 11
+        },
+        "json_type": "object",
+        "top_level_keys": [
+          "groups",
+          "sources"
+        ]
+      },
+      "method": "GET",
+      "path": "/api/map/layers",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 123981,
+      "body_sha256": "ce371febf1b6d0d265477b292bc7dc8253a03b32f19c33354416425d21010bc3",
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "41985",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-ed44bf5d23b5210c\""
+      },
+      "json_shape": {
+        "counts": {
+          "aliases": 394,
+          "edge_candidates": 0,
+          "hq_coords": 1281
+        },
+        "json_type": "object",
+        "selected_scalars": {
+          "location_unknown_count": 1044,
+          "news": null
+        },
+        "top_level_keys": [
+          "aliases",
+          "edge_candidates",
+          "hq_coords",
+          "location_unknown_count",
+          "news"
+        ]
+      },
+      "method": "GET",
+      "path": "/api/bootstrap/signals",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 8229479,
+      "body_sha256": "cdd827fc311fc324911536a00c3b2f2658efadd5d472e062a447e449d1e56e72",
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "777087",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-10fd03b60a582795\""
+      },
+      "json_shape": {
+        "counts": {
+          "features": 13583
+        },
+        "json_type": "object",
+        "selected_scalars": {
+          "type": "FeatureCollection"
+        },
+        "top_level_keys": [
+          "features",
+          "type"
+        ]
+      },
+      "method": "GET",
+      "path": "/api/map/entities.geojson?bbox=-180,-90,180,90",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 332164,
+      "body_sha256": "ad28e45a78ad7ad0b788d29b690b32035a15b848cf1f31c83c3c220ffcf5141e",
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "47777",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-14955b32282395df\""
+      },
+      "json_shape": {
+        "counts": {
+          "features": 743
+        },
+        "json_type": "object",
+        "selected_scalars": {
+          "type": "FeatureCollection"
+        },
+        "top_level_keys": [
+          "features",
+          "type"
+        ]
+      },
+      "method": "GET",
+      "path": "/api/map/relationships.geojson?bbox=-180,-90,180,90",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 6404010,
+      "body_sha256": "fe610d188e4fadd7c7f8b69bf8d33fdc5ecd414a598b506667c4fc46fc7e0269",
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "980821",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-041e340d74f10bf8\""
+      },
+      "json_shape": {
+        "counts": {
+          "meta": 2,
+          "nodes": 13669
+        },
+        "json_type": "object",
+        "top_level_keys": [
+          "meta",
+          "nodes"
+        ]
+      },
+      "method": "GET",
+      "path": "/api/universe/bulk",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 246,
+      "body_sha256": "6c68472071e7e93cbd25f56d82255ad2d05023bc4d2ebd9cbb9625f95c9e292a",
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "207",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-1ec69a3ed7cce8cb\""
+      },
+      "json_shape": {
+        "json_type": "object",
+        "selected_scalars": {
+          "cik": "0001467858",
+          "confidence": 0.84,
+          "country": "US",
+          "entity_type": "public",
+          "id": "GM",
+          "lei": "54930070NSV60J38I987",
+          "name": "General Motors Co",
+          "sector": "Consumer Discretionary",
+          "source": "data/store/nodes.parquet",
+          "ticker": "GM",
+          "updated_at": null
+        },
+        "top_level_keys": [
+          "cik",
+          "confidence",
+          "country",
+          "entity_type",
+          "id",
+          "lei",
+          "name",
+          "sector",
+          "source",
+          "ticker",
+          "updated_at"
+        ]
+      },
+      "method": "GET",
+      "path": "/api/entity/GM",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 54,
+      "body_sha256": "aca4260748b1afcff2b8a1cbba1fedfa6d07c9134b41afc3ab961dc30392eda2",
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "74",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-8f420c3152f290b2\""
+      },
+      "json_shape": {
+        "json_type": "object",
+        "selected_scalars": {
+          "available": false,
+          "reason": "missing price or shares"
+        },
+        "top_level_keys": [
+          "available",
+          "reason"
+        ]
+      },
+      "method": "GET",
+      "path": "/api/entity/GM/reverse-dcf",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 520,
+      "body_sha256": "fd8f0062d857b636bf75dd476cd2b5cf22ed9dfd46e51b5f5387e6dc1391dc1a",
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "326",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-d7c6f07c7485c219\""
+      },
+      "json_shape": {
+        "counts": {
+          "peers": 2
+        },
+        "json_type": "object",
+        "selected_scalars": {
+          "available": true,
+          "entity_id": "GM",
+          "name": "General Motors Co",
+          "peers_skipped_uncached": 0
+        },
+        "top_level_keys": [
+          "available",
+          "entity_id",
+          "name",
+          "peers",
+          "peers_skipped_uncached"
+        ]
+      },
+      "method": "GET",
+      "path": "/api/entity/GM/comps?cap=8",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 33,
+      "body_sha256": "729a9f3f79c9f9402c6dfdfbe1681c4a13482a641d8b9ebeae16572ab35986e9",
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "53",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-364ba66b744b93ca\""
+      },
+      "json_shape": {
+        "counts": {
+          "events": 0
+        },
+        "json_type": "object",
+        "selected_scalars": {
+          "watchlisted": false
+        },
+        "top_level_keys": [
+          "events",
+          "watchlisted"
+        ]
+      },
+      "method": "GET",
+      "path": "/api/entity/GM/events",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 85,
+      "body_sha256": "5777ffb917505933ba5bc3037c1c88492e5d5020cf86d59458cef0026a7ee361",
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "101",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-571d8f116808de59\""
+      },
+      "json_shape": {
+        "counts": {
+          "country_exposure": 1
+        },
+        "json_type": "object",
+        "selected_scalars": {
+          "data_confidence": 0.84,
+          "supplier_concentration": "unknown"
+        },
+        "top_level_keys": [
+          "country_exposure",
+          "data_confidence",
+          "supplier_concentration"
+        ]
+      },
+      "method": "GET",
+      "path": "/api/entity/GM/risk",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 1428,
+      "body_sha256": "a10dcc866f7c20e9dd3c41abaf3bfb1a65e3c0bafb9fb6042d780ac4f0de6787",
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "382",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-ac5185a019af3ccb\""
+      },
+      "json_shape": {
+        "counts": {
+          "layers": 3,
+          "summary": 11
+        },
+        "json_type": "object",
+        "selected_scalars": {
+          "generated_at": "2026-07-23T06:33:53+00:00"
+        },
+        "top_level_keys": [
+          "generated_at",
+          "layers",
+          "summary"
+        ]
+      },
+      "method": "GET",
+      "path": "/api/data-quality/dashboard",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 23852,
+      "body_sha256": "c79771d1e828e6ab098ca64fc777a4a3b600fac14701fd8d3d58e77a72bff185",
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "3815",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-e04b7a7047af6935\""
+      },
+      "json_shape": {
+        "counts": {
+          "evidence_source_appendix": 19,
+          "missing_data_appendix": 1,
+          "overview": 33,
+          "sections": 6
+        },
+        "json_type": "object",
+        "selected_scalars": {
+          "confidence_score": 0.3,
+          "executive_summary": "Non-AI due-diligence report for Iowa row crop farm. Values are sourced, modeled, inferred, or missing as labeled.",
+          "generated_at": "2026-07-23T06:33:53+00:00",
+          "location_map_screenshot": "placeholder: capture current MapLibre viewport in production export",
+          "object_id": "asset:demo-farm-iowa",
+          "object_type": "asset",
+          "report_id": null,
+          "report_type": "asset due-diligence report"
+        },
+        "top_level_keys": [
+          "confidence_score",
+          "evidence_source_appendix",
+          "executive_summary",
+          "generated_at",
+          "location_map_screenshot",
+          "missing_data_appendix",
+          "object_id",
+          "object_type",
+          "overview",
+          "report_id",
+          "report_type",
+          "sections"
+        ]
+      },
+      "method": "GET",
+      "path": "/api/reports/asset/asset%3Ademo-farm-iowa",
+      "status_code": 200
+    }
+  ]
+}

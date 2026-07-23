@@ -1,0 +1,560 @@
+{
+  "branch": "main",
+  "captured_at": "2026-07-23T07:39:17.863462+00:00",
+  "commit": "9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e",
+  "csrf_rejection": {
+    "body_bytes": 42,
+    "cache_control": null,
+    "content_encoding": null,
+    "content_length": "42",
+    "duration_ms": 5.348375008907169,
+    "operation": "POST /api/auth/logout without X-CSRF-Token",
+    "status_code": 403
+  },
+  "database": "temporary sqlite",
+  "default_map_slot_count": 3,
+  "default_map_slot_numbers": [
+    1,
+    2,
+    3
+  ],
+  "extra_operation_notes": [
+    {
+      "body_bytes": 113,
+      "operation": "post-reset relogin",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 113,
+      "operation": "secondary login for session revoke",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 113,
+      "operation": "pre-logout-all relogin",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 63,
+      "operation": "delete-account register",
+      "status_code": 201
+    },
+    {
+      "body_bytes": 27,
+      "operation": "delete-account verify",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 120,
+      "operation": "delete-account login",
+      "status_code": 200
+    }
+  ],
+  "extra_operations": [
+    {
+      "body_bytes": 15,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "15",
+      "duration_ms": 2.7485829778015614,
+      "method": "GET",
+      "operation": "health GET /healthz",
+      "status_code": 200,
+      "template": "/healthz"
+    },
+    {
+      "body_bytes": 66,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "66",
+      "duration_ms": 3.7864999612793326,
+      "method": "GET",
+      "operation": "readiness GET /readyz",
+      "status_code": 200,
+      "template": "/readyz"
+    },
+    {
+      "body_bytes": 36,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "36",
+      "duration_ms": 1.65049999486655,
+      "method": "GET",
+      "operation": "version GET /version",
+      "status_code": 200,
+      "template": "/version"
+    },
+    {
+      "body_bytes": 212,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "212",
+      "duration_ms": 5.269957997370511,
+      "method": "POST",
+      "operation": "map-slot duplicate POST /api/map-slots/{id}/duplicate-to/{target_id}",
+      "status_code": 200,
+      "template": "/api/map-slots/{slot_id}/duplicate-to/{target_id}"
+    },
+    {
+      "body_bytes": 73,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "73",
+      "duration_ms": 5.399874993599951,
+      "method": "POST",
+      "operation": "password reset request POST /api/auth/password-reset/request",
+      "status_code": 200,
+      "template": "/api/auth/password-reset/request"
+    },
+    {
+      "body_bytes": 11,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "11",
+      "duration_ms": 252.751000050921,
+      "method": "POST",
+      "operation": "password reset complete POST /api/auth/password-reset/complete",
+      "status_code": 200,
+      "template": "/api/auth/password-reset/complete"
+    },
+    {
+      "body_bytes": 11,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "11",
+      "duration_ms": 287.7506660297513,
+      "method": "POST",
+      "operation": "password change POST /api/auth/password-change",
+      "status_code": 200,
+      "template": "/api/auth/password-change"
+    },
+    {
+      "body_bytes": 11,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "11",
+      "duration_ms": 13.79191700834781,
+      "method": "DELETE",
+      "operation": "session revoke DELETE /api/auth/sessions/{session_id}",
+      "status_code": 200,
+      "template": "/api/auth/sessions/{session_id}"
+    },
+    {
+      "body_bytes": 23,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "23",
+      "duration_ms": 23.61845801351592,
+      "method": "POST",
+      "operation": "logout-all POST /api/auth/logout-all",
+      "status_code": 200,
+      "template": "/api/auth/logout-all"
+    },
+    {
+      "body_bytes": 11,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "11",
+      "duration_ms": 11.932042019907385,
+      "method": "DELETE",
+      "operation": "account delete DELETE /api/auth/account",
+      "status_code": 200,
+      "template": "/api/auth/account"
+    }
+  ],
+  "measurements": [
+    {
+      "body_bytes_max": 160,
+      "body_bytes_min": 160,
+      "cache_controls": [],
+      "content_encodings": [],
+      "max_ms": 13.44,
+      "min_ms": 4.766,
+      "name": "session validation GET /api/auth/me",
+      "p50_ms": 5.882,
+      "p95_ms": 11.648,
+      "sample_durations_ms": [
+        4.795,
+        5.459,
+        5.485,
+        6.356,
+        6.485,
+        6.331,
+        6.075,
+        13.44,
+        5.688,
+        5.261,
+        5.441,
+        8.087,
+        4.772,
+        5.142,
+        6.212,
+        4.766,
+        7.817,
+        6.641,
+        5.47,
+        11.553
+      ],
+      "samples": 20,
+      "status_codes": [
+        200
+      ],
+      "target_met": true,
+      "target_ms": 50
+    },
+    {
+      "body_bytes_max": 283,
+      "body_bytes_min": 283,
+      "cache_controls": [],
+      "content_encodings": [],
+      "max_ms": 19.426,
+      "min_ms": 6.674,
+      "name": "session list GET /api/auth/sessions",
+      "p50_ms": 7.556,
+      "p95_ms": 11.244,
+      "sample_durations_ms": [
+        19.426,
+        6.961,
+        7.313,
+        7.776,
+        7.438,
+        6.789,
+        10.813,
+        9.188,
+        6.786,
+        6.674,
+        7.994,
+        9.297,
+        7.799,
+        7.058,
+        6.967,
+        6.741,
+        9.291,
+        7.305,
+        7.673,
+        7.835
+      ],
+      "samples": 20,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 652,
+      "body_bytes_min": 652,
+      "cache_controls": [],
+      "content_encodings": [],
+      "max_ms": 44.736,
+      "min_ms": 6.261,
+      "name": "map-slot list GET /api/map-slots",
+      "p50_ms": 10.351,
+      "p95_ms": 41.759,
+      "sample_durations_ms": [
+        7.012,
+        7.984,
+        7.356,
+        11.84,
+        44.736,
+        12.872,
+        41.603,
+        10.32,
+        11.399,
+        10.484,
+        10.484,
+        10.381,
+        9.348,
+        8.56,
+        12.272,
+        10.873,
+        8.103,
+        6.901,
+        6.261,
+        6.984
+      ],
+      "samples": 20,
+      "status_codes": [
+        200
+      ],
+      "target_met": true,
+      "target_ms": 100
+    },
+    {
+      "body_bytes_max": 211,
+      "body_bytes_min": 211,
+      "cache_controls": [],
+      "content_encodings": [],
+      "max_ms": 10.851,
+      "min_ms": 5.536,
+      "name": "map-slot read GET /api/map-slots/{id}",
+      "p50_ms": 6.322,
+      "p95_ms": 9.065,
+      "sample_durations_ms": [
+        7.543,
+        6.435,
+        5.924,
+        6.033,
+        6.165,
+        7.492,
+        8.588,
+        8.971,
+        6.669,
+        6.744,
+        5.8,
+        5.536,
+        6.209,
+        6.898,
+        5.948,
+        6.138,
+        5.835,
+        10.851,
+        7.588,
+        5.736
+      ],
+      "samples": 20,
+      "status_codes": [
+        200
+      ],
+      "target_met": true,
+      "target_ms": 100
+    },
+    {
+      "body_bytes_max": 212,
+      "body_bytes_min": 207,
+      "cache_controls": [],
+      "content_encodings": [],
+      "max_ms": 61.046,
+      "min_ms": 7.565,
+      "name": "map-slot write PUT /api/map-slots/{id}",
+      "p50_ms": 12.877,
+      "p95_ms": 35.936,
+      "sample_durations_ms": [
+        7.565,
+        16.436,
+        12.778,
+        9.649,
+        22.127,
+        61.046,
+        34.614,
+        23.857,
+        17.417,
+        21.816,
+        10.499,
+        11.407,
+        9.134,
+        23.148,
+        20.832,
+        11.14,
+        11.007,
+        12.977,
+        9.891,
+        10.27
+      ],
+      "samples": 20,
+      "status_codes": [
+        200
+      ],
+      "target_met": true,
+      "target_ms": 200
+    },
+    {
+      "body_bytes_max": 212,
+      "body_bytes_min": 211,
+      "cache_controls": [],
+      "content_encodings": [],
+      "max_ms": 8.305,
+      "min_ms": 4.872,
+      "name": "map-slot rename POST /api/map-slots/{id}/rename",
+      "p50_ms": 6.281,
+      "p95_ms": 8.257,
+      "sample_durations_ms": [
+        8.305,
+        8.254,
+        7.936,
+        6.764,
+        6.254,
+        6.449,
+        6.307,
+        7.99,
+        5.904,
+        5.584,
+        5.675,
+        7.044,
+        5.063,
+        5.554,
+        6.308,
+        4.872,
+        5.582,
+        5.941,
+        6.427,
+        5.421
+      ],
+      "samples": 20,
+      "status_codes": [
+        200
+      ],
+      "target_met": true,
+      "target_ms": 200
+    },
+    {
+      "body_bytes_max": 69,
+      "body_bytes_min": 69,
+      "cache_controls": [],
+      "content_encodings": [],
+      "max_ms": 6.251,
+      "min_ms": 3.755,
+      "name": "map-slot export GET /api/map-slots/{id}/export",
+      "p50_ms": 4.658,
+      "p95_ms": 6.014,
+      "sample_durations_ms": [
+        5.13,
+        4.82,
+        4.126,
+        4.177,
+        3.797,
+        4.759,
+        3.809,
+        5.613,
+        4.557,
+        5.421,
+        4.441,
+        5.199,
+        6.001,
+        4.528,
+        6.251,
+        5.306,
+        3.755,
+        4.23,
+        3.969,
+        5.198
+      ],
+      "samples": 20,
+      "status_codes": [
+        200
+      ]
+    }
+  ],
+  "proxy_server": null,
+  "python": "3.13.9",
+  "samples_per_measurement": 20,
+  "setup": {
+    "base_url": "http://127.0.0.1:49804",
+    "csrf_cookie_present": true,
+    "login": {
+      "body_bytes": 113,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "113",
+      "duration_ms": 236.93091701716185,
+      "status_code": 200
+    },
+    "register": {
+      "body_bytes": 63,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "63",
+      "duration_ms": 171.37874994659796,
+      "status_code": 201
+    },
+    "session_cookie_present": true,
+    "verify_email": {
+      "body_bytes": 27,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "27",
+      "duration_ms": 13.550582982134074,
+      "status_code": 200
+    }
+  },
+  "single_operations": {
+    "map-slot activate POST /api/map-slots/{id}/activate": {
+      "body_bytes": 55,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "55",
+      "duration_ms": 7.265000022016466,
+      "status_code": 200
+    },
+    "map-slot import POST /api/map-slots/import": {
+      "body_bytes": 212,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "212",
+      "duration_ms": 6.209207989741117,
+      "status_code": 200
+    },
+    "map-slot reset POST /api/map-slots/{id}/reset": {
+      "body_bytes": 212,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "212",
+      "duration_ms": 8.795542002189904,
+      "status_code": 200
+    }
+  },
+  "transport": "real HTTP via requests",
+  "warmup_operations": [
+    {
+      "body_bytes": 160,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "160",
+      "duration_ms": 9.231667034327984,
+      "operation": "GET /api/auth/me",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 283,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "283",
+      "duration_ms": 16.50329097174108,
+      "operation": "GET /api/auth/sessions",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 652,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "652",
+      "duration_ms": 9.47345799067989,
+      "operation": "GET /api/map-slots",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 211,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "211",
+      "duration_ms": 19.903708016499877,
+      "operation": "GET /api/map-slots/{id}",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 69,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "69",
+      "duration_ms": 11.106499994639307,
+      "operation": "GET /api/map-slots/{id}/export",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 211,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "211",
+      "duration_ms": 10.898499982431531,
+      "operation": "PUT /api/map-slots/{id}",
+      "status_code": 200
+    },
+    {
+      "body_bytes": 211,
+      "cache_control": null,
+      "content_encoding": null,
+      "content_length": "211",
+      "duration_ms": 7.755749975331128,
+      "operation": "POST /api/map-slots/{id}/rename",
+      "status_code": 200
+    }
+  ]
+}

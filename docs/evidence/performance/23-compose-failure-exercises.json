@@ -1,0 +1,169 @@
+{
+  "base_url": "https://localhost:8443",
+  "captured_at": "2026-07-23T19:44:15.521731+00:00",
+  "env_file": ".env.staging.local",
+  "exercises": {
+    "recover_postgres": {
+      "readyz_after_db_start": {
+        "body_sample": "{\"status\":\"ok\",\"checks\":{\"database\":true,\"analytical_store\":true}}",
+        "duration_ms": 70.077,
+        "ok": true,
+        "status_code": 200
+      }
+    },
+    "recover_worker": {
+      "api_healthz_while_worker_runs": {
+        "body_sample": "{\"status\":\"ok\"}",
+        "duration_ms": 127.927,
+        "ok": true,
+        "status_code": 200
+      },
+      "job_after_worker_restart": {
+        "attempts": 1,
+        "correlation_id": "failure-exercise-20260723",
+        "error": "",
+        "found": true,
+        "id": "8d0d342a722fc43dcf18b9d657372644",
+        "max_attempts": 3,
+        "result": "{\"echo\": {\"exercise\": \"worker_restart\"}}",
+        "status": "done"
+      }
+    },
+    "restart_api": {
+      "healthz_after_api_restart": {
+        "body_sample": "{\"status\":\"ok\"}",
+        "duration_ms": 189.442,
+        "ok": true,
+        "status_code": 200
+      },
+      "readyz_after_api_restart": {
+        "body_sample": "{\"status\":\"ok\",\"checks\":{\"database\":true,\"analytical_store\":true}}",
+        "duration_ms": 178.33,
+        "ok": true,
+        "status_code": 200
+      }
+    },
+    "restart_full_stack": {
+      "healthz_after_compose_restart": {
+        "duration_ms": 16.518,
+        "error": "SSLError",
+        "message": "HTTPSConnectionPool(host='localhost', port=8443): Max retries exceeded with url: /healthz (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))",
+        "ok": false,
+        "timed_out": true
+      },
+      "healthz_after_port_recovery": {
+        "body_sample": "{\"status\":\"ok\"}",
+        "duration_ms": 182.614,
+        "ok": true,
+        "status_code": 200
+      },
+      "port_forward_recovery": "compose down/up preserving named volumes",
+      "readyz_after_compose_restart": {
+        "duration_ms": 15.17,
+        "error": "SSLError",
+        "message": "HTTPSConnectionPool(host='localhost', port=8443): Max retries exceeded with url: /readyz (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1032)')))",
+        "ok": false,
+        "timed_out": true
+      },
+      "readyz_after_port_recovery": {
+        "body_sample": "{\"status\":\"ok\",\"checks\":{\"database\":true,\"analytical_store\":true}}",
+        "duration_ms": 157.256,
+        "ok": true,
+        "status_code": 200
+      }
+    },
+    "stop_postgres": {
+      "healthz_while_db_stopped": {
+        "body_sample": "{\"status\":\"ok\"}",
+        "duration_ms": 24.45,
+        "ok": true,
+        "status_code": 200
+      },
+      "readyz_while_db_stopped": {
+        "body_sample": "{\"status\":\"not_ready\",\"checks\":{\"database\":false,\"analytical_store\":true}}",
+        "duration_ms": 1982.841,
+        "ok": true,
+        "status_code": 503
+      }
+    },
+    "stop_worker": {
+      "app_healthz": {
+        "body_sample": "{\"status\":\"ok\"}",
+        "duration_ms": 29.053,
+        "ok": true,
+        "status_code": 200
+      },
+      "index_html": {
+        "body_sample": "<!DOCTYPE html>\n<html lang=\"en\" data-theme=\"dark\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Oasis Relationship Graph</title>\n<link rel=\"preconnect\" href=\"https://tiles.openfreemap.org\" crossorigin>\n<link rel=\"preconnect\" href=\"https:",
+        "duration_ms": 12.974,
+        "ok": true,
+        "status_code": 200
+      },
+      "queued_job": {
+        "attempts": 0,
+        "correlation_id": "failure-exercise-20260723",
+        "error": "",
+        "found": true,
+        "id": "8d0d342a722fc43dcf18b9d657372644",
+        "max_attempts": 3,
+        "result": "{}",
+        "status": "queued"
+      },
+      "queued_job_id": "8d0d342a722fc43dcf18b9d657372644\nINSERT 0 1"
+    }
+  },
+  "persistence_after_restarts": {
+    "login_status": 200,
+    "map_slot_count": 3,
+    "map_slots_status": 200,
+    "secure_csrf_cookie": true,
+    "secure_session_cookie": true
+  },
+  "platform": {
+    "machine": "arm64",
+    "release": "25.5.0",
+    "system": "Darwin"
+  },
+  "postflight": {
+    "job_final": {
+      "attempts": 1,
+      "correlation_id": "failure-exercise-20260723",
+      "error": "",
+      "found": true,
+      "id": "8d0d342a722fc43dcf18b9d657372644",
+      "max_attempts": 3,
+      "result": "{\"echo\": {\"exercise\": \"worker_restart\"}}",
+      "status": "done"
+    },
+    "ps": [
+      "{\"Command\":\"\\\"uvicorn server.app:\u2026\\\"\",\"CreatedAt\":\"2026-07-23 15:48:56 -0400 EDT\",\"ExitCode\":0,\"Health\":\"starting\",\"ID\":\"4dbcff6627f4\",\"Image\":\"oasis-api\",\"Labels\":\"com.docker.compose.container-number=1,com.docker.compose.depends_on=migrate:service_completed_successfully:false,com.docker.compose.image=sha256:7f081a1bffef1495cda4592dd8d2c8516b2a4ed92fdb331e55e952bc8c28dab4,com.docker.compose.project.working_dir=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis,desktop.docker.io/binds/0/SourceKind=hostFile,com.docker.compose.config-hash=ff79762df96ec220a5feaf31877a9eeb061feafcd3cfceb27a5c95d1a36c28d3,com.docker.compose.project=oasis,com.docker.compose.version=5.3.1,desktop.docker.io/binds/0/Target=/app/data/store,com.docker.compose.project.config_files=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/compose.yaml,com.docker.compose.project.environment_file=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/.env.staging.local,org.opencontainers.image.source=https://github.com/veratori/oasis,org.opencontainers.image.title=OASIS,com.docker.compose.oneoff=False,com.docker.compose.service=api,desktop.docker.io/binds/0/Source=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/data/store,desktop.docker.io/ports.scheme=v2\",\"LocalVolumes\":\"2\",\"Mounts\":\"oasis_appdata,/host_mnt/User\u2026,oasis_exports\",\"Name\":\"oasis-api-1\",\"Names\":\"oasis-api-1\",\"Networks\":\"oasis_default\",\"Ports\":\"8788/tcp\",\"Project\":\"oasis\",\"Publishers\":[{\"URL\":\"\",\"TargetPort\":8788,\"PublishedPort\":0,\"Protocol\":\"tcp\"}],\"RunningFor\":\"13 seconds ago\",\"Service\":\"api\",\"Size\":\"0B\",\"State\":\"running\",\"Status\":\"Up 3 seconds (health: starting)\"}",
+      "{\"Command\":\"\\\"docker-entrypoint.s\u2026\\\"\",\"CreatedAt\":\"2026-07-23 15:48:55 -0400 EDT\",\"ExitCode\":0,\"Health\":\"healthy\",\"ID\":\"0d381c8dc743\",\"Image\":\"postgres:16-alpine\",\"Labels\":\"com.docker.compose.depends_on=,com.docker.compose.project=oasis,com.docker.compose.project.config_files=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/compose.yaml,com.docker.compose.project.working_dir=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis,com.docker.compose.service=db,com.docker.compose.version=5.3.1,com.docker.compose.config-hash=cbe26c8df009d12fec3d9f4a9d442fc96332f97a2f20913779d7887630d84316,com.docker.compose.container-number=1,com.docker.compose.image=sha256:57c72fd2a128e416c7fcc499958864df5301e940bca0a56f58fddf30ffc07777,com.docker.compose.oneoff=False,com.docker.compose.project.environment_file=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/.env.staging.local,desktop.docker.io/ports.scheme=v2\",\"LocalVolumes\":\"1\",\"Mounts\":\"oasis_pgdata\",\"Name\":\"oasis-db-1\",\"Names\":\"oasis-db-1\",\"Networks\":\"oasis_default\",\"Ports\":\"5432/tcp\",\"Project\":\"oasis\",\"Publishers\":[{\"URL\":\"\",\"TargetPort\":5432,\"PublishedPort\":0,\"Protocol\":\"tcp\"}],\"RunningFor\":\"14 seconds ago\",\"Service\":\"db\",\"Size\":\"0B\",\"State\":\"running\",\"Status\":\"Up 9 seconds (healthy)\"}",
+      "{\"Command\":\"\\\"caddy run --config \u2026\\\"\",\"CreatedAt\":\"2026-07-23 15:48:56 -0400 EDT\",\"ExitCode\":0,\"Health\":\"\",\"ID\":\"6f66aecaa9e1\",\"Image\":\"caddy:2-alpine\",\"Labels\":\"org.opencontainers.image.licenses=Apache-2.0,org.opencontainers.image.title=Caddy,org.opencontainers.image.url=https://caddyserver.com,com.docker.compose.image=sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648,com.docker.compose.project=oasis,com.docker.compose.version=5.3.1,desktop.docker.io/ports/8443/tcp=:8443,org.opencontainers.image.description=a powerful, enterprise-ready, open source web server with automatic HTTPS written in Go,org.opencontainers.image.documentation=https://caddyserver.com/docs,org.opencontainers.image.source=https://github.com/caddyserver/caddy-docker,com.docker.compose.project.config_files=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/compose.yaml,com.docker.compose.project.environment_file=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/.env.staging.local,com.docker.compose.config-hash=6ef5fcb06c5006481db3abba13d2268e6a0ae167cb66c35d0b6237b1d4b40cca,com.docker.compose.depends_on=api:service_started:false,com.docker.compose.oneoff=False,com.docker.compose.service=proxy,desktop.docker.io/binds/0/Target=/etc/caddy/Caddyfile,org.opencontainers.image.vendor=Light Code Labs,org.opencontainers.image.version=v2.11.4,com.docker.compose.container-number=1,com.docker.compose.project.working_dir=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis,desktop.docker.io/binds/0/Source=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/deploy/Caddyfile,desktop.docker.io/binds/0/SourceKind=hostFile,desktop.docker.io/ports.scheme=v2\",\"LocalVolumes\":\"1\",\"Mounts\":\"oasis_caddydata,/host_mnt/User\u2026\",\"Name\":\"oasis-proxy-1\",\"Names\":\"oasis-proxy-1\",\"Networks\":\"oasis_default\",\"Ports\":\"8443/tcp\",\"Project\":\"oasis\",\"Publishers\":[{\"URL\":\"\",\"TargetPort\":8443,\"PublishedPort\":0,\"Protocol\":\"tcp\"}],\"RunningFor\":\"13 seconds ago\",\"Service\":\"proxy\",\"Size\":\"0B\",\"State\":\"running\",\"Status\":\"Up 2 seconds\"}",
+      "{\"Command\":\"\\\"python -m server.wo\u2026\\\"\",\"CreatedAt\":\"2026-07-23 15:48:56 -0400 EDT\",\"ExitCode\":0,\"Health\":\"\",\"ID\":\"2b37061172fb\",\"Image\":\"oasis-worker\",\"Labels\":\"com.docker.compose.image=sha256:3dd7194e36789dae3095d99ceaed488a50ea855323d40f2b62a92c12143f9d62,com.docker.compose.project.config_files=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/compose.yaml,com.docker.compose.version=5.3.1,org.opencontainers.image.title=OASIS,com.docker.compose.config-hash=a9523f512f2300d59b5a9c3da8d2ae82458693f892a368636915c2d608fb4057,com.docker.compose.depends_on=migrate:service_completed_successfully:false,desktop.docker.io/binds/2/Source=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/data/store,desktop.docker.io/binds/2/Target=/app/data/store,org.opencontainers.image.source=https://github.com/veratori/oasis,com.docker.compose.container-number=1,com.docker.compose.project.working_dir=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis,com.docker.compose.service=worker,desktop.docker.io/binds/2/SourceKind=hostFile,com.docker.compose.oneoff=False,com.docker.compose.project=oasis,com.docker.compose.project.environment_file=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/.env.staging.local,desktop.docker.io/ports.scheme=v2\",\"LocalVolumes\":\"2\",\"Mounts\":\"/host_mnt/User\u2026,oasis_exports,oasis_appdata\",\"Name\":\"oasis-worker-1\",\"Names\":\"oasis-worker-1\",\"Networks\":\"oasis_default\",\"Ports\":\"8788/tcp\",\"Project\":\"oasis\",\"Publishers\":[{\"URL\":\"\",\"TargetPort\":8788,\"PublishedPort\":0,\"Protocol\":\"tcp\"}],\"RunningFor\":\"13 seconds ago\",\"Service\":\"worker\",\"Size\":\"0B\",\"State\":\"running\",\"Status\":\"Up 3 seconds\"}"
+    ]
+  },
+  "preflight": {
+    "healthz": {
+      "body_sample": "{\"status\":\"ok\"}",
+      "duration_ms": 145.938,
+      "ok": true,
+      "status_code": 200
+    },
+    "ps": [
+      "{\"Command\":\"\\\"uvicorn server.app:\u2026\\\"\",\"CreatedAt\":\"2026-07-23 15:35:15 -0400 EDT\",\"ExitCode\":0,\"Health\":\"healthy\",\"ID\":\"08ef4b3364a6\",\"Image\":\"oasis-api\",\"Labels\":\"org.opencontainers.image.source=https://github.com/veratori/oasis,com.docker.compose.container-number=1,com.docker.compose.oneoff=False,com.docker.compose.project=oasis,desktop.docker.io/binds/2/Target=/app/data/store,org.opencontainers.image.title=OASIS,desktop.docker.io/binds/2/SourceKind=hostFile,com.docker.compose.depends_on=migrate:service_completed_successfully:false,com.docker.compose.image=sha256:7f081a1bffef1495cda4592dd8d2c8516b2a4ed92fdb331e55e952bc8c28dab4,com.docker.compose.project.config_files=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/compose.yaml,com.docker.compose.project.working_dir=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis,com.docker.compose.replace=api-1,desktop.docker.io/binds/2/Source=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/data/store,com.docker.compose.project.environment_file=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/.env.staging.local,com.docker.compose.service=api,desktop.docker.io/ports.scheme=v2,com.docker.compose.config-hash=ff79762df96ec220a5feaf31877a9eeb061feafcd3cfceb27a5c95d1a36c28d3,com.docker.compose.version=5.3.1\",\"LocalVolumes\":\"2\",\"Mounts\":\"oasis_exports,oasis_appdata,/host_mnt/User\u2026\",\"Name\":\"oasis-api-1\",\"Names\":\"oasis-api-1\",\"Networks\":\"oasis_default\",\"Ports\":\"8788/tcp\",\"Project\":\"oasis\",\"Publishers\":[{\"URL\":\"\",\"TargetPort\":8788,\"PublishedPort\":0,\"Protocol\":\"tcp\"}],\"RunningFor\":\"9 minutes ago\",\"Service\":\"api\",\"Size\":\"0B\",\"State\":\"running\",\"Status\":\"Up 8 minutes (healthy)\"}",
+      "{\"Command\":\"\\\"docker-entrypoint.s\u2026\\\"\",\"CreatedAt\":\"2026-07-23 15:22:51 -0400 EDT\",\"ExitCode\":0,\"Health\":\"healthy\",\"ID\":\"940d52ccb291\",\"Image\":\"postgres:16-alpine\",\"Labels\":\"com.docker.compose.oneoff=False,com.docker.compose.project.config_files=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/compose.yaml,com.docker.compose.project.environment_file=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/.env.staging.local,com.docker.compose.project.working_dir=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis,com.docker.compose.service=db,desktop.docker.io/ports.scheme=v2,com.docker.compose.config-hash=cbe26c8df009d12fec3d9f4a9d442fc96332f97a2f20913779d7887630d84316,com.docker.compose.container-number=1,com.docker.compose.depends_on=,com.docker.compose.image=sha256:57c72fd2a128e416c7fcc499958864df5301e940bca0a56f58fddf30ffc07777,com.docker.compose.project=oasis,com.docker.compose.version=5.3.1\",\"LocalVolumes\":\"1\",\"Mounts\":\"oasis_pgdata\",\"Name\":\"oasis-db-1\",\"Names\":\"oasis-db-1\",\"Networks\":\"oasis_default\",\"Ports\":\"5432/tcp\",\"Project\":\"oasis\",\"Publishers\":[{\"URL\":\"\",\"TargetPort\":5432,\"PublishedPort\":0,\"Protocol\":\"tcp\"}],\"RunningFor\":\"21 minutes ago\",\"Service\":\"db\",\"Size\":\"0B\",\"State\":\"running\",\"Status\":\"Up 17 minutes (healthy)\"}",
+      "{\"Command\":\"\\\"caddy run --config \u2026\\\"\",\"CreatedAt\":\"2026-07-23 15:22:52 -0400 EDT\",\"ExitCode\":0,\"Health\":\"\",\"ID\":\"e168100e6fef\",\"Image\":\"caddy:2-alpine\",\"Labels\":\"com.docker.compose.oneoff=False,com.docker.compose.service=proxy,com.docker.compose.version=5.3.1,desktop.docker.io/binds/0/SourceKind=hostFile,org.opencontainers.image.licenses=Apache-2.0,org.opencontainers.image.version=v2.11.4,com.docker.compose.container-number=1,com.docker.compose.depends_on=api:service_started:false,com.docker.compose.image=sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648,com.docker.compose.project.working_dir=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis,desktop.docker.io/binds/0/Target=/etc/caddy/Caddyfile,com.docker.compose.project=oasis,desktop.docker.io/binds/0/Source=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/deploy/Caddyfile,desktop.docker.io/ports.scheme=v2,org.opencontainers.image.description=a powerful, enterprise-ready, open source web server with automatic HTTPS written in Go,org.opencontainers.image.documentation=https://caddyserver.com/docs,org.opencontainers.image.url=https://caddyserver.com,org.opencontainers.image.vendor=Light Code Labs,com.docker.compose.config-hash=6ef5fcb06c5006481db3abba13d2268e6a0ae167cb66c35d0b6237b1d4b40cca,com.docker.compose.project.config_files=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/compose.yaml,com.docker.compose.project.environment_file=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/.env.staging.local,desktop.docker.io/ports/8443/tcp=:8443,org.opencontainers.image.source=https://github.com/caddyserver/caddy-docker,org.opencontainers.image.title=Caddy\",\"LocalVolumes\":\"1\",\"Mounts\":\"oasis_caddydata,/host_mnt/User\u2026\",\"Name\":\"oasis-proxy-1\",\"Names\":\"oasis-proxy-1\",\"Networks\":\"oasis_default\",\"Ports\":\"8443/tcp\",\"Project\":\"oasis\",\"Publishers\":[{\"URL\":\"\",\"TargetPort\":8443,\"PublishedPort\":0,\"Protocol\":\"tcp\"}],\"RunningFor\":\"21 minutes ago\",\"Service\":\"proxy\",\"Size\":\"0B\",\"State\":\"running\",\"Status\":\"Up 17 minutes\"}",
+      "{\"Command\":\"\\\"python -m server.wo\u2026\\\"\",\"CreatedAt\":\"2026-07-23 15:35:15 -0400 EDT\",\"ExitCode\":0,\"Health\":\"\",\"ID\":\"58ac25c9b5b7\",\"Image\":\"oasis-worker\",\"Labels\":\"desktop.docker.io/binds/1/Target=/app/data/store,org.opencontainers.image.source=https://github.com/veratori/oasis,com.docker.compose.config-hash=a9523f512f2300d59b5a9c3da8d2ae82458693f892a368636915c2d608fb4057,com.docker.compose.oneoff=False,com.docker.compose.project.working_dir=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis,com.docker.compose.version=5.3.1,desktop.docker.io/ports.scheme=v2,org.opencontainers.image.title=OASIS,desktop.docker.io/binds/1/SourceKind=hostFile,com.docker.compose.depends_on=migrate:service_completed_successfully:false,com.docker.compose.image=sha256:3dd7194e36789dae3095d99ceaed488a50ea855323d40f2b62a92c12143f9d62,com.docker.compose.project=oasis,com.docker.compose.project.environment_file=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/.env.staging.local,com.docker.compose.replace=worker-1,com.docker.compose.service=worker,com.docker.compose.container-number=1,com.docker.compose.project.config_files=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/compose.yaml,desktop.docker.io/binds/1/Source=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/data/store\",\"LocalVolumes\":\"2\",\"Mounts\":\"oasis_appdata,/host_mnt/User\u2026,oasis_exports\",\"Name\":\"oasis-worker-1\",\"Names\":\"oasis-worker-1\",\"Networks\":\"oasis_default\",\"Ports\":\"8788/tcp\",\"Project\":\"oasis\",\"Publishers\":[{\"URL\":\"\",\"TargetPort\":8788,\"PublishedPort\":0,\"Protocol\":\"tcp\"}],\"RunningFor\":\"9 minutes ago\",\"Service\":\"worker\",\"Size\":\"0B\",\"State\":\"running\",\"Status\":\"Up 8 minutes\"}"
+    ],
+    "readyz": {
+      "body_sample": "{\"status\":\"ok\",\"checks\":{\"database\":true,\"analytical_store\":true}}",
+      "duration_ms": 2747.687,
+      "ok": true,
+      "status_code": 200
+    }
+  },
+  "seed_user": {
+    "email_domain": "example.com"
+  },
+  "verdict": "pass"
+}

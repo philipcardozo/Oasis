@@ -1,0 +1,35 @@
+{
+  "backup_duration_ms": 564.843,
+  "backup_format": "custom",
+  "backup_sha256": "6713b1171886dc452eff228ec0f1a661eb33a5ae734e2d8b7d806e5b2e177ebc",
+  "backup_size_bytes": 23365,
+  "backup_tool": "pg_dump 16.14 in postgres:16-alpine container",
+  "base_database": "oasis",
+  "captured_at": "2026-07-23T19:16:11.183073+00:00",
+  "cleanup": {
+    "dump_removed_from_container": true,
+    "restore_database_dropped": true
+  },
+  "original_counts": {
+    "audit_events": 1,
+    "jobs_done": 1,
+    "jobs_total": 1,
+    "sessions": 1,
+    "slots": 3,
+    "users": 1
+  },
+  "restore_database": "oasis_restore",
+  "restore_duration_ms": 439.9,
+  "restore_tool": "pg_restore 16.14 in postgres:16-alpine container",
+  "restored_counts": {
+    "audit_events": 1,
+    "jobs_done": 1,
+    "jobs_total": 1,
+    "sessions": 1,
+    "slots": 3,
+    "users": 1
+  },
+  "secrets_in_evidence": false,
+  "seed_email": "backup-drill-20260723@example.com",
+  "verdict": "pass"
+}

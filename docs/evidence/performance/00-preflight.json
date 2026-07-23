@@ -1,0 +1,53 @@
+{
+  "captured_at": "2026-07-23T02:08:49-04:00",
+  "project_root": "/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis",
+  "commit": "9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e",
+  "branch": "main",
+  "dirty_files_at_capture": [
+    "docs/PERFORMANCE-PROXYMAN-RUNBOOK.md",
+    "docs/evidence/performance/"
+  ],
+  "runtime": {
+    "python": "Python 3.13.9",
+    "node": "v26.0.0",
+    "npm": "11.12.1"
+  },
+  "local_app_command": "python3 map_api.py",
+  "local_app_url": "http://127.0.0.1:8788/index.html",
+  "phase1_composition_command": "uvicorn server.app:app --host 127.0.0.1 --port 8788",
+  "regression_commands": [
+    "python3 -m pytest -q",
+    "npx playwright test"
+  ],
+  "proxyman_mcp_status": {
+    "available": false,
+    "message": "Proxyman is not running or MCP server not started. Launch Proxyman and enable Settings -> MCP before MCP-driven capture."
+  },
+  "known_existing_performance_guards": [
+    "tests/smoke.spec.js checks cold transfer stays under 3000 KB",
+    "tests/smoke.spec.js checks reload avoids full body redownloads",
+    "tests/phase0.spec.js checks /api/universe/bulk is not requested during initial paint",
+    "tests/phase0.spec.js checks full universe loads only after search intent",
+    "tests/phase0.spec.js checks vendored MapLibre runtime and no CDN MapLibre request",
+    "test_map_intelligence_api.py checks ETag/cache-control/304 behavior for static and API responses"
+  ],
+  "behavior_preservation_invariants": [
+    "Navigation, visible UI state, user actions, and outputs must remain unchanged",
+    "API routes, status codes, schemas, and error semantics must remain compatible",
+    "Authentication, CSRF, rate limits, cookies, and security headers must not regress",
+    "Map Studio keeps exactly three slots and preserves basemap/overlay/terrain behavior",
+    "Normal API requests must not perform external dataset downloads",
+    "MapLibre remains vendored at graph/vendor/maplibre-gl/5.6.2 and must not load from unpkg.com"
+  ],
+  "next_required_evidence": [
+    "01-route-inventory.json",
+    "02-golden-api-snapshots.json",
+    "03-local-first-paint.har or small summary with exported HAR checksum",
+    "04-local-reload.har or small summary with exported HAR checksum",
+    "05-local-map-interactions.har or small summary with exported HAR checksum",
+    "06-local-auth-and-map-slots.json",
+    "07-local-api-latency.json",
+    "08-proxyman-findings.md",
+    "09-optimization-plan.md"
+  ]
+}

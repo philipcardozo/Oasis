@@ -1,0 +1,1366 @@
+{
+  "branch": "main",
+  "captured_at": "2026-07-23T06:33:51.171915+00:00",
+  "commit": "9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e",
+  "map_api": [
+    {
+      "kind": "Mount",
+      "methods": [],
+      "name": "graph",
+      "path": ""
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_index",
+      "path": "/"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_logo",
+      "path": "/Logo_Dark_BG_96.png"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_assets_search",
+      "path": "/api/assets/search"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset",
+      "path": "/api/assets/{asset_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_due_diligence",
+      "path": "/api/assets/{asset_id}/due-diligence"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_entities",
+      "path": "/api/assets/{asset_id}/entities"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_nearby_infrastructure",
+      "path": "/api/assets/{asset_id}/nearby-infrastructure"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_relationship_graph",
+      "path": "/api/assets/{asset_id}/relationship-graph"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_risk_score",
+      "path": "/api/assets/{asset_id}/risk-score"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_risk_summary",
+      "path": "/api/assets/{asset_id}/risk-summary"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_scenario",
+      "path": "/api/assets/{asset_id}/scenario"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_valuation",
+      "path": "/api/assets/{asset_id}/valuation"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_valuation_assumptions",
+      "path": "/api/assets/{asset_id}/valuation-assumptions"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "api_post_asset_valuation_assumptions",
+      "path": "/api/assets/{asset_id}/valuation-assumptions"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_bootstrap_signals",
+      "path": "/api/bootstrap/signals"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_cameras_public",
+      "path": "/api/cameras/public.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_data_quality_dashboard",
+      "path": "/api/data-quality/dashboard"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_data_quality_layer",
+      "path": "/api/data-quality/layer/{layer_name}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_data_quality_summary",
+      "path": "/api/data-quality/summary"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_data_sources_status",
+      "path": "/api/data-sources/status"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity",
+      "path": "/api/entity/{entity_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_asset_map",
+      "path": "/api/entity/{entity_id}/asset-map.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_assets",
+      "path": "/api/entity/{entity_id}/assets"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_combined_neighborhood",
+      "path": "/api/entity/{entity_id}/combined-neighborhood"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_comps",
+      "path": "/api/entity/{entity_id}/comps"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_dcf",
+      "path": "/api/entity/{entity_id}/dcf.xlsx"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_events",
+      "path": "/api/entity/{entity_id}/events"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_neighborhood",
+      "path": "/api/entity/{entity_id}/neighborhood"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_political",
+      "path": "/api/entity/{entity_id}/political"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_reverse_dcf",
+      "path": "/api/entity/{entity_id}/reverse-dcf"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_risk",
+      "path": "/api/entity/{entity_id}/risk"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_evidence",
+      "path": "/api/evidence"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_evidence_one",
+      "path": "/api/evidence/{evidence_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_listings_search",
+      "path": "/api/listings/search"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_listing",
+      "path": "/api/listings/{listing_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "api_location_override",
+      "path": "/api/location/override"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_location_unknown",
+      "path": "/api/location/unknown"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_map_entities",
+      "path": "/api/map/entities.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_map_features",
+      "path": "/api/map/features.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_layers",
+      "path": "/api/map/layers"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_map_relationships",
+      "path": "/api/map/relationships.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_overrides",
+      "path": "/api/overrides"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "api_post_override",
+      "path": "/api/overrides"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "api_delete_override",
+      "path": "/api/overrides/{override_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_permits_search",
+      "path": "/api/permits/search"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_reliefs_dem_status",
+      "path": "/api/reliefs/dem/status"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_reliefs_dem_tilejson",
+      "path": "/api/reliefs/dem/tilejson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_reliefs_terrain_coverage",
+      "path": "/api/reliefs/terrain/coverage"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_reliefs_terrain_jobs_status",
+      "path": "/api/reliefs/terrain/jobs/status"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_reliefs_terrain_sources",
+      "path": "/api/reliefs/terrain/sources"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_report_preview",
+      "path": "/api/reports/{object_type}/{object_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "api_report_generate",
+      "path": "/api/reports/{object_type}/{object_id}/generate"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_report_download",
+      "path": "/api/reports/{report_id}/download"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_universe_bulk",
+      "path": "/api/universe/bulk"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "api_watchlist_toggle",
+      "path": "/api/watchlist/toggle"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_css",
+      "path": "/css/app.css"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "static_companies_geojson",
+      "path": "/data/companies.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "static_graph_index",
+      "path": "/data/graph-index.json"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "static_relationships_geojson",
+      "path": "/data/relationships.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "static_securities_geojson",
+      "path": "/data/securities.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "static_universe_core",
+      "path": "/data/universe_core.json"
+    },
+    {
+      "kind": "Route",
+      "methods": [
+        "GET"
+      ],
+      "name": "swagger_ui_html",
+      "path": "/docs"
+    },
+    {
+      "kind": "Route",
+      "methods": [
+        "GET"
+      ],
+      "name": "swagger_ui_redirect",
+      "path": "/docs/oauth2-redirect"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_index_html",
+      "path": "/index.html"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_config_js",
+      "path": "/js/config.js"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_main_js",
+      "path": "/js/main.js"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_state_js",
+      "path": "/js/state.js"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_util_js",
+      "path": "/js/util.js"
+    },
+    {
+      "kind": "Route",
+      "methods": [
+        "GET"
+      ],
+      "name": "openapi",
+      "path": "/openapi.json"
+    },
+    {
+      "kind": "Route",
+      "methods": [
+        "GET"
+      ],
+      "name": "redoc_html",
+      "path": "/redoc"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "vendor_maplibre_css",
+      "path": "/vendor/maplibre-gl/5.6.2/maplibre-gl.css"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "vendor_maplibre_js",
+      "path": "/vendor/maplibre-gl/5.6.2/maplibre-gl.js"
+    }
+  ],
+  "python": "3.13.9",
+  "server_app": [
+    {
+      "kind": "Mount",
+      "methods": [],
+      "name": "graph",
+      "path": ""
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_index",
+      "path": "/"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_logo",
+      "path": "/Logo_Dark_BG_96.png"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_assets_search",
+      "path": "/api/assets/search"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset",
+      "path": "/api/assets/{asset_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_due_diligence",
+      "path": "/api/assets/{asset_id}/due-diligence"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_entities",
+      "path": "/api/assets/{asset_id}/entities"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_nearby_infrastructure",
+      "path": "/api/assets/{asset_id}/nearby-infrastructure"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_relationship_graph",
+      "path": "/api/assets/{asset_id}/relationship-graph"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_risk_score",
+      "path": "/api/assets/{asset_id}/risk-score"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_risk_summary",
+      "path": "/api/assets/{asset_id}/risk-summary"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_scenario",
+      "path": "/api/assets/{asset_id}/scenario"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_valuation",
+      "path": "/api/assets/{asset_id}/valuation"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_asset_valuation_assumptions",
+      "path": "/api/assets/{asset_id}/valuation-assumptions"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "api_post_asset_valuation_assumptions",
+      "path": "/api/assets/{asset_id}/valuation-assumptions"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "delete_account",
+      "path": "/api/auth/account"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "login",
+      "path": "/api/auth/login"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "logout",
+      "path": "/api/auth/logout"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "logout_all",
+      "path": "/api/auth/logout-all"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "me",
+      "path": "/api/auth/me"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "password_change",
+      "path": "/api/auth/password-change"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "reset_complete",
+      "path": "/api/auth/password-reset/complete"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "reset_request",
+      "path": "/api/auth/password-reset/request"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "register",
+      "path": "/api/auth/register"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "sessions",
+      "path": "/api/auth/sessions"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "revoke",
+      "path": "/api/auth/sessions/{session_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "verify_email",
+      "path": "/api/auth/verify-email"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_bootstrap_signals",
+      "path": "/api/bootstrap/signals"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_cameras_public",
+      "path": "/api/cameras/public.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_data_quality_dashboard",
+      "path": "/api/data-quality/dashboard"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_data_quality_layer",
+      "path": "/api/data-quality/layer/{layer_name}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_data_quality_summary",
+      "path": "/api/data-quality/summary"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_data_sources_status",
+      "path": "/api/data-sources/status"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity",
+      "path": "/api/entity/{entity_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_asset_map",
+      "path": "/api/entity/{entity_id}/asset-map.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_assets",
+      "path": "/api/entity/{entity_id}/assets"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_combined_neighborhood",
+      "path": "/api/entity/{entity_id}/combined-neighborhood"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_comps",
+      "path": "/api/entity/{entity_id}/comps"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_dcf",
+      "path": "/api/entity/{entity_id}/dcf.xlsx"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_events",
+      "path": "/api/entity/{entity_id}/events"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_neighborhood",
+      "path": "/api/entity/{entity_id}/neighborhood"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_political",
+      "path": "/api/entity/{entity_id}/political"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_reverse_dcf",
+      "path": "/api/entity/{entity_id}/reverse-dcf"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_entity_risk",
+      "path": "/api/entity/{entity_id}/risk"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_evidence",
+      "path": "/api/evidence"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_evidence_one",
+      "path": "/api/evidence/{evidence_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_listings_search",
+      "path": "/api/listings/search"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_listing",
+      "path": "/api/listings/{listing_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "api_location_override",
+      "path": "/api/location/override"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_location_unknown",
+      "path": "/api/location/unknown"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "list_slots",
+      "path": "/api/map-slots"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "import_slot",
+      "path": "/api/map-slots/import"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "get_slot",
+      "path": "/api/map-slots/{slot_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "PUT"
+      ],
+      "name": "update_slot",
+      "path": "/api/map-slots/{slot_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "activate_slot",
+      "path": "/api/map-slots/{slot_id}/activate"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "duplicate_slot",
+      "path": "/api/map-slots/{slot_id}/duplicate-to/{target_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "export_slot",
+      "path": "/api/map-slots/{slot_id}/export"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "rename_slot",
+      "path": "/api/map-slots/{slot_id}/rename"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "reset_slot",
+      "path": "/api/map-slots/{slot_id}/reset"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_map_entities",
+      "path": "/api/map/entities.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_map_features",
+      "path": "/api/map/features.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_layers",
+      "path": "/api/map/layers"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_map_relationships",
+      "path": "/api/map/relationships.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_overrides",
+      "path": "/api/overrides"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "api_post_override",
+      "path": "/api/overrides"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "DELETE"
+      ],
+      "name": "api_delete_override",
+      "path": "/api/overrides/{override_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_permits_search",
+      "path": "/api/permits/search"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_reliefs_dem_status",
+      "path": "/api/reliefs/dem/status"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_reliefs_dem_tilejson",
+      "path": "/api/reliefs/dem/tilejson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_reliefs_terrain_coverage",
+      "path": "/api/reliefs/terrain/coverage"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_reliefs_terrain_jobs_status",
+      "path": "/api/reliefs/terrain/jobs/status"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_reliefs_terrain_sources",
+      "path": "/api/reliefs/terrain/sources"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_report_preview",
+      "path": "/api/reports/{object_type}/{object_id}"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "api_report_generate",
+      "path": "/api/reports/{object_type}/{object_id}/generate"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_report_download",
+      "path": "/api/reports/{report_id}/download"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "api_universe_bulk",
+      "path": "/api/universe/bulk"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "POST"
+      ],
+      "name": "api_watchlist_toggle",
+      "path": "/api/watchlist/toggle"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_css",
+      "path": "/css/app.css"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "static_companies_geojson",
+      "path": "/data/companies.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "static_graph_index",
+      "path": "/data/graph-index.json"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "static_relationships_geojson",
+      "path": "/data/relationships.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "static_securities_geojson",
+      "path": "/data/securities.geojson"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "static_universe_core",
+      "path": "/data/universe_core.json"
+    },
+    {
+      "kind": "Route",
+      "methods": [
+        "GET"
+      ],
+      "name": "swagger_ui_html",
+      "path": "/docs"
+    },
+    {
+      "kind": "Route",
+      "methods": [
+        "GET"
+      ],
+      "name": "swagger_ui_redirect",
+      "path": "/docs/oauth2-redirect"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "liveness",
+      "path": "/healthz"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_index_html",
+      "path": "/index.html"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_config_js",
+      "path": "/js/config.js"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_main_js",
+      "path": "/js/main.js"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_state_js",
+      "path": "/js/state.js"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "app_util_js",
+      "path": "/js/util.js"
+    },
+    {
+      "kind": "Route",
+      "methods": [
+        "GET"
+      ],
+      "name": "openapi",
+      "path": "/openapi.json"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "readiness",
+      "path": "/readyz"
+    },
+    {
+      "kind": "Route",
+      "methods": [
+        "GET"
+      ],
+      "name": "redoc_html",
+      "path": "/redoc"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "vendor_maplibre_css",
+      "path": "/vendor/maplibre-gl/5.6.2/maplibre-gl.css"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "vendor_maplibre_js",
+      "path": "/vendor/maplibre-gl/5.6.2/maplibre-gl.js"
+    },
+    {
+      "kind": "APIRoute",
+      "methods": [
+        "GET"
+      ],
+      "name": "version",
+      "path": "/version"
+    }
+  ]
+}

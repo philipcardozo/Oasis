@@ -1,0 +1,145 @@
+{
+  "captured_at": "2026-07-23T18:57:47.845432+00:00",
+  "branch": "main",
+  "commit": "9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e",
+  "base_url": "https://localhost:8443",
+  "transport": "requests HTTPS through Proxyman proxy",
+  "proxy_server": "http://127.0.0.1:9090",
+  "verify_tls": false,
+  "smtp_sink": "host.docker.internal:1025 local temporary SMTP sink; tokens omitted from evidence",
+  "samples_per_measurement": 8,
+  "setup": {
+    "register": {
+      "duration_ms": 1763.931,
+      "status_code": 201,
+      "body_bytes": 63,
+      "cache_control": null,
+      "content_type": "application/json",
+      "set_cookie_present": false
+    },
+    "verify_email": {
+      "duration_ms": 14.785,
+      "status_code": 200,
+      "body_bytes": 27,
+      "cache_control": null,
+      "content_type": "application/json",
+      "set_cookie_present": false
+    },
+    "login": {
+      "duration_ms": 62.404,
+      "status_code": 200,
+      "body_bytes": 117,
+      "cache_control": null,
+      "content_type": "application/json",
+      "set_cookie_present": true
+    }
+  },
+  "measurements": [
+    {
+      "name": "session validation GET /api/auth/me",
+      "samples": 8,
+      "status_codes": [
+        200
+      ],
+      "p50_ms": 2.997,
+      "p95_ms": 3.657,
+      "max_ms": 3.738,
+      "body_bytes_min": 164,
+      "body_bytes_max": 164
+    },
+    {
+      "name": "map-slot list GET /api/map-slots",
+      "samples": 8,
+      "status_codes": [
+        200
+      ],
+      "p50_ms": 2.78,
+      "p95_ms": 4.303,
+      "max_ms": 4.701,
+      "body_bytes_min": 650,
+      "body_bytes_max": 650
+    },
+    {
+      "name": "map-slot read GET /api/map-slots/{id}",
+      "samples": 8,
+      "status_codes": [
+        200
+      ],
+      "p50_ms": 2.558,
+      "p95_ms": 3.88,
+      "max_ms": 4.141,
+      "body_bytes_min": 211,
+      "body_bytes_max": 211
+    },
+    {
+      "name": "map-slot write PUT /api/map-slots/{id}",
+      "samples": 8,
+      "status_codes": [
+        200
+      ],
+      "p50_ms": 3.159,
+      "p95_ms": 4.626,
+      "max_ms": 5.205,
+      "body_bytes_min": 207,
+      "body_bytes_max": 211
+    }
+  ],
+  "checks": {
+    "session_cookie_secure": true,
+    "csrf_cookie_secure": true,
+    "default_map_slot_count": 3,
+    "default_map_slot_numbers": [
+      1,
+      2,
+      3
+    ],
+    "stale_version_conflict": {
+      "duration_ms": 3.28,
+      "status_code": 409,
+      "body_bytes": 59,
+      "cache_control": null,
+      "content_type": "application/json",
+      "set_cookie_present": false
+    },
+    "cross_user_slot_read_denied": {
+      "duration_ms": 2.951,
+      "status_code": 404,
+      "body_bytes": 31,
+      "cache_control": null,
+      "content_type": "application/json",
+      "set_cookie_present": false
+    },
+    "password_reset_request": {
+      "duration_ms": 9.142,
+      "status_code": 200,
+      "body_bytes": 73,
+      "cache_control": null,
+      "content_type": "application/json",
+      "set_cookie_present": false
+    },
+    "password_reset_complete": {
+      "duration_ms": 46.286,
+      "status_code": 200,
+      "body_bytes": 11,
+      "cache_control": null,
+      "content_type": "application/json",
+      "set_cookie_present": false
+    },
+    "post_reset_login": {
+      "duration_ms": 49.882,
+      "status_code": 200,
+      "body_bytes": 117,
+      "cache_control": null,
+      "content_type": "application/json",
+      "set_cookie_present": true
+    },
+    "readyz_after_api_restart_status": 200,
+    "post_api_restart_slot_count": 3,
+    "post_api_restart_slot_numbers": [
+      1,
+      2,
+      3
+    ]
+  },
+  "verdict": "pass"
+}

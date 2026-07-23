@@ -1,0 +1,343 @@
+{
+  "captured_at": "2026-07-23T06:33:51.171915+00:00",
+  "commit": "9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e",
+  "measurements": [
+    {
+      "body_bytes_max": 8842,
+      "body_bytes_min": 8842,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "2496",
+        "content-type": "text/html; charset=utf-8",
+        "etag": "W/\"oasis-799fcb2a801b9170\""
+      },
+      "max_ms": 1.213,
+      "method": "GET",
+      "min_ms": 1.07,
+      "p50_ms": 1.13,
+      "p95_ms": 1.198,
+      "path": "/",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 8842,
+      "body_bytes_min": 8842,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "2496",
+        "content-type": "text/html; charset=utf-8",
+        "etag": "W/\"oasis-799fcb2a801b9170\""
+      },
+      "max_ms": 1.09,
+      "method": "GET",
+      "min_ms": 1.012,
+      "p50_ms": 1.051,
+      "p95_ms": 1.079,
+      "path": "/index.html",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 1638522,
+      "body_bytes_min": 1638522,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "246189",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-77b857a740c05fff\""
+      },
+      "max_ms": 3.352,
+      "method": "GET",
+      "min_ms": 2.545,
+      "p50_ms": 2.768,
+      "p95_ms": 3.23,
+      "path": "/data/universe_core.json",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 769,
+      "body_bytes_min": 769,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "304",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-8b79058947e16fa3\""
+      },
+      "max_ms": 1.156,
+      "method": "GET",
+      "min_ms": 0.916,
+      "p50_ms": 0.983,
+      "p95_ms": 1.121,
+      "path": "/api/map/layers",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 123981,
+      "body_bytes_min": 123981,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "41985",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-ed44bf5d23b5210c\""
+      },
+      "max_ms": 2.523,
+      "method": "GET",
+      "min_ms": 1.203,
+      "p50_ms": 1.277,
+      "p95_ms": 2.16,
+      "path": "/api/bootstrap/signals",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 8229479,
+      "body_bytes_min": 8229479,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "777087",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-10fd03b60a582795\""
+      },
+      "max_ms": 7.352,
+      "method": "GET",
+      "min_ms": 6.383,
+      "p50_ms": 6.603,
+      "p95_ms": 7.189,
+      "path": "/api/map/entities.geojson?bbox=-180,-90,180,90",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 332164,
+      "body_bytes_min": 332164,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "47777",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-14955b32282395df\""
+      },
+      "max_ms": 2.185,
+      "method": "GET",
+      "min_ms": 1.289,
+      "p50_ms": 1.755,
+      "p95_ms": 2.179,
+      "path": "/api/map/relationships.geojson?bbox=-180,-90,180,90",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 6404010,
+      "body_bytes_min": 6404010,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "980821",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-041e340d74f10bf8\""
+      },
+      "max_ms": 10.542,
+      "method": "GET",
+      "min_ms": 7.109,
+      "p50_ms": 7.557,
+      "p95_ms": 9.727,
+      "path": "/api/universe/bulk",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 246,
+      "body_bytes_min": 246,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "207",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-1ec69a3ed7cce8cb\""
+      },
+      "max_ms": 4.64,
+      "method": "GET",
+      "min_ms": 1.027,
+      "p50_ms": 1.085,
+      "p95_ms": 3.775,
+      "path": "/api/entity/GM",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 54,
+      "body_bytes_min": 54,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "74",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-8f420c3152f290b2\""
+      },
+      "max_ms": 5.803,
+      "method": "GET",
+      "min_ms": 1.725,
+      "p50_ms": 1.838,
+      "p95_ms": 5.054,
+      "path": "/api/entity/GM/reverse-dcf",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 520,
+      "body_bytes_min": 520,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "326",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-d7c6f07c7485c219\""
+      },
+      "max_ms": 1.903,
+      "method": "GET",
+      "min_ms": 1.783,
+      "p50_ms": 1.822,
+      "p95_ms": 1.896,
+      "path": "/api/entity/GM/comps?cap=8",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 33,
+      "body_bytes_min": 33,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "53",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-364ba66b744b93ca\""
+      },
+      "max_ms": 1.074,
+      "method": "GET",
+      "min_ms": 0.955,
+      "p50_ms": 1.009,
+      "p95_ms": 1.064,
+      "path": "/api/entity/GM/events",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 85,
+      "body_bytes_min": 85,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "101",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-571d8f116808de59\""
+      },
+      "max_ms": 15.684,
+      "method": "GET",
+      "min_ms": 1.018,
+      "p50_ms": 1.203,
+      "p95_ms": 11.414,
+      "path": "/api/entity/GM/risk",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 1428,
+      "body_bytes_min": 1428,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "382",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-ac5185a019af3ccb\""
+      },
+      "max_ms": 1.526,
+      "method": "GET",
+      "min_ms": 1.166,
+      "p50_ms": 1.214,
+      "p95_ms": 1.468,
+      "path": "/api/data-quality/dashboard",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 23852,
+      "body_bytes_min": 23852,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "gzip",
+        "content-length": "3815",
+        "content-type": "application/json",
+        "etag": "W/\"oasis-e04b7a7047af6935\""
+      },
+      "max_ms": 2.672,
+      "method": "GET",
+      "min_ms": 1.497,
+      "p50_ms": 1.707,
+      "p95_ms": 2.43,
+      "path": "/api/reports/asset/asset%3Ademo-farm-iowa",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 2695929,
+      "body_bytes_min": 2695929,
+      "headers": {
+        "cache-control": "public, max-age=60, must-revalidate",
+        "content-encoding": "identity",
+        "content-length": "2695929",
+        "content-type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "etag": "\"e6a3c4aa08323e8d52ee5a547eb49986\""
+      },
+      "max_ms": 15.998,
+      "method": "GET",
+      "min_ms": 7.309,
+      "p50_ms": 10.366,
+      "p95_ms": 14.525,
+      "path": "/api/entity/BLK/dcf.xlsx?method=cash_flow",
+      "samples": 7,
+      "status_codes": [
+        200
+      ]
+    }
+  ],
+  "samples_per_endpoint": 7
+}

@@ -1,0 +1,158 @@
+{
+  "capturedAt": "2026-07-23T07:49:47.595Z",
+  "commit": "9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e",
+  "branch": "main",
+  "baseUrl": "http://127.0.0.1:8788",
+  "proxyServer": "http://127.0.0.1:9090",
+  "results": [
+    {
+      "label": "default-headless",
+      "launchArgs": [],
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": "standard",
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": true
+      },
+      "errors": [
+        {
+          "text": "TypeError: Cannot read properties of undefined (reading 'shaderPreludeCode')",
+          "classification": "headless-maplibre-webgl-shader-warning"
+        },
+        {
+          "text": "TypeError: Cannot read properties of undefined (reading 'shaderPreludeCode')",
+          "classification": "headless-maplibre-webgl-shader-warning"
+        },
+        {
+          "text": "TypeError: Cannot read properties of undefined (reading 'shaderPreludeCode')",
+          "classification": "headless-maplibre-webgl-shader-warning"
+        }
+      ],
+      "requestCount": 115,
+      "requestedUnpkg": false,
+      "requestedVendoredMapLibre": true,
+      "styleLoaded": true,
+      "basemapPreserved": true
+    },
+    {
+      "label": "swiftshader",
+      "launchArgs": [
+        "--use-gl=swiftshader"
+      ],
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": "standard",
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": true
+      },
+      "errors": [
+        {
+          "text": "TypeError: Cannot read properties of undefined (reading 'shaderPreludeCode')",
+          "classification": "headless-maplibre-webgl-shader-warning"
+        },
+        {
+          "text": "TypeError: Cannot read properties of undefined (reading 'shaderPreludeCode')",
+          "classification": "headless-maplibre-webgl-shader-warning"
+        },
+        {
+          "text": "TypeError: Cannot read properties of undefined (reading 'shaderPreludeCode')",
+          "classification": "headless-maplibre-webgl-shader-warning"
+        }
+      ],
+      "requestCount": 118,
+      "requestedUnpkg": false,
+      "requestedVendoredMapLibre": true,
+      "styleLoaded": true,
+      "basemapPreserved": true
+    },
+    {
+      "label": "angle-swiftshader",
+      "launchArgs": [
+        "--use-angle=swiftshader"
+      ],
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": "standard",
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": true
+      },
+      "errors": [
+        {
+          "text": "TypeError: Cannot read properties of undefined (reading 'shaderPreludeCode')",
+          "classification": "headless-maplibre-webgl-shader-warning"
+        },
+        {
+          "text": "AbortError: The user aborted a request.",
+          "classification": "expected-abort-during-fast-basemap-switch"
+        },
+        {
+          "text": "TypeError: Cannot read properties of undefined (reading 'shaderPreludeCode')",
+          "classification": "headless-maplibre-webgl-shader-warning"
+        }
+      ],
+      "requestCount": 71,
+      "requestedUnpkg": false,
+      "requestedVendoredMapLibre": true,
+      "styleLoaded": true,
+      "basemapPreserved": true
+    }
+  ],
+  "conclusion": "headless MapLibre/WebGL warnings classified; app state and basemap behavior preserved"
+}

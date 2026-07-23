@@ -1,0 +1,2549 @@
+{
+  "capturedAt": "2026-07-23T07:53:53.791Z",
+  "commit": "9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e",
+  "branch": "main",
+  "baseUrl": "http://127.0.0.1:8788",
+  "proxyServer": "http://127.0.0.1:9090",
+  "flows": {
+    "03-local-first-paint": {
+      "requestCount": 9,
+      "failedRequestCount": 0,
+      "resourceTransferBytes": 361369,
+      "resourceTransferKb": 352.9,
+      "navigation": {
+        "domContentLoadedMs": 253.2,
+        "loadEventMs": 255.6,
+        "transferSize": 2796,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 255.6
+      },
+      "graphState": {
+        "mode": "network",
+        "companies": 958,
+        "bulkLoaded": false,
+        "selected": null,
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 958,
+        "canvasDisplay": "none",
+        "stats": "907"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": null,
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": false
+      },
+      "requestedUniverseBulk": false,
+      "requestedUnpkg": false,
+      "externalHosts": [],
+      "duplicates": [],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 147,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 47,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 45,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 17,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 13,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 13,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 12,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 11,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 6,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [],
+      "resourceSummary": [
+        {
+          "name": "http://127.0.0.1:8788/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 246489,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 43.1
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 54430,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 16.9
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 42285,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 3.5
+        },
+        {
+          "name": "http://127.0.0.1:8788/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 6786,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 9.5
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 5029,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 13.3
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 3623,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 11.4
+        },
+        {
+          "name": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 1912,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 7.5
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 815,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 11.4
+        }
+      ],
+      "harPath": "docs/evidence/performance/03-local-first-paint.har",
+      "flow": "cold first paint"
+    },
+    "04-local-reload": {
+      "requestCount": 18,
+      "failedRequestCount": 0,
+      "resourceTransferBytes": 0,
+      "resourceTransferKb": 0,
+      "navigation": {
+        "domContentLoadedMs": 234,
+        "loadEventMs": 234.6,
+        "transferSize": 300,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 234.6
+      },
+      "graphState": {
+        "mode": "network",
+        "companies": 958,
+        "bulkLoaded": false,
+        "selected": null,
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 958,
+        "canvasDisplay": "none",
+        "stats": "907"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": null,
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": false
+      },
+      "requestedUniverseBulk": false,
+      "requestedUnpkg": false,
+      "externalHosts": [],
+      "duplicates": [
+        {
+          "key": "GET http://127.0.0.1:8788/api/bootstrap/signals",
+          "count": 2
+        },
+        {
+          "key": "GET http://127.0.0.1:8788/css/app.css",
+          "count": 2
+        },
+        {
+          "key": "GET http://127.0.0.1:8788/data/universe_core.json",
+          "count": 2
+        },
+        {
+          "key": "GET http://127.0.0.1:8788/index.html",
+          "count": 2
+        },
+        {
+          "key": "GET http://127.0.0.1:8788/js/config.js",
+          "count": 2
+        },
+        {
+          "key": "GET http://127.0.0.1:8788/js/main.js",
+          "count": 2
+        },
+        {
+          "key": "GET http://127.0.0.1:8788/js/state.js",
+          "count": 2
+        },
+        {
+          "key": "GET http://127.0.0.1:8788/js/util.js",
+          "count": 2
+        },
+        {
+          "key": "GET http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "count": 2
+        }
+      ],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 33,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 13,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 13,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 13,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 11,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 11,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 11,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 8,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 6,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 6,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 5,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 5,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 4,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 1,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 0,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 0,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 0,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 0,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [],
+      "resourceSummary": [
+        {
+          "name": "http://127.0.0.1:8788/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 0,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 0
+        },
+        {
+          "name": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 0,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 0
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 0,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 0
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 0,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 0
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 0,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 0
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 0,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 0
+        },
+        {
+          "name": "http://127.0.0.1:8788/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 3.8
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 1.3
+        }
+      ],
+      "harPath": "docs/evidence/performance/04-local-reload.har",
+      "flow": "warm reload"
+    },
+    "05-local-search-intent": {
+      "requestCount": 10,
+      "failedRequestCount": 0,
+      "resourceTransferBytes": 1342490,
+      "resourceTransferKb": 1311,
+      "navigation": {
+        "domContentLoadedMs": 54.5,
+        "loadEventMs": 55.3,
+        "transferSize": 2796,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 55.3
+      },
+      "graphState": {
+        "mode": "network",
+        "companies": 14627,
+        "bulkLoaded": true,
+        "selected": null,
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 958,
+        "canvasDisplay": "none",
+        "stats": "907"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": null,
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": false
+      },
+      "requestedUniverseBulk": true,
+      "requestedUnpkg": false,
+      "externalHosts": [],
+      "duplicates": [],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/universe/bulk",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 1144,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "980821",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 26,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 15,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 15,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 14,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 14,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 10,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 8,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 6,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 4,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [],
+      "resourceSummary": [
+        {
+          "name": "http://127.0.0.1:8788/api/universe/bulk",
+          "initiatorType": "fetch",
+          "transferSize": 981121,
+          "encodedBodySize": 980821,
+          "decodedBodySize": 6404010,
+          "duration": 1503.3
+        },
+        {
+          "name": "http://127.0.0.1:8788/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 246489,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 12.2
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 54430,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 5.4
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 42285,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 12.4
+        },
+        {
+          "name": "http://127.0.0.1:8788/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 6786,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 3.9
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 5029,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 10.5
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 3623,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 10.2
+        },
+        {
+          "name": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 1912,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 4.4
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 815,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 10.1
+        }
+      ],
+      "harPath": "docs/evidence/performance/05-local-search-intent.har",
+      "flow": "search intent and bulk load"
+    },
+    "06-local-map-interactions": {
+      "requestCount": 116,
+      "failedRequestCount": 4,
+      "resourceTransferBytes": 1386430,
+      "resourceTransferKb": 1353.9,
+      "navigation": {
+        "domContentLoadedMs": 47.1,
+        "loadEventMs": 47.9,
+        "transferSize": 2796,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 47.9
+      },
+      "graphState": {
+        "mode": "globe",
+        "companies": 958,
+        "bulkLoaded": false,
+        "selected": null,
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 958,
+        "canvasDisplay": "none",
+        "stats": "950"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": "standard",
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": true
+      },
+      "requestedUniverseBulk": false,
+      "requestedUnpkg": false,
+      "externalHosts": [
+        "basemaps.cartocdn.com",
+        "fonts.openmaptiles.org",
+        "s3.amazonaws.com",
+        "services.arcgisonline.com",
+        "tiles-a.basemaps.cartocdn.com",
+        "tiles-b.basemaps.cartocdn.com",
+        "tiles.basemaps.cartocdn.com",
+        "tiles.openfreemap.org"
+      ],
+      "duplicates": [
+        {
+          "key": "GET https://s3.amazonaws.com/elevation-tiles-prod/terrarium/0/0/0.png",
+          "count": 14
+        },
+        {
+          "key": "GET https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/0.png",
+          "count": 10
+        },
+        {
+          "key": "GET https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/0.png",
+          "count": 7
+        },
+        {
+          "key": "GET https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/1.png",
+          "count": 7
+        },
+        {
+          "key": "GET https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/1.png",
+          "count": 6
+        },
+        {
+          "key": "GET https://fonts.openmaptiles.org/Noto%20Sans%20Bold/0-255.pbf",
+          "count": 4
+        },
+        {
+          "key": "GET https://fonts.openmaptiles.org/Noto%20Sans%20Italic/0-255.pbf",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/0.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/1.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/2.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/0.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/1.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/2.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/2/0.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/2/1.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/3/0.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/3/1.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/planet",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/0.pbf",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/1.pbf",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/planet/20260621_080001_pt/1/1/0.pbf",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/sprites/ofm_f384/ofm.json",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/sprites/ofm_f384/ofm.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/styles/liberty",
+          "count": 2
+        }
+      ],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "https://fonts.openmaptiles.org/Noto%20Sans%20Italic/0-255.pbf",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 1386,
+          "cacheControl": "public, max-age=0, must-revalidate",
+          "contentEncoding": "br",
+          "contentLength": null,
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://fonts.openmaptiles.org/Noto%20Sans%20Bold/0-255.pbf",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 1385,
+          "cacheControl": "public, max-age=0, must-revalidate",
+          "contentEncoding": "br",
+          "contentLength": null,
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "blob:http://127.0.0.1:8788/01674afe-04c3-4667-8d1d-da902c829d52",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 1146,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "404477",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/2.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 840,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "20395",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/2.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 840,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "75438",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/0.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 839,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "58295",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/2/1.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 839,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "250181",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/2/0.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 839,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "65033",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/3/1.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 839,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "236658",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/3/0.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 839,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "66673",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/1.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 837,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "150559",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/1.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 837,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "129902",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/0.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 836,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "158734",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 808,
+          "cacheControl": "public,max-age=15552000",
+          "contentEncoding": "gzip",
+          "contentLength": "6663",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/0/0/0.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 660,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "106274",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/0/0/0.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 660,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "106274",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/0.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 579,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "100773",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/1.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 579,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "94598",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/0.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 576,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "97258",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/0.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 431,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "97258",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [
+        "TypeError: Cannot read properties of undefined (reading 'shaderPreludeCode')",
+        "TypeError: Cannot read properties of undefined (reading 'shaderPreludeCode')",
+        "TypeError: Cannot read properties of undefined (reading 'shaderPreludeCode')"
+      ],
+      "resourceSummary": [
+        {
+          "name": "http://127.0.0.1:8788/data/companies.geojson",
+          "initiatorType": "fetch",
+          "transferSize": 604694,
+          "encodedBodySize": 604394,
+          "decodedBodySize": 6873699,
+          "duration": 245.8
+        },
+        {
+          "name": "http://127.0.0.1:8788/vendor/maplibre-gl/5.6.2/maplibre-gl.js",
+          "initiatorType": "script",
+          "transferSize": 247999,
+          "encodedBodySize": 247699,
+          "decodedBodySize": 937395,
+          "duration": 65
+        },
+        {
+          "name": "http://127.0.0.1:8788/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 246489,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 7.4
+        },
+        {
+          "name": "http://127.0.0.1:8788/data/securities.geojson",
+          "initiatorType": "fetch",
+          "transferSize": 119060,
+          "encodedBodySize": 118760,
+          "decodedBodySize": 1355823,
+          "duration": 42.1
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 54430,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 4.9
+        },
+        {
+          "name": "http://127.0.0.1:8788/data/relationships.geojson",
+          "initiatorType": "fetch",
+          "transferSize": 42957,
+          "encodedBodySize": 42657,
+          "decodedBodySize": 332052,
+          "duration": 25.9
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 42285,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 4.3
+        },
+        {
+          "name": "http://127.0.0.1:8788/vendor/maplibre-gl/5.6.2/maplibre-gl.css",
+          "initiatorType": "link",
+          "transferSize": 10351,
+          "encodedBodySize": 10051,
+          "decodedBodySize": 69430,
+          "duration": 21.4
+        },
+        {
+          "name": "http://127.0.0.1:8788/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 6786,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 3.7
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 5029,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 3.3
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 3623,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 5.3
+        },
+        {
+          "name": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 1912,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 4.2
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 815,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 5.4
+        },
+        {
+          "name": "https://tiles.openfreemap.org/styles/liberty",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "duration": 399.5
+        },
+        {
+          "name": "https://tiles.openfreemap.org/planet",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "duration": 47.3
+        },
+        {
+          "name": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm.json",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "duration": 64
+        },
+        {
+          "name": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm.png",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "duration": 62.2
+        },
+        {
+          "name": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/1.png",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "duration": 244.3
+        },
+        {
+          "name": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/1.png",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "duration": 262.9
+        },
+        {
+          "name": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/2.png",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "duration": 262.9
+        }
+      ],
+      "harPath": "docs/evidence/performance/06-local-map-interactions.har",
+      "flow": "Map Studio and basemap switching"
+    },
+    "07-local-dcf-download": {
+      "requestCount": 10,
+      "failedRequestCount": 0,
+      "resourceTransferBytes": 3057598,
+      "resourceTransferKb": 2985.9,
+      "navigation": {
+        "domContentLoadedMs": 114.4,
+        "loadEventMs": 189.5,
+        "transferSize": 2796,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 189.5
+      },
+      "graphState": {
+        "mode": "network",
+        "companies": 958,
+        "bulkLoaded": false,
+        "selected": null,
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 958,
+        "canvasDisplay": "none",
+        "stats": "907"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": null,
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": false
+      },
+      "requestedUniverseBulk": false,
+      "requestedUnpkg": false,
+      "externalHosts": [],
+      "duplicates": [],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/entity/BLK/dcf.xlsx?method=cash_flow",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 119,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "identity",
+          "contentLength": "2695929",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 104,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 92,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 39,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 31,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 24,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 24,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 24,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 19,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 19,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [],
+      "resourceSummary": [
+        {
+          "name": "http://127.0.0.1:8788/api/entity/BLK/dcf.xlsx?method=cash_flow",
+          "initiatorType": "fetch",
+          "transferSize": 2696229,
+          "encodedBodySize": 2695929,
+          "decodedBodySize": 2695929,
+          "duration": 117.5
+        },
+        {
+          "name": "http://127.0.0.1:8788/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 246489,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 75.1
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 54430,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 28
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 42285,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 9.7
+        },
+        {
+          "name": "http://127.0.0.1:8788/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 6786,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 15.1
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 5029,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 22.9
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 3623,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 18.8
+        },
+        {
+          "name": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 1912,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 16.7
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 815,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 12.2
+        }
+      ],
+      "harPath": "docs/evidence/performance/07-local-dcf-download.har",
+      "flow": "DCF workbook fetch",
+      "dcf": {
+        "status": 200,
+        "bytes": 2695929,
+        "durationMs": 120.9,
+        "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "contentEncoding": "identity",
+        "contentLength": "2695929",
+        "cacheControl": "public, max-age=60, must-revalidate",
+        "etag": "\"e6a3c4aa08323e8d52ee5a547eb49986\""
+      }
+    },
+    "12-local-entity-drawer": {
+      "requestCount": 17,
+      "failedRequestCount": 0,
+      "resourceTransferBytes": 1346077,
+      "resourceTransferKb": 1314.5,
+      "navigation": {
+        "domContentLoadedMs": 42.4,
+        "loadEventMs": 43.1,
+        "transferSize": 2796,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 43.1
+      },
+      "graphState": {
+        "mode": "index",
+        "companies": 14627,
+        "bulkLoaded": true,
+        "selected": "GM",
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 959,
+        "canvasDisplay": "block",
+        "stats": "14,619"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": null,
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": false
+      },
+      "requestedUniverseBulk": true,
+      "requestedUnpkg": false,
+      "externalHosts": [],
+      "duplicates": [],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/universe/bulk",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 669,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "980821",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/entity/GM/assets",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 36,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "898",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/entity/GM/reverse-dcf",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 34,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "74",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/entity/GM/comps?cap=8",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 34,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "326",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/entity/GM/political",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 34,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "85",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/entity/GM/events",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 34,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "53",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/evidence?object_type=entity&object_id=GM",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 33,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "35",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/overrides?object_type=entity&object_id=GM",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 33,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "16",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 20,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 19,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 13,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 13,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 13,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 8,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 3,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 3,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 3,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [],
+      "resourceSummary": [
+        {
+          "name": "http://127.0.0.1:8788/api/universe/bulk",
+          "initiatorType": "fetch",
+          "transferSize": 981121,
+          "encodedBodySize": 980821,
+          "decodedBodySize": 6404010,
+          "duration": 898.3
+        },
+        {
+          "name": "http://127.0.0.1:8788/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 246489,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 7.3
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 54430,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 4
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 42285,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 4.6
+        },
+        {
+          "name": "http://127.0.0.1:8788/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 6786,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 2.1
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 5029,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 6.6
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 3623,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 6.1
+        },
+        {
+          "name": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 1912,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 3.2
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/entity/GM/assets",
+          "initiatorType": "fetch",
+          "transferSize": 1198,
+          "encodedBodySize": 898,
+          "decodedBodySize": 3086,
+          "duration": 18.4
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 815,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 3.5
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/entity/GM/comps?cap=8",
+          "initiatorType": "fetch",
+          "transferSize": 626,
+          "encodedBodySize": 326,
+          "decodedBodySize": 520,
+          "duration": 25.8
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/entity/GM/political",
+          "initiatorType": "fetch",
+          "transferSize": 385,
+          "encodedBodySize": 85,
+          "decodedBodySize": 72,
+          "duration": 19.8
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/entity/GM/reverse-dcf",
+          "initiatorType": "fetch",
+          "transferSize": 374,
+          "encodedBodySize": 74,
+          "decodedBodySize": 54,
+          "duration": 26.7
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/entity/GM/events",
+          "initiatorType": "fetch",
+          "transferSize": 353,
+          "encodedBodySize": 53,
+          "decodedBodySize": 33,
+          "duration": 17.4
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/evidence?object_type=entity&object_id=GM",
+          "initiatorType": "fetch",
+          "transferSize": 335,
+          "encodedBodySize": 35,
+          "decodedBodySize": 15,
+          "duration": 20.3
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/overrides?object_type=entity&object_id=GM",
+          "initiatorType": "fetch",
+          "transferSize": 316,
+          "encodedBodySize": 16,
+          "decodedBodySize": 16,
+          "duration": 22.5
+        }
+      ],
+      "harPath": "docs/evidence/performance/12-local-entity-drawer.har",
+      "flow": "entity drawer hydration",
+      "detailText": "General Motors Co\nGM · CIK 0001467858\n×\nConsumer DiscretionaryCompanyMedium confidenceCompany Research\nNODE TYPE\nCompany\nLISTING\nGM\nCONNECTIONS\n0 visible · 0 total\nCANONICAL HQ\nDETROIT, MI\nHQ SOURCE\nunresolved · 90%\nLATEST FILING\n—\nRECENT PRICE\n—\nSOURCE CONFIDENCE\n84%\nGROUP\nAutos & mobility\nSUB-INDUSTRY\nMotor Vehicles & Passenger Car Bodies\nFOUNDED\n—\nENDED\n—\nSelf view\nFinancial Modeling\nASSETS\nDetroit manufacturing facility\nOPERATES · factory · Detroit · value pending · operating · risk pending "
+    },
+    "13-local-data-quality-panel": {
+      "requestCount": 10,
+      "failedRequestCount": 0,
+      "resourceTransferBytes": 362051,
+      "resourceTransferKb": 353.6,
+      "navigation": {
+        "domContentLoadedMs": 49,
+        "loadEventMs": 49.8,
+        "transferSize": 2796,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 49.8
+      },
+      "graphState": {
+        "mode": "network",
+        "companies": 958,
+        "bulkLoaded": false,
+        "selected": null,
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 958,
+        "canvasDisplay": "none",
+        "stats": "907"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": null,
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": false
+      },
+      "requestedUniverseBulk": false,
+      "requestedUnpkg": false,
+      "externalHosts": [],
+      "duplicates": [],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 22,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 19,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 14,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 13,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 13,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 12,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/data-quality/dashboard",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 8,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "382",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 5,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 4,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 3,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [],
+      "resourceSummary": [
+        {
+          "name": "http://127.0.0.1:8788/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 246489,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 8.9
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 54430,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 4.9
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 42285,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 7.2
+        },
+        {
+          "name": "http://127.0.0.1:8788/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 6786,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 3.4
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 5029,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 4.5
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 3623,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 5.7
+        },
+        {
+          "name": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 1912,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 4.4
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 815,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 6
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/data-quality/dashboard",
+          "initiatorType": "fetch",
+          "transferSize": 682,
+          "encodedBodySize": 382,
+          "decodedBodySize": 1428,
+          "duration": 8.8
+        }
+      ],
+      "harPath": "docs/evidence/performance/13-local-data-quality-panel.har",
+      "flow": "data quality panel",
+      "panelText": "DATA LAYERS\nReliefs\n1/10\n▾\nTerrain exaggeration\n1.1x\nZoom to USGS 3DEP DEM\nDEM status: not loaded yet\nlow reliefsteep / high relief\nTerrain / relief\n0\nNOT LOADED YET\nHillshade\n0\nNOT LOADED YET\nMountains / slope\n0\nNOT LOADED YET\nPlateaus\n0\nNOT LOADED YET\nRivers / water bodies\n0\nNOT LOADED YET\nVegetation\n0\nNOT LOADED YET\nWeather\n0\nNOT LOADED YET\nInfrastructure\n0\nNOT LOADED YET\nCrime aggregates\n0\nNOT LOADED YET\nPublic cameras where legally available\n0\nNOT LOADED YET\nIndustrial Complex\n0/15\n▾\nFarms\n"
+    },
+    "14-local-report-preview": {
+      "requestCount": 10,
+      "failedRequestCount": 0,
+      "resourceTransferBytes": 363344,
+      "resourceTransferKb": 354.8,
+      "navigation": {
+        "domContentLoadedMs": 43.1,
+        "loadEventMs": 43.8,
+        "transferSize": 2796,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 43.8
+      },
+      "graphState": {
+        "mode": "network",
+        "companies": 958,
+        "bulkLoaded": false,
+        "selected": null,
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 958,
+        "canvasDisplay": "none",
+        "stats": "907"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": null,
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": false
+      },
+      "requestedUniverseBulk": false,
+      "requestedUnpkg": false,
+      "externalHosts": [],
+      "duplicates": [],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/reports/entity/GM",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 110,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "1675",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 21,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 18,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 13,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 13,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 12,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 8,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 4,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 4,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "http://127.0.0.1:8788/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 3,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [],
+      "resourceSummary": [
+        {
+          "name": "http://127.0.0.1:8788/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 246489,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 7.3
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 54430,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 5.1
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 42285,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 4.4
+        },
+        {
+          "name": "http://127.0.0.1:8788/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 6786,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 3.9
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 5029,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 5.6
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 3623,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 5.4
+        },
+        {
+          "name": "http://127.0.0.1:8788/api/reports/entity/GM",
+          "initiatorType": "fetch",
+          "transferSize": 1975,
+          "encodedBodySize": 1675,
+          "decodedBodySize": 4939,
+          "duration": 12
+        },
+        {
+          "name": "http://127.0.0.1:8788/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 1912,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 4.8
+        },
+        {
+          "name": "http://127.0.0.1:8788/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 815,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 5.3
+        }
+      ],
+      "harPath": "docs/evidence/performance/14-local-report-preview.har",
+      "flow": "report preview",
+      "report": {
+        "status": 200,
+        "durationMs": 108.2,
+        "cacheControl": "public, max-age=60, must-revalidate",
+        "contentEncoding": "gzip",
+        "contentLength": "1675",
+        "keys": [
+          "confidence_score",
+          "evidence_source_appendix",
+          "executive_summary",
+          "generated_at",
+          "location_map_screenshot",
+          "missing_data_appendix",
+          "object_id",
+          "object_type",
+          "overview",
+          "report_id",
+          "report_type",
+          "sections"
+        ]
+      }
+    }
+  }
+}

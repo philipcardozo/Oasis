@@ -1,0 +1,2555 @@
+{
+  "capturedAt": "2026-07-23T18:46:53.097Z",
+  "commit": "9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e",
+  "branch": "main",
+  "baseUrl": "https://localhost:8443",
+  "proxyServer": "http://127.0.0.1:9090",
+  "ignoreHTTPSErrors": true,
+  "flows": {
+    "15-compose-03-local-first-paint": {
+      "requestCount": 9,
+      "failedRequestCount": 0,
+      "resourceTransferBytes": 361369,
+      "resourceTransferKb": 352.9,
+      "navigation": {
+        "domContentLoadedMs": 233.5,
+        "loadEventMs": 234.9,
+        "transferSize": 2796,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 234.9
+      },
+      "graphState": {
+        "mode": "network",
+        "companies": 958,
+        "bulkLoaded": false,
+        "selected": null,
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 958,
+        "canvasDisplay": "none",
+        "stats": "907"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": null,
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": false
+      },
+      "requestedUniverseBulk": false,
+      "requestedUnpkg": false,
+      "externalHosts": [],
+      "duplicates": [],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 111,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 80,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 70,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 69,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 17,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 17,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 13,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 12,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 11,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [],
+      "resourceSummary": [
+        {
+          "name": "https://localhost:8443/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 246489,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 147.4
+        },
+        {
+          "name": "https://localhost:8443/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 54430,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 37.8
+        },
+        {
+          "name": "https://localhost:8443/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 42285,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 11.8
+        },
+        {
+          "name": "https://localhost:8443/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 6786,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 15.6
+        },
+        {
+          "name": "https://localhost:8443/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 5029,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 17.6
+        },
+        {
+          "name": "https://localhost:8443/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 3623,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 12.1
+        },
+        {
+          "name": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 1912,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 25.1
+        },
+        {
+          "name": "https://localhost:8443/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 815,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 12
+        }
+      ],
+      "harPath": "docs/evidence/performance/15-compose-03-local-first-paint.har",
+      "flow": "cold first paint"
+    },
+    "15-compose-04-local-reload": {
+      "requestCount": 18,
+      "failedRequestCount": 0,
+      "resourceTransferBytes": 288774,
+      "resourceTransferKb": 282,
+      "navigation": {
+        "domContentLoadedMs": 130,
+        "loadEventMs": 130.6,
+        "transferSize": 2796,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 130.6
+      },
+      "graphState": {
+        "mode": "network",
+        "companies": 958,
+        "bulkLoaded": false,
+        "selected": null,
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 958,
+        "canvasDisplay": "none",
+        "stats": "907"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": null,
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": false
+      },
+      "requestedUniverseBulk": false,
+      "requestedUnpkg": false,
+      "externalHosts": [],
+      "duplicates": [
+        {
+          "key": "GET https://localhost:8443/api/bootstrap/signals",
+          "count": 2
+        },
+        {
+          "key": "GET https://localhost:8443/css/app.css",
+          "count": 2
+        },
+        {
+          "key": "GET https://localhost:8443/data/universe_core.json",
+          "count": 2
+        },
+        {
+          "key": "GET https://localhost:8443/index.html",
+          "count": 2
+        },
+        {
+          "key": "GET https://localhost:8443/js/config.js",
+          "count": 2
+        },
+        {
+          "key": "GET https://localhost:8443/js/main.js",
+          "count": 2
+        },
+        {
+          "key": "GET https://localhost:8443/js/state.js",
+          "count": 2
+        },
+        {
+          "key": "GET https://localhost:8443/js/util.js",
+          "count": 2
+        },
+        {
+          "key": "GET https://localhost:8443/Logo_Dark_BG_96.png",
+          "count": 2
+        }
+      ],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 37,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 36,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 33,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 27,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 12,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 12,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 12,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 12,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 11,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 10,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 5,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 5,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 4,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 0,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 0,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 0,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 0,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 0,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [],
+      "resourceSummary": [
+        {
+          "name": "https://localhost:8443/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 246489,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 43.2
+        },
+        {
+          "name": "https://localhost:8443/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 42285,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 15.1
+        },
+        {
+          "name": "https://localhost:8443/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 0,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 0
+        },
+        {
+          "name": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 0,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 0
+        },
+        {
+          "name": "https://localhost:8443/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 0,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 0
+        },
+        {
+          "name": "https://localhost:8443/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 0,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 0
+        },
+        {
+          "name": "https://localhost:8443/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 0,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 0
+        },
+        {
+          "name": "https://localhost:8443/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 0,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 0
+        }
+      ],
+      "harPath": "docs/evidence/performance/15-compose-04-local-reload.har",
+      "flow": "warm reload"
+    },
+    "15-compose-05-local-search-intent": {
+      "requestCount": 10,
+      "failedRequestCount": 0,
+      "resourceTransferBytes": 1342490,
+      "resourceTransferKb": 1311,
+      "navigation": {
+        "domContentLoadedMs": 47.8,
+        "loadEventMs": 48.3,
+        "transferSize": 2796,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 48.3
+      },
+      "graphState": {
+        "mode": "network",
+        "companies": 14627,
+        "bulkLoaded": true,
+        "selected": null,
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 958,
+        "canvasDisplay": "none",
+        "stats": "907"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": null,
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": false
+      },
+      "requestedUniverseBulk": true,
+      "requestedUnpkg": false,
+      "externalHosts": [],
+      "duplicates": [],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/universe/bulk",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 536,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "980821",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 20,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 14,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 14,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 13,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 10,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 9,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 9,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 7,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 5,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [],
+      "resourceSummary": [
+        {
+          "name": "https://localhost:8443/api/universe/bulk",
+          "initiatorType": "fetch",
+          "transferSize": 981121,
+          "encodedBodySize": 980821,
+          "decodedBodySize": 6404010,
+          "duration": 641.6
+        },
+        {
+          "name": "https://localhost:8443/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 246489,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 11.5
+        },
+        {
+          "name": "https://localhost:8443/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 54430,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 8.1
+        },
+        {
+          "name": "https://localhost:8443/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 42285,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 11.2
+        },
+        {
+          "name": "https://localhost:8443/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 6786,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 8.1
+        },
+        {
+          "name": "https://localhost:8443/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 5029,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 4.6
+        },
+        {
+          "name": "https://localhost:8443/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 3623,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 5.2
+        },
+        {
+          "name": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 1912,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 5.8
+        },
+        {
+          "name": "https://localhost:8443/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 815,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 4.5
+        }
+      ],
+      "harPath": "docs/evidence/performance/15-compose-05-local-search-intent.har",
+      "flow": "search intent and bulk load"
+    },
+    "15-compose-06-local-map-interactions": {
+      "requestCount": 106,
+      "failedRequestCount": 2,
+      "resourceTransferBytes": 1386430,
+      "resourceTransferKb": 1353.9,
+      "navigation": {
+        "domContentLoadedMs": 54.1,
+        "loadEventMs": 54.5,
+        "transferSize": 2796,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 54.5
+      },
+      "graphState": {
+        "mode": "globe",
+        "companies": 958,
+        "bulkLoaded": false,
+        "selected": null,
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 958,
+        "canvasDisplay": "none",
+        "stats": "950"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": "standard",
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": true
+      },
+      "requestedUniverseBulk": false,
+      "requestedUnpkg": false,
+      "externalHosts": [
+        "basemaps.cartocdn.com",
+        "fonts.openmaptiles.org",
+        "s3.amazonaws.com",
+        "services.arcgisonline.com",
+        "tiles.openfreemap.org"
+      ],
+      "duplicates": [
+        {
+          "key": "GET https://s3.amazonaws.com/elevation-tiles-prod/terrarium/0/0/0.png",
+          "count": 12
+        },
+        {
+          "key": "GET https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/0.png",
+          "count": 8
+        },
+        {
+          "key": "GET https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/0.png",
+          "count": 6
+        },
+        {
+          "key": "GET https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/1.png",
+          "count": 6
+        },
+        {
+          "key": "GET https://fonts.openmaptiles.org/Noto%20Sans%20Bold/0-255.pbf",
+          "count": 4
+        },
+        {
+          "key": "GET https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/1.png",
+          "count": 4
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/planet/20260621_080001_pt/0/0/0.pbf",
+          "count": 4
+        },
+        {
+          "key": "GET https://fonts.openmaptiles.org/Noto%20Sans%20Italic/0-255.pbf",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/0.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/1.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/2.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/0.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/1.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/2.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/2/0.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/2/1.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/3/0.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/natural_earth/ne2sr/2/3/1.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/planet",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/0.pbf",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/1.pbf",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/planet/20260621_080001_pt/1/1/0.pbf",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/sprites/ofm_f384/ofm.json",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/sprites/ofm_f384/ofm.png",
+          "count": 2
+        },
+        {
+          "key": "GET https://tiles.openfreemap.org/styles/liberty",
+          "count": 2
+        }
+      ],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 958,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "49454",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 956,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": "gzip",
+          "contentLength": null,
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/data/companies.geojson",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 894,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "604394",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/2.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 682,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "75438",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/1.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 681,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "129902",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/2.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 681,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "20395",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/2/1.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 681,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "250181",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/2/0.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 681,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "65033",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/3/1.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 681,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "236658",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/3/0.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 681,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "66673",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/0.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 680,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": null,
+          "contentLength": "158734",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/0.pbf",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 604,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": "gzip",
+          "contentLength": "108477",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/1/0.pbf",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 598,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": "gzip",
+          "contentLength": "125563",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/1.pbf",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 594,
+          "cacheControl": "public, max-age=315360000",
+          "contentEncoding": "gzip",
+          "contentLength": "103001",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/2/1/2",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 431,
+          "cacheControl": "max-age=86400",
+          "contentEncoding": null,
+          "contentLength": "19024",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/2/0/2",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 431,
+          "cacheControl": "max-age=86400",
+          "contentEncoding": null,
+          "contentLength": "10223",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://tiles.openfreemap.org/styles/liberty",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 392,
+          "cacheControl": "public, max-age=86400",
+          "contentEncoding": "gzip",
+          "contentLength": null,
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/0.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 378,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "100773",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/1.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 378,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "94598",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/0.png",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 378,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "97258",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [
+        "TypeError: Cannot read properties of undefined (reading 'shaderPreludeCode')",
+        "Connecting to 'https://tiles.basemaps.cartocdn.com/vector/carto.streets/v1/tiles.json' violates the following Content Security Policy directive: \"connect-src 'self' https://tiles.openfreemap.org https://basemaps.cartocdn.com https://services.arcgisonline.com https://s3.amazonaws.com https://fonts.openmaptiles.org\". The action has been blocked.",
+        "Fetch API cannot load https://tiles.basemaps.cartocdn.com/vector/carto.streets/v1/tiles.json. Refused to connect because it violates the document's Content Security Policy.",
+        "Connecting to 'https://tiles.basemaps.cartocdn.com/gl/dark-matter-gl-style/sprite.json' violates the following Content Security Policy directive: \"connect-src 'self' https://tiles.openfreemap.org https://basemaps.cartocdn.com https://services.arcgisonline.com https://s3.amazonaws.com https://fonts.openmaptiles.org\". The action has been blocked.",
+        "Fetch API cannot load https://tiles.basemaps.cartocdn.com/gl/dark-matter-gl-style/sprite.json. Refused to connect because it violates the document's Content Security Policy.",
+        "Connecting to 'https://tiles.basemaps.cartocdn.com/gl/dark-matter-gl-style/sprite.png' violates the following Content Security Policy directive: \"connect-src 'self' https://tiles.openfreemap.org https://basemaps.cartocdn.com https://services.arcgisonline.com https://s3.amazonaws.com https://fonts.openmaptiles.org\". The action has been blocked.",
+        "Fetch API cannot load https://tiles.basemaps.cartocdn.com/gl/dark-matter-gl-style/sprite.png. Refused to connect because it violates the document's Content Security Policy.",
+        "TypeError: Cannot read properties of undefined (reading 'shaderPreludeCode')"
+      ],
+      "resourceSummary": [
+        {
+          "name": "https://localhost:8443/data/companies.geojson",
+          "initiatorType": "fetch",
+          "transferSize": 604694,
+          "encodedBodySize": 604394,
+          "decodedBodySize": 6873699,
+          "duration": 895.5
+        },
+        {
+          "name": "https://localhost:8443/vendor/maplibre-gl/5.6.2/maplibre-gl.js",
+          "initiatorType": "script",
+          "transferSize": 247999,
+          "encodedBodySize": 247699,
+          "decodedBodySize": 937395,
+          "duration": 86.5
+        },
+        {
+          "name": "https://localhost:8443/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 246489,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 10.7
+        },
+        {
+          "name": "https://localhost:8443/data/securities.geojson",
+          "initiatorType": "fetch",
+          "transferSize": 119060,
+          "encodedBodySize": 118760,
+          "decodedBodySize": 1355823,
+          "duration": 212.3
+        },
+        {
+          "name": "https://localhost:8443/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 54430,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 15.6
+        },
+        {
+          "name": "https://localhost:8443/data/relationships.geojson",
+          "initiatorType": "fetch",
+          "transferSize": 42957,
+          "encodedBodySize": 42657,
+          "decodedBodySize": 332052,
+          "duration": 124.7
+        },
+        {
+          "name": "https://localhost:8443/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 42285,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 10.5
+        },
+        {
+          "name": "https://localhost:8443/vendor/maplibre-gl/5.6.2/maplibre-gl.css",
+          "initiatorType": "link",
+          "transferSize": 10351,
+          "encodedBodySize": 10051,
+          "decodedBodySize": 69430,
+          "duration": 52.7
+        },
+        {
+          "name": "https://localhost:8443/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 6786,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 13.7
+        },
+        {
+          "name": "https://localhost:8443/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 5029,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 4.1
+        },
+        {
+          "name": "https://localhost:8443/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 3623,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 4.6
+        },
+        {
+          "name": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 1912,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 17.8
+        },
+        {
+          "name": "https://localhost:8443/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 815,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 5
+        },
+        {
+          "name": "https://tiles.openfreemap.org/styles/liberty",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "duration": 353.3
+        },
+        {
+          "name": "https://tiles.openfreemap.org/planet",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "duration": 162.5
+        },
+        {
+          "name": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm.json",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "duration": 410.6
+        },
+        {
+          "name": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm.png",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "duration": 691.8
+        },
+        {
+          "name": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/1.png",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "duration": 574.5
+        },
+        {
+          "name": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/1/1.png",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "duration": 877.8
+        },
+        {
+          "name": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/0/2.png",
+          "initiatorType": "fetch",
+          "transferSize": 0,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0,
+          "duration": 530.4
+        }
+      ],
+      "harPath": "docs/evidence/performance/15-compose-06-local-map-interactions.har",
+      "flow": "Map Studio and basemap switching"
+    },
+    "15-compose-07-local-dcf-download": {
+      "requestCount": 10,
+      "failedRequestCount": 0,
+      "resourceTransferBytes": 361703,
+      "resourceTransferKb": 353.2,
+      "navigation": {
+        "domContentLoadedMs": 71.6,
+        "loadEventMs": 72,
+        "transferSize": 2796,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 72
+      },
+      "graphState": {
+        "mode": "network",
+        "companies": 958,
+        "bulkLoaded": false,
+        "selected": null,
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 958,
+        "canvasDisplay": "none",
+        "stats": "907"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": null,
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": false
+      },
+      "requestedUniverseBulk": false,
+      "requestedUnpkg": false,
+      "externalHosts": [],
+      "duplicates": [],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/entity/BLK/dcf.xlsx?method=cash_flow",
+          "status": 500,
+          "resourceType": "fetch",
+          "durationMs": 68,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "34",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 41,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 26,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 17,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 16,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 16,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 16,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 9,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 9,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 6,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 500 ()"
+      ],
+      "resourceSummary": [
+        {
+          "name": "https://localhost:8443/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 246489,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 27.9
+        },
+        {
+          "name": "https://localhost:8443/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 54430,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 6.9
+        },
+        {
+          "name": "https://localhost:8443/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 42285,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 5.3
+        },
+        {
+          "name": "https://localhost:8443/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 6786,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 12.4
+        },
+        {
+          "name": "https://localhost:8443/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 5029,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 5.8
+        },
+        {
+          "name": "https://localhost:8443/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 3623,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 4.5
+        },
+        {
+          "name": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 1912,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 6.7
+        },
+        {
+          "name": "https://localhost:8443/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 815,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 4.8
+        },
+        {
+          "name": "https://localhost:8443/api/entity/BLK/dcf.xlsx?method=cash_flow",
+          "initiatorType": "fetch",
+          "transferSize": 334,
+          "encodedBodySize": 34,
+          "decodedBodySize": 34,
+          "duration": 39.7
+        }
+      ],
+      "harPath": "docs/evidence/performance/15-compose-07-local-dcf-download.har",
+      "flow": "DCF workbook fetch",
+      "dcf": {
+        "status": 500,
+        "bytes": 34,
+        "durationMs": 65.6,
+        "contentType": "application/json",
+        "contentEncoding": null,
+        "contentLength": "34",
+        "cacheControl": null,
+        "etag": null
+      }
+    },
+    "15-compose-12-local-entity-drawer": {
+      "requestCount": 17,
+      "failedRequestCount": 0,
+      "resourceTransferBytes": 1344861,
+      "resourceTransferKb": 1313.3,
+      "navigation": {
+        "domContentLoadedMs": 52.1,
+        "loadEventMs": 52.6,
+        "transferSize": 2796,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 52.6
+      },
+      "graphState": {
+        "mode": "index",
+        "companies": 14627,
+        "bulkLoaded": true,
+        "selected": "GM",
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 959,
+        "canvasDisplay": "block",
+        "stats": "14,619"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": null,
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": false
+      },
+      "requestedUniverseBulk": true,
+      "requestedUnpkg": false,
+      "externalHosts": [],
+      "duplicates": [],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/universe/bulk",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 210,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "980821",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/entity/GM/assets",
+          "status": 500,
+          "resourceType": "fetch",
+          "durationMs": 70,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "34",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/entity/GM/reverse-dcf",
+          "status": 500,
+          "resourceType": "fetch",
+          "durationMs": 70,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "34",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/entity/GM/political",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 70,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "65",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/entity/GM/comps?cap=8",
+          "status": 500,
+          "resourceType": "fetch",
+          "durationMs": 69,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "34",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 39,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/evidence?object_type=entity&object_id=GM",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 26,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "35",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/overrides?object_type=entity&object_id=GM",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 26,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "16",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/entity/GM/events",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 25,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "53",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 24,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 23,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 16,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 13,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 8,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 7,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 6,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 6,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 500 ()",
+        "Failed to load resource: the server responded with a status of 500 ()",
+        "Failed to load resource: the server responded with a status of 500 ()"
+      ],
+      "resourceSummary": [
+        {
+          "name": "https://localhost:8443/api/universe/bulk",
+          "initiatorType": "fetch",
+          "transferSize": 981121,
+          "encodedBodySize": 980821,
+          "decodedBodySize": 6404010,
+          "duration": 334.4
+        },
+        {
+          "name": "https://localhost:8443/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 246489,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 39.5
+        },
+        {
+          "name": "https://localhost:8443/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 54430,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 12.9
+        },
+        {
+          "name": "https://localhost:8443/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 42285,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 7.9
+        },
+        {
+          "name": "https://localhost:8443/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 6786,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 12.7
+        },
+        {
+          "name": "https://localhost:8443/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 5029,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 5.9
+        },
+        {
+          "name": "https://localhost:8443/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 3623,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 9.2
+        },
+        {
+          "name": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 1912,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 13.2
+        },
+        {
+          "name": "https://localhost:8443/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 815,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 6.3
+        },
+        {
+          "name": "https://localhost:8443/api/entity/GM/political",
+          "initiatorType": "fetch",
+          "transferSize": 365,
+          "encodedBodySize": 65,
+          "decodedBodySize": 45,
+          "duration": 77.5
+        },
+        {
+          "name": "https://localhost:8443/api/entity/GM/events",
+          "initiatorType": "fetch",
+          "transferSize": 353,
+          "encodedBodySize": 53,
+          "decodedBodySize": 33,
+          "duration": 38
+        },
+        {
+          "name": "https://localhost:8443/api/evidence?object_type=entity&object_id=GM",
+          "initiatorType": "fetch",
+          "transferSize": 335,
+          "encodedBodySize": 35,
+          "decodedBodySize": 15,
+          "duration": 38.4
+        },
+        {
+          "name": "https://localhost:8443/api/entity/GM/assets",
+          "initiatorType": "fetch",
+          "transferSize": 334,
+          "encodedBodySize": 34,
+          "decodedBodySize": 34,
+          "duration": 77.6
+        },
+        {
+          "name": "https://localhost:8443/api/entity/GM/comps?cap=8",
+          "initiatorType": "fetch",
+          "transferSize": 334,
+          "encodedBodySize": 34,
+          "decodedBodySize": 34,
+          "duration": 47.5
+        },
+        {
+          "name": "https://localhost:8443/api/entity/GM/reverse-dcf",
+          "initiatorType": "fetch",
+          "transferSize": 334,
+          "encodedBodySize": 34,
+          "decodedBodySize": 34,
+          "duration": 48.5
+        },
+        {
+          "name": "https://localhost:8443/api/overrides?object_type=entity&object_id=GM",
+          "initiatorType": "fetch",
+          "transferSize": 316,
+          "encodedBodySize": 16,
+          "decodedBodySize": 16,
+          "duration": 39.2
+        }
+      ],
+      "harPath": "docs/evidence/performance/15-compose-12-local-entity-drawer.har",
+      "flow": "entity drawer hydration",
+      "detailText": "General Motors Co\nGM · CIK 0001467858\n×\nConsumer DiscretionaryCompanyMedium confidenceCompany Research\nNODE TYPE\nCompany\nLISTING\nGM\nCONNECTIONS\n0 visible · 0 total\nCANONICAL HQ\nDETROIT, MI\nHQ SOURCE\nunresolved · 90%\nLATEST FILING\n—\nRECENT PRICE\n—\nSOURCE CONFIDENCE\n84%\nGROUP\nAutos & mobility\nSUB-INDUSTRY\nMotor Vehicles & Passenger Car Bodies\nFOUNDED\n—\nENDED\n—\nSelf view\nFinancial Modeling\nASSETS\nCould not load assets: 500\nEVENTS\n☆ Watchlist\nNo events recorded yet.\nCOMPANY RESEARCH\nfilings, prices,"
+    },
+    "15-compose-13-local-data-quality-panel": {
+      "requestCount": 10,
+      "failedRequestCount": 0,
+      "resourceTransferBytes": 361703,
+      "resourceTransferKb": 353.2,
+      "navigation": {
+        "domContentLoadedMs": 56.3,
+        "loadEventMs": 56.8,
+        "transferSize": 2796,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 56.8
+      },
+      "graphState": {
+        "mode": "network",
+        "companies": 958,
+        "bulkLoaded": false,
+        "selected": null,
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 958,
+        "canvasDisplay": "none",
+        "stats": "907"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": null,
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": false
+      },
+      "requestedUniverseBulk": false,
+      "requestedUnpkg": false,
+      "externalHosts": [],
+      "duplicates": [],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 26,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 20,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 18,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/data-quality/dashboard",
+          "status": 500,
+          "resourceType": "fetch",
+          "durationMs": 16,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "34",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 9,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 8,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 6,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 6,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 5,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 4,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 500 ()"
+      ],
+      "resourceSummary": [
+        {
+          "name": "https://localhost:8443/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 246489,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 8
+        },
+        {
+          "name": "https://localhost:8443/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 54430,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 10.7
+        },
+        {
+          "name": "https://localhost:8443/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 42285,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 7.7
+        },
+        {
+          "name": "https://localhost:8443/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 6786,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 5.5
+        },
+        {
+          "name": "https://localhost:8443/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 5029,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 6.4
+        },
+        {
+          "name": "https://localhost:8443/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 3623,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 6.3
+        },
+        {
+          "name": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 1912,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 10.4
+        },
+        {
+          "name": "https://localhost:8443/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 815,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 7
+        },
+        {
+          "name": "https://localhost:8443/api/data-quality/dashboard",
+          "initiatorType": "fetch",
+          "transferSize": 334,
+          "encodedBodySize": 34,
+          "decodedBodySize": 34,
+          "duration": 19.8
+        }
+      ],
+      "harPath": "docs/evidence/performance/15-compose-13-local-data-quality-panel.har",
+      "flow": "data quality panel",
+      "panelText": "DATA LAYERS\nReliefs\n1/10\n▾\nTerrain exaggeration\n1.1x\nZoom to USGS 3DEP DEM\nDEM status: not loaded yet\nlow reliefsteep / high relief\nTerrain / relief\n0\nNOT LOADED YET\nHillshade\n0\nNOT LOADED YET\nMountains / slope\n0\nNOT LOADED YET\nPlateaus\n0\nNOT LOADED YET\nRivers / water bodies\n0\nNOT LOADED YET\nVegetation\n0\nNOT LOADED YET\nWeather\n0\nNOT LOADED YET\nInfrastructure\n0\nNOT LOADED YET\nCrime aggregates\n0\nNOT LOADED YET\nPublic cameras where legally available\n0\nNOT LOADED YET\nIndustrial Complex\n0/15\n▾\nFarms\n"
+    },
+    "15-compose-14-local-report-preview": {
+      "requestCount": 10,
+      "failedRequestCount": 0,
+      "resourceTransferBytes": 361703,
+      "resourceTransferKb": 353.2,
+      "navigation": {
+        "domContentLoadedMs": 56.3,
+        "loadEventMs": 56.8,
+        "transferSize": 2796,
+        "encodedBodySize": 2496,
+        "decodedBodySize": 8842,
+        "duration": 56.8
+      },
+      "graphState": {
+        "mode": "network",
+        "companies": 958,
+        "bulkLoaded": false,
+        "selected": null,
+        "manualSelectedId": null,
+        "manualNodes": 0,
+        "lens": "company",
+        "selfViewId": "",
+        "selfViewNodes": 0,
+        "svgNodes": 958,
+        "canvasDisplay": "none",
+        "stats": "907"
+      },
+      "mapStudioState": {
+        "basemap": "standard",
+        "preferredBasemap": "standard",
+        "activeBasemap": null,
+        "basemapNotice": null,
+        "selectedMapSlot": 0,
+        "mapSlots": [
+          {
+            "name": "Standard Research",
+            "basemap": "standard"
+          },
+          {
+            "name": "Dark Network View",
+            "basemap": "dark"
+          },
+          {
+            "name": "Satellite Site Analysis",
+            "basemap": "satellite"
+          }
+        ],
+        "terrain": true,
+        "terrainExaggeration": 1.12,
+        "activeOverlays": 1,
+        "styleLoaded": false
+      },
+      "requestedUniverseBulk": false,
+      "requestedUnpkg": false,
+      "externalHosts": [],
+      "duplicates": [],
+      "slowest": [
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/reports/entity/GM",
+          "status": 500,
+          "resourceType": "fetch",
+          "durationMs": 65,
+          "cacheControl": null,
+          "contentEncoding": null,
+          "contentLength": "34",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/index.html",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": 24,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "2496",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/main.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 19,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "54130",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/data/universe_core.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 9,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "246189",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/api/bootstrap/signals",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": 9,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "41985",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/util.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 7,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "515",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/config.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 7,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "4729",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/js/state.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": 7,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "3323",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/css/app.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": 6,
+          "cacheControl": "public, max-age=60, must-revalidate",
+          "contentEncoding": "gzip",
+          "contentLength": "6486",
+          "failure": null
+        },
+        {
+          "method": "GET",
+          "url": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": 5,
+          "cacheControl": "public, max-age=31536000, immutable",
+          "contentEncoding": "identity",
+          "contentLength": "1612",
+          "failure": null
+        }
+      ],
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 500 ()"
+      ],
+      "resourceSummary": [
+        {
+          "name": "https://localhost:8443/data/universe_core.json",
+          "initiatorType": "fetch",
+          "transferSize": 246489,
+          "encodedBodySize": 246189,
+          "decodedBodySize": 1638522,
+          "duration": 12.5
+        },
+        {
+          "name": "https://localhost:8443/js/main.js",
+          "initiatorType": "script",
+          "transferSize": 54430,
+          "encodedBodySize": 54130,
+          "decodedBodySize": 199910,
+          "duration": 9.9
+        },
+        {
+          "name": "https://localhost:8443/api/bootstrap/signals",
+          "initiatorType": "fetch",
+          "transferSize": 42285,
+          "encodedBodySize": 41985,
+          "decodedBodySize": 123981,
+          "duration": 11.5
+        },
+        {
+          "name": "https://localhost:8443/css/app.css",
+          "initiatorType": "link",
+          "transferSize": 6786,
+          "encodedBodySize": 6486,
+          "decodedBodySize": 36191,
+          "duration": 6.1
+        },
+        {
+          "name": "https://localhost:8443/js/config.js",
+          "initiatorType": "script",
+          "transferSize": 5029,
+          "encodedBodySize": 4729,
+          "decodedBodySize": 15499,
+          "duration": 6.8
+        },
+        {
+          "name": "https://localhost:8443/js/state.js",
+          "initiatorType": "script",
+          "transferSize": 3623,
+          "encodedBodySize": 3323,
+          "decodedBodySize": 10533,
+          "duration": 6.7
+        },
+        {
+          "name": "https://localhost:8443/Logo_Dark_BG_96.png",
+          "initiatorType": "img",
+          "transferSize": 1912,
+          "encodedBodySize": 1612,
+          "decodedBodySize": 1612,
+          "duration": 5.8
+        },
+        {
+          "name": "https://localhost:8443/js/util.js",
+          "initiatorType": "script",
+          "transferSize": 815,
+          "encodedBodySize": 515,
+          "decodedBodySize": 970,
+          "duration": 6.3
+        },
+        {
+          "name": "https://localhost:8443/api/reports/entity/GM",
+          "initiatorType": "fetch",
+          "transferSize": 334,
+          "encodedBodySize": 34,
+          "decodedBodySize": 34,
+          "duration": 7.3
+        }
+      ],
+      "harPath": "docs/evidence/performance/15-compose-14-local-report-preview.har",
+      "flow": "report preview",
+      "report": {
+        "status": 500,
+        "durationMs": 130.4,
+        "cacheControl": null,
+        "contentEncoding": null,
+        "contentLength": "34",
+        "keys": [
+          "detail"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,133 @@
+{
+  "branch": "main",
+  "captured_at": "2026-07-23T06:28:21.616782+00:00",
+  "commit": "9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e",
+  "csrf_rejection": {
+    "body_bytes": 42,
+    "duration_ms": 4.225,
+    "operation": "POST /api/auth/logout without X-CSRF-Token",
+    "status_code": 403
+  },
+  "database": "temporary sqlite",
+  "default_map_slot_count": 3,
+  "default_map_slot_numbers": [
+    1,
+    2,
+    3
+  ],
+  "measurements": [
+    {
+      "body_bytes_max": 155,
+      "body_bytes_min": 155,
+      "max_ms": 9.094,
+      "min_ms": 3.755,
+      "name": "session validation GET /api/auth/me",
+      "p50_ms": 4.727,
+      "p95_ms": 8.283,
+      "samples": 25,
+      "status_codes": [
+        200
+      ],
+      "target_met": true,
+      "target_ms": 50
+    },
+    {
+      "body_bytes_max": 261,
+      "body_bytes_min": 261,
+      "max_ms": 40.842,
+      "min_ms": 3.891,
+      "name": "session list GET /api/auth/sessions",
+      "p50_ms": 9.192,
+      "p95_ms": 31.426,
+      "samples": 25,
+      "status_codes": [
+        200
+      ]
+    },
+    {
+      "body_bytes_max": 652,
+      "body_bytes_min": 652,
+      "max_ms": 111.53,
+      "min_ms": 5.036,
+      "name": "map-slot list GET /api/map-slots",
+      "p50_ms": 8.645,
+      "p95_ms": 21.896,
+      "samples": 25,
+      "status_codes": [
+        200
+      ],
+      "target_met": true,
+      "target_ms": 100
+    },
+    {
+      "body_bytes_max": 211,
+      "body_bytes_min": 211,
+      "max_ms": 7.108,
+      "min_ms": 3.867,
+      "name": "map-slot read GET /api/map-slots/{id}",
+      "p50_ms": 4.543,
+      "p95_ms": 6.181,
+      "samples": 25,
+      "status_codes": [
+        200
+      ],
+      "target_met": true,
+      "target_ms": 100
+    },
+    {
+      "body_bytes_max": 212,
+      "body_bytes_min": 207,
+      "max_ms": 14.757,
+      "min_ms": 4.935,
+      "name": "map-slot write PUT /api/map-slots/{id}",
+      "p50_ms": 6.525,
+      "p95_ms": 12.85,
+      "samples": 25,
+      "status_codes": [
+        200
+      ],
+      "target_met": true,
+      "target_ms": 200
+    },
+    {
+      "body_bytes_max": 203,
+      "body_bytes_min": 202,
+      "max_ms": 43.922,
+      "min_ms": 5.533,
+      "name": "map-slot rename POST /api/map-slots/{id}/rename",
+      "p50_ms": 8.832,
+      "p95_ms": 12.908,
+      "samples": 25,
+      "status_codes": [
+        200
+      ],
+      "target_met": true,
+      "target_ms": 200
+    },
+    {
+      "body_bytes_max": 65,
+      "body_bytes_min": 65,
+      "max_ms": 10.133,
+      "min_ms": 5.02,
+      "name": "map-slot export GET /api/map-slots/{id}/export",
+      "p50_ms": 6.972,
+      "p95_ms": 9.678,
+      "samples": 25,
+      "status_codes": [
+        200
+      ]
+    }
+  ],
+  "python": "3.13.9",
+  "samples_per_measurement": 25,
+  "setup": {
+    "csrf_cookie_present": true,
+    "login_ms": 119.682,
+    "login_status": 200,
+    "register_ms": 164.364,
+    "register_status": 201,
+    "session_cookie_present": true,
+    "verify_email_ms": 36.173,
+    "verify_email_status": 200
+  }
+}

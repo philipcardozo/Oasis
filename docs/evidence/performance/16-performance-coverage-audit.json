@@ -1,0 +1,872 @@
+{
+  "artifacts": {
+    "00-preflight.json": true,
+    "01-route-inventory.json": true,
+    "02-golden-api-snapshots.json": true,
+    "03-local-first-paint.har": true,
+    "04-local-reload.har": true,
+    "05-local-search-intent.har": true,
+    "06-local-auth-and-map-slots-http-direct.json": true,
+    "06-local-auth-and-map-slots-http.json": true,
+    "06-local-auth-and-map-slots.json": true,
+    "06-local-map-interactions.har": true,
+    "07-local-api-latency.json": true,
+    "07-local-dcf-download.har": true,
+    "08-proxyman-findings.md": true,
+    "09-optimization-plan.md": true,
+    "10-before-after-summary.md": true,
+    "11-browser-har-summary.json": true,
+    "12-local-entity-drawer.har": true,
+    "13-local-data-quality-panel.har": true,
+    "14-local-report-preview.har": true,
+    "15-compose-browser-har-summary.json": true,
+    "15-staging-capture-status.json": true,
+    "17-route-family-performance-probes.json": true,
+    "18-headless-maplibre-diagnostic.json": true,
+    "19-compose-auth-map-slots.json": true,
+    "20-compose-route-family-probe.json": true,
+    "21-compose-route-family-proxyman-probe.json": true,
+    "22-compose-backup-restore-drill.json": true,
+    "23-compose-failure-exercises.json": true,
+    "24-compose-map-gate.json": true
+  },
+  "auth": {
+    "http_direct": {
+      "csrf_status": 403,
+      "default_map_slots": 3,
+      "extra_non_success": [],
+      "extra_operations": 10,
+      "file": "06-local-auth-and-map-slots-http-direct.json",
+      "measurements": {
+        "map-slot export GET /api/map-slots/{id}/export": {
+          "p50_ms": 4.658,
+          "p95_ms": 6.014,
+          "status_codes": [
+            200
+          ],
+          "target_met": null,
+          "target_ms": null
+        },
+        "map-slot list GET /api/map-slots": {
+          "p50_ms": 10.351,
+          "p95_ms": 41.759,
+          "status_codes": [
+            200
+          ],
+          "target_met": true,
+          "target_ms": 100
+        },
+        "map-slot read GET /api/map-slots/{id}": {
+          "p50_ms": 6.322,
+          "p95_ms": 9.065,
+          "status_codes": [
+            200
+          ],
+          "target_met": true,
+          "target_ms": 100
+        },
+        "map-slot rename POST /api/map-slots/{id}/rename": {
+          "p50_ms": 6.281,
+          "p95_ms": 8.257,
+          "status_codes": [
+            200
+          ],
+          "target_met": true,
+          "target_ms": 200
+        },
+        "map-slot write PUT /api/map-slots/{id}": {
+          "p50_ms": 12.877,
+          "p95_ms": 35.936,
+          "status_codes": [
+            200
+          ],
+          "target_met": true,
+          "target_ms": 200
+        },
+        "session list GET /api/auth/sessions": {
+          "p50_ms": 7.556,
+          "p95_ms": 11.244,
+          "status_codes": [
+            200
+          ],
+          "target_met": null,
+          "target_ms": null
+        },
+        "session validation GET /api/auth/me": {
+          "p50_ms": 5.882,
+          "p95_ms": 11.648,
+          "status_codes": [
+            200
+          ],
+          "target_met": true,
+          "target_ms": 50
+        }
+      },
+      "proxy_server": null,
+      "samples": 20
+    },
+    "http_proxyman": {
+      "csrf_status": 403,
+      "default_map_slots": 3,
+      "extra_non_success": [],
+      "extra_operations": 10,
+      "file": "06-local-auth-and-map-slots-http.json",
+      "measurements": {
+        "map-slot export GET /api/map-slots/{id}/export": {
+          "p50_ms": 5.024,
+          "p95_ms": 6.416,
+          "status_codes": [
+            200
+          ],
+          "target_met": null,
+          "target_ms": null
+        },
+        "map-slot list GET /api/map-slots": {
+          "p50_ms": 10.182,
+          "p95_ms": 29.874,
+          "status_codes": [
+            200
+          ],
+          "target_met": true,
+          "target_ms": 100
+        },
+        "map-slot read GET /api/map-slots/{id}": {
+          "p50_ms": 6.459,
+          "p95_ms": 11.216,
+          "status_codes": [
+            200
+          ],
+          "target_met": true,
+          "target_ms": 100
+        },
+        "map-slot rename POST /api/map-slots/{id}/rename": {
+          "p50_ms": 6.085,
+          "p95_ms": 9.086,
+          "status_codes": [
+            200
+          ],
+          "target_met": true,
+          "target_ms": 200
+        },
+        "map-slot write PUT /api/map-slots/{id}": {
+          "p50_ms": 15.215,
+          "p95_ms": 43.323,
+          "status_codes": [
+            200
+          ],
+          "target_met": true,
+          "target_ms": 200
+        },
+        "session list GET /api/auth/sessions": {
+          "p50_ms": 7.583,
+          "p95_ms": 11.048,
+          "status_codes": [
+            200
+          ],
+          "target_met": null,
+          "target_ms": null
+        },
+        "session validation GET /api/auth/me": {
+          "p50_ms": 6.111,
+          "p95_ms": 12.944,
+          "status_codes": [
+            200
+          ],
+          "target_met": true,
+          "target_ms": 50
+        }
+      },
+      "proxy_server": "http://127.0.0.1:9090",
+      "samples": 20
+    },
+    "testclient": {
+      "csrf_status": 403,
+      "default_map_slots": 3,
+      "extra_non_success": [],
+      "extra_operations": 0,
+      "file": "06-local-auth-and-map-slots.json",
+      "measurements": {
+        "map-slot export GET /api/map-slots/{id}/export": {
+          "p50_ms": 6.972,
+          "p95_ms": 9.678,
+          "status_codes": [
+            200
+          ],
+          "target_met": null,
+          "target_ms": null
+        },
+        "map-slot list GET /api/map-slots": {
+          "p50_ms": 8.645,
+          "p95_ms": 21.896,
+          "status_codes": [
+            200
+          ],
+          "target_met": true,
+          "target_ms": 100
+        },
+        "map-slot read GET /api/map-slots/{id}": {
+          "p50_ms": 4.543,
+          "p95_ms": 6.181,
+          "status_codes": [
+            200
+          ],
+          "target_met": true,
+          "target_ms": 100
+        },
+        "map-slot rename POST /api/map-slots/{id}/rename": {
+          "p50_ms": 8.832,
+          "p95_ms": 12.908,
+          "status_codes": [
+            200
+          ],
+          "target_met": true,
+          "target_ms": 200
+        },
+        "map-slot write PUT /api/map-slots/{id}": {
+          "p50_ms": 6.525,
+          "p95_ms": 12.85,
+          "status_codes": [
+            200
+          ],
+          "target_met": true,
+          "target_ms": 200
+        },
+        "session list GET /api/auth/sessions": {
+          "p50_ms": 9.192,
+          "p95_ms": 31.426,
+          "status_codes": [
+            200
+          ],
+          "target_met": null,
+          "target_ms": null
+        },
+        "session validation GET /api/auth/me": {
+          "p50_ms": 4.727,
+          "p95_ms": 8.283,
+          "status_codes": [
+            200
+          ],
+          "target_met": true,
+          "target_ms": 50
+        }
+      },
+      "proxy_server": null,
+      "samples": 25
+    }
+  },
+  "branch": "main",
+  "browser": {
+    "captured_at": "2026-07-23T18:46:53.097Z",
+    "flows": {
+      "15-compose-03-local-first-paint": {
+        "bulk": false,
+        "console_errors": 0,
+        "external_hosts": [],
+        "requests": 9,
+        "transfer_kb": 352.9,
+        "unpkg": false
+      },
+      "15-compose-04-local-reload": {
+        "bulk": false,
+        "console_errors": 0,
+        "external_hosts": [],
+        "requests": 18,
+        "transfer_kb": 282,
+        "unpkg": false
+      },
+      "15-compose-05-local-search-intent": {
+        "bulk": true,
+        "console_errors": 0,
+        "external_hosts": [],
+        "requests": 10,
+        "transfer_kb": 1311,
+        "unpkg": false
+      },
+      "15-compose-06-local-map-interactions": {
+        "bulk": false,
+        "console_errors": 8,
+        "external_hosts": [
+          "basemaps.cartocdn.com",
+          "fonts.openmaptiles.org",
+          "s3.amazonaws.com",
+          "services.arcgisonline.com",
+          "tiles.openfreemap.org"
+        ],
+        "requests": 106,
+        "transfer_kb": 1353.9,
+        "unpkg": false
+      },
+      "15-compose-07-local-dcf-download": {
+        "bulk": false,
+        "console_errors": 1,
+        "external_hosts": [],
+        "requests": 10,
+        "transfer_kb": 353.2,
+        "unpkg": false
+      },
+      "15-compose-12-local-entity-drawer": {
+        "bulk": true,
+        "console_errors": 3,
+        "external_hosts": [],
+        "requests": 17,
+        "transfer_kb": 1313.3,
+        "unpkg": false
+      },
+      "15-compose-13-local-data-quality-panel": {
+        "bulk": false,
+        "console_errors": 1,
+        "external_hosts": [],
+        "requests": 10,
+        "transfer_kb": 353.2,
+        "unpkg": false
+      },
+      "15-compose-14-local-report-preview": {
+        "bulk": false,
+        "console_errors": 1,
+        "external_hosts": [],
+        "requests": 10,
+        "transfer_kb": 353.2,
+        "unpkg": false
+      }
+    },
+    "proxy_server": "http://127.0.0.1:9090"
+  },
+  "commit": "9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e",
+  "compose_failure_exercises": {
+    "captured_at": "2026-07-23T19:44:15.521731+00:00",
+    "full_restart_readyz": null,
+    "login_status": 200,
+    "map_slot_count": 3,
+    "postgres_readyz_stopped": 503,
+    "present": true,
+    "verdict": "pass",
+    "worker_job_status": "done"
+  },
+  "compose_map_gate": {
+    "browser_channel": "chrome",
+    "browser_version": "150.0.7871.129",
+    "captured_at": "2026-07-23T19:36:59.595Z",
+    "headed": true,
+    "present": true,
+    "proxy_server": "http://127.0.0.1:9090",
+    "requested_unpkg": false,
+    "requested_vendored_maplibre": true,
+    "screenshots": {
+      "normal": "/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/24-compose-map-gate-normal.png",
+      "providerFailure": "/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/24-compose-map-gate-provider-failure.png"
+    },
+    "unexpected_console_errors": 0,
+    "unexpected_failed_requests": 0,
+    "verdict": "pass"
+  },
+  "compose_route_family_probe": {
+    "direct": {
+      "base_url": "https://localhost:8443",
+      "failure_count": 0,
+      "measurement_count": 46,
+      "present": true,
+      "verdict": "pass"
+    },
+    "proxyman": {
+      "base_url": "https://localhost:8443",
+      "failure_count": 0,
+      "measurement_count": 46,
+      "present": true,
+      "proxy_server": "http://127.0.0.1:9090",
+      "verdict": "pass"
+    }
+  },
+  "gaps": [
+    "no public deployed staging URL is configured in .env"
+  ],
+  "generated_at": "2026-07-23T19:49:19.711152+00:00",
+  "maplibre_headless_diagnostic": {
+    "all_basemap_preserved": true,
+    "all_style_loaded": true,
+    "captured_at": "2026-07-23T07:49:47.595Z",
+    "conclusion": "headless MapLibre/WebGL warnings classified; app state and basemap behavior preserved",
+    "unclassified_error_count": 0,
+    "variant_count": 3
+  },
+  "route_coverage": {
+    "map_api": {
+      "coverage_pct": 100.0,
+      "covered_by_family": {
+        "api": 10,
+        "app shell": 2,
+        "assets/due diligence": 12,
+        "data quality": 3,
+        "entity drawer/model": 11,
+        "evidence/overrides": 5,
+        "map API": 4,
+        "relief/terrain": 5,
+        "reports": 3,
+        "static asset": 8,
+        "static data": 5
+      },
+      "covered_routes": 68,
+      "total_routes": 68,
+      "uncovered": [],
+      "uncovered_by_family": {},
+      "uncovered_routes": 0
+    },
+    "server_app": {
+      "coverage_pct": 100.0,
+      "covered_by_family": {
+        "api": 10,
+        "app shell": 2,
+        "assets/due diligence": 12,
+        "auth": 12,
+        "data quality": 3,
+        "entity drawer/model": 11,
+        "evidence/overrides": 5,
+        "healthz": 1,
+        "map API": 4,
+        "map slots": 9,
+        "readyz": 1,
+        "relief/terrain": 5,
+        "reports": 3,
+        "static asset": 8,
+        "static data": 5,
+        "version": 1
+      },
+      "covered_routes": 92,
+      "total_routes": 92,
+      "uncovered": [],
+      "uncovered_by_family": {},
+      "uncovered_routes": 0
+    }
+  },
+  "route_family_probe": {
+    "captured_at": "2026-07-23T07:46:26.423362+00:00",
+    "measured_by_family": {
+      "api": 8,
+      "assets/due diligence": 12,
+      "data quality": 2,
+      "entity drawer/model": 3,
+      "evidence/overrides": 3,
+      "map API": 1,
+      "relief/terrain": 5,
+      "reports": 2,
+      "static data": 1
+    },
+    "measurement_count": 37,
+    "non_200": [],
+    "samples_per_route": 3,
+    "sandboxed_fixture_count": 2,
+    "sandboxed_fixtures": [
+      {
+        "method": "GET",
+        "reason": "temporary tilejson path redirection; real local DEM tilejson artifact remains ungenerated",
+        "template": "/api/reliefs/dem/tilejson"
+      },
+      {
+        "reason": "temporary JSON path redirection for file-backed mutation routes",
+        "templates": [
+          "/api/assets/{asset_id}/valuation-assumptions",
+          "/api/location/override",
+          "/api/watchlist/toggle",
+          "/api/overrides",
+          "/api/overrides/{override_id}"
+        ]
+      }
+    ],
+    "skipped": [],
+    "skipped_count": 0
+  },
+  "staging": {
+    "branch": "main",
+    "captured_at": "2026-07-23T19:40:42Z",
+    "commit": "9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e",
+    "compose_staging": {
+      "auth_checks": {
+        "cross_user_slot_read_denied": {
+          "body_bytes": 31,
+          "cache_control": null,
+          "content_type": "application/json",
+          "duration_ms": 2.951,
+          "set_cookie_present": false,
+          "status_code": 404
+        },
+        "csrf_cookie_secure": true,
+        "default_map_slot_count": 3,
+        "default_map_slot_numbers": [
+          1,
+          2,
+          3
+        ],
+        "password_reset_complete": {
+          "body_bytes": 11,
+          "cache_control": null,
+          "content_type": "application/json",
+          "duration_ms": 46.286,
+          "set_cookie_present": false,
+          "status_code": 200
+        },
+        "password_reset_request": {
+          "body_bytes": 73,
+          "cache_control": null,
+          "content_type": "application/json",
+          "duration_ms": 9.142,
+          "set_cookie_present": false,
+          "status_code": 200
+        },
+        "post_api_restart_slot_count": 3,
+        "post_api_restart_slot_numbers": [
+          1,
+          2,
+          3
+        ],
+        "post_reset_login": {
+          "body_bytes": 117,
+          "cache_control": null,
+          "content_type": "application/json",
+          "duration_ms": 49.882,
+          "set_cookie_present": true,
+          "status_code": 200
+        },
+        "readyz_after_api_restart_status": 200,
+        "session_cookie_secure": true,
+        "stale_version_conflict": {
+          "body_bytes": 59,
+          "cache_control": null,
+          "content_type": "application/json",
+          "duration_ms": 3.28,
+          "set_cookie_present": false,
+          "status_code": 409
+        }
+      },
+      "auth_map_slots": "19-compose-auth-map-slots.json",
+      "auth_measurements": [
+        {
+          "body_bytes_max": 164,
+          "body_bytes_min": 164,
+          "max_ms": 3.738,
+          "name": "session validation GET /api/auth/me",
+          "p50_ms": 2.997,
+          "p95_ms": 3.657,
+          "samples": 8,
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "body_bytes_max": 650,
+          "body_bytes_min": 650,
+          "max_ms": 4.701,
+          "name": "map-slot list GET /api/map-slots",
+          "p50_ms": 2.78,
+          "p95_ms": 4.303,
+          "samples": 8,
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "body_bytes_max": 211,
+          "body_bytes_min": 211,
+          "max_ms": 4.141,
+          "name": "map-slot read GET /api/map-slots/{id}",
+          "p50_ms": 2.558,
+          "p95_ms": 3.88,
+          "samples": 8,
+          "status_codes": [
+            200
+          ]
+        },
+        {
+          "body_bytes_max": 211,
+          "body_bytes_min": 207,
+          "max_ms": 5.205,
+          "name": "map-slot write PUT /api/map-slots/{id}",
+          "p50_ms": 3.159,
+          "p95_ms": 4.626,
+          "samples": 8,
+          "status_codes": [
+            200
+          ]
+        }
+      ],
+      "auth_verdict": "pass",
+      "backup_restore_drill": "22-compose-backup-restore-drill.json",
+      "backup_restore_verdict": "pass",
+      "browser_summary": "15-compose-browser-har-summary.json",
+      "failure_exercises": "23-compose-failure-exercises.json",
+      "failure_exercises_verdict": "pass",
+      "first_paint": {
+        "consoleErrors": [],
+        "duplicates": [],
+        "externalHosts": [],
+        "failedRequestCount": 0,
+        "flow": "cold first paint",
+        "graphState": {
+          "bulkLoaded": false,
+          "canvasDisplay": "none",
+          "companies": 958,
+          "lens": "company",
+          "manualNodes": 0,
+          "manualSelectedId": null,
+          "mode": "network",
+          "selected": null,
+          "selfViewId": "",
+          "selfViewNodes": 0,
+          "stats": "907",
+          "svgNodes": 958
+        },
+        "harPath": "docs/evidence/performance/15-compose-03-local-first-paint.har",
+        "mapStudioState": {
+          "activeBasemap": null,
+          "activeOverlays": 1,
+          "basemap": "standard",
+          "basemapNotice": null,
+          "mapSlots": [
+            {
+              "basemap": "standard",
+              "name": "Standard Research"
+            },
+            {
+              "basemap": "dark",
+              "name": "Dark Network View"
+            },
+            {
+              "basemap": "satellite",
+              "name": "Satellite Site Analysis"
+            }
+          ],
+          "preferredBasemap": "standard",
+          "selectedMapSlot": 0,
+          "styleLoaded": false,
+          "terrain": true,
+          "terrainExaggeration": 1.12
+        },
+        "navigation": {
+          "decodedBodySize": 8842,
+          "domContentLoadedMs": 233.5,
+          "duration": 234.9,
+          "encodedBodySize": 2496,
+          "loadEventMs": 234.9,
+          "transferSize": 2796
+        },
+        "requestCount": 9,
+        "requestedUniverseBulk": false,
+        "requestedUnpkg": false,
+        "resourceSummary": [
+          {
+            "decodedBodySize": 1638522,
+            "duration": 147.4,
+            "encodedBodySize": 246189,
+            "initiatorType": "fetch",
+            "name": "https://localhost:8443/data/universe_core.json",
+            "transferSize": 246489
+          },
+          {
+            "decodedBodySize": 199910,
+            "duration": 37.8,
+            "encodedBodySize": 54130,
+            "initiatorType": "script",
+            "name": "https://localhost:8443/js/main.js",
+            "transferSize": 54430
+          },
+          {
+            "decodedBodySize": 123981,
+            "duration": 11.8,
+            "encodedBodySize": 41985,
+            "initiatorType": "fetch",
+            "name": "https://localhost:8443/api/bootstrap/signals",
+            "transferSize": 42285
+          },
+          {
+            "decodedBodySize": 36191,
+            "duration": 15.6,
+            "encodedBodySize": 6486,
+            "initiatorType": "link",
+            "name": "https://localhost:8443/css/app.css",
+            "transferSize": 6786
+          },
+          {
+            "decodedBodySize": 15499,
+            "duration": 17.6,
+            "encodedBodySize": 4729,
+            "initiatorType": "script",
+            "name": "https://localhost:8443/js/config.js",
+            "transferSize": 5029
+          },
+          {
+            "decodedBodySize": 10533,
+            "duration": 12.1,
+            "encodedBodySize": 3323,
+            "initiatorType": "script",
+            "name": "https://localhost:8443/js/state.js",
+            "transferSize": 3623
+          },
+          {
+            "decodedBodySize": 1612,
+            "duration": 25.1,
+            "encodedBodySize": 1612,
+            "initiatorType": "img",
+            "name": "https://localhost:8443/Logo_Dark_BG_96.png",
+            "transferSize": 1912
+          },
+          {
+            "decodedBodySize": 970,
+            "duration": 12,
+            "encodedBodySize": 515,
+            "initiatorType": "script",
+            "name": "https://localhost:8443/js/util.js",
+            "transferSize": 815
+          }
+        ],
+        "resourceTransferBytes": 361369,
+        "resourceTransferKb": 352.9,
+        "slowest": [
+          {
+            "cacheControl": "public, max-age=60, must-revalidate",
+            "contentEncoding": "gzip",
+            "contentLength": "2496",
+            "durationMs": 111,
+            "failure": null,
+            "method": "GET",
+            "resourceType": "document",
+            "status": 200,
+            "url": "https://localhost:8443/index.html"
+          },
+          {
+            "cacheControl": "public, max-age=60, must-revalidate",
+            "contentEncoding": "gzip",
+            "contentLength": "246189",
+            "durationMs": 80,
+            "failure": null,
+            "method": "GET",
+            "resourceType": "fetch",
+            "status": 200,
+            "url": "https://localhost:8443/data/universe_core.json"
+          },
+          {
+            "cacheControl": "public, max-age=60, must-revalidate",
+            "contentEncoding": "gzip",
+            "contentLength": "54130",
+            "durationMs": 70,
+            "failure": null,
+            "method": "GET",
+            "resourceType": "script",
+            "status": 200,
+            "url": "https://localhost:8443/js/main.js"
+          },
+          {
+            "cacheControl": "public, max-age=31536000, immutable",
+            "contentEncoding": "identity",
+            "contentLength": "1612",
+            "durationMs": 69,
+            "failure": null,
+            "method": "GET",
+            "resourceType": "image",
+            "status": 200,
+            "url": "https://localhost:8443/Logo_Dark_BG_96.png"
+          },
+          {
+            "cacheControl": "public, max-age=60, must-revalidate",
+            "contentEncoding": "gzip",
+            "contentLength": "4729",
+            "durationMs": 17,
+            "failure": null,
+            "method": "GET",
+            "resourceType": "script",
+            "status": 200,
+            "url": "https://localhost:8443/js/config.js"
+          },
+          {
+            "cacheControl": "public, max-age=60, must-revalidate",
+            "contentEncoding": "gzip",
+            "contentLength": "41985",
+            "durationMs": 17,
+            "failure": null,
+            "method": "GET",
+            "resourceType": "fetch",
+            "status": 200,
+            "url": "https://localhost:8443/api/bootstrap/signals"
+          },
+          {
+            "cacheControl": "public, max-age=60, must-revalidate",
+            "contentEncoding": "gzip",
+            "contentLength": "515",
+            "durationMs": 13,
+            "failure": null,
+            "method": "GET",
+            "resourceType": "script",
+            "status": 200,
+            "url": "https://localhost:8443/js/util.js"
+          },
+          {
+            "cacheControl": "public, max-age=60, must-revalidate",
+            "contentEncoding": "gzip",
+            "contentLength": "3323",
+            "durationMs": 12,
+            "failure": null,
+            "method": "GET",
+            "resourceType": "script",
+            "status": 200,
+            "url": "https://localhost:8443/js/state.js"
+          },
+          {
+            "cacheControl": "public, max-age=60, must-revalidate",
+            "contentEncoding": "gzip",
+            "contentLength": "6486",
+            "durationMs": 11,
+            "failure": null,
+            "method": "GET",
+            "resourceType": "stylesheet",
+            "status": 200,
+            "url": "https://localhost:8443/css/app.css"
+          }
+        ]
+      },
+      "headed_map_gate": "24-compose-map-gate.json",
+      "headed_map_gate_verdict": "pass",
+      "migration_version": "29995ef61d8e",
+      "published_ports": [
+        "proxy 0.0.0.0:8443->8443/tcp"
+      ],
+      "result": "compose_staging_performance_capture_current_with_public_url_gap",
+      "reverse_proxy": {
+        "healthz": 200,
+        "readyz": 200,
+        "tls_issuer": "Caddy Local Authority - ECC Intermediate",
+        "version": 200
+      },
+      "route_family_probe": "20-compose-route-family-probe.json",
+      "route_family_probe_verdict": "pass",
+      "route_family_proxyman_probe": "21-compose-route-family-proxyman-probe.json",
+      "route_family_proxyman_probe_verdict": "pass",
+      "services": [
+        "db",
+        "migrate",
+        "api",
+        "worker",
+        "proxy"
+      ],
+      "start_command": "docker compose --env-file .env.staging.local up --build -d"
+    },
+    "current_environment": {
+      "compose_base_url": "https://localhost:8443",
+      "compose_file_exists": true,
+      "deploy_workflow_exists": true,
+      "docker_available": true,
+      "docker_compose_version": "Docker Compose version v5.3.1",
+      "docker_version": "Docker version 29.6.2, build dfc4efb",
+      "dockerfile_exists": true,
+      "env_public_base_url_set": false,
+      "proxyman_mcp_available": true
+    },
+    "proxyman": {
+      "browser_capture_proxy_server": "http://127.0.0.1:9090",
+      "mcp_recorded_flows": true,
+      "mcp_visibility": "CONNECT-level for HTTPS; Playwright HAR provides decrypted request details because Proxyman SSL interception is not exposed by current MCP tooling.",
+      "proxy_server": "http://127.0.0.1:9090"
+    },
+    "remaining_limitations": [
+      "No public deployed staging URL is configured in .env.",
+      "Proxyman MCP recorded HTTPS CONNECTs; decrypted request/response detail is preserved in Playwright HAR summaries from the same proxied browser runs."
+    ],
+    "result": "compose_staging_performance_capture_current_with_public_url_gap"
+  }
+}
