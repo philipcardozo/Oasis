@@ -84,7 +84,8 @@ def test_csp_allows_vendored_and_approved_map_hosts(app_client):
     csp = app_client.get("/healthz").headers["content-security-policy"]
     assert "script-src 'self'" in csp
     assert "worker-src 'self' blob:" in csp
-    assert "basemaps.cartocdn.com" in csp and "arcgisonline.com" in csp
+    assert "basemaps.cartocdn.com" in csp and "tiles.basemaps.cartocdn.com" in csp
+    assert "arcgisonline.com" in csp
 
 
 def test_trusted_host_rejects_hostile_host(app_client):

@@ -64,7 +64,13 @@ def test_main() -> None:
         second = client.get(cache_path, headers={"if-none-match": first.headers["etag"], "accept-encoding": "gzip"})
         assert second.status_code == 304
         assert not second.content
-    for cache_path in ("/", "/index.html", "/js/main.js", "/js/config.js", "/js/state.js", "/css/app.css"):
+    logo = client.get("/Logo_Dark_BG_96.png", headers={"accept-encoding": "gzip"})
+    assert logo.status_code == 200
+    assert logo.headers["etag"]
+    assert logo.headers["cache-control"] == "public, max-age=31536000, immutable"
+    assert logo.headers["content-encoding"] == "identity"  # PNG is already compressed
+    assert client.get("/Logo_Dark_BG_96.png", headers={"if-none-match": logo.headers["etag"]}).status_code == 304
+    for cache_path in ("/", "/index.html", "/js/main.js", "/js/config.js", "/js/state.js", "/js/util.js", "/css/app.css"):
         first = client.get(cache_path, headers={"accept-encoding": "gzip"})
         assert first.status_code == 200
         assert first.headers["etag"]
@@ -202,9 +208,10 @@ def test_main() -> None:
         second = client.get(download_path, headers={"if-none-match": first.headers["etag"]})
         assert second.status_code == 304
         assert not second.content
-    dcf = client.get("/api/entity/BLK/dcf.xlsx?method=cash_flow")
+    dcf = client.get("/api/entity/BLK/dcf.xlsx?method=cash_flow", headers={"accept-encoding": "gzip"})
     assert dcf.status_code == 200
     assert dcf.headers["etag"]
+    assert dcf.headers["content-encoding"] == "identity"  # .xlsx is already ZIP-compressed
     dcf_cached = client.get("/api/entity/BLK/dcf.xlsx?method=cash_flow", headers={"if-none-match": dcf.headers["etag"]})
     assert dcf_cached.status_code == 304
     assert not dcf_cached.content

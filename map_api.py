@@ -161,11 +161,15 @@ def cached_bytes_response(
     media_type: str,
     etag: str,
     cache_control: str = "public, max-age=60, must-revalidate",
+    *,
+    already_compressed: bool = False,
 ) -> Response:
     base_headers = {"ETag": etag, "Vary": "Accept-Encoding", "Cache-Control": cache_control}
+    if already_compressed:
+        base_headers["Content-Encoding"] = "identity"
     if request_has_etag(request, etag):
         return Response(status_code=304, headers=base_headers)
-    if "gzip" in request.headers.get("accept-encoding", "").lower():
+    if not already_compressed and "gzip" in request.headers.get("accept-encoding", "").lower():
         return Response(
             gzipped,
             media_type=media_type,
@@ -199,6 +203,8 @@ def cached_graph_asset_response(
     request: Request,
     media_type: str,
     cache_control: str = "public, max-age=31536000, immutable",
+    *,
+    already_compressed: bool = False,
 ) -> Response:
     path = ROOT / "graph" / relative_path
     mtime = path_mtime(path)
@@ -210,6 +216,7 @@ def cached_graph_asset_response(
         media_type,
         cache_etag(relative_path, mtime, len(raw)),
         cache_control=cache_control,
+        already_compressed=already_compressed,
     )
 
 
@@ -218,9 +225,18 @@ def file_etag(path: Path) -> str:
     return f'"{hashlib.md5(f"{stat.st_mtime}-{stat.st_size}".encode(), usedforsecurity=False).hexdigest()}"'
 
 
-def conditional_file_response(request: Request, path: Path, media_type: str, filename: str | None = None) -> Response:
+def conditional_file_response(
+    request: Request,
+    path: Path,
+    media_type: str,
+    filename: str | None = None,
+    *,
+    already_compressed: bool = False,
+) -> Response:
     etag = file_etag(path)
     headers = {"ETag": etag, "Cache-Control": "public, max-age=60, must-revalidate"}
+    if already_compressed:
+        headers["Content-Encoding"] = "identity"
     if request_has_etag(request, etag):
         return Response(status_code=304, headers=headers)
     return FileResponse(path, media_type=media_type, filename=filename, headers=headers)
@@ -2029,7 +2045,13 @@ def api_entity_dcf(entity_id: str, request: Request, method: str = "cash_flow"):
         ) from exc
     except ValueError as exc:
         raise HTTPException(404, str(exc)) from exc
-    return conditional_file_response(request, path, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", path.name)
+    return conditional_file_response(
+        request,
+        path,
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        path.name,
+        already_compressed=True,
+    )
 
 
 @app.get("/api/cameras/public.geojson")
@@ -3021,6 +3043,11 @@ def app_state_js(request: Request):
     return cached_graph_asset_response("js/state.js", request, "application/javascript", "public, max-age=60, must-revalidate")
 
 
+@app.get("/js/util.js", include_in_schema=False)
+def app_util_js(request: Request):
+    return cached_graph_asset_response("js/util.js", request, "application/javascript", "public, max-age=60, must-revalidate")
+
+
 @app.get("/css/app.css", include_in_schema=False)
 def app_css(request: Request):
     return cached_graph_asset_response("css/app.css", request, "text/css", "public, max-age=60, must-revalidate")
@@ -3028,7 +3055,13 @@ def app_css(request: Request):
 
 @app.get("/Logo_Dark_BG_96.png", include_in_schema=False)
 def app_logo(request: Request):
-    return cached_graph_asset_response("Logo_Dark_BG_96.png", request, "image/png", "public, max-age=31536000, immutable")
+    return cached_graph_asset_response(
+        "Logo_Dark_BG_96.png",
+        request,
+        "image/png",
+        "public, max-age=31536000, immutable",
+        already_compressed=True,
+    )
 
 
 @app.get("/", include_in_schema=False)

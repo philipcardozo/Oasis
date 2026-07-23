@@ -54,7 +54,8 @@ def send(msg: Message, settings: Settings | None = None) -> None:
             em.add_alternative(msg.html, subtype="html")
         try:
             with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=15) as srv:
-                srv.starttls()
+                if settings.smtp_starttls:
+                    srv.starttls()
                 if settings.smtp_user:
                     srv.login(settings.smtp_user, settings.smtp_password)
                 srv.send_message(em)

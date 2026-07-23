@@ -91,10 +91,12 @@ CSP = (
     "script-src 'self'; "
     "style-src 'self' 'unsafe-inline'; "  # MapLibre injects inline styles for the canvas
     "img-src 'self' data: blob: https://services.arcgisonline.com https://basemaps.cartocdn.com "
+    "https://tiles.basemaps.cartocdn.com "
     "https://tiles.openfreemap.org https://s3.amazonaws.com; "
     "font-src 'self' https://fonts.openmaptiles.org; "
     "worker-src 'self' blob:; "  # MapLibre workers
     "connect-src 'self' https://tiles.openfreemap.org https://basemaps.cartocdn.com "
+    "https://tiles.basemaps.cartocdn.com "
     "https://services.arcgisonline.com https://s3.amazonaws.com https://fonts.openmaptiles.org; "
     "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 )

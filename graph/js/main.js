@@ -380,6 +380,7 @@ applyProductPrefs();
 
 fetch("data/universe_core.json").then(r=>r.json()).then(init).catch(()=>{ document.getElementById("loading").textContent="Could not load data/universe_core.json — run expand_us.py and serve this folder."; });
 fetch("/api/bootstrap/signals").then(r=>r.ok?r.json():{}).then(d=>{ if(d.aliases) assignALIASES(d.aliases||{}); if(d.hq_coords){ Object.assign(HQ_CITY_COORDS,d.hq_coords||{}); COMPANIES.forEach(c=>delete c._loc); updateDataHealth(); } if(Number.isFinite(Number(d.location_unknown_count))) globe.unknownCount=Number(d.location_unknown_count); if(d.news){ assignNEWS(d.news); updateFresh(); if(selected) select(selected); } assignEDGE_CANDIDATES(d.edge_candidates||[]); if(selected) select(selected); if(mode==="globe") drawGlobe(); }).catch(()=>{});
+let deferMapWarmupUntil=0;
 
 function initNode(c){
   c.kind=c.kind||(c.private?"private":"public");
@@ -398,14 +399,16 @@ function rebuildSelfView(){
 function loadBulk(){
   if(bulkLoaded) return Promise.resolve();
   if(!bulkPromise){
+    deferMapWarmupUntil=Date.now()+4000;
     document.body.dataset.bulkFetches=String(Number(document.body.dataset.bulkFetches||0)+1);
     assignBulkPromise(fetch("/api/universe/bulk")
     .then(r=>r.ok?r.json():{nodes:[]})
     .then(d=>{
       (d.nodes||[]).forEach(c=>{ initNode(c); c.r=5; COMPANIES.push(c); });
       assignBulkLoaded(true); rebuildSelfView(); markGridDirty(); invalidateVisibilityCache();
+      deferMapWarmupUntil=Date.now()+4000;
     })
-    .catch(err=>{ console.warn("bulk load skipped",err); assignBulkLoaded(true); }));
+    .catch(err=>{ console.warn("bulk load skipped",err); assignBulkLoaded(true); deferMapWarmupUntil=Date.now()+4000; }));
   }
   return bulkPromise;
 }
@@ -1218,11 +1221,11 @@ function scheduleMapRuntimeWarmup(){
   let warmed=false;
   const warm=()=>{
     if(warmed||window.maplibregl||mapLibrePromise) return;
+    if(Date.now()<deferMapWarmupUntil){ setTimeout(warm,1800); return; }
     warmed=true;
     if(mode!=="globe") ensureMapLibre().catch(err=>warnMapOnce("map warmup",err));
   };
-  const timer=setTimeout(warm,1800);
-  if("requestIdleCallback" in window) requestIdleCallback(()=>{ clearTimeout(timer); warm(); },{timeout:2500});
+  setTimeout(warm,6000);
 }
 // Basemap has THREE distinct states, deliberately not collapsed into one value:
 //   productPrefs.basemap - the user's PREFERRED basemap (persisted, never

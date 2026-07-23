@@ -73,6 +73,7 @@ class Settings:
     email_backend: str = "console"      # console | smtp | memory
     smtp_host: str = ""
     smtp_port: int = 587
+    smtp_starttls: bool = True
     smtp_user: str = ""
     smtp_password: str = ""
     email_from: str = "OASIS <no-reply@localhost>"
@@ -137,6 +138,7 @@ def _build(overrides: dict | None = None) -> Settings:
         "email_backend": _env("OASIS_EMAIL_BACKEND", "console"),
         "smtp_host": _env("OASIS_SMTP_HOST", ""),
         "smtp_port": int(_env("OASIS_SMTP_PORT", "587")),
+        "smtp_starttls": _bool("OASIS_SMTP_STARTTLS", True),
         "smtp_user": _env("OASIS_SMTP_USER", ""),
         "smtp_password": _env("OASIS_SMTP_PASSWORD", ""),
         "email_from": _env("OASIS_EMAIL_FROM", "OASIS <no-reply@localhost>"),

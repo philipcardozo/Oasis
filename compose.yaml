@@ -46,11 +46,16 @@ services:
       OASIS_COOKIE_SECURE: "true"
       OASIS_EMAIL_BACKEND: smtp
       OASIS_SMTP_HOST: ${OASIS_SMTP_HOST}
+      OASIS_SMTP_PORT: ${OASIS_SMTP_PORT:-587}
+      OASIS_SMTP_STARTTLS: ${OASIS_SMTP_STARTTLS:-true}
       OASIS_SMTP_USER: ${OASIS_SMTP_USER}
       OASIS_SMTP_PASSWORD: ${OASIS_SMTP_PASSWORD}
       OASIS_LOG_JSON: "true"
     volumes:
       - appdata:/app/data
+      # Local staging simulation uses the generated analytical Parquet store.
+      # Keep it read-only; transactional state remains in Postgres.
+      - ./data/store:/app/data/store:ro
       - exports:/app/outputs
     depends_on:
       migrate:
@@ -61,9 +66,12 @@ services:
     build: .
     # Same image, different role: runs scheduled refresh + queued jobs, never serves HTTP.
     command: ["python", "-m", "server.worker"]
+    healthcheck:
+      disable: true
     environment: *app_env
     volumes:
       - appdata:/app/data
+      - ./data/store:/app/data/store:ro
       - exports:/app/outputs
     depends_on:
       migrate:

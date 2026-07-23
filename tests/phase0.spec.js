@@ -36,11 +36,15 @@ test("does not request /api/universe/bulk during initial paint", async ({page}) 
 });
 
 test("loads the full universe only after search intent", async ({page}) => {
+  const mapRuntime = [];
+  page.on("request", r => { if (r.url().includes("/vendor/maplibre-gl/5.6.2/")) mapRuntime.push(r.url()); });
   await boot(page);
+  mapRuntime.length = 0;
   expect(await page.evaluate(() => window.graphState().bulkLoaded)).toBe(false);
   await page.focus("#search");
   await page.waitForFunction(() => window.graphState().bulkLoaded === true, null, {timeout: 20000});
   expect(await page.evaluate(() => window.graphState().companies)).toBeGreaterThan(10000);
+  expect(mapRuntime).toEqual([]);
 });
 
 // --- Task 2: preferred basemap survives every provider failure mode ----------
@@ -55,7 +59,7 @@ for (const [label, fulfil] of [
     await chooseDark(page);
 
     await page.route(DARK, r => (fulfil ? r.fulfill(fulfil) : r.abort()));
-    await page.reload();
+    await page.reload({waitUntil: "domcontentloaded"});
     await page.waitForFunction(() => window.graphState && window.graphState().companies > 0);
     await page.waitForTimeout(2500);
 
@@ -74,7 +78,7 @@ test("failure shows a retry affordance and does not loop forever", async ({page}
   await chooseDark(page);
   let attempts = 0;
   await page.route(DARK, r => { attempts++; r.abort(); });
-  await page.reload();
+  await page.reload({waitUntil: "domcontentloaded"});
   await page.waitForFunction(() => window.graphState && window.graphState().companies > 0);
   await page.waitForTimeout(3000);
   expect(attempts).toBeLessThan(10);          // no infinite retry storm
