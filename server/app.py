@@ -23,6 +23,8 @@ from server.observability import configure_logging
 
 log = logging.getLogger("oasis.app")
 
+DOC_ROUTE_PATHS = {"/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc"}
+
 
 def create_app() -> FastAPI:
     settings = get_settings()
@@ -35,13 +37,26 @@ def create_app() -> FastAPI:
     from server.mapslots import router as mapslots_router
     from server.middleware import install_security
 
-    app = FastAPI(title="OASIS", lifespan=core_app.router.lifespan_context)
+    docs_enabled = not settings.is_secure
+    app = FastAPI(
+        title="OASIS",
+        lifespan=core_app.router.lifespan_context,
+        docs_url="/docs" if docs_enabled else None,
+        redoc_url="/redoc" if docs_enabled else None,
+        openapi_url="/openapi.json" if docs_enabled else None,
+    )
 
     # Reuse the core app's routes. Route objects are app-agnostic; keep the
-    # catch-all StaticFiles Mount ("") last so API routers match first.
+    # catch-all StaticFiles Mount ("") last so API routers match first. The
+    # composed app owns documentation routes so they are not duplicated in dev
+    # and can be disabled entirely in secure modes.
     core_routes = list(core_app.router.routes)
     core_static = [r for r in core_routes if isinstance(r, Mount) and r.path == ""]
-    core_api = [r for r in core_routes if r not in core_static]
+    core_api = [
+        r
+        for r in core_routes
+        if r not in core_static and getattr(r, "path", None) not in DOC_ROUTE_PATHS
+    ]
     app.router.routes.extend(core_api)
 
     app.include_router(health_router)

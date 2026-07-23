@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
+from collections import Counter
 
 
 def test_empty_database_migration(tmp_path):
@@ -56,6 +57,33 @@ def test_all_modes_valid():
     assert set(VALID_MODES) == {"development", "test", "staging", "production"}
 
 
+def test_composed_app_has_no_duplicate_route_methods(app_client):
+    rows = _route_methods(app_client.app)
+    duplicates = [item for item, count in Counter(rows).items() if count > 1]
+    assert duplicates == []
+
+
+def test_secure_modes_disable_documentation_routes(monkeypatch):
+    monkeypatch.setenv("OASIS_MODE", "staging")
+    monkeypatch.setenv("OASIS_SESSION_SECRET", "x" * 40)
+    monkeypatch.setenv("OASIS_DATABASE_URL", "postgresql+psycopg://u:p@db/oasis")
+    monkeypatch.setenv("OASIS_PUBLIC_BASE_URL", "https://staging.example.com")
+    monkeypatch.setenv("OASIS_ALLOWED_ORIGINS", "https://staging.example.com")
+    monkeypatch.setenv("OASIS_TRUSTED_HOSTS", "staging.example.com")
+    monkeypatch.setenv("OASIS_COOKIE_SECURE", "true")
+
+    from server.config import get_settings
+    from server.app import create_app
+
+    get_settings.cache_clear()
+    try:
+        paths = {getattr(route, "path", None) for route in create_app().routes}
+    finally:
+        get_settings.cache_clear()
+
+    assert {"/openapi.json", "/docs", "/docs/oauth2-redirect", "/redoc"}.isdisjoint(paths)
+
+
 def test_repositories_create_three_slots_transactionally(app_client):
     from server.db import session_scope
     from server import repositories as repo
@@ -101,3 +129,13 @@ def _env(extra: dict) -> dict:
     env = dict(os.environ)
     env.update(extra)
     return env
+
+
+def _route_methods(app) -> list[tuple[str, str]]:
+    rows = []
+    for route in app.routes:
+        path = getattr(route, "path", None)
+        methods = getattr(route, "methods", None)
+        if path and methods:
+            rows.extend((method, path) for method in methods - {"HEAD", "OPTIONS"})
+    return rows

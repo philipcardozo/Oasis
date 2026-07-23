@@ -90,6 +90,19 @@ npx playwright test
 15 passed
 ```
 
+After route inventory reconciliation:
+
+```text
+python3 -m pytest -q test_phase1_infra.py test_phase1_security.py
+23 passed
+
+python3 -m pytest -q
+111 passed, 1 skipped, 1 warning in 24.61s
+
+npx playwright test
+15 passed
+```
+
 The direct `pytest -q` shell command was unavailable because the `pytest` console script was not on `PATH`; `python3 -m pytest -q` was used successfully.
 
 ## 3. Environment And Host
@@ -255,12 +268,19 @@ live route inventory matched to docs/AUTHORIZATION-MATRIX.md
 Route inventory note:
 
 ```text
-server.app assembled routes: 100
-map_api routes: 72
-unique server.app paths: 93
+route evidence: docs/evidence/phase-1-5/route-authorization-inventory.json
+development server.app route entries: 96
+development route methods: 95
+development static mounts: 1
+staging-secure server.app route entries: 92
+staging-secure route methods: 91
+staging-secure static mounts: 1
+duplicate method/path pairs: none
+development docs routes: /openapi.json, /docs, /docs/oauth2-redirect, /redoc
+staging/production docs routes: disabled
 ```
 
-This differs from the objective baseline of 79 routes and must be reconciled before final approval.
+The earlier 100-route local inventory included duplicated FastAPI documentation routes inherited from both `map_api` and `server.app`. `server.app` now owns those routes, keeps one development copy, and disables them in staging/production. The resulting inventory still differs from the objective baseline of 79 routes because the composed Phase 1 app includes health, auth, map-slot, documentation, and static routes in addition to the core map API; the current inventory is documented and covered by focused regression tests. Deployed staging still needs route/authz verification through the reverse proxy.
 
 ## 9. Map-Slot Synchronization Results
 
@@ -519,6 +539,7 @@ docs/evidence/phase-1-5/chrome-dark-maplibre.png
 docs/evidence/phase-1-5/chrome-dark-maplibre.json
 docs/evidence/phase-1-5/chrome-satellite-maplibre.png
 docs/evidence/phase-1-5/chrome-satellite-maplibre.json
+docs/evidence/phase-1-5/route-authorization-inventory.json
 ```
 
 Local command evidence recorded in this report:
@@ -538,10 +559,9 @@ Docker availability check
 
 1. Docker is not installed in the current environment, so compose deployment, container isolation, reverse proxy, and staging PostgreSQL gates are unverified.
 2. Firefox and Safari real-browser rendering are not verified.
-3. The route inventory differs from the objective baseline: `server.app` currently assembles 100 routes, not 79.
-4. Deployed authentication, authorization, map-slot synchronization, backup/restore, security headers, observability, failure recovery, and staging performance targets remain unproven.
-5. Deployment workflow still contains placeholder deploy commands and needs real staging/registry integration evidence.
-6. Licensing checks require current official source review before commercial launch; disabled providers do not block private beta, but staging flag state still needs explicit verification.
+3. Deployed authentication, authorization, map-slot synchronization, backup/restore, security headers, observability, failure recovery, and staging performance targets remain unproven.
+4. Deployment workflow still contains placeholder deploy commands and needs real staging/registry integration evidence.
+5. Licensing checks require current official source review before commercial launch; disabled providers do not block private beta, but staging flag state still needs explicit verification.
 
 ## 20. Final Verdict
 
@@ -549,4 +569,4 @@ Docker availability check
 NOT APPROVED
 ```
 
-OASIS has passed the Phase 1 merge, local Python tests, local Playwright tests, secure-config validation, disposable migration wiring, and installed-Chrome Standard/Dark/Satellite render checks. It is not approved for controlled private beta until the unverified staging-host gates are executed successfully and the route-count discrepancy is resolved or formally accepted.
+OASIS has passed the Phase 1 merge, local Python tests, local Playwright tests, secure-config validation, disposable migration wiring, installed-Chrome Standard/Dark/Satellite render checks, and local route-inventory reconciliation. It is not approved for controlled private beta until the unverified staging-host gates are executed successfully.
