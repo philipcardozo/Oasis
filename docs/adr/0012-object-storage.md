@@ -15,6 +15,10 @@ Staging object storage is for exports, approved logos, future report artifacts,
 and temporary private files. Bucket listing stays private; browsers receive only
 server-authorized expiring downloads.
 
+When `OASIS_STORAGE_BACKEND=s3` is set in a secure mode, OASIS fails fast unless
+the bucket and credentials are present. R2 requires an explicit endpoint with
+`OASIS_S3_REGION=auto`.
+
 References:
 
 - R2 S3 API: https://developers.cloudflare.com/r2/get-started/s3/

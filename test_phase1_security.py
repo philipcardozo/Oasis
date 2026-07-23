@@ -2,6 +2,14 @@
 from __future__ import annotations
 
 
+def _secure_smtp_env(monkeypatch):
+    monkeypatch.setenv("OASIS_EMAIL_BACKEND", "smtp")
+    monkeypatch.setenv("OASIS_SMTP_HOST", "smtp.example.com")
+    monkeypatch.setenv("OASIS_SMTP_USER", "smtp-user")
+    monkeypatch.setenv("OASIS_SMTP_PASSWORD", "smtp-password")
+    monkeypatch.setenv("OASIS_EMAIL_FROM", "OASIS <no-reply@example.com>")
+
+
 def test_security_headers_present(app_client):
     r = app_client.get("/healthz")
     assert r.headers["x-request-id"]
@@ -156,7 +164,7 @@ def test_production_config_rejects_wildcard_cors(monkeypatch):
     monkeypatch.setenv("OASIS_DATABASE_URL", "postgresql+psycopg://u:p@h/db")
     monkeypatch.setenv("OASIS_PUBLIC_BASE_URL", "https://oasis.example.com")
     monkeypatch.setenv("OASIS_COOKIE_SECURE", "true")
-    monkeypatch.setenv("OASIS_EMAIL_BACKEND", "smtp")
+    _secure_smtp_env(monkeypatch)
     monkeypatch.setenv("OASIS_TRUSTED_HOSTS", "oasis.example.com")
     monkeypatch.setenv("OASIS_ALLOWED_ORIGINS", "*")
     try:
@@ -175,7 +183,7 @@ def test_valid_production_config_passes(monkeypatch):
     monkeypatch.setenv("OASIS_DATABASE_URL", "postgresql+psycopg://u:p@h/db")
     monkeypatch.setenv("OASIS_PUBLIC_BASE_URL", "https://oasis.example.com")
     monkeypatch.setenv("OASIS_COOKIE_SECURE", "true")
-    monkeypatch.setenv("OASIS_EMAIL_BACKEND", "smtp")
+    _secure_smtp_env(monkeypatch)
     monkeypatch.setenv("OASIS_TRUSTED_HOSTS", "oasis.example.com")
     monkeypatch.setenv("OASIS_ALLOWED_ORIGINS", "https://oasis.example.com")
     s = load_settings()
@@ -196,6 +204,7 @@ def test_valid_staging_config_disables_unresolved_providers(monkeypatch):
     monkeypatch.setenv("OASIS_COOKIE_SECURE", "true")
     monkeypatch.setenv("OASIS_TRUSTED_HOSTS", "staging.oasis.example.com")
     monkeypatch.setenv("OASIS_ALLOWED_ORIGINS", "https://staging.oasis.example.com")
+    _secure_smtp_env(monkeypatch)
     s = load_settings()
     assert s.is_secure and not s.is_production
     assert s.feature_satellite_esri is False
@@ -214,6 +223,7 @@ def test_staging_hsts_does_not_cover_subdomains_or_preload_by_default(monkeypatc
     monkeypatch.setenv("OASIS_COOKIE_SECURE", "true")
     monkeypatch.setenv("OASIS_TRUSTED_HOSTS", "staging.oasis.example.com")
     monkeypatch.setenv("OASIS_ALLOWED_ORIGINS", "https://staging.oasis.example.com")
+    _secure_smtp_env(monkeypatch)
 
     hsts = load_settings().hsts_header
     assert hsts == "max-age=31536000"
@@ -232,6 +242,7 @@ def test_hsts_preload_requires_full_domain_policy(monkeypatch):
     monkeypatch.setenv("OASIS_TRUSTED_HOSTS", "staging.oasis.example.com")
     monkeypatch.setenv("OASIS_ALLOWED_ORIGINS", "https://staging.oasis.example.com")
     monkeypatch.setenv("OASIS_HSTS_PRELOAD", "true")
+    _secure_smtp_env(monkeypatch)
 
     try:
         load_settings()
@@ -239,6 +250,70 @@ def test_hsts_preload_requires_full_domain_policy(monkeypatch):
     except ConfigError:
         raised = True
     assert raised
+
+
+def test_staging_config_rejects_console_email(monkeypatch):
+    from server.config import ConfigError, load_settings
+
+    monkeypatch.setenv("OASIS_MODE", "staging")
+    monkeypatch.setenv("OASIS_SESSION_SECRET", "x" * 40)
+    monkeypatch.setenv("OASIS_DATABASE_URL", "postgresql+psycopg://u:p@h/db")
+    monkeypatch.setenv("OASIS_PUBLIC_BASE_URL", "https://staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_COOKIE_SECURE", "true")
+    monkeypatch.setenv("OASIS_TRUSTED_HOSTS", "staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_ALLOWED_ORIGINS", "https://staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_EMAIL_BACKEND", "console")
+
+    try:
+        load_settings()
+        raised = False
+    except ConfigError:
+        raised = True
+    assert raised
+
+
+def test_s3_storage_requires_bucket_and_credentials_in_secure_modes(monkeypatch):
+    from server.config import ConfigError, load_settings
+
+    monkeypatch.setenv("OASIS_MODE", "staging")
+    monkeypatch.setenv("OASIS_SESSION_SECRET", "x" * 40)
+    monkeypatch.setenv("OASIS_DATABASE_URL", "postgresql+psycopg://u:p@h/db")
+    monkeypatch.setenv("OASIS_PUBLIC_BASE_URL", "https://staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_COOKIE_SECURE", "true")
+    monkeypatch.setenv("OASIS_TRUSTED_HOSTS", "staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_ALLOWED_ORIGINS", "https://staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_STORAGE_BACKEND", "s3")
+    _secure_smtp_env(monkeypatch)
+
+    try:
+        load_settings()
+        raised = False
+    except ConfigError:
+        raised = True
+    assert raised
+
+
+def test_valid_r2_staging_storage_config_passes(monkeypatch):
+    from server.config import load_settings
+
+    monkeypatch.setenv("OASIS_MODE", "staging")
+    monkeypatch.setenv("OASIS_SESSION_SECRET", "x" * 40)
+    monkeypatch.setenv("OASIS_DATABASE_URL", "postgresql+psycopg://u:p@h/db")
+    monkeypatch.setenv("OASIS_PUBLIC_BASE_URL", "https://staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_COOKIE_SECURE", "true")
+    monkeypatch.setenv("OASIS_TRUSTED_HOSTS", "staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_ALLOWED_ORIGINS", "https://staging.oasis.example.com")
+    monkeypatch.setenv("OASIS_STORAGE_BACKEND", "s3")
+    monkeypatch.setenv("OASIS_S3_BUCKET", "oasis-staging")
+    monkeypatch.setenv("OASIS_S3_REGION", "auto")
+    monkeypatch.setenv("OASIS_S3_ENDPOINT", "https://example.r2.cloudflarestorage.com")
+    monkeypatch.setenv("AWS_ACCESS_KEY_ID", "r2-access-key")
+    monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "r2-secret-key")
+    _secure_smtp_env(monkeypatch)
+
+    s = load_settings()
+    assert s.storage_backend == "s3"
+    assert s.s3_bucket == "oasis-staging"
 
 
 def test_no_secrets_logged():

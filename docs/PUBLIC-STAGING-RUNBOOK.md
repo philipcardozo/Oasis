@@ -11,6 +11,16 @@
 7. Create Render registry credential `ghcr-oasis` with GHCR package read access.
 8. Add Render API key and API/worker service IDs as GitHub environment secrets.
 
+Secure-mode boot should fail if email/storage values are incomplete. Before the
+first deploy, verify:
+
+- `OASIS_EMAIL_BACKEND=smtp`
+- `OASIS_SMTP_HOST` is set
+- `OASIS_EMAIL_FROM` is non-local
+- SMTP username/password are both set when either is required
+- R2/S3 bucket, endpoint, access key, and secret key are set when
+  `OASIS_STORAGE_BACKEND=s3`
+
 ## Deploy
 
 ```bash

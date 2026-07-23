@@ -41,6 +41,9 @@ use `main` after review/merge.
   `includeSubDomains`/`preload` by default.
 - `server.health` now falls back to `RENDER_GIT_COMMIT` for `/version` commit
   reporting when `OASIS_BUILD_COMMIT` is not set.
+- Secure-mode config now fails fast when email is not SMTP, when SMTP host or
+  sender values are missing, and when configured S3/R2 storage lacks bucket,
+  endpoint, or credentials.
 
 ## Required Environment
 
@@ -72,6 +75,11 @@ Render environment group `oasis-staging-shared`:
 - `OASIS_REGISTRATION_ALLOWED_EMAILS` with the approved private-beta tester
   emails, unless the Cloudflare Access policy is the documented sole invitation
   boundary for that drill.
+- `OASIS_EMAIL_BACKEND=smtp`, real `OASIS_SMTP_HOST`, non-local
+  `OASIS_EMAIL_FROM`, and matching SMTP username/password when the provider
+  requires authentication.
+- If `OASIS_STORAGE_BACKEND=s3`, set bucket, endpoint, and least-privilege
+  `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`.
 
 Do not commit any real secret or private token-bearing URL.
 

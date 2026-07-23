@@ -206,6 +206,10 @@ def _build(overrides: dict | None = None) -> Settings:
 def _validate(s: Settings) -> None:
     if s.cookie_samesite.lower() not in {"lax", "strict", "none"}:
         raise ConfigError(f"cookie_samesite must be lax|strict|none, got {s.cookie_samesite!r}")
+    if s.email_backend not in {"console", "memory", "smtp"}:
+        raise ConfigError(f"email_backend must be console|memory|smtp, got {s.email_backend!r}")
+    if s.storage_backend not in {"local", "s3"}:
+        raise ConfigError(f"storage_backend must be local|s3, got {s.storage_backend!r}")
     if not s.is_secure:
         return
     # Fail fast in staging/production if a security-critical setting is unsafe.
@@ -228,8 +232,22 @@ def _validate(s: Settings) -> None:
         problems.append("OASIS_HSTS_PRELOAD requires OASIS_HSTS_MAX_AGE >= 31536000")
     if not s.public_base_url.startswith("https://") and s.is_production:
         problems.append("OASIS_PUBLIC_BASE_URL must be https:// in production")
-    if s.email_backend == "console" and s.is_production:
-        problems.append("email_backend cannot be 'console' in production")
+    if s.email_backend in {"console", "memory"}:
+        problems.append("OASIS_EMAIL_BACKEND must be smtp in secure modes")
+    if s.email_backend == "smtp":
+        if not s.smtp_host:
+            problems.append("OASIS_SMTP_HOST is required when OASIS_EMAIL_BACKEND=smtp")
+        if not s.email_from or "localhost" in s.email_from:
+            problems.append("OASIS_EMAIL_FROM must be a non-local sender in secure modes")
+        if bool(s.smtp_user) != bool(s.smtp_password):
+            problems.append("OASIS_SMTP_USER and OASIS_SMTP_PASSWORD must be set together")
+    if s.storage_backend == "s3":
+        if not s.s3_bucket:
+            problems.append("OASIS_S3_BUCKET is required when OASIS_STORAGE_BACKEND=s3")
+        if s.s3_region == "auto" and not s.s3_endpoint_url:
+            problems.append("OASIS_S3_ENDPOINT is required for Cloudflare R2 storage")
+        if not _env("AWS_ACCESS_KEY_ID") or not _env("AWS_SECRET_ACCESS_KEY"):
+            problems.append("AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are required when OASIS_STORAGE_BACKEND=s3")
     if problems:
         raise ConfigError("insecure configuration for mode=" + s.mode + ":\n  - " + "\n  - ".join(problems))
 

@@ -6,6 +6,14 @@ import sys
 from collections import Counter
 
 
+def _secure_smtp_env(monkeypatch):
+    monkeypatch.setenv("OASIS_EMAIL_BACKEND", "smtp")
+    monkeypatch.setenv("OASIS_SMTP_HOST", "smtp.example.com")
+    monkeypatch.setenv("OASIS_SMTP_USER", "smtp-user")
+    monkeypatch.setenv("OASIS_SMTP_PASSWORD", "smtp-password")
+    monkeypatch.setenv("OASIS_EMAIL_FROM", "OASIS <no-reply@example.com>")
+
+
 def test_empty_database_migration(tmp_path):
     """Alembic upgrade head must build the full schema from an empty database."""
     db = tmp_path / "mig.db"
@@ -80,6 +88,7 @@ def test_secure_modes_disable_documentation_routes(monkeypatch):
     monkeypatch.setenv("OASIS_ALLOWED_ORIGINS", "https://staging.example.com")
     monkeypatch.setenv("OASIS_TRUSTED_HOSTS", "staging.example.com")
     monkeypatch.setenv("OASIS_COOKIE_SECURE", "true")
+    _secure_smtp_env(monkeypatch)
 
     from server.config import get_settings
     from server.app import create_app
