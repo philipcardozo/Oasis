@@ -49,6 +49,7 @@ def test_browser_report_cli_writes_two_pass_markdown_files(tmp_path):
     summary = tmp_path / "browser-summary.json"
     browser_output = tmp_path / "07-browser-matrix.md"
     map_output = tmp_path / "08-map-provider-capture.md"
+    summary_output = tmp_path / "browser-map-summary.json"
     matrix.write_text(json.dumps(_matrix()))
     summary.write_text(json.dumps(_summary()))
 
@@ -60,7 +61,7 @@ def test_browser_report_cli_writes_two_pass_markdown_files(tmp_path):
             f"--browser-summary={summary}",
             f"--browser-output={browser_output}",
             f"--map-output={map_output}",
-            f"--summary-output={tmp_path / 'browser-map-summary.json'}",
+            f"--summary-output={summary_output}",
         ],
         capture_output=True,
         text=True,
@@ -69,6 +70,10 @@ def test_browser_report_cli_writes_two_pass_markdown_files(tmp_path):
     assert result.returncode == 0, result.stderr
     assert "Verdict: **pass**" in browser_output.read_text()
     assert "Verdict: **pass**" in map_output.read_text()
+    data = json.loads(summary_output.read_text())
+    assert data["browser"]["verdict"] == "pass"
+    assert data["map_provider"]["verdict"] == "pass"
+    assert data["map_provider"]["approved_hosts"] == ["tiles.openfreemap.org"]
 
 
 def _checks() -> dict:

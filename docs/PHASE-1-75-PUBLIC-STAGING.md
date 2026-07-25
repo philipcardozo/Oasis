@@ -108,6 +108,8 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
   email verification, password-reset, secure-cookie, and CSRF checks
 - `07-browser-matrix.md`
 - `08-map-provider-capture.md`
+- `browser-map-summary.json`, generated beside the browser/map Markdown reports
+  for strict browser matrix, network-flow, provider-host, and map-license checks
 - `09-route-security.md`, generated from public route/preflight/auth evidence
   with `scripts/public_staging_route_security_report.py`
 - `route-security-summary.json`, generated beside `09-route-security.md` for

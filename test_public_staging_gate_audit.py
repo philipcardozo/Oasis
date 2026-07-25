@@ -225,6 +225,34 @@ def test_auth_email_summary_requires_reset_cookie_and_csrf_evidence(tmp_path, mo
     assert any("csrf_rejection_status is not 403" in item for item in result["weak"])
 
 
+def test_valid_browser_map_summary_json_evidence_is_proven(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    (evidence / "browser-map-summary.json").write_text(json.dumps(_browser_map_summary()))
+
+    result = audit.evaluate("browser", "Browser map", ["browser-map-summary.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_browser_map_summary_requires_browser_and_provider_checks(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _browser_map_summary()
+    summary["browser"]["rows"][0]["failed_checks"] = ["three_map_slots"]
+    summary["browser"]["network_rows"][0]["requested_bulk"] = True
+    summary["map_provider"]["observed_external_hosts"].append("unexpected.example")
+    summary["map_provider"]["rows"][0]["value"] = False
+    (evidence / "browser-map-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("browser", "Browser map", ["browser-map-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("browser has failed checks: chrome" in item for item in result["weak"])
+    assert any("first paint requested /api/universe/bulk" in item for item in result["weak"])
+    assert any("observed unexpected external host: unexpected.example" in item for item in result["weak"])
+    assert any("provider check is not true: vendored_maplibre" in item for item in result["weak"])
+
+
 def test_valid_performance_summary_json_evidence_is_proven(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     (evidence / "performance-evidence-summary.json").write_text(json.dumps(_performance_summary()))
@@ -373,6 +401,101 @@ def _auth_email_summary() -> dict:
             "session_cookie_httponly": True,
             "csrf_cookie_secure": True,
             "csrf_rejection_status": 403,
+        },
+    }
+
+
+def _browser_map_summary() -> dict:
+    browser_checks = {
+        "application_shell": True,
+        "registration_login": True,
+        "session_persistence": True,
+        "standard_basemap": True,
+        "dark_basemap": True,
+        "satellite_disabled_or_failure": True,
+        "geographic_features": True,
+        "search": True,
+        "entity_selection": True,
+        "drawer_rail": True,
+        "three_map_slots": True,
+        "export_workflow": True,
+        "password_reset": True,
+        "logout": True,
+        "responsive_layout": True,
+        "keyboard_navigation": True,
+        "basic_accessibility": True,
+        "no_console_errors": True,
+    }
+    browser_rows = [
+        {
+            "key": key,
+            "name": key,
+            "browser_version": version,
+            "os": os_name,
+            "os_version": os_version,
+            "available": available,
+            "unavailable_reason": reason,
+            "failed_checks": [] if available else [],
+            "checks": browser_checks if available else {},
+        }
+        for key, version, os_name, os_version, available, reason in [
+            ("chrome", "150.0", "macOS", "26.5.2", True, ""),
+            ("edge_or_brave", "150.0", "macOS", "26.5.2", True, ""),
+            ("firefox", "142.0", "macOS", "26.5.2", True, ""),
+            ("safari_macos", "19.0", "macOS", "26.5.2", True, ""),
+            ("mobile_safari", "", "iOS", "", False, "device unavailable for first public drill"),
+            ("chrome_android", "", "Android", "", False, "device unavailable for first public drill"),
+        ]
+    ]
+    return {
+        "target": {
+            "matrix_base_url": "https://staging.example.com",
+            "summary_base_url": "https://staging.example.com",
+        },
+        "browser": {
+            "verdict": "pass",
+            "failures": [],
+            "rows": browser_rows,
+            "network_rows": [
+                {
+                    "name": "26-public-staging-03-local-first-paint",
+                    "flow": "cold first paint",
+                    "requested_bulk": False,
+                    "requested_unpkg": False,
+                    "console_errors": 0,
+                    "failed_requests": 0,
+                    "external_hosts": [],
+                },
+                {
+                    "name": "26-public-staging-06-map-interaction",
+                    "flow": "map interaction",
+                    "requested_bulk": False,
+                    "requested_unpkg": False,
+                    "console_errors": 0,
+                    "failed_requests": 0,
+                    "external_hosts": ["tiles.openfreemap.org"],
+                },
+            ],
+        },
+        "map_provider": {
+            "verdict": "pass",
+            "failures": [],
+            "approved_hosts": ["tiles.openfreemap.org"],
+            "observed_external_hosts": ["tiles.openfreemap.org"],
+            "rows": [
+                {"key": "vendored_maplibre", "value": True},
+                {"key": "no_unpkg", "value": True},
+                {"key": "no_provider_credentials", "value": True},
+                {"key": "attribution_displayed", "value": True},
+                {"key": "standard_available", "value": True},
+                {"key": "disabled_providers_unused", "value": True},
+                {"key": "preferred_basemap_preserved_after_failure", "value": True},
+                {"key": "style_requests_expected", "value": True},
+                {"key": "tile_requests_expected", "value": True},
+                {"key": "terrain_requests_expected_or_disabled", "value": True},
+                {"key": "csp_ok", "value": True},
+                {"key": "cors_ok", "value": True},
+            ],
         },
     }
 

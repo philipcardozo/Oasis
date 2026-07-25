@@ -855,7 +855,8 @@ python3 scripts/public_staging_browser_reports.py \
   --browser-matrix=docs/evidence/public-staging/browser-matrix.json \
   --browser-summary=docs/evidence/performance/26-public-staging-browser-har-summary.json \
   --browser-output=docs/evidence/public-staging/07-browser-matrix.md \
-  --map-output=docs/evidence/public-staging/08-map-provider-capture.md
+  --map-output=docs/evidence/public-staging/08-map-provider-capture.md \
+  --summary-output=docs/evidence/public-staging/browser-map-summary.json
 
 Generate the public performance evidence report:
 

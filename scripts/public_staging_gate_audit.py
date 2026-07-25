@@ -164,14 +164,14 @@ REQUIREMENTS = [
     ("email_delivery", "Authentication email delivery", ["06-auth-email.md", "auth-email-summary.json"], []),
     ("api_worker_separation", "API and worker separation", ["02-render-deploy.json", "10-worker-jobs.md"], []),
     ("attack_surface", "External attack-surface controls", ["03-cloudflare-access.md", "09-route-security.md", "route-security-summary.json"], []),
-    ("browser_compatibility", "Remote browser compatibility", ["07-browser-matrix.md"], []),
+    ("browser_compatibility", "Remote browser compatibility", ["07-browser-matrix.md", "browser-map-summary.json"], []),
     ("deployment_automation", "Deployment automation", ["01-image-manifest.json", "02-render-deploy.json"], []),
     ("rollback", "Rollback", ["13-failure-rollback.md"], []),
     ("backup_restore", "Backup and restore", ["12-backup-restore.md"], []),
     ("monitoring_alerting", "Monitoring and alerting", ["14-observability-alerts.md"], []),
     ("private_beta_access", "Private-beta access control", ["03-cloudflare-access.md", "06-auth-email.md", "auth-email-summary.json"], []),
     ("performance", "Public performance measurements", ["15-performance.md", "performance-evidence-summary.json"], []),
-    ("licensing", "Licensing gates", ["15-performance.md", "08-map-provider-capture.md"], []),
+    ("licensing", "Licensing gates", ["15-performance.md", "08-map-provider-capture.md", "browser-map-summary.json"], []),
 ]
 
 
@@ -188,8 +188,8 @@ ACCEPTANCE = [
     ("csrf", "CSRF works", ["09-route-security.md", "route-security-summary.json"]),
     ("route_classification", "Every route has explicit security classification", ["09-route-security.md", "route-security-summary.json"]),
     ("cross_user_denied", "Cross-user access is denied", ["09-route-security.md", "route-security-summary.json"]),
-    ("three_slots", "Exactly three map slots persist across devices", ["07-browser-matrix.md"]),
-    ("browser_map", "Real browser map rendering works", ["07-browser-matrix.md", "08-map-provider-capture.md"]),
+    ("three_slots", "Exactly three map slots persist across devices", ["07-browser-matrix.md", "browser-map-summary.json"]),
+    ("browser_map", "Real browser map rendering works", ["07-browser-matrix.md", "08-map-provider-capture.md", "browser-map-summary.json"]),
     ("no_bulk_first_paint", "/api/universe/bulk is absent from initial paint", ["15-performance.md", "performance-evidence-summary.json"]),
     ("zero_api_acquisition", "API user requests perform zero external acquisition", ["11-network-isolation.md"]),
     ("worker_recovery", "Worker jobs are bounded and recoverable", ["10-worker-jobs.md"]),
@@ -199,7 +199,7 @@ ACCEPTANCE = [
     ("restore_success", "Backup and restore succeed", ["12-backup-restore.md"]),
     ("rollback_success", "Deployment rollback succeeds", ["13-failure-rollback.md"]),
     ("alerts", "Alerts detect key failures", ["14-observability-alerts.md"]),
-    ("providers_disabled", "Unlicensed providers remain disabled", ["08-map-provider-capture.md"]),
+    ("providers_disabled", "Unlicensed providers remain disabled", ["08-map-provider-capture.md", "browser-map-summary.json"]),
     ("test_suites_pass", "Test suites pass", ["01-image-manifest.json"]),
     ("cicd_safe", "CI/CD deploys immutable images safely", ["01-image-manifest.json", "02-render-deploy.json"]),
     ("docs_current", "Documentation is current", REQUIRED_DOCS),
@@ -607,11 +607,99 @@ def auth_email_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     return weak
 
 
+def browser_map_summary_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    target = data.get("target") or {}
+    base_url = str(target.get("matrix_base_url") or target.get("summary_base_url") or "")
+    if not base_url:
+        weak.append("browser-map base URL is missing")
+    elif urlparse(base_url).scheme != "https":
+        weak.append("browser-map base URL is not HTTPS")
+
+    browser = data.get("browser") or {}
+    if browser.get("verdict") != "pass":
+        weak.append("browser-map browser verdict is not pass")
+    if browser.get("failures"):
+        weak.append("browser-map browser has failures")
+    rows = list(browser.get("rows") or [])
+    required_desktop = {"chrome", "edge_or_brave", "firefox", "safari_macos"}
+    optional_mobile = {"mobile_safari", "chrome_android"}
+    by_key = {item.get("key"): item for item in rows}
+    for key in sorted(required_desktop):
+        row = by_key.get(key)
+        if not row:
+            weak.append(f"browser-map required browser is missing: {key}")
+        elif row.get("available") is False:
+            weak.append(f"browser-map required browser is unavailable: {key}")
+        elif row.get("failed_checks"):
+            weak.append(f"browser-map browser has failed checks: {key}")
+        elif not row.get("browser_version"):
+            weak.append(f"browser-map browser version is missing: {key}")
+        elif not row.get("os"):
+            weak.append(f"browser-map OS is missing: {key}")
+    for key in sorted(optional_mobile):
+        row = by_key.get(key)
+        if not row:
+            weak.append(f"browser-map mobile availability was not recorded: {key}")
+        elif row.get("available") is False and not row.get("unavailable_reason"):
+            weak.append(f"browser-map mobile unavailable reason is missing: {key}")
+        elif row.get("available") is not False and row.get("failed_checks"):
+            weak.append(f"browser-map mobile browser has failed checks: {key}")
+
+    network_rows = list(browser.get("network_rows") or [])
+    if not network_rows:
+        weak.append("browser-map network rows are missing")
+    first_flow = next((item for item in network_rows if "first-paint" in str(item.get("name") or "")), network_rows[0] if network_rows else {})
+    if first_flow.get("requested_bulk") is True:
+        weak.append("browser-map first paint requested /api/universe/bulk")
+    for row in network_rows:
+        flow = row.get("flow") or row.get("name") or "unknown flow"
+        if row.get("requested_unpkg") is True:
+            weak.append(f"browser-map flow requested unpkg.com: {flow}")
+        if int(row.get("console_errors") or 0):
+            weak.append(f"browser-map flow recorded console errors: {flow}")
+        if int(row.get("failed_requests") or 0):
+            weak.append(f"browser-map flow recorded failed requests: {flow}")
+
+    provider = data.get("map_provider") or {}
+    if provider.get("verdict") != "pass":
+        weak.append("browser-map map-provider verdict is not pass")
+    if provider.get("failures"):
+        weak.append("browser-map map-provider has failures")
+    approved_hosts = set(provider.get("approved_hosts") or [])
+    if not approved_hosts:
+        weak.append("browser-map approved provider hosts are missing")
+    observed_hosts = set(provider.get("observed_external_hosts") or [])
+    unexpected_hosts = sorted(observed_hosts - approved_hosts)
+    for host in unexpected_hosts:
+        weak.append(f"browser-map observed unexpected external host: {host}")
+    check_values = {item.get("key"): item.get("value") for item in provider.get("rows") or []}
+    required_checks = {
+        "vendored_maplibre",
+        "no_unpkg",
+        "no_provider_credentials",
+        "attribution_displayed",
+        "standard_available",
+        "disabled_providers_unused",
+        "preferred_basemap_preserved_after_failure",
+        "style_requests_expected",
+        "tile_requests_expected",
+        "terrain_requests_expected_or_disabled",
+        "csp_ok",
+        "cors_ok",
+    }
+    for key in sorted(required_checks):
+        if check_values.get(key) is not True:
+            weak.append(f"browser-map provider check is not true: {key}")
+    return weak
+
+
 JSON_VALIDATORS = {
     "00-public-staging-preflight.json": preflight_weaknesses,
     "01-image-manifest.json": image_manifest_weaknesses,
     "02-render-deploy.json": render_deploy_weaknesses,
     "auth-email-summary.json": auth_email_summary_weaknesses,
+    "browser-map-summary.json": browser_map_summary_weaknesses,
     "performance-evidence-summary.json": performance_summary_weaknesses,
     "route-security-summary.json": route_security_summary_weaknesses,
 }

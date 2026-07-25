@@ -67,6 +67,13 @@ def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text())
 
 
+def display_path(value: str) -> str:
+    path = Path(value)
+    if path.is_absolute() and path.is_relative_to(ROOT):
+        return str(path.relative_to(ROOT))
+    return value
+
+
 def flow_rows(summary: dict[str, Any]) -> list[dict[str, Any]]:
     rows = []
     for name, flow in sorted((summary.get("flows") or {}).items()):
@@ -177,8 +184,8 @@ def build_payload(matrix: dict[str, Any], browser_summary: dict[str, Any], matri
         "commit": git_value("rev-parse", "HEAD"),
         "branch": git_value("branch", "--show-current"),
         "inputs": {
-            "browser_matrix": matrix_path,
-            "browser_summary": summary_path,
+            "browser_matrix": display_path(matrix_path),
+            "browser_summary": display_path(summary_path),
         },
         "target": {
             "matrix_base_url": matrix.get("base_url"),
