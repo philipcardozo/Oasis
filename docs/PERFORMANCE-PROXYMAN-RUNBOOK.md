@@ -818,6 +818,15 @@ Using the real staging URL and provider dashboards/logs, verify and record:
 
 Record:
 - docs/evidence/public-staging/06-auth-email.md
+- docs/evidence/public-staging/ops-evidence.json
+
+Then generate strict operation reports:
+
+python3 scripts/public_staging_ops_reports.py \
+  --input=docs/evidence/public-staging/ops-evidence.json \
+  --output-dir=docs/evidence/public-staging
+
+This writes:
 - docs/evidence/public-staging/10-worker-jobs.md
 - docs/evidence/public-staging/11-network-isolation.md
 - docs/evidence/public-staging/12-backup-restore.md

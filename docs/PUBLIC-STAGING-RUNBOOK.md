@@ -138,6 +138,22 @@ python3 scripts/public_staging_route_security_report.py \
   --output=docs/evidence/public-staging/09-route-security.md
 ```
 
+Generate operations evidence reports from structured public/provider evidence:
+
+```bash
+python3 scripts/public_staging_ops_reports.py \
+  --input=docs/evidence/public-staging/ops-evidence.json \
+  --output-dir=docs/evidence/public-staging
+```
+
+The input JSON must contain `worker_jobs`, `network_isolation`,
+`backup_restore`, `failure_rollback`, and `observability_alerts` sections. The
+script writes `10-worker-jobs.md`, `11-network-isolation.md`,
+`12-backup-restore.md`, `13-failure-rollback.md`, and
+`14-observability-alerts.md`. Each report gets `Verdict: pass` only when the
+required structured checks are present, true, and secret-free; otherwise it is
+written as `Verdict: investigate`.
+
 For private-beta registration, set `OASIS_REGISTRATION_ALLOWED_EMAILS` to the
 comma-separated tester list before inviting users. Denied registrations return
 the same generic response and do not create users or send verification email.
