@@ -666,6 +666,74 @@ The report must end with `Verdict: pass`; otherwise the strict public gate audit
 continues to treat route security as unproven.
 ```
 
+### Prompt 13.5: Public Staging Auth And Map-Slot Probe
+
+```text
+Generate deployed public auth, email-token, CSRF, and map-slot evidence without
+editing product code.
+
+Work in:
+/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis
+
+Prerequisites:
+- STAGING_URL is set to the approved staging HTTPS URL.
+- The two tester emails are allowed by OASIS_REGISTRATION_ALLOWED_EMAILS.
+- If Cloudflare Access service-token auth is required, set:
+  OASIS_CF_ACCESS_CLIENT_ID
+  OASIS_CF_ACCESS_CLIENT_SECRET
+- Use fresh tester accounts when proving email verification delivery.
+
+First request the registration verification and password reset emails:
+
+export OASIS_PUBLIC_TESTER_A_EMAIL=...
+export OASIS_PUBLIC_TESTER_A_PASSWORD=...
+export OASIS_PUBLIC_TESTER_B_EMAIL=...
+export OASIS_PUBLIC_TESTER_B_PASSWORD=...
+
+python3 scripts/public_staging_auth_map_slots_probe.py \
+  --base-url="$STAGING_URL" \
+  --proxy-server=http://127.0.0.1:9090 \
+  --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID \
+  --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET
+
+This first run is expected to write an investigate verdict until the delivered
+email tokens are supplied. Do not paste token values into docs, commits,
+Proxyman exports, screenshots, or terminal summaries.
+
+After collecting the token values from the delivered emails, rerun:
+
+export OASIS_PUBLIC_TESTER_A_VERIFY_TOKEN=...
+export OASIS_PUBLIC_TESTER_B_VERIFY_TOKEN=...
+export OASIS_PUBLIC_TESTER_A_RESET_TOKEN=...
+export OASIS_PUBLIC_TESTER_A_RESET_PASSWORD=...
+
+python3 scripts/public_staging_auth_map_slots_probe.py \
+  --base-url="$STAGING_URL" \
+  --proxy-server=http://127.0.0.1:9090 \
+  --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID \
+  --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET
+
+Inspect:
+- docs/evidence/performance/27-public-auth-map-slots.json
+
+Verify:
+- registration and verification returned expected generic/success responses
+- password reset request and completion succeeded
+- session cookie is Secure and HttpOnly
+- CSRF cookie is Secure
+- CSRF rejection is 403
+- both users can log in
+- exactly three map slots exist for the tester
+- stale-version map-slot write returns 409
+- cross-user map-slot read is denied with 403 or 404
+- no passwords, tokens, cookies, authorization values, or complete emails are
+  stored in the evidence file
+
+Leave --enforce-app-targets off for external internet timing. Only pass
+--enforce-app-targets from a same-region/application-layer measurement context
+where internet latency has been separated.
+```
+
 ### Prompt 14: Public Staging Proxyman Browser Matrix
 
 ```text

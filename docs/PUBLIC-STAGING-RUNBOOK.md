@@ -78,6 +78,42 @@ python3 scripts/public_staging_performance_report.py \
   --output=docs/evidence/public-staging/15-performance.md
 ```
 
+Generate deployed auth, email-token, CSRF, and map-slot evidence with two
+dedicated tester accounts. The first run sends registration/password-reset
+emails and exits with `Verdict: investigate` until the token environment
+variables are supplied:
+
+```bash
+export OASIS_PUBLIC_TESTER_A_EMAIL=...
+export OASIS_PUBLIC_TESTER_A_PASSWORD=...
+export OASIS_PUBLIC_TESTER_B_EMAIL=...
+export OASIS_PUBLIC_TESTER_B_PASSWORD=...
+
+python3 scripts/public_staging_auth_map_slots_probe.py \
+  --base-url="$STAGING_URL" \
+  --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID \
+  --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET
+```
+
+After copying only the verification/reset tokens from the delivered emails into
+environment variables, rerun:
+
+```bash
+export OASIS_PUBLIC_TESTER_A_VERIFY_TOKEN=...
+export OASIS_PUBLIC_TESTER_B_VERIFY_TOKEN=...
+export OASIS_PUBLIC_TESTER_A_RESET_TOKEN=...
+export OASIS_PUBLIC_TESTER_A_RESET_PASSWORD=...
+
+python3 scripts/public_staging_auth_map_slots_probe.py \
+  --base-url="$STAGING_URL" \
+  --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID \
+  --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET
+```
+
+The script writes
+`docs/evidence/performance/27-public-auth-map-slots.json` without passwords,
+tokens, cookies, authorization values, or complete email addresses.
+
 Generate route-security evidence from the public route probe and auth/security
 summaries:
 
