@@ -228,7 +228,9 @@ weak evidence.
 JSON evidence is also schema-checked: preflight, image-manifest, and Render
 deploy files must prove HTTPS/DNS/TLS/header behavior, immutable GHCR digest
 pinning, passing CI checks, and successful API plus worker deployments. A
-hand-written `verdict: pass` is not enough.
+hand-written `verdict: pass` is not enough. The audit also cross-checks that
+public `/version` includes the tested image commit and that Render deploy
+evidence records Alembic plus `server.migration_check` before the worker deploy.
 
 ## Rotate Secrets
 

@@ -118,6 +118,13 @@ def endpoint_ok(data: dict[str, Any], path: str) -> bool:
     return result.get("ok") is True and 200 <= int(result.get("status") or 0) < 400
 
 
+def endpoint_text(data: dict[str, Any], path: str) -> str:
+    result = (data.get("endpoints") or {}).get(path) or {}
+    if isinstance(result.get("body_json"), dict):
+        return json.dumps(result["body_json"], sort_keys=True)
+    return str(result.get("body_text") or "")
+
+
 def preflight_weaknesses(data: dict[str, Any]) -> list[str]:
     weak: list[str] = []
     if data.get("verdict") != "pass":
@@ -149,6 +156,11 @@ def preflight_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("preflight HSTS includeSubDomains is not allowed")
     if "preload" in hsts:
         weak.append("preflight HSTS preload is not allowed")
+
+    manifest = load_json(EVIDENCE / "01-image-manifest.json") or {}
+    manifest_commit = str(manifest.get("commit") or "") if not manifest.get("_parse_error") else ""
+    if manifest_commit and manifest_commit not in endpoint_text(data, "/version"):
+        weak.append("preflight /version does not include image manifest commit")
     return weak
 
 
@@ -198,6 +210,10 @@ def render_deploy_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("Render deploy digest is missing or not sha256")
     if roles != ["api", "worker"]:
         weak.append(f"Render deploy roles must be exactly api and worker, got {roles}")
+    sequence_text = "\n".join(str(item) for item in (data.get("sequence") or [])).lower()
+    for required in ("alembic upgrade head", "server.migration_check", "before worker"):
+        if required not in sequence_text:
+            weak.append(f"Render deploy sequence missing {required}")
     for item in deployments:
         role = item.get("role") or "unknown"
         if item.get("ok") is not True:

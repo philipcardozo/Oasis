@@ -88,6 +88,19 @@ def test_preflight_json_pass_with_unsafe_hsts_is_weak(tmp_path, monkeypatch):
     assert any("HSTS includeSubDomains is not allowed" in item for item in result["weak"])
 
 
+def test_preflight_version_must_match_image_manifest_commit(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    preflight = _preflight()
+    preflight["endpoints"]["/version"]["body_text"] = '{"commit":"different"}'
+    (evidence / "00-public-staging-preflight.json").write_text(json.dumps(preflight))
+    (evidence / "01-image-manifest.json").write_text(json.dumps(_image_manifest()))
+
+    result = audit.evaluate("preflight", "Preflight", ["00-public-staging-preflight.json"])
+
+    assert result["status"] == "weak"
+    assert any("/version does not include image manifest commit" in item for item in result["weak"])
+
+
 def test_valid_image_manifest_and_render_deploy_are_proven(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     (evidence / "01-image-manifest.json").write_text(json.dumps(_image_manifest()))
@@ -123,6 +136,21 @@ def test_render_deploy_json_pass_without_worker_is_weak(tmp_path, monkeypatch):
 
     assert result["status"] == "weak"
     assert any("roles must be exactly api and worker" in item for item in result["weak"])
+
+
+def test_render_deploy_json_pass_without_migration_sequence_is_weak(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    (evidence / "01-image-manifest.json").write_text(json.dumps(_image_manifest()))
+    deploy = _render_deploy()
+    deploy["sequence"] = ["deploy API image", "deploy worker image"]
+    (evidence / "02-render-deploy.json").write_text(json.dumps(deploy))
+
+    result = audit.evaluate("deploy", "Deploy", ["02-render-deploy.json"])
+
+    assert result["status"] == "weak"
+    assert any("sequence missing alembic upgrade head" in item for item in result["weak"])
+    assert any("sequence missing server.migration_check" in item for item in result["weak"])
+    assert any("sequence missing before worker" in item for item in result["weak"])
 
 
 def _configure_tmp_audit(tmp_path: Path, monkeypatch) -> Path:
@@ -183,6 +211,14 @@ def _render_deploy() -> dict:
     return {
         "verdict": "pass",
         "image_url": f"ghcr.io/example/oasis@{DIGEST}",
+        "sequence": [
+            "deploy API image with Render preDeployCommand",
+            "Render preDeployCommand runs alembic upgrade head",
+            "Render preDeployCommand runs server.migration_check against the deployed database",
+            "wait for API deploy terminal success before worker deploy",
+            "deploy worker image",
+            "wait for worker deploy terminal success",
+        ],
         "deployments": [
             {
                 "role": "api",
