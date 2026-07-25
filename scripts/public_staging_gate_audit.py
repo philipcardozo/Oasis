@@ -52,6 +52,85 @@ GENERATED_MARKDOWN = {
     "15-performance.md",
 }
 
+MARKDOWN_REQUIRED_TEXT = {
+    "02-dns-tls-edge.md": [
+        "# Public Staging DNS TLS And Edge Evidence",
+        "## Checks",
+        "preflight verdict",
+        "HSTS max-age present",
+    ],
+    "03-cloudflare-access.md": [
+        "# Public Staging Cloudflare Access Evidence",
+        "## Checks",
+        "service-token status",
+        "OASIS auth status",
+    ],
+    "04-render-services.md": [
+        "# Public Staging Render Services Evidence",
+        "## Checks",
+        "image manifest verdict",
+        "Render deploy roles",
+    ],
+    "05-migration-version.md": [
+        "# Public Staging Migration Version Evidence",
+        "## Checks",
+        "expected revision",
+        "current revision",
+    ],
+    "06-auth-email.md": [
+        "# Public Staging Authentication And Email Evidence",
+        "## Checks",
+        "session cookie secure",
+        "csrf rejection status",
+    ],
+    "07-browser-matrix.md": [
+        "# Public Staging Browser Matrix Evidence",
+        "## Browser Matrix",
+        "## Captured Network Flows",
+    ],
+    "08-map-provider-capture.md": [
+        "# Public Staging Map Provider Evidence",
+        "## Provider Checks",
+        "Approved hosts",
+    ],
+    "09-route-security.md": [
+        "# Public Staging Route Security Evidence",
+        "## Route Probe",
+        "### Unauthenticated Rejections",
+        "## Auth And Authorization Checks",
+    ],
+    "10-worker-jobs.md": [
+        "# Public Staging Worker Job Evidence",
+        "## Checks",
+        "controlled noop job was created",
+    ],
+    "11-network-isolation.md": [
+        "# Public Staging Network Isolation Evidence",
+        "## Checks",
+        "API made no SEC requests",
+    ],
+    "12-backup-restore.md": [
+        "# Public Staging Backup Restore Evidence",
+        "## Checks",
+        "on-demand backup was created",
+    ],
+    "13-failure-rollback.md": [
+        "# Public Staging Failure And Rollback Evidence",
+        "## Checks",
+        "API rollback was exercised",
+    ],
+    "14-observability-alerts.md": [
+        "# Public Staging Observability And Alerts Evidence",
+        "## Checks",
+        "API readiness failure",
+    ],
+    "15-performance.md": [
+        "# Public Staging Performance Evidence",
+        "## Browser Flows",
+        "## DNS And TLS",
+    ],
+}
+
 REQUIRED_DOCS = [
     "docs/PHASE-1-75-PUBLIC-STAGING.md",
     "docs/PUBLIC-STAGING-ARCHITECTURE.md",
@@ -210,6 +289,11 @@ def text_secret_findings(text: str) -> list[str]:
     return findings
 
 
+def markdown_shape_weaknesses(name: str, text: str) -> list[str]:
+    required = MARKDOWN_REQUIRED_TEXT.get(name, [])
+    return [f"missing generated report content: {item}" for item in required if item not in text]
+
+
 def endpoint_ok(data: dict[str, Any], path: str) -> bool:
     result = (data.get("endpoints") or {}).get(path) or {}
     return result.get("ok") is True and 200 <= int(result.get("status") or 0) < 400
@@ -364,6 +448,7 @@ def file_status(name: str) -> dict[str, Any]:
             out["secret_weak"] = text_secret_findings(text)
             if path.name in GENERATED_MARKDOWN:
                 out["generated_report_marker"] = bool(GENERATED_REPORT_RE.search(text))
+                out["markdown_schema_weak"] = markdown_shape_weaknesses(path.name, text)
     return out
 
 
@@ -389,6 +474,7 @@ def evaluate(key: str, label: str, files: list[str], json_checks: list[str] | No
                 weak.append(f"{item['path']} missing Markdown pass verdict")
         if item.get("generated_report_marker") is False:
             weak.append(f"{item['path']} missing generated report marker")
+        weak.extend(f"{item['path']} {message}" for message in item.get("markdown_schema_weak", []))
 
     for check in json_checks or []:
         data = load_json(EVIDENCE / "00-public-staging-preflight.json") or {}

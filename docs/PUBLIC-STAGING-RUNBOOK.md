@@ -224,7 +224,8 @@ and returns non-zero until every required evidence item is present and clean.
 Generated Markdown evidence files must include both `Verdict: pass` and the
 generated-report marker emitted by the report scripts. Placeholder,
 hand-written pass, `Verdict: investigate`, or verdict-less files are treated as
-weak evidence.
+weak evidence. The audit also checks each generated Markdown report for its
+expected title and key sections.
 JSON evidence is also schema-checked: preflight, image-manifest, and Render
 deploy files must prove HTTPS/DNS/TLS/header behavior, immutable GHCR digest
 pinning, passing CI checks, and successful API plus worker deployments. A

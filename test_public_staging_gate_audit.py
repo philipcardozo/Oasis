@@ -34,9 +34,7 @@ def test_markdown_evidence_with_investigate_verdict_is_weak(tmp_path, monkeypatc
 
 def test_generated_markdown_evidence_with_pass_verdict_is_proven(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
-    (evidence / "15-performance.md").write_text(
-        "# Performance\n\nVerdict: **pass**\n\nThis generated report contains sanitized evidence only.\n"
-    )
+    (evidence / "15-performance.md").write_text(_performance_report())
 
     result = audit.evaluate("performance", "Performance", ["15-performance.md"])
 
@@ -57,16 +55,30 @@ def test_handwritten_markdown_pass_without_generated_marker_is_weak(tmp_path, mo
 def test_markdown_evidence_with_authorization_value_is_weak(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     (evidence / "15-performance.md").write_text(
-        "# Performance\n\n"
-        "Verdict: **pass**\n\n"
+        _performance_report()
+        + "\n"
         "Authorization: Bearer abcdefghijklmnopqrstuvwxyz123456\n\n"
-        "This generated report contains sanitized evidence only.\n"
     )
 
     result = audit.evaluate("performance", "Performance", ["15-performance.md"])
 
     assert result["status"] == "weak"
     assert any("authorization header value is present" in item for item in result["weak"])
+
+
+def test_generated_markdown_pass_with_missing_expected_sections_is_weak(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    (evidence / "15-performance.md").write_text(
+        "# Public Staging Performance Evidence\n\n"
+        "Verdict: **pass**\n\n"
+        "This generated report contains sanitized evidence only.\n"
+    )
+
+    result = audit.evaluate("performance", "Performance", ["15-performance.md"])
+
+    assert result["status"] == "weak"
+    assert any("missing generated report content: ## Browser Flows" in item for item in result["weak"])
+    assert any("missing generated report content: ## DNS And TLS" in item for item in result["weak"])
 
 
 def test_non_evidence_docs_do_not_need_generated_marker(tmp_path, monkeypatch):
@@ -241,6 +253,20 @@ def _write_required_docs(tmp_path: Path) -> None:
         path = tmp_path / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(f"# {path.stem}\n\nRequired Phase 1.75 public staging documentation.\n")
+
+
+def _performance_report() -> str:
+    return (
+        "# Public Staging Performance Evidence\n\n"
+        "Verdict: **pass**\n\n"
+        "## Browser Flows\n\n"
+        "| Flow | Requests |\n"
+        "|---|---:|\n"
+        "| first-paint | 4 |\n\n"
+        "## DNS And TLS\n\n"
+        "- Preflight verdict: `pass`\n\n"
+        "This generated report contains sanitized evidence only.\n"
+    )
 
 
 def _preflight() -> dict:
