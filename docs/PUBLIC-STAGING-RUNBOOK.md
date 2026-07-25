@@ -231,6 +231,9 @@ pinning, passing CI checks, and successful API plus worker deployments. A
 hand-written `verdict: pass` is not enough. The audit also cross-checks that
 public `/version` includes the tested image commit and that Render deploy
 evidence records Alembic plus `server.migration_check` before the worker deploy.
+All public evidence is scanned for secret-like values; raw authorization
+headers, token-bearing URLs, database URLs with credentials, and provider keys
+make the evidence weak even when other checks pass.
 
 ## Rotate Secrets
 

@@ -54,6 +54,21 @@ def test_handwritten_markdown_pass_without_generated_marker_is_weak(tmp_path, mo
     assert "missing generated report marker" in result["weak"][0]
 
 
+def test_markdown_evidence_with_authorization_value_is_weak(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    (evidence / "15-performance.md").write_text(
+        "# Performance\n\n"
+        "Verdict: **pass**\n\n"
+        "Authorization: Bearer abcdefghijklmnopqrstuvwxyz123456\n\n"
+        "This generated report contains sanitized evidence only.\n"
+    )
+
+    result = audit.evaluate("performance", "Performance", ["15-performance.md"])
+
+    assert result["status"] == "weak"
+    assert any("authorization header value is present" in item for item in result["weak"])
+
+
 def test_non_evidence_docs_do_not_need_generated_marker(tmp_path, monkeypatch):
     _configure_tmp_audit(tmp_path, monkeypatch)
     docs = tmp_path / "docs"
@@ -69,6 +84,34 @@ def test_non_evidence_docs_do_not_need_generated_marker(tmp_path, monkeypatch):
 def test_valid_preflight_json_evidence_is_proven(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     (evidence / "00-public-staging-preflight.json").write_text(json.dumps(_preflight()))
+
+    result = audit.evaluate("preflight", "Preflight", ["00-public-staging-preflight.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_json_evidence_with_raw_token_value_is_weak(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    preflight = _preflight()
+    preflight["auth"] = {"access_token": "sk_1234567890abcdef1234567890abcdef"}
+    (evidence / "00-public-staging-preflight.json").write_text(json.dumps(preflight))
+
+    result = audit.evaluate("preflight", "Preflight", ["00-public-staging-preflight.json"])
+
+    assert result["status"] == "weak"
+    assert any("secret-like value at auth.access_token" in item for item in result["weak"])
+
+
+def test_json_evidence_allows_env_names_and_redaction_markers(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    preflight = _preflight()
+    preflight["auth_header_names_sent"] = ["CF-Access-Client-Id", "CF-Access-Client-Secret"]
+    preflight["auth"] = {
+        "client_secret_env": "OASIS_CF_ACCESS_CLIENT_SECRET",
+        "access_token": "<redacted>",
+    }
+    (evidence / "00-public-staging-preflight.json").write_text(json.dumps(preflight))
 
     result = audit.evaluate("preflight", "Preflight", ["00-public-staging-preflight.json"])
 

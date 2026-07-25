@@ -22,6 +22,18 @@ PASS_VERDICT_RE = re.compile(r"^Verdict:\s*(?:\*\*)?pass(?:\*\*)?\s*$", re.IGNOR
 ANY_VERDICT_RE = re.compile(r"^Verdict:\s*(.+?)\s*$", re.IGNORECASE | re.MULTILINE)
 GENERATED_REPORT_RE = re.compile(r"\bThis generated report\b", re.IGNORECASE)
 IMAGE_DIGEST_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
+ENV_NAME_RE = re.compile(r"^[A-Z][A-Z0-9_]{2,}$")
+PUBLIC_HASH_RE = re.compile(r"(?:sha256:)?[0-9a-f]{7,128}", re.IGNORECASE)
+URL_WITH_CREDENTIALS_RE = re.compile(r"://[^/\s:@]+:[^/\s:@]+@")
+TOKEN_QUERY_RE = re.compile(r"(?i)(?:[?&](?:token|code|secret|password|key)=)(?!<redacted>|redacted)[^&\s`'\">]{8,}")
+AUTH_HEADER_RE = re.compile(r"(?i)\bauthorization\s*[:=]\s*(?!<redacted>|redacted)(?:bearer|basic)\s+[A-Za-z0-9._~+/=-]{8,}")
+SECRET_PREFIX_RE = re.compile(r"^(?:sk_|pk_|ghp_|ghs_|xoxb-|xoxp-)[A-Za-z0-9._~+/=-]{8,}")
+JWT_RE = re.compile(r"^[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}$")
+LONG_SECRET_RE = re.compile(r"(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9_\-+/=]{32,}")
+SENSITIVE_KEY_RE = re.compile(
+    r"(password|passwd|token|cookie|authorization|secret|api[_-]?key|private[_-]?key|credential|database[_-]?url)",
+    re.IGNORECASE,
+)
 
 GENERATED_MARKDOWN = {
     "02-dns-tls-edge.md",
@@ -111,6 +123,73 @@ def load_json(path: Path) -> dict[str, Any] | None:
 
 def status_ok(value: Any) -> bool:
     return str(value or "").lower() in {"pass", "passed", "ok", "success", "succeeded", "true", "present"}
+
+
+def safe_secret_value(value: str, *, names_only: bool = False) -> bool:
+    lowered = value.lower()
+    if value in {"", "<redacted>", "redacted", "***", "present", "configured", "missing"}:
+        return True
+    if lowered.startswith("replace-with-"):
+        return True
+    if names_only or ENV_NAME_RE.fullmatch(value):
+        return True
+    if PUBLIC_HASH_RE.fullmatch(value):
+        return True
+    return False
+
+
+def secretish_string(value: str) -> bool:
+    if safe_secret_value(value):
+        return False
+    if URL_WITH_CREDENTIALS_RE.search(value):
+        return True
+    if TOKEN_QUERY_RE.search(value):
+        return True
+    if AUTH_HEADER_RE.search(value):
+        return True
+    if SECRET_PREFIX_RE.match(value):
+        return True
+    if JWT_RE.match(value):
+        return True
+    return bool(LONG_SECRET_RE.fullmatch(value)) and not ENV_NAME_RE.fullmatch(value)
+
+
+def json_secret_paths(value: Any, path: str = "") -> list[str]:
+    findings: list[str] = []
+    if isinstance(value, dict):
+        for key, item in value.items():
+            key_text = str(key)
+            child = f"{path}.{key_text}" if path else key_text
+            lowered = key_text.lower()
+            names_only = any(marker in lowered for marker in ("env", "header_names", "secret_names", "credential_names"))
+            if SENSITIVE_KEY_RE.search(key_text) and isinstance(item, str) and not safe_secret_value(item, names_only=names_only):
+                findings.append(child)
+            findings.extend(json_secret_paths(item, child))
+    elif isinstance(value, list):
+        names_only = any(marker in path.lower() for marker in ("env", "header_names", "secret_names", "credential_names"))
+        for idx, item in enumerate(value):
+            child = f"{path}[{idx}]"
+            if isinstance(item, str) and not safe_secret_value(item, names_only=names_only) and secretish_string(item):
+                findings.append(child)
+            findings.extend(json_secret_paths(item, child))
+    elif isinstance(value, str) and secretish_string(value):
+        findings.append(path or "<root>")
+    return sorted(set(findings))
+
+
+def text_secret_findings(text: str) -> list[str]:
+    findings: list[str] = []
+    for lineno, line in enumerate(text.splitlines(), start=1):
+        if URL_WITH_CREDENTIALS_RE.search(line):
+            findings.append(f"line {lineno}: URL contains credentials")
+        if TOKEN_QUERY_RE.search(line):
+            findings.append(f"line {lineno}: URL contains token-like query value")
+        if AUTH_HEADER_RE.search(line):
+            findings.append(f"line {lineno}: authorization header value is present")
+        for value in re.findall(r"(?<![A-Za-z0-9_])(?:sk_|pk_|ghp_|ghs_|xoxb-|xoxp-)[A-Za-z0-9._~+/=-]{8,}", line):
+            if secretish_string(value):
+                findings.append(f"line {lineno}: token-like value is present")
+    return findings
 
 
 def endpoint_ok(data: dict[str, Any], path: str) -> bool:
@@ -253,6 +332,8 @@ def file_status(name: str) -> dict[str, Any]:
             out["json_verdict"] = data.get("verdict") if isinstance(data, dict) else None
             out["json_failures"] = data.get("failures") if isinstance(data, dict) else None
             out["parse_error"] = data.get("_parse_error") if isinstance(data, dict) else None
+            if isinstance(data, dict) and not data.get("_parse_error"):
+                out["secret_weak"] = [f"secret-like value at {item}" for item in json_secret_paths(data)]
             if isinstance(data, dict) and not data.get("_parse_error") and path.name in JSON_VALIDATORS:
                 out["json_schema_weak"] = JSON_VALIDATORS[path.name](data)
         elif path.suffix == ".md" and not name.startswith("docs/"):
@@ -260,6 +341,7 @@ def file_status(name: str) -> dict[str, Any]:
             verdict = ANY_VERDICT_RE.search(text)
             out["markdown_verdict"] = verdict.group(1).strip() if verdict else None
             out["markdown_verdict_pass"] = bool(PASS_VERDICT_RE.search(text))
+            out["secret_weak"] = text_secret_findings(text)
             if path.name in GENERATED_MARKDOWN:
                 out["generated_report_marker"] = bool(GENERATED_REPORT_RE.search(text))
     return out
@@ -275,6 +357,7 @@ def evaluate(key: str, label: str, files: list[str], json_checks: list[str] | No
             weak.append(f"{item['path']} verdict={verdict}")
         if item.get("parse_error"):
             weak.append(f"{item['path']} parse_error={item['parse_error']}")
+        weak.extend(f"{item['path']} {message}" for message in item.get("secret_weak", []))
         weak.extend(f"{item['path']} {message}" for message in item.get("json_schema_weak", []))
         if "markdown_verdict_pass" in item and not item["markdown_verdict_pass"]:
             verdict = item.get("markdown_verdict")
