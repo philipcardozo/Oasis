@@ -7,6 +7,7 @@ missing; the script does not infer approval from scaffolding, docs, or intent.
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
@@ -17,6 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
 JSON_OUT = EVIDENCE / "99-public-staging-gate-audit.json"
 MD_OUT = EVIDENCE / "99-public-staging-gate-audit.md"
+PASS_VERDICT_RE = re.compile(r"^Verdict:\s*(?:\*\*)?pass(?:\*\*)?\s*$", re.IGNORECASE | re.MULTILINE)
+ANY_VERDICT_RE = re.compile(r"^Verdict:\s*(.+?)\s*$", re.IGNORECASE | re.MULTILINE)
 
 
 REQUIREMENTS = [
@@ -97,6 +100,11 @@ def file_status(name: str) -> dict[str, Any]:
             out["json_verdict"] = data.get("verdict") if isinstance(data, dict) else None
             out["json_failures"] = data.get("failures") if isinstance(data, dict) else None
             out["parse_error"] = data.get("_parse_error") if isinstance(data, dict) else None
+        elif path.suffix == ".md" and not name.startswith("docs/"):
+            text = path.read_text(errors="replace")
+            verdict = ANY_VERDICT_RE.search(text)
+            out["markdown_verdict"] = verdict.group(1).strip() if verdict else None
+            out["markdown_verdict_pass"] = bool(PASS_VERDICT_RE.search(text))
     return out
 
 
@@ -110,6 +118,12 @@ def evaluate(key: str, label: str, files: list[str], json_checks: list[str] | No
             weak.append(f"{item['path']} verdict={verdict}")
         if item.get("parse_error"):
             weak.append(f"{item['path']} parse_error={item['parse_error']}")
+        if "markdown_verdict_pass" in item and not item["markdown_verdict_pass"]:
+            verdict = item.get("markdown_verdict")
+            if verdict:
+                weak.append(f"{item['path']} markdown verdict={verdict}")
+            else:
+                weak.append(f"{item['path']} missing Markdown pass verdict")
 
     for check in json_checks or []:
         data = load_json(EVIDENCE / "00-public-staging-preflight.json") or {}

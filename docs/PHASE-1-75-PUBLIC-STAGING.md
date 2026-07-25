@@ -114,6 +114,11 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
 - `99-public-staging-gate-audit.json`
 - `99-public-staging-gate-audit.md`
 
+Every public-staging Markdown evidence file must include an explicit
+`Verdict: pass` line after the evidence is complete. Use
+`Verdict: investigate` for partial or failed evidence; the strict audit will not
+count that file as proven.
+
 ## Acceptance Status
 
 Current status:

@@ -90,6 +90,8 @@ python3 scripts/public_staging_gate_audit.py
 
 The script writes `docs/evidence/public-staging/99-public-staging-gate-audit.*`
 and returns non-zero until every required evidence item is present and clean.
+Markdown evidence files must include `Verdict: pass`; placeholder,
+`Verdict: investigate`, or verdict-less files are treated as weak evidence.
 
 ## Rotate Secrets
 

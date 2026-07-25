@@ -750,6 +750,10 @@ Record:
 Final verdict stays NOT APPROVED unless every public-staging acceptance item is
 proven by current evidence.
 
+Each public-staging Markdown evidence file must include `Verdict: pass` only
+after that file's checks are actually proven. Use `Verdict: investigate` while
+the evidence is partial or failing.
+
 Run the strict gate audit last:
 
 python3 scripts/public_staging_gate_audit.py
