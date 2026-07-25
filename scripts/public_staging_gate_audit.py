@@ -21,6 +21,7 @@ MD_OUT = EVIDENCE / "99-public-staging-gate-audit.md"
 PASS_VERDICT_RE = re.compile(r"^Verdict:\s*(?:\*\*)?pass(?:\*\*)?\s*$", re.IGNORECASE | re.MULTILINE)
 ANY_VERDICT_RE = re.compile(r"^Verdict:\s*(.+?)\s*$", re.IGNORECASE | re.MULTILINE)
 GENERATED_REPORT_RE = re.compile(r"\bThis generated report\b", re.IGNORECASE)
+IMAGE_DIGEST_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 
 GENERATED_MARKDOWN = {
     "02-dns-tls-edge.md",
@@ -108,6 +109,124 @@ def load_json(path: Path) -> dict[str, Any] | None:
         return {"_parse_error": str(exc)}
 
 
+def status_ok(value: Any) -> bool:
+    return str(value or "").lower() in {"pass", "passed", "ok", "success", "succeeded", "true", "present"}
+
+
+def endpoint_ok(data: dict[str, Any], path: str) -> bool:
+    result = (data.get("endpoints") or {}).get(path) or {}
+    return result.get("ok") is True and 200 <= int(result.get("status") or 0) < 400
+
+
+def preflight_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if data.get("verdict") != "pass":
+        weak.append("preflight verdict is not pass")
+    if (data.get("url") or {}).get("scheme") != "https":
+        weak.append("preflight base URL is not HTTPS")
+    if (data.get("dns") or {}).get("ok") is not True:
+        weak.append("preflight DNS is not ok")
+    if (data.get("tls") or {}).get("ok") is not True:
+        weak.append("preflight TLS is not ok")
+    if (data.get("http_to_https_redirect") or {}).get("status") not in {301, 302, 307, 308}:
+        weak.append("preflight HTTP-to-HTTPS redirect is missing")
+    for path in ("/index.html", "/healthz", "/readyz", "/version"):
+        if not endpoint_ok(data, path):
+            weak.append(f"preflight {path} is not successful")
+    headers = (((data.get("endpoints") or {}).get("/index.html") or {}).get("headers") or {})
+    required_headers = {
+        "x-content-type-options": "nosniff",
+        "referrer-policy": "strict-origin",
+        "content-security-policy": "default-src 'self'",
+    }
+    for key, expected in required_headers.items():
+        if expected not in str(headers.get(key) or ""):
+            weak.append(f"preflight /index.html missing {key}: {expected}")
+    hsts = str(headers.get("strict-transport-security") or "").lower()
+    if "max-age=" not in hsts:
+        weak.append("preflight /index.html missing HSTS max-age")
+    if "includesubdomains" in hsts:
+        weak.append("preflight HSTS includeSubDomains is not allowed")
+    if "preload" in hsts:
+        weak.append("preflight HSTS preload is not allowed")
+    return weak
+
+
+def image_manifest_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    image = str(data.get("image") or "")
+    digest = str(data.get("digest") or "")
+    image_name = str(data.get("image_name") or "")
+    checks = data.get("checks") or {}
+    if data.get("verdict") != "pass":
+        weak.append("image manifest verdict is not pass")
+    if not str(data.get("commit") or "") or len(str(data.get("commit") or "")) < 7:
+        weak.append("image manifest commit is missing or too short")
+    if "@" not in image:
+        weak.append("image manifest image is not digest pinned")
+    if ":latest" in image or image.endswith(":latest"):
+        weak.append("image manifest image uses latest")
+    if not IMAGE_DIGEST_RE.match(digest):
+        weak.append("image manifest digest is not sha256")
+    if image and digest and not image.endswith(f"@{digest}"):
+        weak.append("image manifest digest does not match image")
+    if data.get("registry") != "ghcr.io":
+        weak.append("image manifest registry is not ghcr.io")
+    if image_name and not image_name.startswith("ghcr.io/"):
+        weak.append("image manifest image_name is not GHCR")
+    if data.get("architecture") != "linux/amd64":
+        weak.append("image manifest architecture is not linux/amd64")
+    for name in ("migration_validation", "python_tests", "playwright_tests", "image_scan", "sbom", "provenance"):
+        if not status_ok(checks.get(name)):
+            weak.append(f"image manifest {name} is not passing/present")
+    return weak
+
+
+def render_deploy_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    image_url = str(data.get("image_url") or "")
+    digest = image_url.rsplit("@", 1)[1] if "@" in image_url else ""
+    deployments = list(data.get("deployments") or [])
+    roles = sorted(item.get("role") for item in deployments)
+    if data.get("verdict") != "pass":
+        weak.append("Render deploy verdict is not pass")
+    if "@" not in image_url:
+        weak.append("Render deploy image is not digest pinned")
+    if ":latest" in image_url or image_url.endswith(":latest"):
+        weak.append("Render deploy image uses latest")
+    if not IMAGE_DIGEST_RE.match(digest):
+        weak.append("Render deploy digest is missing or not sha256")
+    if roles != ["api", "worker"]:
+        weak.append(f"Render deploy roles must be exactly api and worker, got {roles}")
+    for item in deployments:
+        role = item.get("role") or "unknown"
+        if item.get("ok") is not True:
+            weak.append(f"Render {role} deploy is not ok")
+        if item.get("terminal") is not True:
+            weak.append(f"Render {role} deploy is not terminal")
+        if item.get("timed_out") is True:
+            weak.append(f"Render {role} deploy timed out")
+        if not item.get("deploy_id"):
+            weak.append(f"Render {role} deploy id is missing")
+        if not item.get("service_id_sha256_16"):
+            weak.append(f"Render {role} service hash is missing")
+
+    manifest = load_json(EVIDENCE / "01-image-manifest.json") or {}
+    if manifest and not manifest.get("_parse_error"):
+        if manifest.get("image") != image_url:
+            weak.append("Render deploy image does not match image manifest")
+        if digest and manifest.get("digest") != digest:
+            weak.append("Render deploy digest does not match image manifest")
+    return weak
+
+
+JSON_VALIDATORS = {
+    "00-public-staging-preflight.json": preflight_weaknesses,
+    "01-image-manifest.json": image_manifest_weaknesses,
+    "02-render-deploy.json": render_deploy_weaknesses,
+}
+
+
 def file_status(name: str) -> dict[str, Any]:
     path = ROOT / name if name.startswith("docs/") else EVIDENCE / name
     out: dict[str, Any] = {"path": str(path.relative_to(ROOT)), "exists": path.exists()}
@@ -118,6 +237,8 @@ def file_status(name: str) -> dict[str, Any]:
             out["json_verdict"] = data.get("verdict") if isinstance(data, dict) else None
             out["json_failures"] = data.get("failures") if isinstance(data, dict) else None
             out["parse_error"] = data.get("_parse_error") if isinstance(data, dict) else None
+            if isinstance(data, dict) and not data.get("_parse_error") and path.name in JSON_VALIDATORS:
+                out["json_schema_weak"] = JSON_VALIDATORS[path.name](data)
         elif path.suffix == ".md" and not name.startswith("docs/"):
             text = path.read_text(errors="replace")
             verdict = ANY_VERDICT_RE.search(text)
@@ -138,6 +259,7 @@ def evaluate(key: str, label: str, files: list[str], json_checks: list[str] | No
             weak.append(f"{item['path']} verdict={verdict}")
         if item.get("parse_error"):
             weak.append(f"{item['path']} parse_error={item['parse_error']}")
+        weak.extend(f"{item['path']} {message}" for message in item.get("json_schema_weak", []))
         if "markdown_verdict_pass" in item and not item["markdown_verdict_pass"]:
             verdict = item.get("markdown_verdict")
             if verdict:
