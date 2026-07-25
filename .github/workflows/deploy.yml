@@ -124,7 +124,8 @@ jobs:
           RENDER_WORKER_SERVICE_ID: ${{ secrets.RENDER_WORKER_SERVICE_ID }}
         run: |
           python scripts/render_deploy_image.py \
-            --image-url="${IMAGE_NAME}@${{ steps.build.outputs.digest }}"
+            --image-url="${IMAGE_NAME}@${{ steps.build.outputs.digest }}" \
+            --image-manifest=docs/evidence/public-staging/01-image-manifest.json
 
       - name: Public staging preflight
         env:
