@@ -625,6 +625,59 @@ Do not paste secrets, private access URLs, cookies, or full auth headers into
 evidence.
 ```
 
+### Prompt 12.5: Public Staging Infrastructure Evidence Reports
+
+```text
+Generate public staging infrastructure reports from structured non-secret
+provider evidence. Do not edit product behavior.
+
+Work in:
+/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis
+
+Prerequisites:
+- docs/evidence/public-staging/00-public-staging-preflight.json exists.
+- docs/evidence/public-staging/01-image-manifest.json exists.
+- docs/evidence/public-staging/02-render-deploy.json exists.
+- docs/evidence/public-staging/infra-evidence.json exists.
+
+Build docs/evidence/public-staging/infra-evidence.json from Cloudflare, Render,
+and migration evidence using only:
+- provider names
+- booleans for completed checks
+- HTTP status codes
+- commit IDs and image digests
+- environment variable names
+- redaction confirmations
+
+The JSON must contain:
+- cloudflare_access
+- render_services
+- migration
+
+Do not include secret values, database URLs, SMTP credentials, storage
+credentials, cookies, raw authorization headers, Cloudflare service-token
+values, or private token-bearing URLs.
+
+Run:
+python3 scripts/public_staging_infra_reports.py \
+  --input=docs/evidence/public-staging/infra-evidence.json \
+  --preflight=docs/evidence/public-staging/00-public-staging-preflight.json \
+  --render-deploy=docs/evidence/public-staging/02-render-deploy.json \
+  --image-manifest=docs/evidence/public-staging/01-image-manifest.json \
+  --output-dir=docs/evidence/public-staging
+
+Inspect:
+- docs/evidence/public-staging/02-dns-tls-edge.md
+- docs/evidence/public-staging/03-cloudflare-access.md
+- docs/evidence/public-staging/04-render-services.md
+- docs/evidence/public-staging/05-migration-version.md
+
+Each report must show `Verdict: pass`. Any missing Cloudflare Access boundary,
+failed preflight, Render deploy/image mismatch, missing managed Postgres/storage
+proof, SQLite fallback, migration revision mismatch, or secret-like value keeps
+the report at `Verdict: investigate`.
+```
+
 ### Prompt 13: Public Staging Route And Attack-Surface Probe
 
 ```text
@@ -830,15 +883,27 @@ Using the real staging URL and provider dashboards/logs, verify and record:
 
 Record:
 - docs/evidence/public-staging/06-auth-email.md
+- docs/evidence/public-staging/infra-evidence.json
 - docs/evidence/public-staging/ops-evidence.json
 
-Then generate strict operation reports:
+Then generate strict infrastructure and operation reports:
+
+python3 scripts/public_staging_infra_reports.py \
+  --input=docs/evidence/public-staging/infra-evidence.json \
+  --preflight=docs/evidence/public-staging/00-public-staging-preflight.json \
+  --render-deploy=docs/evidence/public-staging/02-render-deploy.json \
+  --image-manifest=docs/evidence/public-staging/01-image-manifest.json \
+  --output-dir=docs/evidence/public-staging
 
 python3 scripts/public_staging_ops_reports.py \
   --input=docs/evidence/public-staging/ops-evidence.json \
   --output-dir=docs/evidence/public-staging
 
 This writes:
+- docs/evidence/public-staging/02-dns-tls-edge.md
+- docs/evidence/public-staging/03-cloudflare-access.md
+- docs/evidence/public-staging/04-render-services.md
+- docs/evidence/public-staging/05-migration-version.md
 - docs/evidence/public-staging/10-worker-jobs.md
 - docs/evidence/public-staging/11-network-isolation.md
 - docs/evidence/public-staging/12-backup-restore.md

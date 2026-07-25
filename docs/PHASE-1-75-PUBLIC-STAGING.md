@@ -94,12 +94,15 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
 
 - `00-public-staging-preflight.json`
 - `01-image-manifest.json`
-- `02-dns-tls-edge.md`
-- `03-cloudflare-access.md`
-- `04-render-services.md`
-- `05-migration-version.md` with the Render predeploy log showing Alembic
-  upgrade, `server.migration_check` output, database type, and no SQLite
-  fallback.
+- `02-dns-tls-edge.md`, generated from public preflight and infra evidence
+  with `scripts/public_staging_infra_reports.py`
+- `03-cloudflare-access.md`, generated from sanitized Cloudflare Access
+  evidence with `scripts/public_staging_infra_reports.py`
+- `04-render-services.md`, generated from sanitized Render service/deploy
+  evidence with `scripts/public_staging_infra_reports.py`
+- `05-migration-version.md`, generated from the Render predeploy log summary
+  and `server.migration_check` evidence with
+  `scripts/public_staging_infra_reports.py`
 - `06-auth-email.md`
 - `07-browser-matrix.md`
 - `08-map-provider-capture.md`

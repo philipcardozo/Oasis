@@ -64,9 +64,9 @@ python -m alembic upgrade head && python -m server.migration_check --expected 29
 
 Copy the non-secret migration log lines and the JSON output from
 `server.migration_check` into
-`docs/evidence/public-staging/05-migration-version.md`. The verifier must show
-`"current": ["29995ef61d8e"]` and `"ok": true`; any mismatch is a failed
-release.
+`docs/evidence/public-staging/infra-evidence.json`. The verifier must show
+`"current_revision": ["29995ef61d8e"]`, `"migration_check_ok": true`, and
+`"database_url_redacted": true`; any mismatch is a failed release.
 
 ## Verify
 
@@ -80,6 +80,28 @@ python3 scripts/public_staging_preflight.py \
   --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID \
   --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET
 ```
+
+Generate infrastructure evidence reports from the public preflight, exact image
+manifest, Render deploy evidence, and sanitized provider evidence:
+
+```bash
+python3 scripts/public_staging_infra_reports.py \
+  --input=docs/evidence/public-staging/infra-evidence.json \
+  --preflight=docs/evidence/public-staging/00-public-staging-preflight.json \
+  --render-deploy=docs/evidence/public-staging/02-render-deploy.json \
+  --image-manifest=docs/evidence/public-staging/01-image-manifest.json \
+  --output-dir=docs/evidence/public-staging
+```
+
+The input JSON must contain `cloudflare_access`, `render_services`, and
+`migration` sections. It may record provider names, booleans, status codes,
+commit IDs, image digests, environment variable names, and redaction status, but
+must not include secret values, database URLs, cookies, private token URLs, SMTP
+credentials, storage credentials, or raw authorization headers. The script
+writes `02-dns-tls-edge.md`, `03-cloudflare-access.md`,
+`04-render-services.md`, and `05-migration-version.md`; each report gets
+`Verdict: pass` only when the structured evidence proves the gate and remains
+secret-free.
 
 Then run the Proxyman/browser capture from `docs/PERFORMANCE-PROXYMAN-RUNBOOK.md`
 Prompt 8 and the public prompts appended there. After the public browser
