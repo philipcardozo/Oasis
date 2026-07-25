@@ -91,6 +91,22 @@ python3 scripts/public_staging_performance_report.py \
   --output=docs/evidence/public-staging/15-performance.md
 ```
 
+After recording browser/OS versions and per-browser checks in
+`docs/evidence/public-staging/browser-matrix.json`, generate browser and
+map-provider evidence:
+
+```bash
+python3 scripts/public_staging_browser_reports.py \
+  --browser-matrix=docs/evidence/public-staging/browser-matrix.json \
+  --browser-summary=docs/evidence/performance/26-public-staging-browser-har-summary.json \
+  --browser-output=docs/evidence/public-staging/07-browser-matrix.md \
+  --map-output=docs/evidence/public-staging/08-map-provider-capture.md
+```
+
+Both generated reports must show `Verdict: pass`; otherwise browser
+compatibility, real map rendering, map-provider, and unlicensed-provider gates
+remain unproven.
+
 Generate deployed auth, email-token, CSRF, and map-slot evidence with two
 dedicated tester accounts. The first run sends registration/password-reset
 emails and exits with `Verdict: investigate` until the token environment

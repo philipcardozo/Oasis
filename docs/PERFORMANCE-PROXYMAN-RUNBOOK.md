@@ -780,10 +780,16 @@ Verify:
 - no /api/universe/bulk during first paint
 - no unpkg.com
 
-Record browser/OS versions in:
-- docs/evidence/public-staging/07-browser-matrix.md
-- docs/evidence/public-staging/08-map-provider-capture.md
-- docs/evidence/public-staging/15-performance.md
+Record browser/OS versions and manual browser checks in:
+- docs/evidence/public-staging/browser-matrix.json
+
+Then generate strict browser and map-provider reports:
+
+python3 scripts/public_staging_browser_reports.py \
+  --browser-matrix=docs/evidence/public-staging/browser-matrix.json \
+  --browser-summary=docs/evidence/performance/26-public-staging-browser-har-summary.json \
+  --browser-output=docs/evidence/public-staging/07-browser-matrix.md \
+  --map-output=docs/evidence/public-staging/08-map-provider-capture.md
 
 Generate the public performance evidence report:
 
