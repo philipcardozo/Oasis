@@ -199,6 +199,32 @@ def test_valid_image_manifest_and_render_deploy_are_proven(tmp_path, monkeypatch
     assert result["weak"] == []
 
 
+def test_valid_auth_email_summary_json_evidence_is_proven(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    (evidence / "auth-email-summary.json").write_text(json.dumps(_auth_email_summary()))
+
+    result = audit.evaluate("auth", "Auth email", ["auth-email-summary.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_auth_email_summary_requires_reset_cookie_and_csrf_evidence(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _auth_email_summary()
+    summary["rows"]["password_reset_complete_status"] = 400
+    summary["rows"]["session_cookie_httponly"] = False
+    summary["rows"]["csrf_rejection_status"] = 200
+    (evidence / "auth-email-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("auth", "Auth email", ["auth-email-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("password_reset_complete_status is not 200" in item for item in result["weak"])
+    assert any("session_cookie_httponly is not True" in item for item in result["weak"])
+    assert any("csrf_rejection_status is not 403" in item for item in result["weak"])
+
+
 def test_valid_performance_summary_json_evidence_is_proven(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     (evidence / "performance-evidence-summary.json").write_text(json.dumps(_performance_summary()))
@@ -322,6 +348,33 @@ def _performance_report() -> str:
         "- Preflight verdict: `pass`\n\n"
         "This generated report contains sanitized evidence only.\n"
     )
+
+
+def _auth_email_summary() -> dict:
+    return {
+        "verdict": "pass",
+        "failures": [],
+        "auth_captured_at": "2026-07-25T00:00:00Z",
+        "auth_base_url": "https://staging.example.com",
+        "rows": {
+            "user_a_registration_status": 201,
+            "user_a_verification_token_supplied": True,
+            "user_a_verification_status": 200,
+            "user_a_login_status": 200,
+            "user_b_registration_status": 201,
+            "user_b_verification_token_supplied": True,
+            "user_b_verification_status": 200,
+            "user_b_login_status": 200,
+            "password_reset_request_status": 200,
+            "password_reset_token_supplied": True,
+            "password_reset_complete_status": 200,
+            "post_reset_login_status": 200,
+            "session_cookie_secure": True,
+            "session_cookie_httponly": True,
+            "csrf_cookie_secure": True,
+            "csrf_rejection_status": 403,
+        },
+    }
 
 
 def _performance_summary() -> dict:

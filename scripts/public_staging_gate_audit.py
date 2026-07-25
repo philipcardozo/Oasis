@@ -161,7 +161,7 @@ REQUIREMENTS = [
     ("managed_postgres", "Managed PostgreSQL", ["04-render-services.md", "05-migration-version.md"], []),
     ("persistent_storage", "Persistent object and database storage", ["04-render-services.md", "12-backup-restore.md"], []),
     ("reverse_proxy", "Public reverse-proxy behavior", ["00-public-staging-preflight.json", "02-dns-tls-edge.md"], []),
-    ("email_delivery", "Authentication email delivery", ["06-auth-email.md"], []),
+    ("email_delivery", "Authentication email delivery", ["06-auth-email.md", "auth-email-summary.json"], []),
     ("api_worker_separation", "API and worker separation", ["02-render-deploy.json", "10-worker-jobs.md"], []),
     ("attack_surface", "External attack-surface controls", ["03-cloudflare-access.md", "09-route-security.md", "route-security-summary.json"], []),
     ("browser_compatibility", "Remote browser compatibility", ["07-browser-matrix.md"], []),
@@ -169,7 +169,7 @@ REQUIREMENTS = [
     ("rollback", "Rollback", ["13-failure-rollback.md"], []),
     ("backup_restore", "Backup and restore", ["12-backup-restore.md"], []),
     ("monitoring_alerting", "Monitoring and alerting", ["14-observability-alerts.md"], []),
-    ("private_beta_access", "Private-beta access control", ["03-cloudflare-access.md", "06-auth-email.md"], []),
+    ("private_beta_access", "Private-beta access control", ["03-cloudflare-access.md", "06-auth-email.md", "auth-email-summary.json"], []),
     ("performance", "Public performance measurements", ["15-performance.md", "performance-evidence-summary.json"], []),
     ("licensing", "Licensing gates", ["15-performance.md", "08-map-provider-capture.md"], []),
 ]
@@ -183,8 +183,8 @@ ACCEPTANCE = [
     ("postgres_backed_up", "PostgreSQL is persistent and backed up", ["12-backup-restore.md"]),
     ("explicit_migrations", "Migrations complete explicitly", ["05-migration-version.md"]),
     ("api_worker_separate", "API and worker are separate", ["02-render-deploy.json", "10-worker-jobs.md"]),
-    ("auth_email", "Email verification and password reset work", ["06-auth-email.md"]),
-    ("secure_cookies", "Session cookies are secure", ["06-auth-email.md", "00-public-staging-preflight.json"]),
+    ("auth_email", "Email verification and password reset work", ["06-auth-email.md", "auth-email-summary.json"]),
+    ("secure_cookies", "Session cookies are secure", ["06-auth-email.md", "auth-email-summary.json", "00-public-staging-preflight.json"]),
     ("csrf", "CSRF works", ["09-route-security.md", "route-security-summary.json"]),
     ("route_classification", "Every route has explicit security classification", ["09-route-security.md", "route-security-summary.json"]),
     ("cross_user_denied", "Cross-user access is denied", ["09-route-security.md", "route-security-summary.json"]),
@@ -566,10 +566,52 @@ def route_security_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     return weak
 
 
+def auth_email_summary_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if data.get("verdict") != "pass":
+        weak.append("auth-email summary verdict is not pass")
+    if data.get("failures"):
+        weak.append("auth-email summary has failures")
+
+    rows = data.get("rows") or {}
+    for user in ("user_a", "user_b"):
+        registration = rows.get(f"{user}_registration_status")
+        if registration not in {200, 201, 202}:
+            weak.append(f"auth-email {user} registration status is not generic success")
+        if rows.get(f"{user}_verification_token_supplied") is not True:
+            weak.append(f"auth-email {user} verification token was not supplied")
+        if rows.get(f"{user}_verification_status") != 200:
+            weak.append(f"auth-email {user} verification status is not 200")
+        if rows.get(f"{user}_login_status") != 200:
+            weak.append(f"auth-email {user} login status is not 200")
+
+    required_rows = {
+        "password_reset_request_status": 200,
+        "password_reset_token_supplied": True,
+        "password_reset_complete_status": 200,
+        "post_reset_login_status": 200,
+        "session_cookie_secure": True,
+        "session_cookie_httponly": True,
+        "csrf_cookie_secure": True,
+        "csrf_rejection_status": 403,
+    }
+    for key, expected in required_rows.items():
+        if rows.get(key) != expected:
+            weak.append(f"auth-email {key} is not {expected}")
+
+    base_url = str(data.get("auth_base_url") or "")
+    if base_url and urlparse(base_url).scheme != "https":
+        weak.append("auth-email base URL is not HTTPS")
+    if not data.get("auth_captured_at"):
+        weak.append("auth-email captured timestamp is missing")
+    return weak
+
+
 JSON_VALIDATORS = {
     "00-public-staging-preflight.json": preflight_weaknesses,
     "01-image-manifest.json": image_manifest_weaknesses,
     "02-render-deploy.json": render_deploy_weaknesses,
+    "auth-email-summary.json": auth_email_summary_weaknesses,
     "performance-evidence-summary.json": performance_summary_weaknesses,
     "route-security-summary.json": route_security_summary_weaknesses,
 }

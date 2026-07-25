@@ -39,6 +39,7 @@ def test_auth_email_report_rejects_complete_emails_and_secret_values():
 def test_auth_email_report_cli_writes_pass_markdown(tmp_path):
     source = tmp_path / "27-public-auth-map-slots.json"
     output = tmp_path / "06-auth-email.md"
+    summary = tmp_path / "auth-email-summary.json"
     source.write_text(json.dumps(_auth()))
 
     result = subprocess.run(
@@ -47,6 +48,7 @@ def test_auth_email_report_cli_writes_pass_markdown(tmp_path):
             "scripts/public_staging_auth_email_report.py",
             f"--auth-map-slots={source}",
             f"--output={output}",
+            f"--summary-output={summary}",
         ],
         capture_output=True,
         text=True,
@@ -54,6 +56,10 @@ def test_auth_email_report_cli_writes_pass_markdown(tmp_path):
 
     assert result.returncode == 0, result.stderr
     assert "Verdict: **pass**" in output.read_text()
+    data = json.loads(summary.read_text())
+    assert data["verdict"] == "pass"
+    assert data["rows"]["password_reset_complete_status"] == 200
+    assert data["rows"]["session_cookie_httponly"] is True
 
 
 def _auth() -> dict:

@@ -104,6 +104,8 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
   and `server.migration_check` evidence with
   `scripts/public_staging_infra_reports.py`
 - `06-auth-email.md`
+- `auth-email-summary.json`, generated beside `06-auth-email.md` for strict
+  email verification, password-reset, secure-cookie, and CSRF checks
 - `07-browser-matrix.md`
 - `08-map-provider-capture.md`
 - `09-route-security.md`, generated from public route/preflight/auth evidence

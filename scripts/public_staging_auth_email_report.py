@@ -30,6 +30,13 @@ def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text())
 
 
+def display_path(value: str) -> str:
+    path = Path(value)
+    if path.is_absolute() and path.is_relative_to(ROOT):
+        return str(path.relative_to(ROOT))
+    return value
+
+
 def status(sample: dict[str, Any] | None) -> int | None:
     return sample.get("status_code") if isinstance(sample, dict) else None
 
@@ -127,7 +134,7 @@ def build_payload(auth: dict[str, Any], auth_path: str) -> dict[str, Any]:
         "captured_at": datetime.now(timezone.utc).isoformat(),
         "commit": git_value("rev-parse", "HEAD"),
         "branch": git_value("branch", "--show-current"),
-        "inputs": {"auth_map_slots": auth_path},
+        "inputs": {"auth_map_slots": display_path(auth_path)},
         "auth_captured_at": auth.get("captured_at"),
         "auth_base_url": auth.get("base_url"),
         "rows": rows,
@@ -166,6 +173,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--auth-map-slots", default=str(PERF_EVIDENCE / "27-public-auth-map-slots.json"))
     parser.add_argument("--output", default=str(PUBLIC_EVIDENCE / "06-auth-email.md"))
+    parser.add_argument("--summary-output", default=str(PUBLIC_EVIDENCE / "auth-email-summary.json"))
     args = parser.parse_args()
 
     auth = load_json(Path(args.auth_map_slots))
@@ -173,7 +181,11 @@ def main() -> int:
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(markdown(payload))
+    summary_output = Path(args.summary_output)
+    summary_output.parent.mkdir(parents=True, exist_ok=True)
+    summary_output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
     print(f"Wrote public staging auth/email report to {output}")
+    print(f"Wrote public staging auth/email summary to {summary_output}")
     print(json.dumps({"verdict": payload["verdict"], "failures": payload["failures"]}, indent=2))
     return 0 if payload["verdict"] == "pass" else 1
 

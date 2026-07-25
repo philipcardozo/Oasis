@@ -177,11 +177,12 @@ Generate the public auth/email evidence report:
 ```bash
 python3 scripts/public_staging_auth_email_report.py \
   --auth-map-slots=docs/evidence/performance/27-public-auth-map-slots.json \
-  --output=docs/evidence/public-staging/06-auth-email.md
+  --output=docs/evidence/public-staging/06-auth-email.md \
+  --summary-output=docs/evidence/public-staging/auth-email-summary.json
 ```
 
-The report must show `Verdict: pass`; otherwise email verification, password
-reset, secure-cookie, and CSRF evidence remains unproven.
+The report and summary must show `Verdict: pass`; otherwise email verification,
+password reset, secure-cookie, and CSRF evidence remains unproven.
 
 Generate route-security evidence from the public route probe and auth/security
 summaries:

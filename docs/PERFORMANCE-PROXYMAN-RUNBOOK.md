@@ -777,7 +777,8 @@ Generate:
 
 python3 scripts/public_staging_auth_email_report.py \
   --auth-map-slots=docs/evidence/performance/27-public-auth-map-slots.json \
-  --output=docs/evidence/public-staging/06-auth-email.md
+  --output=docs/evidence/public-staging/06-auth-email.md \
+  --summary-output=docs/evidence/public-staging/auth-email-summary.json
 
 Verify:
 - registration and verification returned expected generic/success responses
