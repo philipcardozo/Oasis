@@ -105,6 +105,7 @@ docs/evidence/performance/
   16-performance-coverage-audit.md
   17-route-family-performance-probes.json
   18-headless-maplibre-diagnostic.json
+  26-public-staging-browser-har-summary.json
 ```
 
 Large binary exports may be left uncommitted if they are too large. Keep small
@@ -700,6 +701,20 @@ Record browser/OS versions in:
 - docs/evidence/public-staging/07-browser-matrix.md
 - docs/evidence/public-staging/08-map-provider-capture.md
 - docs/evidence/public-staging/15-performance.md
+
+Generate the public performance evidence report:
+
+python3 scripts/public_staging_performance_report.py \
+  --browser-summary=docs/evidence/performance/26-public-staging-browser-har-summary.json \
+  --output=docs/evidence/public-staging/15-performance.md
+
+If public auth/map-slot or route probe summaries were captured, include them:
+
+python3 scripts/public_staging_performance_report.py \
+  --browser-summary=docs/evidence/performance/26-public-staging-browser-har-summary.json \
+  --auth-map-slot=docs/evidence/performance/27-public-auth-map-slots.json \
+  --route-probe=docs/evidence/performance/25-public-route-family-probe.json \
+  --output=docs/evidence/public-staging/15-performance.md
 ```
 
 ### Prompt 15: Public Staging Auth, Worker, Backup, Rollback Gate

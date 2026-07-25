@@ -109,7 +109,8 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
 - `12-backup-restore.md`
 - `13-failure-rollback.md`
 - `14-observability-alerts.md`
-- `15-performance.md`
+- `15-performance.md`, generated from public staging HAR/probe summaries with
+  `scripts/public_staging_performance_report.py`
 - `99-public-staging-gate-audit.json`
 - `99-public-staging-gate-audit.md`
 

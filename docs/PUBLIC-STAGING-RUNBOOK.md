@@ -69,7 +69,14 @@ python3 scripts/public_staging_preflight.py \
 ```
 
 Then run the Proxyman/browser capture from `docs/PERFORMANCE-PROXYMAN-RUNBOOK.md`
-Prompt 8 and the public prompts appended there.
+Prompt 8 and the public prompts appended there. After the public browser
+capture, generate the performance evidence report:
+
+```bash
+python3 scripts/public_staging_performance_report.py \
+  --browser-summary=docs/evidence/performance/26-public-staging-browser-har-summary.json \
+  --output=docs/evidence/public-staging/15-performance.md
+```
 
 For private-beta registration, set `OASIS_REGISTRATION_ALLOWED_EMAILS` to the
 comma-separated tester list before inviting users. Denied registrations return
