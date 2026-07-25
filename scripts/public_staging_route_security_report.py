@@ -258,7 +258,7 @@ def markdown(payload: dict[str, Any]) -> str:
         lines.extend(["", "## Warnings", ""])
         lines.extend(f"- {item}" for item in payload["warnings"])
     lines.append("")
-    lines.append("This report contains no secrets, cookies, private URLs with tokens, or authorization header values.")
+    lines.append("This generated report contains no secrets, cookies, private URLs with tokens, or authorization header values.")
     return "\n".join(lines) + "\n"
 
 

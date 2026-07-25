@@ -20,6 +20,24 @@ JSON_OUT = EVIDENCE / "99-public-staging-gate-audit.json"
 MD_OUT = EVIDENCE / "99-public-staging-gate-audit.md"
 PASS_VERDICT_RE = re.compile(r"^Verdict:\s*(?:\*\*)?pass(?:\*\*)?\s*$", re.IGNORECASE | re.MULTILINE)
 ANY_VERDICT_RE = re.compile(r"^Verdict:\s*(.+?)\s*$", re.IGNORECASE | re.MULTILINE)
+GENERATED_REPORT_RE = re.compile(r"\bThis generated report\b", re.IGNORECASE)
+
+GENERATED_MARKDOWN = {
+    "02-dns-tls-edge.md",
+    "03-cloudflare-access.md",
+    "04-render-services.md",
+    "05-migration-version.md",
+    "06-auth-email.md",
+    "07-browser-matrix.md",
+    "08-map-provider-capture.md",
+    "09-route-security.md",
+    "10-worker-jobs.md",
+    "11-network-isolation.md",
+    "12-backup-restore.md",
+    "13-failure-rollback.md",
+    "14-observability-alerts.md",
+    "15-performance.md",
+}
 
 
 REQUIREMENTS = [
@@ -105,6 +123,8 @@ def file_status(name: str) -> dict[str, Any]:
             verdict = ANY_VERDICT_RE.search(text)
             out["markdown_verdict"] = verdict.group(1).strip() if verdict else None
             out["markdown_verdict_pass"] = bool(PASS_VERDICT_RE.search(text))
+            if path.name in GENERATED_MARKDOWN:
+                out["generated_report_marker"] = bool(GENERATED_REPORT_RE.search(text))
     return out
 
 
@@ -124,6 +144,8 @@ def evaluate(key: str, label: str, files: list[str], json_checks: list[str] | No
                 weak.append(f"{item['path']} markdown verdict={verdict}")
             else:
                 weak.append(f"{item['path']} missing Markdown pass verdict")
+        if item.get("generated_report_marker") is False:
+            weak.append(f"{item['path']} missing generated report marker")
 
     for check in json_checks or []:
         data = load_json(EVIDENCE / "00-public-staging-preflight.json") or {}

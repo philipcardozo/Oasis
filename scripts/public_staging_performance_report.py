@@ -285,7 +285,7 @@ def markdown(payload: dict[str, Any]) -> str:
 
     lines.extend([
         "",
-        "This report summarizes public-staging performance evidence only. Network-isolation, licensing, and browser-matrix gates still require their dedicated evidence files.",
+        "This generated report summarizes public-staging performance evidence only. Network-isolation, licensing, and browser-matrix gates still require their dedicated evidence files.",
     ])
     return "\n".join(lines) + "\n"
 
