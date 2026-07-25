@@ -43,6 +43,16 @@ DNS_TLS_REQUIRED_HEADERS = {
     "content-security-policy": "default-src 'self'",
 }
 
+DNS_EDGE_REQUIRED = {
+    "dns_record_documented": "DNS record type, target, provider, and TTL are documented",
+    "tls_certificate_documented": "TLS certificate issuer and renewal path are documented",
+    "https_redirect_documented": "HTTP-to-HTTPS redirect behavior is documented",
+    "trusted_hosts_configured": "trusted hosts match the staging hostname",
+    "allowed_origins_configured": "allowed origins match the staging hostname",
+    "public_base_url_configured": "public and email-link base URLs use the staging hostname",
+    "staging_hsts_scope_reviewed": "staging HSTS scope avoids unsafe includeSubDomains/preload",
+}
+
 ACCESS_REQUIRED = {
     "enabled": "Cloudflare Access is enabled",
     "policy_allowlist": "tester allowlist policy is configured",
@@ -156,6 +166,45 @@ def check_bool(section: dict[str, Any], required: dict[str, str]) -> tuple[list[
     return failures, rows
 
 
+def false_checks(required: dict[str, str]) -> dict[str, bool]:
+    return {key: False for key in required}
+
+
+def evidence_template() -> dict[str, Any]:
+    return {
+        "captured_at": "replace-with-capture-time",
+        "dns_tls_edge": {
+            "captured_at": "replace-with-capture-time",
+            "source": "Cloudflare DNS/TLS dashboard and public preflight",
+            "allow_hsts_subdomains": False,
+            "checks": false_checks(DNS_EDGE_REQUIRED),
+        },
+        "cloudflare_access": {
+            "captured_at": "replace-with-capture-time",
+            "source": "Cloudflare Access policy, audit logs, and public probes",
+            "provider": "Cloudflare Access",
+            "unauthenticated_status": None,
+            "service_token_status": None,
+            "oasis_auth_status": None,
+            "header_names_only": False,
+            "checks": false_checks(ACCESS_REQUIRED),
+        },
+        "render_services": {
+            "captured_at": "replace-with-capture-time",
+            "source": "Render services dashboard, deploy logs, and environment group names",
+            "checks": false_checks(RENDER_REQUIRED),
+        },
+        "migration": {
+            "captured_at": "replace-with-capture-time",
+            "source": "Render API predeploy log and server.migration_check JSON",
+            "expected_revision": EXPECTED_MIGRATION,
+            "current_revision": [],
+            "database_url_redacted": False,
+            "checks": false_checks(MIGRATION_REQUIRED),
+        },
+    }
+
+
 def endpoint_ok(preflight: dict[str, Any], path: str) -> bool:
     result = (preflight.get("endpoints") or {}).get(path) or {}
     return result.get("ok") is True and int(result.get("status") or 0) < 400
@@ -168,6 +217,12 @@ def endpoint_headers(preflight: dict[str, Any], path: str) -> dict[str, Any]:
 def evaluate_dns_tls(preflight: dict[str, Any] | None, infra: dict[str, Any]) -> dict[str, Any]:
     failures: list[str] = []
     rows: list[dict[str, Any]] = []
+    section = infra.get("dns_tls_edge") or {}
+    if not section:
+        failures.append("dns_tls_edge evidence section is missing")
+    section_failures, section_rows = check_bool(section, DNS_EDGE_REQUIRED)
+    failures.extend(section_failures)
+    rows.extend(section_rows)
     if not preflight:
         return result("dns_tls_edge", ["public preflight evidence is missing"], rows)
 
@@ -443,6 +498,7 @@ def write_reports(infra: dict[str, Any], payload: dict[str, Any], output_dir: Pa
 
 def main() -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--print-template", action="store_true", help="print a non-secret infra-evidence.json template and exit")
     parser.add_argument("--input", default=str(EVIDENCE / "infra-evidence.json"))
     parser.add_argument("--preflight", default=str(EVIDENCE / "00-public-staging-preflight.json"))
     parser.add_argument("--render-deploy", default=str(EVIDENCE / "02-render-deploy.json"))
@@ -450,6 +506,10 @@ def main() -> int:
     parser.add_argument("--output-dir", default=str(EVIDENCE))
     parser.add_argument("--summary-output", default=str(EVIDENCE / "infra-evidence-summary.json"))
     args = parser.parse_args()
+
+    if args.print_template:
+        print(json.dumps(evidence_template(), indent=2, sort_keys=True))
+        return 0
 
     infra = load_json(Path(args.input)) or {}
     preflight = load_json(Path(args.preflight))

@@ -85,6 +85,9 @@ Generate infrastructure evidence reports from the public preflight, exact image
 manifest, Render deploy evidence, and sanitized provider evidence:
 
 ```bash
+python3 scripts/public_staging_infra_reports.py --print-template \
+  > /tmp/oasis-infra-evidence.template.json
+
 python3 scripts/public_staging_infra_reports.py \
   --input=docs/evidence/public-staging/infra-evidence.json \
   --preflight=docs/evidence/public-staging/00-public-staging-preflight.json \
@@ -190,6 +193,9 @@ python3 scripts/public_staging_route_security_report.py \
 Generate operations evidence reports from structured public/provider evidence:
 
 ```bash
+python3 scripts/public_staging_ops_reports.py --print-template \
+  > /tmp/oasis-ops-evidence.template.json
+
 python3 scripts/public_staging_ops_reports.py \
   --input=docs/evidence/public-staging/ops-evidence.json \
   --output-dir=docs/evidence/public-staging

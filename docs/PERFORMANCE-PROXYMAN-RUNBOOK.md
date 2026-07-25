@@ -659,6 +659,9 @@ credentials, cookies, raw authorization headers, Cloudflare service-token
 values, or private token-bearing URLs.
 
 Run:
+python3 scripts/public_staging_infra_reports.py --print-template \
+  > /tmp/oasis-infra-evidence.template.json
+
 python3 scripts/public_staging_infra_reports.py \
   --input=docs/evidence/public-staging/infra-evidence.json \
   --preflight=docs/evidence/public-staging/00-public-staging-preflight.json \
@@ -888,12 +891,18 @@ Record:
 
 Then generate strict infrastructure and operation reports:
 
+python3 scripts/public_staging_infra_reports.py --print-template \
+  > /tmp/oasis-infra-evidence.template.json
+
 python3 scripts/public_staging_infra_reports.py \
   --input=docs/evidence/public-staging/infra-evidence.json \
   --preflight=docs/evidence/public-staging/00-public-staging-preflight.json \
   --render-deploy=docs/evidence/public-staging/02-render-deploy.json \
   --image-manifest=docs/evidence/public-staging/01-image-manifest.json \
   --output-dir=docs/evidence/public-staging
+
+python3 scripts/public_staging_ops_reports.py --print-template \
+  > /tmp/oasis-ops-evidence.template.json
 
 python3 scripts/public_staging_ops_reports.py \
   --input=docs/evidence/public-staging/ops-evidence.json \

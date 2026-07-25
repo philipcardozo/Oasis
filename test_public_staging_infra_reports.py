@@ -65,6 +65,22 @@ def test_infra_reports_reject_secret_like_values():
     assert any("secret-like values" in item for item in payload["results"]["cloudflare_access"]["failures"])
 
 
+def test_infra_template_is_not_self_approving():
+    result = subprocess.run(
+        [sys.executable, "scripts/public_staging_infra_reports.py", "--print-template"],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    template = json.loads(result.stdout)
+    payload = build_payload(template, _preflight(), _render_deploy(), _image_manifest())
+    assert payload["results"]["dns_tls_edge"]["verdict"] == "investigate"
+    assert payload["results"]["cloudflare_access"]["verdict"] == "investigate"
+    assert payload["results"]["render_services"]["verdict"] == "investigate"
+    assert payload["results"]["migration_version"]["verdict"] == "investigate"
+
+
 def test_infra_report_cli_writes_markdown_verdicts(tmp_path):
     infra = tmp_path / "infra-evidence.json"
     preflight = tmp_path / "00-public-staging-preflight.json"
@@ -105,6 +121,15 @@ def _infra() -> dict:
             "captured_at": "2026-07-25T00:00:00Z",
             "source": "Cloudflare DNS and public preflight",
             "allow_hsts_subdomains": False,
+            "checks": {
+                "dns_record_documented": True,
+                "tls_certificate_documented": True,
+                "https_redirect_documented": True,
+                "trusted_hosts_configured": True,
+                "allowed_origins_configured": True,
+                "public_base_url_configured": True,
+                "staging_hsts_scope_reviewed": True,
+            },
         },
         "cloudflare_access": {
             "captured_at": "2026-07-25T00:00:00Z",

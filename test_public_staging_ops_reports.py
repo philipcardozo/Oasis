@@ -72,6 +72,25 @@ def test_ops_report_cli_writes_markdown_verdicts(tmp_path):
     assert "Verdict: **pass**" in (output_dir / "14-observability-alerts.md").read_text()
 
 
+def test_ops_template_is_not_self_approving():
+    result = subprocess.run(
+        [sys.executable, "scripts/public_staging_ops_reports.py", "--print-template"],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    template = json.loads(result.stdout)
+    payload = build_payload(template)
+    assert {kind: result["verdict"] for kind, result in payload["results"].items()} == {
+        "worker_jobs": "investigate",
+        "network_isolation": "investigate",
+        "backup_restore": "investigate",
+        "failure_rollback": "investigate",
+        "observability_alerts": "investigate",
+    }
+
+
 def _evidence() -> dict:
     return {
         "captured_at": "2026-07-25T00:00:00Z",

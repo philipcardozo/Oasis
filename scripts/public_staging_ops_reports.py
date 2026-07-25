@@ -146,6 +146,79 @@ def check_bool(section: dict[str, Any], required: dict[str, str]) -> tuple[list[
     return failures, rows
 
 
+def false_checks(required: dict[str, str]) -> dict[str, bool]:
+    return {key: False for key in required}
+
+
+def evidence_template() -> dict[str, Any]:
+    return {
+        "captured_at": "replace-with-capture-time",
+        "worker_jobs": {
+            "captured_at": "replace-with-capture-time",
+            "source": "Render worker logs and public API probes",
+            "secrets_in_evidence": False,
+            "checks": false_checks(WORKER_REQUIRED),
+            "job": {
+                "kind": "controlled-noop",
+                "final_status": "replace-with-final-status",
+                "correlation_id": "",
+                "completion_count": 0,
+            },
+        },
+        "network_isolation": {
+            "captured_at": "replace-with-capture-time",
+            "source": "provider egress logs grouped by service identity",
+            "secrets_in_evidence": False,
+            "checks": false_checks(NETWORK_REQUIRED),
+            "counts": {
+                "api_sec_requests": 0,
+                "api_logo_requests": 0,
+                "api_yahoo_requests": 0,
+                "api_dataset_refreshes": 0,
+            },
+        },
+        "backup_restore": {
+            "captured_at": "replace-with-capture-time",
+            "source": "managed Postgres backup and restore drill",
+            "secrets_in_evidence": False,
+            "checks": false_checks(BACKUP_REQUIRED),
+            "backup": {
+                "source_database": "oasis_staging",
+                "restore_database": "replace-with-separate-restore-database-name",
+                "sha256": "",
+                "size_bytes": 0,
+                "recovery_time_seconds": 0,
+            },
+        },
+        "failure_rollback": {
+            "captured_at": "replace-with-capture-time",
+            "source": "Render deploy history and public probes",
+            "secrets_in_evidence": False,
+            "checks": false_checks(ROLLBACK_REQUIRED),
+            "rollback": {
+                "from_revision": "",
+                "to_revision": "",
+            },
+        },
+        "observability_alerts": {
+            "captured_at": "replace-with-capture-time",
+            "source": "provider logs, metrics, traces, and alert dashboard",
+            "secrets_in_evidence": False,
+            "signals": false_checks(OBS_SIGNALS),
+            "alerts": false_checks(OBS_ALERTS),
+            "redaction": {
+                "passwords": False,
+                "tokens": False,
+                "cookies": False,
+                "authorization_headers": False,
+                "database_urls": False,
+                "smtp_credentials": False,
+                "storage_credentials": False,
+            },
+        },
+    }
+
+
 def evaluate_worker(section: dict[str, Any]) -> tuple[list[str], list[str], list[dict[str, Any]]]:
     failures, rows = check_bool(section, WORKER_REQUIRED)
     warnings: list[str] = []
@@ -304,10 +377,15 @@ def write_reports(input_data: dict[str, Any], payload: dict[str, Any], output_di
 
 def main() -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--print-template", action="store_true", help="print a non-secret ops-evidence.json template and exit")
     parser.add_argument("--input", default=str(EVIDENCE / "ops-evidence.json"))
     parser.add_argument("--output-dir", default=str(EVIDENCE))
     parser.add_argument("--summary-output", default=str(EVIDENCE / "ops-evidence-summary.json"))
     args = parser.parse_args()
+
+    if args.print_template:
+        print(json.dumps(evidence_template(), indent=2, sort_keys=True))
+        return 0
 
     input_data = load_json(Path(args.input))
     payload = build_payload(input_data)
