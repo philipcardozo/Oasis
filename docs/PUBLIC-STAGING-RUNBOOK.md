@@ -234,6 +234,8 @@ evidence records Alembic plus `server.migration_check` before the worker deploy.
 All public evidence is scanned for secret-like values; raw authorization
 headers, token-bearing URLs, database URLs with credentials, and provider keys
 make the evidence weak even when other checks pass.
+The documentation criterion checks the full Phase 1.75 document and ADR set from
+the objective, not only this runbook.
 
 ## Rotate Secrets
 

@@ -73,12 +73,44 @@ def test_non_evidence_docs_do_not_need_generated_marker(tmp_path, monkeypatch):
     _configure_tmp_audit(tmp_path, monkeypatch)
     docs = tmp_path / "docs"
     docs.mkdir(exist_ok=True)
-    (docs / "PHASE-1-75-PUBLIC-STAGING.md").write_text("# Phase\n")
+    (docs / "NOTE.md").write_text("# Note\n")
 
-    result = audit.evaluate("docs", "Docs", ["docs/PHASE-1-75-PUBLIC-STAGING.md"])
+    result = audit.evaluate("docs", "Docs", ["docs/NOTE.md"])
 
     assert result["status"] == "proven"
     assert result["weak"] == []
+
+
+def test_required_documentation_set_is_proven_when_present(tmp_path, monkeypatch):
+    _configure_tmp_audit(tmp_path, monkeypatch)
+    _write_required_docs(tmp_path)
+
+    result = audit.evaluate("docs", "Documentation is current", audit.REQUIRED_DOCS)
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_missing_required_adr_keeps_docs_current_missing(tmp_path, monkeypatch):
+    _configure_tmp_audit(tmp_path, monkeypatch)
+    _write_required_docs(tmp_path)
+    (tmp_path / "docs" / "adr" / "0014-deployment-automation.md").unlink()
+
+    result = audit.evaluate("docs", "Documentation is current", audit.REQUIRED_DOCS)
+
+    assert result["status"] == "missing"
+    assert "docs/adr/0014-deployment-automation.md" in result["missing"]
+
+
+def test_required_placeholder_doc_is_weak(tmp_path, monkeypatch):
+    _configure_tmp_audit(tmp_path, monkeypatch)
+    _write_required_docs(tmp_path)
+    (tmp_path / "docs" / "PUBLIC-STAGING-RUNBOOK.md").write_text("# TODO\n")
+
+    result = audit.evaluate("docs", "Documentation is current", audit.REQUIRED_DOCS)
+
+    assert result["status"] == "weak"
+    assert any("placeholder" in item for item in result["weak"])
 
 
 def test_valid_preflight_json_evidence_is_proven(tmp_path, monkeypatch):
@@ -202,6 +234,13 @@ def _configure_tmp_audit(tmp_path: Path, monkeypatch) -> Path:
     monkeypatch.setattr(audit, "ROOT", tmp_path)
     monkeypatch.setattr(audit, "EVIDENCE", evidence)
     return evidence
+
+
+def _write_required_docs(tmp_path: Path) -> None:
+    for name in audit.REQUIRED_DOCS:
+        path = tmp_path / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(f"# {path.stem}\n\nRequired Phase 1.75 public staging documentation.\n")
 
 
 def _preflight() -> dict:

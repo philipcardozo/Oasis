@@ -52,6 +52,24 @@ GENERATED_MARKDOWN = {
     "15-performance.md",
 }
 
+REQUIRED_DOCS = [
+    "docs/PHASE-1-75-PUBLIC-STAGING.md",
+    "docs/PUBLIC-STAGING-ARCHITECTURE.md",
+    "docs/PUBLIC-STAGING-RUNBOOK.md",
+    "docs/PRIVATE-BETA-OPERATIONS.md",
+    "docs/DEPLOYMENT-ROLLBACK.md",
+    "docs/STAGING-OBSERVABILITY.md",
+    "docs/STAGING-BACKUP-RESTORE.md",
+    "docs/LICENSING-GATES.md",
+    "docs/adr/0008-public-staging-provider.md",
+    "docs/adr/0009-edge-access-control.md",
+    "docs/adr/0010-managed-postgresql.md",
+    "docs/adr/0011-container-registry.md",
+    "docs/adr/0012-object-storage.md",
+    "docs/adr/0013-email-provider.md",
+    "docs/adr/0014-deployment-automation.md",
+]
+
 
 REQUIREMENTS = [
     ("public_dns", "Public DNS", ["00-public-staging-preflight.json"], ["dns"]),
@@ -101,7 +119,7 @@ ACCEPTANCE = [
     ("providers_disabled", "Unlicensed providers remain disabled", ["08-map-provider-capture.md"]),
     ("test_suites_pass", "Test suites pass", ["01-image-manifest.json"]),
     ("cicd_safe", "CI/CD deploys immutable images safely", ["01-image-manifest.json", "02-render-deploy.json"]),
-    ("docs_current", "Documentation is current", ["docs/PHASE-1-75-PUBLIC-STAGING.md", "docs/PUBLIC-STAGING-RUNBOOK.md"]),
+    ("docs_current", "Documentation is current", REQUIRED_DOCS),
 ]
 
 
@@ -327,6 +345,8 @@ def file_status(name: str) -> dict[str, Any]:
     out: dict[str, Any] = {"path": str(path.relative_to(ROOT)), "exists": path.exists()}
     if path.exists():
         out["bytes"] = path.stat().st_size
+        if name in REQUIRED_DOCS and out["bytes"] < 40:
+            out["doc_weak"] = "required documentation appears to be a placeholder"
         if path.suffix == ".json":
             data = load_json(path)
             out["json_verdict"] = data.get("verdict") if isinstance(data, dict) else None
@@ -357,6 +377,8 @@ def evaluate(key: str, label: str, files: list[str], json_checks: list[str] | No
             weak.append(f"{item['path']} verdict={verdict}")
         if item.get("parse_error"):
             weak.append(f"{item['path']} parse_error={item['parse_error']}")
+        if item.get("doc_weak"):
+            weak.append(f"{item['path']} {item['doc_weak']}")
         weak.extend(f"{item['path']} {message}" for message in item.get("secret_weak", []))
         weak.extend(f"{item['path']} {message}" for message in item.get("json_schema_weak", []))
         if "markdown_verdict_pass" in item and not item["markdown_verdict_pass"]:
