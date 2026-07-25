@@ -13,7 +13,10 @@ def test_public_staging_performance_report_passes_with_required_evidence(tmp_pat
     auth = tmp_path / "auth.json"
     route = tmp_path / "route.json"
     output = tmp_path / "15-performance.md"
+    summary = tmp_path / "performance-evidence-summary.json"
     browser.write_text(json.dumps(_browser_summary(bulk=False)))
+    direct = tmp_path / "direct-browser.json"
+    direct.write_text(json.dumps(_browser_summary(bulk=False, proxy_server=None)))
     preflight.write_text(json.dumps({"verdict": "pass", "dns": {"duration_ms": 12.3}, "tls": {"duration_ms": 44.5}}))
     auth.write_text(json.dumps({
         "captured_at": "2026-07-25T00:00:00Z",
@@ -32,13 +35,17 @@ def test_public_staging_performance_report_passes_with_required_evidence(tmp_pat
         ],
     }))
 
-    result = _run_report(browser, output, preflight=preflight, auth=auth, route=route)
+    result = _run_report(browser, output, summary=summary, direct=direct, preflight=preflight, auth=auth, route=route)
 
     assert result.returncode == 0, result.stderr
     text = output.read_text()
     assert "Verdict: **pass**" in text
     assert "session validation GET /api/auth/me" in text
     assert "Preflight verdict: `pass`" in text
+    data = json.loads(summary.read_text())
+    assert data["verdict"] == "pass"
+    assert data["browser"]["direct_comparison_present"] is True
+    assert data["auth_map_slot"]["rows"][0]["p95_ms"] == 10
 
 
 def test_public_staging_performance_report_fails_when_first_paint_loads_bulk(tmp_path):
@@ -52,7 +59,16 @@ def test_public_staging_performance_report_fails_when_first_paint_loads_bulk(tmp
     assert "first paint requested /api/universe/bulk" in output.read_text()
 
 
-def _run_report(browser: Path, output: Path, *, preflight: Path | None = None, auth: Path | None = None, route: Path | None = None):
+def _run_report(
+    browser: Path,
+    output: Path,
+    *,
+    summary: Path | None = None,
+    direct: Path | None = None,
+    preflight: Path | None = None,
+    auth: Path | None = None,
+    route: Path | None = None,
+):
     cmd = [
         sys.executable,
         "scripts/public_staging_performance_report.py",
@@ -61,6 +77,9 @@ def _run_report(browser: Path, output: Path, *, preflight: Path | None = None, a
         "--output",
         str(output),
     ]
+    cmd.extend(["--summary-output", str(summary or output.with_name("performance-evidence-summary.json"))])
+    if direct:
+        cmd.extend(["--direct-summary", str(direct)])
     if preflight:
         cmd.extend(["--preflight", str(preflight)])
     if auth:
@@ -70,11 +89,11 @@ def _run_report(browser: Path, output: Path, *, preflight: Path | None = None, a
     return subprocess.run(cmd, capture_output=True, text=True)
 
 
-def _browser_summary(*, bulk: bool) -> dict:
+def _browser_summary(*, bulk: bool, proxy_server: str | None = "http://127.0.0.1:9090") -> dict:
     return {
         "capturedAt": "2026-07-25T00:00:00Z",
         "baseUrl": "https://staging.example.com",
-        "proxyServer": "http://127.0.0.1:9090",
+        "proxyServer": proxy_server,
         "flows": {
             "26-public-staging-03-local-first-paint": {
                 "flow": "cold first paint",

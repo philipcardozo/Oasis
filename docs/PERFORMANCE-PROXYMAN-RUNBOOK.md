@@ -817,6 +817,14 @@ node scripts/browser_performance_capture.js \
   --flow-prefix=26-public-staging \
   --summary-file=26-public-staging-browser-har-summary.json
 
+Run the same Chrome capture without Proxyman to separate direct internet/browser
+latency from Proxyman-routed capture overhead:
+node scripts/browser_performance_capture.js \
+  --base-url="$STAGING_URL" \
+  --no-start-server=true \
+  --flow-prefix=26-public-staging-direct \
+  --summary-file=26-public-staging-direct-browser-har-summary.json
+
 Repeat manually or with equivalent tooling for:
 - Brave or Edge
 - Firefox
@@ -851,15 +859,11 @@ Generate the public performance evidence report:
 
 python3 scripts/public_staging_performance_report.py \
   --browser-summary=docs/evidence/performance/26-public-staging-browser-har-summary.json \
-  --output=docs/evidence/public-staging/15-performance.md
-
-If public auth/map-slot or route probe summaries were captured, include them:
-
-python3 scripts/public_staging_performance_report.py \
-  --browser-summary=docs/evidence/performance/26-public-staging-browser-har-summary.json \
+  --direct-summary=docs/evidence/performance/26-public-staging-direct-browser-har-summary.json \
   --auth-map-slot=docs/evidence/performance/27-public-auth-map-slots.json \
   --route-probe=docs/evidence/performance/25-public-route-family-probe.json \
-  --output=docs/evidence/public-staging/15-performance.md
+  --output=docs/evidence/public-staging/15-performance.md \
+  --summary-output=docs/evidence/public-staging/performance-evidence-summary.json
 ```
 
 ### Prompt 15: Public Staging Auth, Worker, Backup, Rollback Gate

@@ -113,7 +113,11 @@ capture, generate the performance evidence report:
 ```bash
 python3 scripts/public_staging_performance_report.py \
   --browser-summary=docs/evidence/performance/26-public-staging-browser-har-summary.json \
-  --output=docs/evidence/public-staging/15-performance.md
+  --direct-summary=docs/evidence/performance/26-public-staging-direct-browser-har-summary.json \
+  --auth-map-slot=docs/evidence/performance/27-public-auth-map-slots.json \
+  --route-probe=docs/evidence/performance/25-public-route-family-probe.json \
+  --output=docs/evidence/public-staging/15-performance.md \
+  --summary-output=docs/evidence/public-staging/performance-evidence-summary.json
 ```
 
 After recording browser/OS versions and per-browser checks in

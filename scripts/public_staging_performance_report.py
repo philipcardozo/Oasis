@@ -130,6 +130,8 @@ def evaluate(
         failures.append("browser capture requested unpkg.com")
     if any(row["console_errors"] for row in browser_rows):
         failures.append("browser capture recorded console errors")
+    if any(row["failed_requests"] for row in browser_rows):
+        failures.append("browser capture recorded failed requests")
 
     if preflight is None:
         warnings.append("public preflight input missing; DNS/TLS timings are not summarized")
@@ -167,10 +169,10 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
         "branch": git_value("branch", "--show-current"),
         "inputs": {
             "browser_summary": display_path(args.browser_summary),
-            "direct_summary": args.direct_summary,
-            "preflight": args.preflight,
-            "auth_map_slot": args.auth_map_slot,
-            "route_probe": args.route_probe,
+            "direct_summary": display_path(args.direct_summary) if args.direct_summary else "",
+            "preflight": display_path(args.preflight) if args.preflight else "",
+            "auth_map_slot": display_path(args.auth_map_slot) if args.auth_map_slot else "",
+            "route_probe": display_path(args.route_probe) if args.route_probe else "",
         },
         "target": {
             "base_url": safe_url(browser.get("baseUrl")),
@@ -298,13 +300,18 @@ def main() -> int:
     parser.add_argument("--auth-map-slot", default="")
     parser.add_argument("--route-probe", default=str(PERF_EVIDENCE / "25-public-route-family-probe.json"))
     parser.add_argument("--output", default=str(PUBLIC_EVIDENCE / "15-performance.md"))
+    parser.add_argument("--summary-output", default=str(PUBLIC_EVIDENCE / "performance-evidence-summary.json"))
     args = parser.parse_args()
 
     payload = build_payload(args)
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(markdown(payload))
+    summary_output = Path(args.summary_output)
+    summary_output.parent.mkdir(parents=True, exist_ok=True)
+    summary_output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
     print(f"Wrote public staging performance report to {output}")
+    print(f"Wrote public staging performance summary to {summary_output}")
     print(json.dumps({"verdict": payload["verdict"], "failures": payload["failures"], "warnings": payload["warnings"]}, indent=2))
     return 0 if payload["verdict"] == "pass" else 1
 

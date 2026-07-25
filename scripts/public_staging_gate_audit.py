@@ -12,6 +12,7 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,6 +25,9 @@ GENERATED_REPORT_RE = re.compile(r"\bThis generated report\b", re.IGNORECASE)
 IMAGE_DIGEST_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 ENV_NAME_RE = re.compile(r"^[A-Z][A-Z0-9_]{2,}$")
 PUBLIC_HASH_RE = re.compile(r"(?:sha256:)?[0-9a-f]{7,128}", re.IGNORECASE)
+ARTIFACT_REFERENCE_RE = re.compile(
+    r"(?=.*(?:^|[._/-])(?:public-staging|compose|local)(?:[._/-]|$))^[A-Za-z0-9][A-Za-z0-9._/-]*$"
+)
 URL_WITH_CREDENTIALS_RE = re.compile(r"://[^/\s:@]+:[^/\s:@]+@")
 TOKEN_QUERY_RE = re.compile(r"(?i)(?:[?&](?:token|code|secret|password|key)=)(?!<redacted>|redacted)[^&\s`'\">]{8,}")
 AUTH_HEADER_RE = re.compile(r"(?i)\bauthorization\s*[:=]\s*(?!<redacted>|redacted)(?:bearer|basic)\s+[A-Za-z0-9._~+/=-]{8,}")
@@ -166,7 +170,7 @@ REQUIREMENTS = [
     ("backup_restore", "Backup and restore", ["12-backup-restore.md"], []),
     ("monitoring_alerting", "Monitoring and alerting", ["14-observability-alerts.md"], []),
     ("private_beta_access", "Private-beta access control", ["03-cloudflare-access.md", "06-auth-email.md"], []),
-    ("performance", "Public performance measurements", ["15-performance.md"], []),
+    ("performance", "Public performance measurements", ["15-performance.md", "performance-evidence-summary.json"], []),
     ("licensing", "Licensing gates", ["15-performance.md", "08-map-provider-capture.md"], []),
 ]
 
@@ -186,7 +190,7 @@ ACCEPTANCE = [
     ("cross_user_denied", "Cross-user access is denied", ["09-route-security.md"]),
     ("three_slots", "Exactly three map slots persist across devices", ["07-browser-matrix.md"]),
     ("browser_map", "Real browser map rendering works", ["07-browser-matrix.md", "08-map-provider-capture.md"]),
-    ("no_bulk_first_paint", "/api/universe/bulk is absent from initial paint", ["15-performance.md"]),
+    ("no_bulk_first_paint", "/api/universe/bulk is absent from initial paint", ["15-performance.md", "performance-evidence-summary.json"]),
     ("zero_api_acquisition", "API user requests perform zero external acquisition", ["11-network-isolation.md"]),
     ("worker_recovery", "Worker jobs are bounded and recoverable", ["10-worker-jobs.md"]),
     ("private_storage", "Object storage remains private", ["12-backup-restore.md"]),
@@ -248,6 +252,8 @@ def secretish_string(value: str) -> bool:
         return True
     if JWT_RE.match(value):
         return True
+    if ARTIFACT_REFERENCE_RE.fullmatch(value):
+        return False
     return bool(LONG_SECRET_RE.fullmatch(value)) and not ENV_NAME_RE.fullmatch(value)
 
 
@@ -417,10 +423,83 @@ def render_deploy_weaknesses(data: dict[str, Any]) -> list[str]:
     return weak
 
 
+def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if data.get("verdict") != "pass":
+        weak.append("performance summary verdict is not pass")
+    if data.get("failures"):
+        weak.append("performance summary has failures")
+    if data.get("warnings"):
+        weak.append("performance summary has unresolved missing inputs")
+
+    target = data.get("target") or {}
+    parsed = urlparse(str(target.get("base_url") or ""))
+    if parsed.scheme != "https":
+        weak.append("performance summary base URL is not HTTPS")
+    if not target.get("proxy_server"):
+        weak.append("performance summary Proxyman proxy is not recorded")
+
+    browser = data.get("browser") or {}
+    flows = list(browser.get("flows") or [])
+    if not flows:
+        weak.append("performance summary has no browser flows")
+    if not browser.get("direct_comparison_present"):
+        weak.append("performance summary direct network comparison is missing")
+    first_flow = next((item for item in flows if "first-paint" in str(item.get("name") or "")), flows[0] if flows else {})
+    if first_flow.get("bulk") is True:
+        weak.append("performance summary first paint requested /api/universe/bulk")
+    for row in flows:
+        name = row.get("name") or "unknown flow"
+        if row.get("unpkg") is True:
+            weak.append(f"performance summary {name} requested unpkg.com")
+        if int(row.get("console_errors") or 0):
+            weak.append(f"performance summary {name} recorded console errors")
+        if int(row.get("failed_requests") or 0):
+            weak.append(f"performance summary {name} recorded failed requests")
+
+    preflight = data.get("preflight") or {}
+    if preflight.get("verdict") != "pass":
+        weak.append("performance summary preflight verdict is not pass")
+    if preflight.get("dns_ms") is None:
+        weak.append("performance summary DNS timing is missing")
+    if preflight.get("tls_ms") is None:
+        weak.append("performance summary TLS timing is missing")
+
+    auth_rows = list((data.get("auth_map_slot") or {}).get("rows") or [])
+    required_auth = {
+        "session validation": "session validation",
+        "map-slot read": "map-slot read",
+        "map-slot write": "map-slot write",
+    }
+    for label, needle in required_auth.items():
+        row = next((item for item in auth_rows if needle in str(item.get("name") or "").lower()), None)
+        if not row:
+            weak.append(f"performance summary missing {label} app-layer latency")
+        elif row.get("target_met") is not True:
+            weak.append(f"performance summary {label} app-layer target is not met")
+        elif row.get("p95_ms") is None:
+            weak.append(f"performance summary {label} p95 is missing")
+
+    route_probe = data.get("route_probe") or {}
+    route_rows = list(route_probe.get("rows") or [])
+    if route_probe.get("verdict") != "pass":
+        weak.append("performance summary route probe verdict is not pass")
+    if not route_rows:
+        weak.append("performance summary route probe rows are missing")
+    for row in route_rows:
+        route = f"{row.get('method') or ''} {row.get('template') or row.get('name') or 'unknown route'}".strip()
+        if row.get("ok") is not True:
+            weak.append(f"performance summary route probe failed: {route}")
+        if row.get("p95_ms") is None:
+            weak.append(f"performance summary route probe p95 is missing: {route}")
+    return weak
+
+
 JSON_VALIDATORS = {
     "00-public-staging-preflight.json": preflight_weaknesses,
     "01-image-manifest.json": image_manifest_weaknesses,
     "02-render-deploy.json": render_deploy_weaknesses,
+    "performance-evidence-summary.json": performance_summary_weaknesses,
 }
 
 

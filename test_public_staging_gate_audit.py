@@ -199,6 +199,33 @@ def test_valid_image_manifest_and_render_deploy_are_proven(tmp_path, monkeypatch
     assert result["weak"] == []
 
 
+def test_valid_performance_summary_json_evidence_is_proven(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    (evidence / "performance-evidence-summary.json").write_text(json.dumps(_performance_summary()))
+
+    result = audit.evaluate("performance", "Performance", ["performance-evidence-summary.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_performance_summary_requires_proxyman_and_app_layer_rows(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _performance_summary()
+    summary["target"]["proxy_server"] = ""
+    summary["browser"]["direct_comparison_present"] = False
+    summary["auth_map_slot"]["rows"] = summary["auth_map_slot"]["rows"][:1]
+    (evidence / "performance-evidence-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("performance", "Performance", ["performance-evidence-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("Proxyman proxy is not recorded" in item for item in result["weak"])
+    assert any("direct network comparison is missing" in item for item in result["weak"])
+    assert any("missing map-slot read app-layer latency" in item for item in result["weak"])
+    assert any("missing map-slot write app-layer latency" in item for item in result["weak"])
+
+
 def test_image_manifest_json_pass_with_latest_tag_is_weak(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     manifest = _image_manifest()
@@ -267,6 +294,63 @@ def _performance_report() -> str:
         "- Preflight verdict: `pass`\n\n"
         "This generated report contains sanitized evidence only.\n"
     )
+
+
+def _performance_summary() -> dict:
+    return {
+        "verdict": "pass",
+        "failures": [],
+        "warnings": [],
+        "target": {
+            "base_url": "https://staging.example.com",
+            "proxy_server": "http://127.0.0.1:9090",
+        },
+        "browser": {
+            "direct_comparison_present": True,
+            "flows": [
+                {
+                    "name": "26-public-staging-03-local-first-paint",
+                    "flow": "cold first paint",
+                    "bulk": False,
+                    "unpkg": False,
+                    "console_errors": 0,
+                    "failed_requests": 0,
+                },
+                {
+                    "name": "26-public-staging-05-local-search-intent",
+                    "flow": "search intent and bulk load",
+                    "bulk": True,
+                    "unpkg": False,
+                    "console_errors": 0,
+                    "failed_requests": 0,
+                },
+            ],
+        },
+        "preflight": {
+            "verdict": "pass",
+            "dns_ms": 12.3,
+            "tls_ms": 44.5,
+        },
+        "auth_map_slot": {
+            "rows": [
+                {"name": "session validation GET /api/auth/me", "p95_ms": 10, "target_met": True},
+                {"name": "map-slot read GET /api/map-slots/{id}", "p95_ms": 20, "target_met": True},
+                {"name": "map-slot write PUT /api/map-slots/{id}", "p95_ms": 30, "target_met": True},
+            ],
+        },
+        "route_probe": {
+            "verdict": "pass",
+            "rows": [
+                {
+                    "name": "entity comps",
+                    "method": "GET",
+                    "template": "/api/entity/{entity_id}/comps",
+                    "p95_ms": 150,
+                    "ok": True,
+                }
+            ],
+        },
+    }
 
 
 def _preflight() -> dict:

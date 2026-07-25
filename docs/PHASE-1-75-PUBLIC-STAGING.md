@@ -115,6 +115,8 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
 - `14-observability-alerts.md`
 - `15-performance.md`, generated from public staging HAR/probe summaries with
   `scripts/public_staging_performance_report.py`
+- `performance-evidence-summary.json`, generated beside `15-performance.md`
+  for strict Proxyman, direct-comparison, DNS/TLS, and app-layer p95 validation
 - `99-public-staging-gate-audit.json`
 - `99-public-staging-gate-audit.md`
 
