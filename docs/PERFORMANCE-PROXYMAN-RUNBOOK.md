@@ -716,6 +716,12 @@ python3 scripts/public_staging_auth_map_slots_probe.py \
 Inspect:
 - docs/evidence/performance/27-public-auth-map-slots.json
 
+Generate:
+
+python3 scripts/public_staging_auth_email_report.py \
+  --auth-map-slots=docs/evidence/performance/27-public-auth-map-slots.json \
+  --output=docs/evidence/public-staging/06-auth-email.md
+
 Verify:
 - registration and verification returned expected generic/success responses
 - password reset request and completion succeeded
