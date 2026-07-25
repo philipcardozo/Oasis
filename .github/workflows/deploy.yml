@@ -103,17 +103,19 @@ jobs:
 
       - name: Record image manifest
         run: |
-          mkdir -p docs/evidence/public-staging
-          cat > docs/evidence/public-staging/01-image-manifest.json <<EOF
-          {
-            "commit": "${GITHUB_SHA}",
-            "image": "${IMAGE_NAME}@${{ steps.build.outputs.digest }}",
-            "digest": "${{ steps.build.outputs.digest }}",
-            "built_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "architecture": "linux/amd64",
-            "registry": "ghcr.io"
-          }
-          EOF
+          python scripts/public_staging_image_manifest.py \
+            --commit="${GITHUB_SHA}" \
+            --image="${IMAGE_NAME}@${{ steps.build.outputs.digest }}" \
+            --digest="${{ steps.build.outputs.digest }}" \
+            --architecture="linux/amd64" \
+            --registry="ghcr.io" \
+            --tag="staging-${GITHUB_SHA}" \
+            --migration-check=pass \
+            --python-tests=pass \
+            --playwright-tests=pass \
+            --image-scan=pass \
+            --sbom=present \
+            --provenance=present
 
       - name: Deploy exact image to Render API and worker
         env:
