@@ -78,6 +78,17 @@ python3 scripts/public_staging_performance_report.py \
   --output=docs/evidence/public-staging/15-performance.md
 ```
 
+Generate route-security evidence from the public route probe and auth/security
+summaries:
+
+```bash
+python3 scripts/public_staging_route_security_report.py \
+  --route-probe=docs/evidence/performance/25-public-route-family-probe.json \
+  --preflight=docs/evidence/public-staging/00-public-staging-preflight.json \
+  --auth-security=docs/evidence/performance/27-public-auth-map-slots.json \
+  --output=docs/evidence/public-staging/09-route-security.md
+```
+
 For private-beta registration, set `OASIS_REGISTRATION_ALLOWED_EMAILS` to the
 comma-separated tester list before inviting users. Denied registrations return
 the same generic response and do not create users or send verification email.

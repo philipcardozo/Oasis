@@ -653,8 +653,17 @@ Verify:
   and docs/evidence/phase-1-5/route-authorization-inventory.json.
 - trusted-host/CORS/CSRF/rate-limit behavior remains explicit.
 
-Record findings in:
-- docs/evidence/public-staging/09-route-security.md
+Generate the route-security evidence report after public preflight, route probe,
+and auth/map-slot security evidence are present:
+
+python3 scripts/public_staging_route_security_report.py \
+  --route-probe=docs/evidence/performance/25-public-route-family-probe.json \
+  --preflight=docs/evidence/public-staging/00-public-staging-preflight.json \
+  --auth-security=docs/evidence/performance/27-public-auth-map-slots.json \
+  --output=docs/evidence/public-staging/09-route-security.md
+
+The report must end with `Verdict: pass`; otherwise the strict public gate audit
+continues to treat route security as unproven.
 ```
 
 ### Prompt 14: Public Staging Proxyman Browser Matrix
