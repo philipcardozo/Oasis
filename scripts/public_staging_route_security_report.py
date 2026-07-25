@@ -32,6 +32,13 @@ def load_json(path: Path, *, required: bool = False) -> dict[str, Any] | None:
     return json.loads(path.read_text())
 
 
+def display_path(value: str) -> str:
+    path = Path(value)
+    if path.is_absolute() and path.is_relative_to(ROOT):
+        return str(path.relative_to(ROOT))
+    return value
+
+
 def status_subset(item: dict[str, Any], allowed: set[int]) -> bool:
     return set(item.get("status_codes") or []).issubset(allowed)
 
@@ -174,10 +181,10 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
         "commit": git_value("rev-parse", "HEAD"),
         "branch": git_value("branch", "--show-current"),
         "inputs": {
-            "route_probe": args.route_probe,
-            "preflight": args.preflight,
-            "inventory": args.inventory,
-            "auth_security": args.auth_security,
+            "route_probe": display_path(args.route_probe),
+            "preflight": display_path(args.preflight),
+            "inventory": display_path(args.inventory),
+            "auth_security": display_path(args.auth_security) if args.auth_security else "",
         },
         "route_probe": {
             "captured_at": route_probe.get("captured_at"),
@@ -269,13 +276,18 @@ def main() -> int:
     parser.add_argument("--inventory", default=str(AUTH_INVENTORY))
     parser.add_argument("--auth-security", default="")
     parser.add_argument("--output", default=str(PUBLIC_EVIDENCE / "09-route-security.md"))
+    parser.add_argument("--summary-output", default=str(PUBLIC_EVIDENCE / "route-security-summary.json"))
     args = parser.parse_args()
 
     payload = build_payload(args)
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(markdown(payload))
+    summary_output = Path(args.summary_output)
+    summary_output.parent.mkdir(parents=True, exist_ok=True)
+    summary_output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
     print(f"Wrote public staging route-security report to {output}")
+    print(f"Wrote public staging route-security summary to {summary_output}")
     print(json.dumps({"verdict": payload["verdict"], "failures": payload["failures"], "warnings": payload["warnings"]}, indent=2))
     return 0 if payload["verdict"] == "pass" else 1
 

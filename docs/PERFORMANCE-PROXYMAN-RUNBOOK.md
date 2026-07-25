@@ -716,10 +716,11 @@ python3 scripts/public_staging_route_security_report.py \
   --route-probe=docs/evidence/performance/25-public-route-family-probe.json \
   --preflight=docs/evidence/public-staging/00-public-staging-preflight.json \
   --auth-security=docs/evidence/performance/27-public-auth-map-slots.json \
-  --output=docs/evidence/public-staging/09-route-security.md
+  --output=docs/evidence/public-staging/09-route-security.md \
+  --summary-output=docs/evidence/public-staging/route-security-summary.json
 
-The report must end with `Verdict: pass`; otherwise the strict public gate audit
-continues to treat route security as unproven.
+The report and summary must end with `Verdict: pass`; otherwise the strict
+public gate audit continues to treat route security as unproven.
 ```
 
 ### Prompt 13.5: Public Staging Auth And Map-Slot Probe

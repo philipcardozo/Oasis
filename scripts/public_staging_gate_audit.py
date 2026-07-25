@@ -163,7 +163,7 @@ REQUIREMENTS = [
     ("reverse_proxy", "Public reverse-proxy behavior", ["00-public-staging-preflight.json", "02-dns-tls-edge.md"], []),
     ("email_delivery", "Authentication email delivery", ["06-auth-email.md"], []),
     ("api_worker_separation", "API and worker separation", ["02-render-deploy.json", "10-worker-jobs.md"], []),
-    ("attack_surface", "External attack-surface controls", ["03-cloudflare-access.md", "09-route-security.md"], []),
+    ("attack_surface", "External attack-surface controls", ["03-cloudflare-access.md", "09-route-security.md", "route-security-summary.json"], []),
     ("browser_compatibility", "Remote browser compatibility", ["07-browser-matrix.md"], []),
     ("deployment_automation", "Deployment automation", ["01-image-manifest.json", "02-render-deploy.json"], []),
     ("rollback", "Rollback", ["13-failure-rollback.md"], []),
@@ -185,17 +185,17 @@ ACCEPTANCE = [
     ("api_worker_separate", "API and worker are separate", ["02-render-deploy.json", "10-worker-jobs.md"]),
     ("auth_email", "Email verification and password reset work", ["06-auth-email.md"]),
     ("secure_cookies", "Session cookies are secure", ["06-auth-email.md", "00-public-staging-preflight.json"]),
-    ("csrf", "CSRF works", ["09-route-security.md"]),
-    ("route_classification", "Every route has explicit security classification", ["09-route-security.md"]),
-    ("cross_user_denied", "Cross-user access is denied", ["09-route-security.md"]),
+    ("csrf", "CSRF works", ["09-route-security.md", "route-security-summary.json"]),
+    ("route_classification", "Every route has explicit security classification", ["09-route-security.md", "route-security-summary.json"]),
+    ("cross_user_denied", "Cross-user access is denied", ["09-route-security.md", "route-security-summary.json"]),
     ("three_slots", "Exactly three map slots persist across devices", ["07-browser-matrix.md"]),
     ("browser_map", "Real browser map rendering works", ["07-browser-matrix.md", "08-map-provider-capture.md"]),
     ("no_bulk_first_paint", "/api/universe/bulk is absent from initial paint", ["15-performance.md", "performance-evidence-summary.json"]),
     ("zero_api_acquisition", "API user requests perform zero external acquisition", ["11-network-isolation.md"]),
     ("worker_recovery", "Worker jobs are bounded and recoverable", ["10-worker-jobs.md"]),
     ("private_storage", "Object storage remains private", ["12-backup-restore.md"]),
-    ("headers_cors_hosts", "Security headers, CORS, and trusted hosts are correct", ["00-public-staging-preflight.json", "09-route-security.md"]),
-    ("rate_limit_proxy", "Rate limiting works through public proxy", ["09-route-security.md"]),
+    ("headers_cors_hosts", "Security headers, CORS, and trusted hosts are correct", ["00-public-staging-preflight.json", "09-route-security.md", "route-security-summary.json"]),
+    ("rate_limit_proxy", "Rate limiting works through public proxy", ["09-route-security.md", "route-security-summary.json"]),
     ("restore_success", "Backup and restore succeed", ["12-backup-restore.md"]),
     ("rollback_success", "Deployment rollback succeeds", ["13-failure-rollback.md"]),
     ("alerts", "Alerts detect key failures", ["14-observability-alerts.md"]),
@@ -495,11 +495,83 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     return weak
 
 
+def route_security_summary_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if data.get("verdict") != "pass":
+        weak.append("route-security summary verdict is not pass")
+    if data.get("failures"):
+        weak.append("route-security summary has failures")
+    if data.get("warnings"):
+        weak.append("route-security summary has warnings")
+
+    route_probe = data.get("route_probe") or {}
+    if route_probe.get("verdict") != "pass":
+        weak.append("route-security route probe verdict is not pass")
+    if route_probe.get("failure_count") != 0:
+        weak.append("route-security route probe failure count is not zero")
+    summary = route_probe.get("summary") or {}
+    if int(summary.get("count") or 0) < 4:
+        weak.append("route-security route probe measurement count is too small")
+    expected_unauth = {
+        "map slots unauthenticated",
+        "auth me unauthenticated",
+        "auth sessions unauthenticated",
+    }
+    unauth = list(summary.get("unauthenticated") or [])
+    seen_unauth = {item.get("name") for item in unauth}
+    for missing in sorted(expected_unauth - seen_unauth):
+        weak.append(f"route-security missing unauthenticated probe: {missing}")
+    for item in unauth:
+        name = item.get("name") or "unknown unauthenticated probe"
+        if item.get("ok") is not True:
+            weak.append(f"route-security unauthenticated probe failed: {name}")
+        statuses = set(item.get("status_codes") or [])
+        if not statuses or not statuses.issubset({401, 403}):
+            weak.append(f"route-security unauthenticated probe did not reject with 401/403: {name}")
+
+    preflight = data.get("preflight") or {}
+    if preflight.get("verdict") != "pass":
+        weak.append("route-security preflight verdict is not pass")
+    headers = set(preflight.get("index_headers") or [])
+    required_headers = {
+        "content-security-policy",
+        "strict-transport-security",
+        "x-content-type-options",
+        "referrer-policy",
+        "permissions-policy",
+    }
+    for header in sorted(required_headers - headers):
+        weak.append(f"route-security missing header evidence: {header}")
+
+    inventory = data.get("inventory") or {}
+    if inventory.get("unique_method_paths") != 92:
+        weak.append("route-security inventory does not have 92 public method/path entries")
+    class_summary = inventory.get("class_summary") or {}
+    if class_summary.get("public-write-auth-flow-rate-limited") != 5:
+        weak.append("route-security rate-limited public auth-flow class count is not 5")
+    if not class_summary:
+        weak.append("route-security class summary is missing")
+
+    auth = data.get("auth_security") or {}
+    if auth.get("verdict") != "pass":
+        weak.append("route-security auth evidence verdict is not pass")
+    if auth.get("csrf_rejection_status") != 403:
+        weak.append("route-security CSRF rejection status is not 403")
+    if auth.get("cross_user_status") not in {403, 404}:
+        weak.append("route-security cross-user denial status is not 403/404")
+    if auth.get("stale_conflict_status") != 409:
+        weak.append("route-security stale-version conflict status is not 409")
+    if auth.get("default_map_slot_count") != 3 or auth.get("default_map_slot_numbers") != [1, 2, 3]:
+        weak.append("route-security exactly-three map-slot evidence is missing")
+    return weak
+
+
 JSON_VALIDATORS = {
     "00-public-staging-preflight.json": preflight_weaknesses,
     "01-image-manifest.json": image_manifest_weaknesses,
     "02-render-deploy.json": render_deploy_weaknesses,
     "performance-evidence-summary.json": performance_summary_weaknesses,
+    "route-security-summary.json": route_security_summary_weaknesses,
 }
 
 

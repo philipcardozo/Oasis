@@ -226,6 +226,34 @@ def test_performance_summary_requires_proxyman_and_app_layer_rows(tmp_path, monk
     assert any("missing map-slot write app-layer latency" in item for item in result["weak"])
 
 
+def test_valid_route_security_summary_json_evidence_is_proven(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    (evidence / "route-security-summary.json").write_text(json.dumps(_route_security_summary()))
+
+    result = audit.evaluate("route", "Route security", ["route-security-summary.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_route_security_summary_requires_auth_inventory_and_headers(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _route_security_summary()
+    summary["warnings"] = ["stale conflict was not measured"]
+    summary["preflight"]["index_headers"].remove("permissions-policy")
+    summary["inventory"]["class_summary"]["public-write-auth-flow-rate-limited"] = 4
+    summary["auth_security"]["csrf_rejection_status"] = 200
+    (evidence / "route-security-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("route", "Route security", ["route-security-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("has warnings" in item for item in result["weak"])
+    assert any("missing header evidence: permissions-policy" in item for item in result["weak"])
+    assert any("rate-limited public auth-flow class count is not 5" in item for item in result["weak"])
+    assert any("CSRF rejection status is not 403" in item for item in result["weak"])
+
+
 def test_image_manifest_json_pass_with_latest_tag_is_weak(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     manifest = _image_manifest()
@@ -349,6 +377,68 @@ def _performance_summary() -> dict:
                     "ok": True,
                 }
             ],
+        },
+    }
+
+
+def _route_security_summary() -> dict:
+    return {
+        "verdict": "pass",
+        "failures": [],
+        "warnings": [],
+        "route_probe": {
+            "verdict": "pass",
+            "failure_count": 0,
+            "summary": {
+                "count": 4,
+                "families": {"health": 1, "auth/map slots": 3},
+                "unauthenticated": [
+                    {
+                        "name": "map slots unauthenticated",
+                        "template": "/api/map-slots",
+                        "status_codes": [401],
+                        "ok": True,
+                    },
+                    {
+                        "name": "auth me unauthenticated",
+                        "template": "/api/auth/me",
+                        "status_codes": [401],
+                        "ok": True,
+                    },
+                    {
+                        "name": "auth sessions unauthenticated",
+                        "template": "/api/auth/sessions",
+                        "status_codes": [403],
+                        "ok": True,
+                    },
+                ],
+            },
+        },
+        "preflight": {
+            "verdict": "pass",
+            "index_headers": [
+                "content-security-policy",
+                "permissions-policy",
+                "referrer-policy",
+                "strict-transport-security",
+                "x-content-type-options",
+            ],
+        },
+        "inventory": {
+            "unique_method_paths": 92,
+            "class_summary": {
+                "public-read": 61,
+                "owner-only-session-csrf": 6,
+                "public-write-auth-flow-rate-limited": 5,
+            },
+        },
+        "auth_security": {
+            "verdict": "pass",
+            "csrf_rejection_status": 403,
+            "cross_user_status": 404,
+            "stale_conflict_status": 409,
+            "default_map_slot_count": 3,
+            "default_map_slot_numbers": [1, 2, 3],
         },
     }
 

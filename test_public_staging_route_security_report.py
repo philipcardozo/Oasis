@@ -10,29 +10,36 @@ from pathlib import Path
 def test_public_route_security_report_passes_with_complete_evidence(tmp_path):
     files = _write_inputs(tmp_path, include_auth=True)
     output = tmp_path / "09-route-security.md"
+    summary = tmp_path / "route-security-summary.json"
 
-    result = _run_report(files, output)
+    result = _run_report(files, output, summary)
 
     assert result.returncode == 0, result.stderr
     text = output.read_text()
     assert "Verdict: **pass**" in text
     assert "CSRF rejection status: `403`" in text
     assert "Cross-user slot denial status: `404`" in text
+    data = json.loads(summary.read_text())
+    assert data["verdict"] == "pass"
+    assert data["auth_security"]["stale_conflict_status"] == 409
+    assert data["inventory"]["class_summary"]["public-write-auth-flow-rate-limited"] == 5
 
 
 def test_public_route_security_report_requires_auth_security_evidence(tmp_path):
     files = _write_inputs(tmp_path, include_auth=False)
     output = tmp_path / "09-route-security.md"
+    summary = tmp_path / "route-security-summary.json"
 
-    result = _run_report(files, output)
+    result = _run_report(files, output, summary)
 
     assert result.returncode == 1
     text = output.read_text()
     assert "Verdict: **investigate**" in text
     assert "auth/CSRF/cross-user security evidence is missing" in text
+    assert json.loads(summary.read_text())["verdict"] == "investigate"
 
 
-def _run_report(files: dict[str, Path], output: Path):
+def _run_report(files: dict[str, Path], output: Path, summary: Path):
     cmd = [
         sys.executable,
         "scripts/public_staging_route_security_report.py",
@@ -44,6 +51,8 @@ def _run_report(files: dict[str, Path], output: Path):
         str(files["inventory"]),
         "--output",
         str(output),
+        "--summary-output",
+        str(summary),
     ]
     if files.get("auth"):
         cmd.extend(["--auth-security", str(files["auth"])])
@@ -90,7 +99,11 @@ def _write_inputs(tmp_path: Path, *, include_auth: bool) -> dict[str, Path]:
                 "unique_method_paths": 92,
                 "duplicate_method_paths": [],
                 "docs_paths_present": [],
-                "class_summary": {"public-read": 61, "owner-only-session-csrf": 6},
+                "class_summary": {
+                    "public-read": 61,
+                    "owner-only-session-csrf": 6,
+                    "public-write-auth-flow-rate-limited": 5,
+                },
             }
         ],
     }))

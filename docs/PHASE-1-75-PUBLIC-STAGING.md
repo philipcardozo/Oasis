@@ -108,6 +108,8 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
 - `08-map-provider-capture.md`
 - `09-route-security.md`, generated from public route/preflight/auth evidence
   with `scripts/public_staging_route_security_report.py`
+- `route-security-summary.json`, generated beside `09-route-security.md` for
+  strict CSRF, cross-user, route-inventory, header, and rate-limit-class checks
 - `10-worker-jobs.md`
 - `11-network-isolation.md`
 - `12-backup-restore.md`
