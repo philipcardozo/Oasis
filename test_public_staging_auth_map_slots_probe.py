@@ -18,12 +18,27 @@ def test_public_auth_map_slot_probe_requires_email_tokens_and_csrf():
     payload["users"]["user_a"]["verification_token_supplied"] = False
     payload["checks"]["csrf_rejection"]["status_code"] = 200
     payload["checks"]["account_lifecycle"]["password_change"]["status_code"] = 403
+    payload["checks"]["password_reset"]["token_reuse"]["status_code"] = 200
 
     failures, _ = evaluate(payload)
 
     assert "user_a verification token env is missing" in failures
     assert "CSRF rejection status is not 403" in failures
     assert "password change did not return 200" in failures
+    assert "password reset token reuse was not rejected" in failures
+
+
+def test_public_auth_map_slot_probe_requires_single_use_and_generic_reset_shape():
+    payload = _payload()
+    payload["users"]["user_b"]["verify_email_reuse"]["status_code"] = 200
+    payload["checks"]["password_reset"]["unknown_account_request"]["status_code"] = 202
+    payload["checks"]["password_reset"]["unknown_account_request"]["json_keys"] = ["different"]
+
+    failures, _ = evaluate(payload)
+
+    assert "user_b email verification token reuse was not rejected" in failures
+    assert "unknown-account password reset request did not return generic 200" in failures
+    assert "known and unknown password reset responses have different JSON shape" in failures
 
 
 def test_public_auth_map_slot_probe_requires_exactly_three_slots_and_cross_user_denial():
@@ -50,18 +65,21 @@ def _payload() -> dict:
                 "register": {"status_code": 201},
                 "verification_token_supplied": True,
                 "verify_email": {"status_code": 200},
+                "verify_email_reuse": {"status_code": 400},
                 "login": {"status_code": 200},
             },
             "user_b": {
                 "register": {"status_code": 201},
                 "verification_token_supplied": True,
                 "verify_email": {"status_code": 200},
+                "verify_email_reuse": {"status_code": 400},
                 "login": {"status_code": 200},
             },
             "lifecycle_user": {
                 "register": {"status_code": 201},
                 "verification_token_supplied": True,
                 "verify_email": {"status_code": 200},
+                "verify_email_reuse": {"status_code": 400},
                 "login": {"status_code": 200},
             },
         },
@@ -75,11 +93,13 @@ def _payload() -> dict:
             "cross_user_slot_read_denied": {"status_code": 404},
             "stale_version_conflict": {"status_code": 409},
             "password_reset": {
-                "request": {"status_code": 200},
+                "request": {"status_code": 200, "json_keys": ["message", "ok"]},
+                "unknown_account_request": {"status_code": 200, "json_keys": ["message", "ok"]},
                 "reset_token_supplied": True,
                 "reset_password_supplied": True,
                 "complete": {"status_code": 200},
                 "post_reset_login": {"status_code": 200},
+                "token_reuse": {"status_code": 400},
             },
             "account_lifecycle": {
                 "changed_password_supplied": True,

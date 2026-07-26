@@ -13,7 +13,9 @@ def test_auth_email_report_passes_with_complete_sanitized_evidence():
 
     assert failures == []
     assert rows["user_a_verification_status"] == 200
+    assert rows["user_a_verification_reuse_status"] == 400
     assert rows["password_reset_complete_status"] == 200
+    assert rows["password_reset_token_reuse_status"] == 400
     assert rows["password_change_status"] == 200
     assert rows["account_delete_status"] == 200
 
@@ -21,10 +23,23 @@ def test_auth_email_report_passes_with_complete_sanitized_evidence():
 def test_auth_email_report_requires_reset_completion():
     auth = _auth()
     auth["checks"]["password_reset"]["complete"]["status_code"] = 400
+    auth["checks"]["password_reset"]["unknown_account_request"]["json_keys"] = ["different"]
 
     failures, _ = evaluate(auth)
 
     assert "password reset completion did not return 200" in failures
+    assert "known and unknown password reset response shapes differ" in failures
+
+
+def test_auth_email_report_requires_single_use_email_tokens():
+    auth = _auth()
+    auth["users"]["user_b"]["verify_email_reuse"]["status_code"] = 200
+    auth["checks"]["password_reset"]["token_reuse"]["status_code"] = 200
+
+    failures, _ = evaluate(auth)
+
+    assert "user_b email verification token reuse did not return 400" in failures
+    assert "password reset token reuse did not return 400" in failures
 
 
 def test_auth_email_report_requires_account_lifecycle_completion():
@@ -88,6 +103,7 @@ def _auth() -> dict:
                 "verification_token_supplied": True,
                 "register": {"status_code": 201},
                 "verify_email": {"status_code": 200},
+                "verify_email_reuse": {"status_code": 400},
                 "login": {"status_code": 200},
             },
             "user_b": {
@@ -97,6 +113,7 @@ def _auth() -> dict:
                 "verification_token_supplied": True,
                 "register": {"status_code": 201},
                 "verify_email": {"status_code": 200},
+                "verify_email_reuse": {"status_code": 400},
                 "login": {"status_code": 200},
             },
             "lifecycle_user": {
@@ -106,6 +123,7 @@ def _auth() -> dict:
                 "verification_token_supplied": True,
                 "register": {"status_code": 201},
                 "verify_email": {"status_code": 200},
+                "verify_email_reuse": {"status_code": 400},
                 "login": {"status_code": 200},
             },
         },
@@ -119,9 +137,11 @@ def _auth() -> dict:
                 "reset_token_supplied": True,
                 "reset_password_env": "OASIS_PUBLIC_TESTER_A_RESET_PASSWORD",
                 "reset_password_supplied": True,
-                "request": {"status_code": 200},
+                "request": {"status_code": 200, "json_keys": ["message", "ok"]},
+                "unknown_account_request": {"status_code": 200, "json_keys": ["message", "ok"]},
                 "complete": {"status_code": 200},
                 "post_reset_login": {"status_code": 200},
+                "token_reuse": {"status_code": 400},
             },
             "account_lifecycle": {
                 "changed_password_env": "OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD",

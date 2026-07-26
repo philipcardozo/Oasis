@@ -273,6 +273,22 @@ def test_auth_email_summary_requires_account_lifecycle_evidence(tmp_path, monkey
     assert any("post_delete_login_status is not 401" in item for item in result["weak"])
 
 
+def test_auth_email_summary_requires_single_use_and_enumeration_evidence(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _auth_email_summary()
+    summary["rows"]["user_a_verification_reuse_status"] = 200
+    summary["rows"]["password_reset_unknown_shape_matches"] = False
+    summary["rows"]["password_reset_token_reuse_status"] = 200
+    (evidence / "auth-email-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("auth", "Auth email", ["auth-email-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("verification token reuse status is not 400" in item for item in result["weak"])
+    assert any("password_reset_unknown_shape_matches is not True" in item for item in result["weak"])
+    assert any("password_reset_token_reuse_status is not 400" in item for item in result["weak"])
+
+
 def test_valid_browser_map_summary_json_evidence_is_proven(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     (evidence / "browser-map-summary.json").write_text(json.dumps(_browser_map_summary()))
@@ -719,19 +735,25 @@ def _auth_email_summary() -> dict:
             "user_a_registration_status": 201,
             "user_a_verification_token_supplied": True,
             "user_a_verification_status": 200,
+            "user_a_verification_reuse_status": 400,
             "user_a_login_status": 200,
             "user_b_registration_status": 201,
             "user_b_verification_token_supplied": True,
             "user_b_verification_status": 200,
+            "user_b_verification_reuse_status": 400,
             "user_b_login_status": 200,
             "lifecycle_user_registration_status": 201,
             "lifecycle_user_verification_token_supplied": True,
             "lifecycle_user_verification_status": 200,
+            "lifecycle_user_verification_reuse_status": 400,
             "lifecycle_user_login_status": 200,
             "password_reset_request_status": 200,
+            "password_reset_unknown_request_status": 200,
+            "password_reset_unknown_shape_matches": True,
             "password_reset_token_supplied": True,
             "password_reset_complete_status": 200,
             "post_reset_login_status": 200,
+            "password_reset_token_reuse_status": 400,
             "session_cookie_secure": True,
             "session_cookie_httponly": True,
             "csrf_cookie_secure": True,

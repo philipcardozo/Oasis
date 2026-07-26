@@ -621,14 +621,19 @@ def auth_email_summary_weaknesses(data: dict[str, Any]) -> list[str]:
             weak.append(f"auth-email {user} verification token was not supplied")
         if rows.get(f"{user}_verification_status") != 200:
             weak.append(f"auth-email {user} verification status is not 200")
+        if rows.get(f"{user}_verification_reuse_status") != 400:
+            weak.append(f"auth-email {user} verification token reuse status is not 400")
         if rows.get(f"{user}_login_status") != 200:
             weak.append(f"auth-email {user} login status is not 200")
 
     required_rows = {
         "password_reset_request_status": 200,
+        "password_reset_unknown_request_status": 200,
+        "password_reset_unknown_shape_matches": True,
         "password_reset_token_supplied": True,
         "password_reset_complete_status": 200,
         "post_reset_login_status": 200,
+        "password_reset_token_reuse_status": 400,
         "session_cookie_secure": True,
         "session_cookie_httponly": True,
         "csrf_cookie_secure": True,

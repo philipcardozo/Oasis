@@ -86,6 +86,7 @@ def evaluate(auth: dict[str, Any]) -> tuple[list[str], dict[str, Any]]:
         rows[f"{label}_registration_status"] = status(user.get("register"))
         rows[f"{label}_verification_token_supplied"] = user.get("verification_token_supplied")
         rows[f"{label}_verification_status"] = status(user.get("verify_email"))
+        rows[f"{label}_verification_reuse_status"] = status(user.get("verify_email_reuse"))
         rows[f"{label}_login_status"] = status(user.get("login"))
         if rows[f"{label}_registration_status"] not in {200, 201, 202}:
             failures.append(f"{label} registration did not return generic success")
@@ -93,6 +94,8 @@ def evaluate(auth: dict[str, Any]) -> tuple[list[str], dict[str, Any]]:
             failures.append(f"{label} verification token was not supplied from delivered email")
         if rows[f"{label}_verification_status"] != 200:
             failures.append(f"{label} email verification did not return 200")
+        if rows[f"{label}_verification_reuse_status"] != 400:
+            failures.append(f"{label} email verification token reuse did not return 400")
         if rows[f"{label}_login_status"] != 200:
             failures.append(f"{label} login did not return 200")
 
@@ -100,9 +103,12 @@ def evaluate(auth: dict[str, Any]) -> tuple[list[str], dict[str, Any]]:
     reset = checks.get("password_reset") or {}
     rows.update({
         "password_reset_request_status": status(reset.get("request")),
+        "password_reset_unknown_request_status": status(reset.get("unknown_account_request")),
+        "password_reset_unknown_shape_matches": (reset.get("request") or {}).get("json_keys") == (reset.get("unknown_account_request") or {}).get("json_keys"),
         "password_reset_token_supplied": reset.get("reset_token_supplied"),
         "password_reset_complete_status": status(reset.get("complete")),
         "post_reset_login_status": status(reset.get("post_reset_login")),
+        "password_reset_token_reuse_status": status(reset.get("token_reuse")),
         "session_cookie_secure": checks.get("session_cookie_secure"),
         "session_cookie_httponly": checks.get("session_cookie_httponly"),
         "csrf_cookie_secure": checks.get("csrf_cookie_secure"),
@@ -110,12 +116,18 @@ def evaluate(auth: dict[str, Any]) -> tuple[list[str], dict[str, Any]]:
     })
     if rows["password_reset_request_status"] != 200:
         failures.append("password reset request did not return 200")
+    if rows["password_reset_unknown_request_status"] != 200:
+        failures.append("unknown-account password reset request did not return 200")
+    if rows["password_reset_unknown_shape_matches"] is not True:
+        failures.append("known and unknown password reset response shapes differ")
     if rows["password_reset_token_supplied"] is not True:
         failures.append("password reset token was not supplied from delivered email")
     if rows["password_reset_complete_status"] != 200:
         failures.append("password reset completion did not return 200")
     if rows["post_reset_login_status"] != 200:
         failures.append("post-reset login did not return 200")
+    if rows["password_reset_token_reuse_status"] != 400:
+        failures.append("password reset token reuse did not return 400")
     if rows["session_cookie_secure"] is not True:
         failures.append("session cookie is not Secure")
     if rows["session_cookie_httponly"] is not True:

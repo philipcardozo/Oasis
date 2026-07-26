@@ -223,6 +223,12 @@ def register_and_verify(
             timeout=timeout,
         ))
         out["verify_email"] = response_sample(duration, response)
+        duration, response = timed(lambda: session.post(
+            f"{base_url}/api/auth/verify-email",
+            json={"token": user.verify_token},
+            timeout=timeout,
+        ))
+        out["verify_email_reuse"] = response_sample(duration, response)
     return out
 
 
@@ -345,6 +351,13 @@ def password_reset(
         timeout=args.timeout,
     ))
     out["request"] = response_sample(duration, response)
+    unknown_email = os.environ.get(args.unknown_reset_email_env, f"unknown-public-reset-{int(time.time())}@example.com")
+    duration, response = timed(lambda: session.post(
+        f"{base_url}/api/auth/password-reset/request",
+        json={"email": unknown_email},
+        timeout=args.timeout,
+    ))
+    out["unknown_account_request"] = response_sample(duration, response)
 
     token = os.environ.get(args.user_a_reset_token_env, "")
     password = os.environ.get(args.user_a_reset_password_env, "")
@@ -356,6 +369,12 @@ def password_reset(
         ))
         out["complete"] = response_sample(duration, response)
         out["post_reset_login"] = login(session, base_url, user, args.timeout, password=password)
+        duration, response = timed(lambda: session.post(
+            f"{base_url}/api/auth/password-reset/complete",
+            json={"token": token, "password": password},
+            timeout=args.timeout,
+        ))
+        out["token_reuse"] = response_sample(duration, response)
     return out
 
 
@@ -462,6 +481,8 @@ def evaluate(payload: dict[str, Any]) -> tuple[list[str], list[str]]:
             failures.append(f"{label} verification token env is missing")
         elif (user.get("verify_email") or {}).get("status_code") != 200:
             failures.append(f"{label} email verification did not succeed")
+        elif (user.get("verify_email_reuse") or {}).get("status_code") != 400:
+            failures.append(f"{label} email verification token reuse was not rejected")
         if (user.get("login") or {}).get("status_code") != 200:
             failures.append(f"{label} login did not succeed")
 
@@ -483,6 +504,10 @@ def evaluate(payload: dict[str, Any]) -> tuple[list[str], list[str]]:
     reset = checks.get("password_reset") or {}
     if (reset.get("request") or {}).get("status_code") != 200:
         failures.append("password reset request did not return 200")
+    if (reset.get("unknown_account_request") or {}).get("status_code") != 200:
+        failures.append("unknown-account password reset request did not return generic 200")
+    if (reset.get("request") or {}).get("json_keys") != (reset.get("unknown_account_request") or {}).get("json_keys"):
+        failures.append("known and unknown password reset responses have different JSON shape")
     if not reset.get("reset_token_supplied"):
         failures.append("password reset token env is missing")
     elif not reset.get("reset_password_supplied"):
@@ -491,6 +516,8 @@ def evaluate(payload: dict[str, Any]) -> tuple[list[str], list[str]]:
         failures.append("password reset completion did not return 200")
     elif (reset.get("post_reset_login") or {}).get("status_code") != 200:
         failures.append("post-reset login did not return 200")
+    elif (reset.get("token_reuse") or {}).get("status_code") != 400:
+        failures.append("password reset token reuse was not rejected")
 
     lifecycle = checks.get("account_lifecycle") or {}
     if not lifecycle.get("changed_password_supplied"):
@@ -629,6 +656,7 @@ def main() -> int:
     parser.add_argument("--user-a-verification-token-env", default="OASIS_PUBLIC_TESTER_A_VERIFY_TOKEN")
     parser.add_argument("--user-a-reset-token-env", default="OASIS_PUBLIC_TESTER_A_RESET_TOKEN")
     parser.add_argument("--user-a-reset-password-env", default="OASIS_PUBLIC_TESTER_A_RESET_PASSWORD")
+    parser.add_argument("--unknown-reset-email-env", default="OASIS_PUBLIC_UNKNOWN_RESET_EMAIL")
     parser.add_argument("--user-b-email-env", default="OASIS_PUBLIC_TESTER_B_EMAIL")
     parser.add_argument("--user-b-password-env", default="OASIS_PUBLIC_TESTER_B_PASSWORD")
     parser.add_argument("--user-b-verification-token-env", default="OASIS_PUBLIC_TESTER_B_VERIFY_TOKEN")

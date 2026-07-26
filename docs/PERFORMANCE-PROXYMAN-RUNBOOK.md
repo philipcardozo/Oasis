@@ -979,6 +979,9 @@ Verify:
 - disposable lifecycle user can list sessions, revoke a second session, change
   password, prove the old password fails, login with the new password, logout
   all sessions, delete the account, and prove the deleted account cannot log in
+- verification and password-reset tokens are rejected when reused
+- unknown-account password reset returns the same generic response shape as a
+  known-account reset request
 - no passwords, tokens, cookies, authorization values, or complete emails are
   stored in the evidence file
 

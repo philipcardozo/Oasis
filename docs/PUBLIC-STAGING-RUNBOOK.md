@@ -244,7 +244,10 @@ The report and summary must show `Verdict: pass`; otherwise email verification,
 password reset, secure-cookie, CSRF, session listing/revocation, password
 change, logout-all, and account deletion evidence remains unproven. Use the
 dedicated lifecycle account for destructive account-deletion proof, not the two
-map-slot tester accounts.
+map-slot tester accounts. The public probe also retries used verification and
+password-reset tokens and sends an unknown-account reset request; token reuse
+must be rejected and known/unknown reset responses must keep the same generic
+shape.
 
 Generate route-security evidence from the public route probe and auth/security
 summaries:
