@@ -166,7 +166,9 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
 - `licensing-summary.json`, generated beside `17-licensing-gates.md` for strict
   feature-flag, disabled-provider, official-source, and browser-provider checks
 - `99-public-staging-gate-audit.json`
-- `99-public-staging-gate-audit.md`
+- `99-public-staging-gate-audit.md`, including the strict requirements table,
+  acceptance table, 22-item final-response checklist, remaining-risk rollup,
+  and private-beta verdict
 
 Every public-staging Markdown evidence file must include an explicit
 `Verdict: pass` line after the evidence is complete. Use

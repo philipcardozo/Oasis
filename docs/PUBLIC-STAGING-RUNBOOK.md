@@ -420,6 +420,9 @@ python3 scripts/public_staging_gate_audit.py
 
 The script writes `docs/evidence/public-staging/99-public-staging-gate-audit.*`
 and returns non-zero until every required evidence item is present and clean.
+The JSON and Markdown audit outputs include a 22-item final-response checklist,
+remaining-risk rollup, and private-beta verdict; use that checklist as the
+source for the final release report instead of summarizing from memory.
 Generated Markdown evidence files must include both `Verdict: pass` and the
 generated-report marker emitted by the report scripts. Placeholder,
 hand-written pass, `Verdict: investigate`, or verdict-less files are treated as

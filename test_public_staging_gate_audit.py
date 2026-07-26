@@ -142,6 +142,46 @@ def test_non_evidence_docs_do_not_need_generated_marker(tmp_path, monkeypatch):
     assert result["weak"] == []
 
 
+def test_final_response_checklist_contains_all_required_release_items():
+    requirements = [
+        {"key": key, "label": label, "status": "missing", "missing": ["missing evidence"], "weak": []}
+        for key, label, *_ in audit.REQUIREMENTS
+    ]
+    acceptance = [
+        {"key": key, "label": label, "status": "missing", "missing": ["missing evidence"], "weak": []}
+        for key, label, *_ in audit.ACCEPTANCE
+    ]
+
+    final = audit.final_response_items(requirements, acceptance, "NOT APPROVED")
+
+    assert [item["key"] for item in final] == [item[0] for item in audit.FINAL_RESPONSE_ITEMS]
+    assert len(final) == 22
+    assert final[-1]["key"] == "private_beta_verdict"
+    assert final[-1]["weak"] == ["private-beta verdict remains NOT APPROVED"]
+    assert final[-2]["key"] == "remaining_risks"
+    assert final[-2]["status"] == "not_proven"
+    assert final[-2]["weak"]
+
+
+def test_gate_audit_markdown_includes_final_response_checklist():
+    payload = {
+        "captured_at": "2026-07-25T00:00:00Z",
+        "commit": "abc1234",
+        "branch": "phase1.75/public-staging",
+        "verdict": "NOT APPROVED",
+        "requirements": [],
+        "acceptance": [],
+        "final_response": audit.final_response_items([], [], "NOT APPROVED"),
+    }
+
+    text = audit.markdown(payload)
+
+    assert "## Final Response Checklist" in text
+    assert "Hosting provider and architecture" in text
+    assert "Private-beta verdict" in text
+    assert "private-beta verdict remains NOT APPROVED" in text
+
+
 def test_required_documentation_set_is_proven_when_present(tmp_path, monkeypatch):
     _configure_tmp_audit(tmp_path, monkeypatch)
     _write_required_docs(tmp_path)

@@ -266,6 +266,31 @@ ACCEPTANCE = [
     ("docs_current", "Documentation is current", REQUIRED_DOCS),
 ]
 
+FINAL_RESPONSE_ITEMS = [
+    ("hosting_provider_architecture", "Hosting provider and architecture", ("secret_management", "managed_postgres", "api_worker_separation", "private_beta_access")),
+    ("public_staging_hostname", "Public staging hostname", ("public_dns", "https_reachable")),
+    ("deployed_branch_commit_image_digest", "Deployed branch, commit, and image digest", ("tested_commit_image", "deployment_automation")),
+    ("dns_tls_result", "DNS and TLS result", ("public_dns", "public_tls", "dns_cert_valid")),
+    ("access_control_result", "Access-control result", ("attack_surface", "outer_access", "private_beta_access")),
+    ("postgresql_migration_result", "PostgreSQL and migration result", ("managed_postgres", "explicit_migrations", "postgres_backed_up")),
+    ("api_worker_result", "API and worker result", ("api_worker_separation", "api_worker_separate", "worker_recovery")),
+    ("authentication_email_result", "Authentication and email result", ("email_delivery", "auth_email", "secure_cookies", "csrf")),
+    ("map_browser_result", "Map and browser result", ("browser_compatibility", "browser_map", "providers_disabled")),
+    ("map_slot_synchronization_result", "Map-slot synchronization result", ("three_slots", "cross_user_denied")),
+    ("route_security_result", "Route-security result", ("attack_surface", "route_classification", "headers_cors_hosts")),
+    ("network_isolation_result", "Network-isolation result", ("zero_api_acquisition",)),
+    ("object_storage_result", "Object-storage result", ("persistent_storage", "private_storage")),
+    ("backup_restore_result", "Backup and restore result", ("backup_restore", "restore_success")),
+    ("failure_rollback_result", "Failure and rollback result", ("failure_exercises", "rollback", "rollback_success")),
+    ("observability_alerting_result", "Observability and alerting result", ("monitoring_alerting", "alerts")),
+    ("performance_measurements", "Performance measurements", ("performance", "no_bulk_first_paint")),
+    ("licensing_gates", "Licensing gates", ("licensing", "providers_disabled")),
+    ("cicd_result", "CI/CD result", ("deployment_automation", "cicd_safe", "test_suites_pass")),
+    ("commits_created", "Commits created", ("tested_commit_image",)),
+    ("remaining_risks", "Remaining risks", ()),
+    ("private_beta_verdict", "Private-beta verdict", ()),
+]
+
 
 def git_value(*args: str) -> str:
     try:
@@ -1578,6 +1603,63 @@ def evaluate(key: str, label: str, files: list[str], json_checks: list[str] | No
     }
 
 
+def final_response_items(requirements: list[dict[str, Any]], acceptance: list[dict[str, Any]], verdict: str) -> list[dict[str, Any]]:
+    by_key = {item["key"]: item for item in requirements + acceptance}
+    remaining = [
+        {
+            "key": item["key"],
+            "label": item["label"],
+            "status": item["status"],
+            "missing": item["missing"],
+            "weak": item["weak"],
+        }
+        for item in requirements + acceptance
+        if item["status"] != "proven"
+    ]
+    out = []
+    for key, label, source_keys in FINAL_RESPONSE_ITEMS:
+        if key == "remaining_risks":
+            out.append({
+                "key": key,
+                "label": label,
+                "status": "proven" if not remaining else "not_proven",
+                "source_keys": [item["key"] for item in remaining],
+                "missing": [],
+                "weak": [
+                    f"{item['label']} is {item['status']}: "
+                    f"{', '.join(item['missing'] + item['weak']) or 'no accepted evidence'}"
+                    for item in remaining
+                ],
+            })
+            continue
+        if key == "private_beta_verdict":
+            out.append({
+                "key": key,
+                "label": label,
+                "status": "proven" if verdict == "APPROVED FOR CONTROLLED PRIVATE BETA" else "not_proven",
+                "source_keys": [],
+                "missing": [],
+                "weak": [] if verdict == "APPROVED FOR CONTROLLED PRIVATE BETA" else [f"private-beta verdict remains {verdict}"],
+            })
+            continue
+        sources = [by_key[source] for source in source_keys if source in by_key]
+        missing_sources = [source for source in source_keys if source not in by_key]
+        missing = [message for source in sources for message in source["missing"]]
+        weak = [message for source in sources for message in source["weak"]]
+        if missing_sources:
+            weak.extend(f"final-response source is missing from audit: {source}" for source in missing_sources)
+        status = "proven" if sources and not missing and not weak and all(source["status"] == "proven" for source in sources) else "not_proven"
+        out.append({
+            "key": key,
+            "label": label,
+            "status": status,
+            "source_keys": list(source_keys),
+            "missing": missing,
+            "weak": weak,
+        })
+    return out
+
+
 def markdown(payload: dict[str, Any]) -> str:
     lines = [
         "# Public Staging Gate Audit",
@@ -1599,6 +1681,10 @@ def markdown(payload: dict[str, Any]) -> str:
     for item in payload["acceptance"]:
         evidence = ", ".join(item["missing"] + item["weak"]) or "-"
         lines.append(f"| {item['status']} | {item['label']} | {evidence} |")
+    lines.extend(["", "## Final Response Checklist", "", "| Status | Required final-response item | Evidence gaps |", "|---|---|---|"])
+    for item in payload["final_response"]:
+        evidence = ", ".join(item["missing"] + item["weak"]) or "-"
+        lines.append(f"| {item['status']} | {item['label']} | {evidence} |")
     lines.append("")
     lines.append("This audit is strict: scaffolding does not count as public-staging proof.")
     return "\n".join(lines) + "\n"
@@ -1617,6 +1703,7 @@ def main() -> int:
         "acceptance": acceptance,
         "verdict": "APPROVED FOR CONTROLLED PRIVATE BETA" if approved else "NOT APPROVED",
     }
+    payload["final_response"] = final_response_items(requirements, acceptance, payload["verdict"])
     EVIDENCE.mkdir(parents=True, exist_ok=True)
     JSON_OUT.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
     MD_OUT.write_text(markdown(payload))

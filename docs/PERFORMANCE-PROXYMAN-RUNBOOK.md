@@ -1257,6 +1257,11 @@ the evidence is partial or failing.
 Run the strict gate audit last:
 
 python3 scripts/public_staging_gate_audit.py
+
+Use the generated `final_response` checklist in
+docs/evidence/public-staging/99-public-staging-gate-audit.json, plus the
+Markdown checklist in `99-public-staging-gate-audit.md`, as the source for the
+22-item final release report and remaining risks.
 ```
 
 ## First Optimization Hypotheses
