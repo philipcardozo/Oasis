@@ -913,7 +913,8 @@ python3 scripts/public_staging_ops_reports.py --print-template \
 
 python3 scripts/public_staging_ops_reports.py \
   --input=docs/evidence/public-staging/ops-evidence.json \
-  --output-dir=docs/evidence/public-staging
+  --output-dir=docs/evidence/public-staging \
+  --summary-output=docs/evidence/public-staging/ops-evidence-summary.json
 
 This writes:
 - docs/evidence/public-staging/02-dns-tls-edge.md
@@ -925,6 +926,7 @@ This writes:
 - docs/evidence/public-staging/12-backup-restore.md
 - docs/evidence/public-staging/13-failure-rollback.md
 - docs/evidence/public-staging/14-observability-alerts.md
+- docs/evidence/public-staging/ops-evidence-summary.json
 
 Final verdict stays NOT APPROVED unless every public-staging acceptance item is
 proven by current evidence.

@@ -159,16 +159,16 @@ REQUIREMENTS = [
     ("public_tls", "Public TLS", ["00-public-staging-preflight.json"], ["tls"]),
     ("secret_management", "Secure secret management", ["04-render-services.md"], []),
     ("managed_postgres", "Managed PostgreSQL", ["04-render-services.md", "05-migration-version.md"], []),
-    ("persistent_storage", "Persistent object and database storage", ["04-render-services.md", "12-backup-restore.md"], []),
+    ("persistent_storage", "Persistent object and database storage", ["04-render-services.md", "12-backup-restore.md", "ops-evidence-summary.json"], []),
     ("reverse_proxy", "Public reverse-proxy behavior", ["00-public-staging-preflight.json", "02-dns-tls-edge.md"], []),
     ("email_delivery", "Authentication email delivery", ["06-auth-email.md", "auth-email-summary.json"], []),
-    ("api_worker_separation", "API and worker separation", ["02-render-deploy.json", "10-worker-jobs.md"], []),
+    ("api_worker_separation", "API and worker separation", ["02-render-deploy.json", "10-worker-jobs.md", "ops-evidence-summary.json"], []),
     ("attack_surface", "External attack-surface controls", ["03-cloudflare-access.md", "09-route-security.md", "route-security-summary.json"], []),
     ("browser_compatibility", "Remote browser compatibility", ["07-browser-matrix.md", "browser-map-summary.json"], []),
     ("deployment_automation", "Deployment automation", ["01-image-manifest.json", "02-render-deploy.json"], []),
-    ("rollback", "Rollback", ["13-failure-rollback.md"], []),
-    ("backup_restore", "Backup and restore", ["12-backup-restore.md"], []),
-    ("monitoring_alerting", "Monitoring and alerting", ["14-observability-alerts.md"], []),
+    ("rollback", "Rollback", ["13-failure-rollback.md", "ops-evidence-summary.json"], []),
+    ("backup_restore", "Backup and restore", ["12-backup-restore.md", "ops-evidence-summary.json"], []),
+    ("monitoring_alerting", "Monitoring and alerting", ["14-observability-alerts.md", "ops-evidence-summary.json"], []),
     ("private_beta_access", "Private-beta access control", ["03-cloudflare-access.md", "06-auth-email.md", "auth-email-summary.json"], []),
     ("performance", "Public performance measurements", ["15-performance.md", "performance-evidence-summary.json"], []),
     ("licensing", "Licensing gates", ["15-performance.md", "08-map-provider-capture.md", "browser-map-summary.json"], []),
@@ -180,9 +180,9 @@ ACCEPTANCE = [
     ("outer_access", "Outer staging access control is enabled", ["03-cloudflare-access.md"]),
     ("dns_cert_valid", "DNS and certificates are valid", ["00-public-staging-preflight.json", "02-dns-tls-edge.md"]),
     ("tested_commit_image", "Deployed image matches a tested commit", ["01-image-manifest.json", "02-render-deploy.json"]),
-    ("postgres_backed_up", "PostgreSQL is persistent and backed up", ["12-backup-restore.md"]),
+    ("postgres_backed_up", "PostgreSQL is persistent and backed up", ["12-backup-restore.md", "ops-evidence-summary.json"]),
     ("explicit_migrations", "Migrations complete explicitly", ["05-migration-version.md"]),
-    ("api_worker_separate", "API and worker are separate", ["02-render-deploy.json", "10-worker-jobs.md"]),
+    ("api_worker_separate", "API and worker are separate", ["02-render-deploy.json", "10-worker-jobs.md", "ops-evidence-summary.json"]),
     ("auth_email", "Email verification and password reset work", ["06-auth-email.md", "auth-email-summary.json"]),
     ("secure_cookies", "Session cookies are secure", ["06-auth-email.md", "auth-email-summary.json", "00-public-staging-preflight.json"]),
     ("csrf", "CSRF works", ["09-route-security.md", "route-security-summary.json"]),
@@ -191,14 +191,14 @@ ACCEPTANCE = [
     ("three_slots", "Exactly three map slots persist across devices", ["07-browser-matrix.md", "browser-map-summary.json"]),
     ("browser_map", "Real browser map rendering works", ["07-browser-matrix.md", "08-map-provider-capture.md", "browser-map-summary.json"]),
     ("no_bulk_first_paint", "/api/universe/bulk is absent from initial paint", ["15-performance.md", "performance-evidence-summary.json"]),
-    ("zero_api_acquisition", "API user requests perform zero external acquisition", ["11-network-isolation.md"]),
-    ("worker_recovery", "Worker jobs are bounded and recoverable", ["10-worker-jobs.md"]),
-    ("private_storage", "Object storage remains private", ["12-backup-restore.md"]),
+    ("zero_api_acquisition", "API user requests perform zero external acquisition", ["11-network-isolation.md", "ops-evidence-summary.json"]),
+    ("worker_recovery", "Worker jobs are bounded and recoverable", ["10-worker-jobs.md", "ops-evidence-summary.json"]),
+    ("private_storage", "Object storage remains private", ["12-backup-restore.md", "ops-evidence-summary.json"]),
     ("headers_cors_hosts", "Security headers, CORS, and trusted hosts are correct", ["00-public-staging-preflight.json", "09-route-security.md", "route-security-summary.json"]),
     ("rate_limit_proxy", "Rate limiting works through public proxy", ["09-route-security.md", "route-security-summary.json"]),
-    ("restore_success", "Backup and restore succeed", ["12-backup-restore.md"]),
-    ("rollback_success", "Deployment rollback succeeds", ["13-failure-rollback.md"]),
-    ("alerts", "Alerts detect key failures", ["14-observability-alerts.md"]),
+    ("restore_success", "Backup and restore succeed", ["12-backup-restore.md", "ops-evidence-summary.json"]),
+    ("rollback_success", "Deployment rollback succeeds", ["13-failure-rollback.md", "ops-evidence-summary.json"]),
+    ("alerts", "Alerts detect key failures", ["14-observability-alerts.md", "ops-evidence-summary.json"]),
     ("providers_disabled", "Unlicensed providers remain disabled", ["08-map-provider-capture.md", "browser-map-summary.json"]),
     ("test_suites_pass", "Test suites pass", ["01-image-manifest.json"]),
     ("cicd_safe", "CI/CD deploys immutable images safely", ["01-image-manifest.json", "02-render-deploy.json"]),
@@ -694,12 +694,129 @@ def browser_map_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     return weak
 
 
+OPS_REQUIRED = {
+    "worker_jobs": {
+        "job_created",
+        "worker_claimed",
+        "job_completed",
+        "failure_retry",
+        "timeout_bounded",
+        "idempotency",
+        "correlation_id",
+        "api_responsive_while_worker_runs",
+        "worker_restart_recovery",
+        "no_duplicate_completion",
+        "external_acquisition_disabled",
+    },
+    "network_isolation": {
+        "api_no_sec",
+        "api_no_logo_services",
+        "api_no_yahoo",
+        "api_no_dataset_refresh",
+        "browser_map_hosts_approved",
+        "worker_only_acquisition",
+        "secrets_not_observed",
+        "disabled_providers_unused",
+        "evidence_by_service_identity",
+    },
+    "backup_restore": {
+        "two_users",
+        "sessions",
+        "three_slots_per_user",
+        "customized_maps",
+        "audit_events",
+        "job_records",
+        "on_demand_backup",
+        "checksum_recorded",
+        "backup_size_recorded",
+        "restore_separate_database",
+        "migration_validation",
+        "temporary_restore_deploy",
+        "auth_verified",
+        "map_slots_verified",
+        "authorization_verified",
+        "job_metadata_verified",
+        "object_storage_private",
+    },
+    "failure_rollback": {
+        "api_rollback",
+        "worker_rollback",
+        "same_previous_revision",
+        "healthz",
+        "readyz",
+        "version",
+        "login_session_persistence",
+        "map_slots_persisted",
+        "worker_job_recovery",
+        "failed_health_no_traffic_shift",
+        "previous_revision_available",
+        "migration_race_absent",
+        "rollback_command_recorded",
+    },
+    "observability_alerts": {
+        "signal.request_count",
+        "signal.request_duration",
+        "signal.status_codes",
+        "signal.route_templates",
+        "signal.auth_failures",
+        "signal.rate_limit_events",
+        "signal.database_connections",
+        "signal.database_query_latency",
+        "signal.worker_job_state",
+        "signal.export_failures",
+        "signal.cache_hits_misses",
+        "signal.dataset_freshness",
+        "signal.storage_usage",
+        "signal.deployment_revision",
+        "signal.api_worker_health",
+        "alert.api_readiness_failure",
+        "alert.elevated_5xx",
+        "alert.auth_failure_spike",
+        "alert.database_connection_exhaustion",
+        "alert.worker_queue_backlog",
+        "alert.worker_failure",
+        "alert.backup_failure",
+        "alert.storage_quota_pressure",
+        "alert.certificate_expiration",
+        "alert.high_response_latency",
+        "redaction.passwords",
+        "redaction.tokens",
+        "redaction.cookies",
+        "redaction.authorization_headers",
+        "redaction.database_urls",
+        "redaction.smtp_credentials",
+        "redaction.storage_credentials",
+    },
+}
+
+
+def ops_summary_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if not data.get("input_captured_at"):
+        weak.append("ops summary input captured timestamp is missing")
+    results = data.get("results") or {}
+    for section, required_keys in OPS_REQUIRED.items():
+        result = results.get(section) or {}
+        if result.get("verdict") != "pass":
+            weak.append(f"ops {section} verdict is not pass")
+        if result.get("failures"):
+            weak.append(f"ops {section} has failures")
+        if result.get("warnings"):
+            weak.append(f"ops {section} has warnings")
+        rows = {row.get("key"): row.get("value") for row in result.get("rows") or []}
+        for key in sorted(required_keys):
+            if rows.get(key) is not True:
+                weak.append(f"ops {section} required check is not true: {key}")
+    return weak
+
+
 JSON_VALIDATORS = {
     "00-public-staging-preflight.json": preflight_weaknesses,
     "01-image-manifest.json": image_manifest_weaknesses,
     "02-render-deploy.json": render_deploy_weaknesses,
     "auth-email-summary.json": auth_email_summary_weaknesses,
     "browser-map-summary.json": browser_map_summary_weaknesses,
+    "ops-evidence-summary.json": ops_summary_weaknesses,
     "performance-evidence-summary.json": performance_summary_weaknesses,
     "route-security-summary.json": route_security_summary_weaknesses,
 }

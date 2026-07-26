@@ -119,6 +119,8 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
 - `12-backup-restore.md`
 - `13-failure-rollback.md`
 - `14-observability-alerts.md`
+- `ops-evidence-summary.json`, generated beside the ops Markdown reports for
+  strict worker, network-isolation, backup, rollback, observability, and alert checks
 - `15-performance.md`, generated from public staging HAR/probe summaries with
   `scripts/public_staging_performance_report.py`
 - `performance-evidence-summary.json`, generated beside `15-performance.md`

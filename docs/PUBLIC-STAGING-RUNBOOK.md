@@ -205,16 +205,18 @@ python3 scripts/public_staging_ops_reports.py --print-template \
 
 python3 scripts/public_staging_ops_reports.py \
   --input=docs/evidence/public-staging/ops-evidence.json \
-  --output-dir=docs/evidence/public-staging
+  --output-dir=docs/evidence/public-staging \
+  --summary-output=docs/evidence/public-staging/ops-evidence-summary.json
 ```
 
 The input JSON must contain `worker_jobs`, `network_isolation`,
 `backup_restore`, `failure_rollback`, and `observability_alerts` sections. The
 script writes `10-worker-jobs.md`, `11-network-isolation.md`,
 `12-backup-restore.md`, `13-failure-rollback.md`, and
-`14-observability-alerts.md`. Each report gets `Verdict: pass` only when the
-required structured checks are present, true, and secret-free; otherwise it is
-written as `Verdict: investigate`.
+`14-observability-alerts.md`, plus `ops-evidence-summary.json`. Each report gets
+`Verdict: pass`, and the summary validates as pass in the final audit, only when
+the required structured checks are present, true, and secret-free; otherwise the
+evidence remains unproven.
 
 For private-beta registration, set `OASIS_REGISTRATION_ALLOWED_EMAILS` to the
 comma-separated tester list before inviting users. Denied registrations return

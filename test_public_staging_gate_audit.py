@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 
 import scripts.public_staging_gate_audit as audit
+from scripts.public_staging_ops_reports import build_payload as build_ops_payload
+from test_public_staging_ops_reports import _evidence as ops_evidence
 
 
 DIGEST = "sha256:" + "a" * 64
@@ -308,6 +310,36 @@ def test_route_security_summary_requires_auth_inventory_and_headers(tmp_path, mo
     assert any("CSRF rejection status is not 403" in item for item in result["weak"])
 
 
+def test_valid_ops_summary_json_evidence_is_proven(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    (evidence / "ops-evidence-summary.json").write_text(json.dumps(build_ops_payload(ops_evidence())))
+
+    result = audit.evaluate("ops", "Operations", ["ops-evidence-summary.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_ops_summary_requires_worker_network_restore_rollback_and_alerts(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_ops_payload(ops_evidence())
+    _set_ops_row(summary, "worker_jobs", "worker_restart_recovery", False)
+    _set_ops_row(summary, "network_isolation", "api_no_sec", False)
+    _set_ops_row(summary, "backup_restore", "restore_separate_database", False)
+    _set_ops_row(summary, "failure_rollback", "api_rollback", False)
+    _set_ops_row(summary, "observability_alerts", "alert.api_readiness_failure", False)
+    (evidence / "ops-evidence-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("ops", "Operations", ["ops-evidence-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("worker_jobs required check is not true: worker_restart_recovery" in item for item in result["weak"])
+    assert any("network_isolation required check is not true: api_no_sec" in item for item in result["weak"])
+    assert any("backup_restore required check is not true: restore_separate_database" in item for item in result["weak"])
+    assert any("failure_rollback required check is not true: api_rollback" in item for item in result["weak"])
+    assert any("observability_alerts required check is not true: alert.api_readiness_failure" in item for item in result["weak"])
+
+
 def test_image_manifest_json_pass_with_latest_tag_is_weak(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     manifest = _image_manifest()
@@ -355,6 +387,14 @@ def _configure_tmp_audit(tmp_path: Path, monkeypatch) -> Path:
     monkeypatch.setattr(audit, "ROOT", tmp_path)
     monkeypatch.setattr(audit, "EVIDENCE", evidence)
     return evidence
+
+
+def _set_ops_row(summary: dict, section: str, key: str, value: bool) -> None:
+    for row in summary["results"][section]["rows"]:
+        if row.get("key") == key:
+            row["value"] = value
+            return
+    raise AssertionError(f"missing ops summary row: {section}.{key}")
 
 
 def _write_required_docs(tmp_path: Path) -> None:
