@@ -6,6 +6,7 @@ from pathlib import Path
 
 import scripts.public_staging_gate_audit as audit
 from scripts.public_staging_deployment_report import build_payload as build_deployment_payload
+from scripts.public_staging_email_delivery_report import build_payload as build_email_delivery_payload
 from scripts.public_staging_infra_reports import build_payload as build_infra_payload
 from scripts.public_staging_licensing_report import build_payload as build_licensing_payload
 from scripts.public_staging_ops_reports import build_payload as build_ops_payload
@@ -17,6 +18,12 @@ from test_public_staging_deployment_report import (
     _render_deploy as deployment_render_deploy,
     _run as deployment_run,
     _workflow_text as deployment_workflow_text,
+)
+from test_public_staging_email_delivery_report import (
+    _auth_summary as email_delivery_auth_summary,
+    _evidence as email_delivery_evidence,
+    _infra_summary as email_delivery_infra_summary,
+    _ops_summary as email_delivery_ops_summary,
 )
 from test_public_staging_infra_reports import (
     _image_manifest as infra_image_manifest,
@@ -287,6 +294,51 @@ def test_auth_email_summary_requires_single_use_and_enumeration_evidence(tmp_pat
     assert any("verification token reuse status is not 400" in item for item in result["weak"])
     assert any("password_reset_unknown_shape_matches is not True" in item for item in result["weak"])
     assert any("password_reset_token_reuse_status is not 400" in item for item in result["weak"])
+
+
+def test_valid_email_delivery_summary_json_evidence_is_proven(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_email_delivery_payload(
+        email_delivery_evidence(),
+        email_delivery_auth_summary(),
+        email_delivery_infra_summary(),
+        email_delivery_ops_summary(),
+        input_path="email-delivery-evidence.json",
+        auth_path="auth-email-summary.json",
+        infra_path="infra-evidence-summary.json",
+        ops_path="ops-evidence-summary.json",
+    )
+    (evidence / "email-delivery-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("email", "Email delivery", ["email-delivery-summary.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_email_delivery_summary_requires_sender_retry_and_cross_checks(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_email_delivery_payload(
+        email_delivery_evidence(),
+        email_delivery_auth_summary(),
+        email_delivery_infra_summary(),
+        email_delivery_ops_summary(),
+        input_path="email-delivery-evidence.json",
+        auth_path="auth-email-summary.json",
+        infra_path="infra-evidence-summary.json",
+        ops_path="ops-evidence-summary.json",
+    )
+    _set_email_delivery_row(summary, "provider_configuration", "sender_domain_verified", False)
+    _set_email_delivery_row(summary, "failure_handling", "delivery_failure_retried_through_worker", False)
+    _set_email_delivery_row(summary, "cross_checks", "ops_worker_retry_summary_pass", False)
+    (evidence / "email-delivery-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("email", "Email delivery", ["email-delivery-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("provider_configuration required check is not true: sender_domain_verified" in item for item in result["weak"])
+    assert any("failure_handling required check is not true: delivery_failure_retried_through_worker" in item for item in result["weak"])
+    assert any("cross_checks required check is not true: ops_worker_retry_summary_pass" in item for item in result["weak"])
 
 
 def test_valid_browser_map_summary_json_evidence_is_proven(tmp_path, monkeypatch):
@@ -702,6 +754,14 @@ def _set_storage_row(summary: dict, section: str, key: str, value: bool) -> None
             row["value"] = value
             return
     raise AssertionError(f"missing storage summary row: {section}.{key}")
+
+
+def _set_email_delivery_row(summary: dict, section: str, key: str, value: bool) -> None:
+    for row in summary[section]["rows"]:
+        if row.get("key") == key:
+            row["value"] = value
+            return
+    raise AssertionError(f"missing email-delivery summary row: {section}.{key}")
 
 
 def _write_required_docs(tmp_path: Path) -> None:

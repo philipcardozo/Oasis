@@ -58,6 +58,7 @@ GENERATED_MARKDOWN = {
     "17-licensing-gates.md",
     "18-rate-limiting.md",
     "19-object-storage.md",
+    "20-email-delivery.md",
 }
 
 MARKDOWN_REQUIRED_TEXT = {
@@ -166,6 +167,14 @@ MARKDOWN_REQUIRED_TEXT = {
         "## Export Failure Behavior",
         "## Cross Checks",
     ],
+    "20-email-delivery.md": [
+        "# Public Staging Email Delivery Evidence",
+        "## Provider Configuration",
+        "## Delivery Flows",
+        "## Token Safety",
+        "## Failure Handling",
+        "## Cross Checks",
+    ],
 }
 
 REQUIRED_DOCS = [
@@ -194,7 +203,7 @@ REQUIREMENTS = [
     ("managed_postgres", "Managed PostgreSQL", ["04-render-services.md", "05-migration-version.md", "infra-evidence-summary.json"], []),
     ("persistent_storage", "Persistent object and database storage", ["04-render-services.md", "12-backup-restore.md", "19-object-storage.md", "ops-evidence-summary.json", "storage-summary.json"], []),
     ("reverse_proxy", "Public reverse-proxy behavior", ["00-public-staging-preflight.json", "02-dns-tls-edge.md", "infra-evidence-summary.json"], []),
-    ("email_delivery", "Authentication email delivery", ["06-auth-email.md", "auth-email-summary.json"], []),
+    ("email_delivery", "Authentication email delivery", ["06-auth-email.md", "20-email-delivery.md", "auth-email-summary.json", "email-delivery-summary.json"], []),
     ("api_worker_separation", "API and worker separation", ["02-render-deploy.json", "10-worker-jobs.md", "ops-evidence-summary.json"], []),
     ("attack_surface", "External attack-surface controls", ["03-cloudflare-access.md", "09-route-security.md", "route-security-summary.json"], []),
     ("rate_limiting", "Rate limiting", ["09-route-security.md", "18-rate-limiting.md", "rate-limit-summary.json"], []),
@@ -222,7 +231,7 @@ ACCEPTANCE = [
     ("postgres_backed_up", "PostgreSQL is persistent and backed up", ["12-backup-restore.md", "ops-evidence-summary.json"]),
     ("explicit_migrations", "Migrations complete explicitly", ["05-migration-version.md", "infra-evidence-summary.json"]),
     ("api_worker_separate", "API and worker are separate", ["02-render-deploy.json", "10-worker-jobs.md", "ops-evidence-summary.json"]),
-    ("auth_email", "Email verification and password reset work", ["06-auth-email.md", "auth-email-summary.json"]),
+    ("auth_email", "Email verification and password reset work", ["06-auth-email.md", "20-email-delivery.md", "auth-email-summary.json", "email-delivery-summary.json"]),
     ("secure_cookies", "Session cookies are secure", ["06-auth-email.md", "auth-email-summary.json", "00-public-staging-preflight.json"]),
     ("csrf", "CSRF works", ["09-route-security.md", "route-security-summary.json"]),
     ("route_classification", "Every route has explicit security classification", ["09-route-security.md", "route-security-summary.json"]),
@@ -665,6 +674,73 @@ def auth_email_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("auth-email base URL is not HTTPS")
     if not data.get("auth_captured_at"):
         weak.append("auth-email captured timestamp is missing")
+    return weak
+
+
+EMAIL_DELIVERY_REQUIRED = {
+    "provider_configuration": {
+        "transactional_service_configured",
+        "smtp_backend_in_secure_mode",
+        "staging_or_sandbox_mode",
+        "non_production_sender_identity",
+        "sender_domain_verified",
+        "spf_configured",
+        "dkim_configured",
+        "dmarc_configured",
+        "absolute_links_staging_hostname",
+        "no_production_sender_identity",
+    },
+    "delivery_flows": {
+        "registration_verification_delivered",
+        "password_reset_delivered",
+        "security_notices_supported_or_not_applicable",
+        "provider_message_ids_recorded",
+        "public_hostname_in_email_links",
+        "no_token_values_in_evidence",
+    },
+    "token_safety": {
+        "verification_tokens_single_use",
+        "reset_tokens_single_use",
+        "verification_token_expiry_configured",
+        "reset_token_expiry_configured",
+        "tokens_not_logged",
+        "user_enumeration_prevented",
+    },
+    "failure_handling": {
+        "smtp_failure_probe_recorded",
+        "delivery_failure_retried_through_worker",
+        "retry_bounded",
+        "dead_letter_or_terminal_failure_recorded",
+        "request_remains_enumeration_resistant",
+        "tokens_not_exposed_on_failure",
+    },
+    "cross_checks": {
+        "auth_email_summary_pass",
+        "infra_email_summary_pass",
+        "ops_worker_retry_summary_pass",
+    },
+}
+
+
+def email_delivery_summary_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if data.get("verdict") != "pass":
+        weak.append("email-delivery summary verdict is not pass")
+    if data.get("failures"):
+        weak.append("email-delivery summary has failures")
+    if not data.get("input_captured_at"):
+        weak.append("email-delivery input captured timestamp is missing")
+    if urlparse(str(data.get("base_url") or "")).scheme != "https":
+        weak.append("email-delivery base URL is not HTTPS")
+    if not str(data.get("provider") or ""):
+        weak.append("email-delivery provider is missing")
+    if not str(data.get("sender_domain_alias") or ""):
+        weak.append("email-delivery sender domain alias is missing")
+    for section, required_keys in EMAIL_DELIVERY_REQUIRED.items():
+        rows = {row.get("key"): row.get("value") for row in (data.get(section) or {}).get("rows") or []}
+        for key in sorted(required_keys):
+            if rows.get(key) is not True:
+                weak.append(f"email-delivery {section} required check is not true: {key}")
     return weak
 
 
@@ -1294,6 +1370,7 @@ JSON_VALIDATORS = {
     "auth-email-summary.json": auth_email_summary_weaknesses,
     "browser-map-summary.json": browser_map_summary_weaknesses,
     "deployment-automation-summary.json": deployment_summary_weaknesses,
+    "email-delivery-summary.json": email_delivery_summary_weaknesses,
     "infra-evidence-summary.json": infra_summary_weaknesses,
     "licensing-summary.json": licensing_summary_weaknesses,
     "ops-evidence-summary.json": ops_summary_weaknesses,

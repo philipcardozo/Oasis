@@ -249,6 +249,33 @@ password-reset tokens and sends an unknown-account reset request; token reuse
 must be rejected and known/unknown reset responses must keep the same generic
 shape.
 
+Generate transactional-email delivery evidence after auth, infra, and ops
+summaries exist:
+
+```bash
+python3 scripts/public_staging_email_delivery_report.py --print-template \
+  > /tmp/oasis-email-delivery-evidence.template.json
+
+# Fill this file from provider settings, delivered messages, and failure probes:
+# docs/evidence/public-staging/email-delivery-evidence.json
+
+python3 scripts/public_staging_email_delivery_report.py \
+  --input=docs/evidence/public-staging/email-delivery-evidence.json \
+  --auth-email-summary=docs/evidence/public-staging/auth-email-summary.json \
+  --infra-summary=docs/evidence/public-staging/infra-evidence-summary.json \
+  --ops-summary=docs/evidence/public-staging/ops-evidence-summary.json \
+  --output=docs/evidence/public-staging/20-email-delivery.md \
+  --summary-output=docs/evidence/public-staging/email-delivery-summary.json
+```
+
+Record only sanitized evidence: provider name, sender-domain alias, DNS
+alignment booleans, message-ID presence, public-hostname link checks,
+token-redaction checks, unknown-account reset parity, and bounded retry/failure
+status. Do not include full email addresses, raw message bodies with tokens,
+SMTP credentials, provider account IDs, private log URLs, cookies, or
+authorization headers. The generated report and summary must show
+`Verdict: pass`; otherwise transactional email delivery remains unproven.
+
 Generate route-security evidence from the public route probe and auth/security
 summaries:
 
@@ -369,6 +396,10 @@ unresolved providers remain disabled and unused in the public browser/map
 capture.
 Rate-limit evidence must prove edge controls, trusted client-IP handling, route
 family probes, and an acceptable one-replica or shared-store limiter shape.
+Email-delivery evidence must prove staging/sandbox sender configuration,
+sender-domain DNS alignment, delivered verification/reset messages, token
+redaction, enumeration resistance, and bounded worker retry for delivery
+failures.
 Object-storage evidence must prove private default access, no public listing,
 expiring signed authorization, ownership checks, lifecycle expiration, size and
 content-type validation, and bounded export behavior when storage is

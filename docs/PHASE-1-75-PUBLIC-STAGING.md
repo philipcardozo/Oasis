@@ -118,6 +118,12 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
 - `auth-email-summary.json`, generated beside `06-auth-email.md` for strict
   email verification, password-reset, secure-cookie, CSRF, session revocation,
   logout-all, password-change, and account-deletion checks
+- `20-email-delivery.md`, generated from transactional-email provider,
+  delivery, token-safety, and failure-retry evidence with
+  `scripts/public_staging_email_delivery_report.py`
+- `email-delivery-summary.json`, generated beside `20-email-delivery.md` for
+  strict sender-domain, staging/sandbox sender, token redaction, enumeration,
+  and bounded retry checks
 - `07-browser-matrix.md`
 - `08-map-provider-capture.md`
 - `browser-map-summary.json`, generated beside the browser/map Markdown reports

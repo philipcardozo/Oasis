@@ -966,6 +966,23 @@ python3 scripts/public_staging_auth_email_report.py \
   --output=docs/evidence/public-staging/06-auth-email.md \
   --summary-output=docs/evidence/public-staging/auth-email-summary.json
 
+python3 scripts/public_staging_email_delivery_report.py --print-template \
+  > /tmp/oasis-email-delivery-evidence.template.json
+
+Create docs/evidence/public-staging/email-delivery-evidence.json from
+sanitized provider settings, delivered-message status, DNS/sender-domain
+configuration, and a controlled delivery-failure retry probe. Do not include
+full email addresses, raw message bodies with tokens, SMTP credentials, provider
+account IDs, private log URLs, cookies, or authorization headers.
+
+python3 scripts/public_staging_email_delivery_report.py \
+  --input=docs/evidence/public-staging/email-delivery-evidence.json \
+  --auth-email-summary=docs/evidence/public-staging/auth-email-summary.json \
+  --infra-summary=docs/evidence/public-staging/infra-evidence-summary.json \
+  --ops-summary=docs/evidence/public-staging/ops-evidence-summary.json \
+  --output=docs/evidence/public-staging/20-email-delivery.md \
+  --summary-output=docs/evidence/public-staging/email-delivery-summary.json
+
 Verify:
 - registration and verification returned expected generic/success responses
 - password reset request and completion succeeded
@@ -982,6 +999,8 @@ Verify:
 - verification and password-reset tokens are rejected when reused
 - unknown-account password reset returns the same generic response shape as a
   known-account reset request
+- staging/sandbox sender identity, SPF/DKIM/DMARC, token redaction, public
+  hostname links, and bounded worker retry for delivery failure are proven
 - no passwords, tokens, cookies, authorization values, or complete emails are
   stored in the evidence file
 
