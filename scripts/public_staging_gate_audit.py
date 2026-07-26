@@ -617,6 +617,8 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
             weak.append(f"performance summary {name} recorded console errors")
         if int(row.get("failed_requests") or 0):
             weak.append(f"performance summary {name} recorded failed requests")
+        if int(row.get("sensitive_url_count") or 0):
+            weak.append(f"performance summary {name} recorded sensitive URL query values")
 
     direct_flows = list(browser.get("direct_flows") or [])
     if browser.get("direct_comparison_present") and not direct_flows:
@@ -636,6 +638,8 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
             weak.append(f"performance summary direct {name} recorded console errors")
         if int(row.get("failed_requests") or 0):
             weak.append(f"performance summary direct {name} recorded failed requests")
+        if int(row.get("sensitive_url_count") or 0):
+            weak.append(f"performance summary direct {name} recorded sensitive URL query values")
 
     preflight = data.get("preflight") or {}
     if preflight.get("verdict") != "pass":

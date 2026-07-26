@@ -120,6 +120,7 @@ def flow_rows(summary: dict[str, Any]) -> list[dict[str, Any]]:
             "unpkg": bool(flow.get("requestedUnpkg")),
             "console_errors": len(flow.get("consoleErrors") or []),
             "failed_requests": int(flow.get("failedRequestCount") or 0),
+            "sensitive_url_count": int(flow.get("sensitiveUrlCount") or 0),
             "external_hosts": flow.get("externalHosts") or [],
             "har_path": flow.get("harPath"),
         })
@@ -170,6 +171,8 @@ def flow_failures(rows: list[dict[str, Any]], label: str) -> list[str]:
         failures.append(f"{label} capture recorded console errors")
     if any(row["failed_requests"] for row in rows):
         failures.append(f"{label} capture recorded failed requests")
+    if any(row["sensitive_url_count"] for row in rows):
+        failures.append(f"{label} capture recorded sensitive URL query values")
     for row in rows:
         name = row.get("name") or "unknown flow"
         har_path = str(row.get("har_path") or "")
@@ -518,8 +521,8 @@ def markdown(payload: dict[str, Any]) -> str:
         "",
         "## Browser Flows",
         "",
-        "| Flow | Requests | Transfer KB | DOMContentLoaded ms | Load ms | Bulk | unpkg | Console errors | External hosts |",
-        "|---|---:|---:|---:|---:|---|---|---:|---|",
+        "| Flow | Requests | Transfer KB | DOMContentLoaded ms | Load ms | Bulk | unpkg | Console errors | Sensitive URLs | External hosts |",
+        "|---|---:|---:|---:|---:|---|---|---:|---:|---|",
     ]
     for row in payload["browser"]["flows"]:
         hosts = ", ".join(row["external_hosts"]) or "-"
@@ -527,7 +530,7 @@ def markdown(payload: dict[str, Any]) -> str:
             f"| {row['name']} | {row['requests']} | {row['transfer_kb']} | "
             f"{row['dom_content_loaded_ms']} | {row['load_event_ms']} | "
             f"{md_bool(row['bulk'])} | {md_bool(row['unpkg'])} | "
-            f"{row['console_errors']} | {hosts} |"
+            f"{row['console_errors']} | {row['sensitive_url_count']} | {hosts} |"
         )
 
     if payload["browser"]["direct_flows"]:
@@ -535,8 +538,8 @@ def markdown(payload: dict[str, Any]) -> str:
             "",
             "## Direct Browser Flows",
             "",
-            "| Flow | Requests | Transfer KB | DOMContentLoaded ms | Load ms | Bulk | unpkg | Console errors | External hosts |",
-            "|---|---:|---:|---:|---:|---|---|---:|---|",
+            "| Flow | Requests | Transfer KB | DOMContentLoaded ms | Load ms | Bulk | unpkg | Console errors | Sensitive URLs | External hosts |",
+            "|---|---:|---:|---:|---:|---|---|---:|---:|---|",
         ])
         for row in payload["browser"]["direct_flows"]:
             hosts = ", ".join(row["external_hosts"]) or "-"
@@ -544,7 +547,7 @@ def markdown(payload: dict[str, Any]) -> str:
                 f"| {row['name']} | {row['requests']} | {row['transfer_kb']} | "
                 f"{row['dom_content_loaded_ms']} | {row['load_event_ms']} | "
                 f"{md_bool(row['bulk'])} | {md_bool(row['unpkg'])} | "
-                f"{row['console_errors']} | {hosts} |"
+                f"{row['console_errors']} | {row['sensitive_url_count']} | {hosts} |"
             )
 
     auth_rows_ = payload["auth_map_slot"]["rows"]

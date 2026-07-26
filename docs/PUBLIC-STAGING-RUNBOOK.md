@@ -142,6 +142,7 @@ capture, run the direct comparison against the same public staging URL without
 and direct browser flow rows for first paint, reload, search intent, map
 interactions, DCF workbook fetch, entity drawer, data-quality panel, and report
 preview, with a HAR reference for every row under `docs/evidence/performance/`.
+Each row must record zero sensitive URL query values.
 Then fill the supplemental public performance evidence file from external
 location probes and provider metrics, and generate the performance evidence
 report:

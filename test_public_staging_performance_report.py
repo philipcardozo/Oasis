@@ -118,6 +118,25 @@ def test_public_staging_performance_report_requires_har_paths(tmp_path):
     assert "direct browser capture HAR path is missing or invalid: 26-public-staging-04-local-reload" in text
 
 
+def test_public_staging_performance_report_rejects_sensitive_urls(tmp_path):
+    browser = tmp_path / "browser.json"
+    direct = tmp_path / "direct-browser.json"
+    output = tmp_path / "15-performance.md"
+    proxied = _browser_summary(bulk=False)
+    proxied["flows"]["26-public-staging-03-local-first-paint"]["sensitiveUrlCount"] = 1
+    direct_data = _browser_summary(bulk=False, proxy_server=None)
+    direct_data["flows"]["26-public-staging-04-local-reload"]["sensitiveUrlCount"] = 2
+    browser.write_text(json.dumps(proxied))
+    direct.write_text(json.dumps(direct_data))
+
+    result = _run_report(browser, output, direct=direct)
+
+    assert result.returncode == 1
+    text = output.read_text()
+    assert "browser capture recorded sensitive URL query values" in text
+    assert "direct browser capture recorded sensitive URL query values" in text
+
+
 def test_public_staging_performance_report_requires_two_external_locations(tmp_path):
     browser = tmp_path / "browser.json"
     supplemental = tmp_path / "performance-supplemental.json"
@@ -226,6 +245,7 @@ def _browser_summary(*, bulk: bool, proxy_server: str | None = "http://127.0.0.1
                 "requestedUnpkg": False,
                 "consoleErrors": [],
                 "failedRequestCount": 0,
+                "sensitiveUrlCount": 0,
                 "externalHosts": [],
                 "harPath": f"docs/evidence/performance/26-public-staging-{suffix}.har",
             }

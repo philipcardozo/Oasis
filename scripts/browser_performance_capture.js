@@ -25,6 +25,7 @@ const SUMMARY_FILE = args.get("summary-file") || `${FLOW_PREFIX || "11-browser"}
 const NO_START_SERVER = args.get("no-start-server") === "true";
 const IGNORE_HTTPS_ERRORS = args.get("ignore-https-errors") === "true"
   || (/^https:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(BASE_URL) && args.get("ignore-https-errors") !== "false");
+const SENSITIVE_QUERY_RE = /(?:^|[_-])(?:token|code|secret|password|passwd|key|authorization|credential|session)(?:$|[_-])/i;
 
 function flowName(name) {
   return FLOW_PREFIX ? `${FLOW_PREFIX}-${name}` : name;
@@ -89,8 +90,24 @@ function gitValue(...gitArgs) {
   }
 }
 
+function sanitizeUrl(rawUrl) {
+  try {
+    const url = new URL(rawUrl);
+    let sensitive = false;
+    for (const [name, value] of [...url.searchParams.entries()]) {
+      if (SENSITIVE_QUERY_RE.test(name) && value && value !== "redacted") {
+        url.searchParams.set(name, "redacted");
+        sensitive = true;
+      }
+    }
+    return {url: url.toString(), sensitive};
+  } catch (_) {
+    return {url: rawUrl, sensitive: false};
+  }
+}
+
 function requestKey(request) {
-  return `${request.method()} ${request.url()}`;
+  return `${request.method()} ${sanitizeUrl(request.url()).url}`;
 }
 
 async function summarizeFlow(page, requests, consoleErrors, extra = {}) {
@@ -104,6 +121,10 @@ async function summarizeFlow(page, requests, consoleErrors, extra = {}) {
       duration: Number(r.duration.toFixed(2)),
     }))
   ).catch(() => []);
+  const sanitizedResources = resources.map(resource => {
+    const sanitized = sanitizeUrl(resource.name);
+    return {...resource, name: sanitized.url, sensitiveUrl: sanitized.sensitive};
+  });
   const navigation = await page.evaluate(() => {
     const nav = performance.getEntriesByType("navigation")[0];
     if (!nav) return null;
@@ -131,6 +152,7 @@ async function summarizeFlow(page, requests, consoleErrors, extra = {}) {
     .map(r => ({
       method: r.method,
       url: r.url,
+      sensitiveUrl: r.sensitiveUrl || false,
       status: r.status,
       resourceType: r.resourceType,
       durationMs: Number(r.durationMs.toFixed(2)),
@@ -151,6 +173,10 @@ async function summarizeFlow(page, requests, consoleErrors, extra = {}) {
     .filter(Boolean))]
     .sort();
   const resourceTransferBytes = resources.reduce((n, r) => n + Number(r.transferSize || 0), 0);
+  const sensitiveUrls = [...new Set([
+    ...requests.filter(r => r.sensitiveUrl).map(r => r.url),
+    ...sanitizedResources.filter(r => r.sensitiveUrl).map(r => r.name),
+  ])].sort();
   return {
     requestCount: requests.length,
     failedRequestCount: requests.filter(r => r.failure).length,
@@ -161,11 +187,13 @@ async function summarizeFlow(page, requests, consoleErrors, extra = {}) {
     mapStudioState: await page.evaluate(() => window.mapStudioState?.()).catch(() => null),
     requestedUniverseBulk: requests.some(r => r.url.includes("/api/universe/bulk")),
     requestedUnpkg: requests.some(r => /unpkg\.com/.test(r.url)),
+    sensitiveUrlCount: sensitiveUrls.length,
+    sensitiveUrlExamples: sensitiveUrls.slice(0, 10),
     externalHosts,
     duplicates,
     slowest,
     consoleErrors,
-    resourceSummary: resources
+    resourceSummary: sanitizedResources
       .sort((a, b) => b.transferSize - a.transferSize)
       .slice(0, 20),
     ...extra,
@@ -175,10 +203,12 @@ async function summarizeFlow(page, requests, consoleErrors, extra = {}) {
 function attachPageListeners(page, requests, consoleErrors) {
   const active = new Map();
   page.on("request", request => {
+    const sanitized = sanitizeUrl(request.url());
     const record = {
       key: requestKey(request),
       method: request.method(),
-      url: request.url(),
+      url: sanitized.url,
+      sensitiveUrl: sanitized.sensitive,
       resourceType: request.resourceType(),
       startedAt: Date.now(),
     };
@@ -367,7 +397,11 @@ async function main() {
   console.log(`Wrote browser performance summary to ${out}`);
 }
 
-main().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch(err => {
+    console.error(err);
+    process.exit(1);
+  });
+}
+
+module.exports = {sanitizeUrl};
