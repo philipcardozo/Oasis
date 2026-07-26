@@ -160,7 +160,8 @@ python3 scripts/public_staging_performance_report.py \
 
 The supplemental file must record at least two external network locations, DNS,
 TCP, TLS, TTFB, initial transferred bytes, initial request count, map
-initialization timing, search/comps/export-job p50 and p95, API and worker CPU
+initialization timing, Web Vitals (`lcp_ms`, `inp_ms`, `cls`, `fcp_ms`,
+`ttfb_ms`, `tbt_ms`), search/comps/export-job p50 and p95, API and worker CPU
 and memory, database connections, queue depth, and error rate. Keep the file
 secret-free; do not include cookies, authorization headers, private provider
 URLs, or raw telemetry links.

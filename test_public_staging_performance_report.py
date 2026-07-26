@@ -50,6 +50,7 @@ def test_public_staging_performance_report_passes_with_required_evidence(tmp_pat
     assert data["auth_map_slot"]["rows"][0]["p95_ms"] == 10
     assert len(data["supplemental"]["external_locations"]) == 2
     assert data["supplemental"]["runtime_resources"][0]["key"] == "api_cpu_percent"
+    assert data["supplemental"]["web_vitals"][0]["key"] == "lcp_ms"
 
 
 def test_public_staging_performance_report_fails_when_first_paint_loads_bulk(tmp_path):
@@ -91,6 +92,26 @@ def test_public_staging_performance_report_requires_runtime_resources(tmp_path):
 
     assert result.returncode == 1
     assert "runtime resource metric is missing: worker_memory_mb" in output.read_text()
+
+
+def test_public_staging_performance_report_requires_good_web_vitals(tmp_path):
+    browser = tmp_path / "browser.json"
+    supplemental = tmp_path / "performance-supplemental.json"
+    output = tmp_path / "15-performance.md"
+    browser.write_text(json.dumps(_browser_summary(bulk=False)))
+    data = _supplemental()
+    data["web_vitals"]["lcp_ms"] = 2501
+    data["web_vitals"]["inp_ms"] = 0
+    data["web_vitals"]["cls"] = None
+    supplemental.write_text(json.dumps(data))
+
+    result = _run_report(browser, output, supplemental=supplemental)
+
+    assert result.returncode == 1
+    text = output.read_text()
+    assert "web vital metric exceeds good threshold: lcp_ms" in text
+    assert "web vital metric is not positive: inp_ms" in text
+    assert "web vital metric is missing: cls" in text
 
 
 def _run_report(
@@ -202,5 +223,13 @@ def _supplemental() -> dict:
             "database_connections": 4,
             "queue_depth": 0,
             "error_rate": 0,
+        },
+        "web_vitals": {
+            "lcp_ms": 1200,
+            "inp_ms": 120,
+            "cls": 0.02,
+            "fcp_ms": 900,
+            "ttfb_ms": 120,
+            "tbt_ms": 30,
         },
     }

@@ -1071,7 +1071,8 @@ python3 scripts/public_staging_performance_report.py --print-supplemental-templa
 
 Fill it from at least two external network locations and provider/runtime
 metrics. It must include DNS, TCP, TLS, TTFB, initial transferred bytes, initial
-request count, map initialization, search p50/p95, comps p50/p95, export-job
+request count, map initialization, Web Vitals (`lcp_ms`, `inp_ms`, `cls`,
+`fcp_ms`, `ttfb_ms`, `tbt_ms`), search p50/p95, comps p50/p95, export-job
 creation p50/p95, API CPU/memory, worker CPU/memory, database connections,
 queue depth, and error rate. Do not include cookies, authorization headers,
 private provider URLs, account IDs, or raw telemetry links.

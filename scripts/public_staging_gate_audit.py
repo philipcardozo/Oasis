@@ -40,6 +40,15 @@ SAFE_COOKIE_METADATA_FIELDS = {
     "session_cookie_path",
     "session_cookie_samesite",
 }
+WEB_VITAL_THRESHOLDS = {
+    "lcp_ms": 2500,
+    "inp_ms": 200,
+    "cls": 0.1,
+    "fcp_ms": 1800,
+    "ttfb_ms": 800,
+    "tbt_ms": 200,
+}
+POSITIVE_WEB_VITALS = {"lcp_ms", "inp_ms", "fcp_ms", "ttfb_ms"}
 SENSITIVE_KEY_RE = re.compile(
     r"(password|passwd|token|cookie|authorization|secret|api[_-]?key|private[_-]?key|credential|database[_-]?url)",
     re.IGNORECASE,
@@ -626,6 +635,20 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         value = resource_rows.get(key)
         if not isinstance(value, (int, float)) or value < 0:
             weak.append(f"performance summary runtime resource metric is missing: {key}")
+
+    vital_rows = {row.get("key"): row for row in supplemental.get("web_vitals") or []}
+    for key, threshold in WEB_VITAL_THRESHOLDS.items():
+        row = vital_rows.get(key)
+        if not row:
+            weak.append(f"performance summary web vital metric is missing: {key}")
+            continue
+        value = row.get("value")
+        if not isinstance(value, (int, float)) or value < 0:
+            weak.append(f"performance summary web vital metric is missing: {key}")
+        elif key in POSITIVE_WEB_VITALS and value <= 0:
+            weak.append(f"performance summary web vital metric is not positive: {key}")
+        elif value > threshold:
+            weak.append(f"performance summary web vital metric exceeds good threshold: {key}")
     return weak
 
 

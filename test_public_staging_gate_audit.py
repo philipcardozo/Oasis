@@ -468,6 +468,22 @@ def test_performance_summary_requires_external_locations_and_runtime_resources(t
     assert any("runtime resource metric is missing: worker_memory_mb" in item for item in result["weak"])
 
 
+def test_performance_summary_requires_good_web_vitals(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _performance_summary()
+    summary["supplemental"]["web_vitals"][0]["value"] = 2501
+    summary["supplemental"]["web_vitals"][1]["value"] = 0
+    summary["supplemental"]["web_vitals"][2]["value"] = None
+    (evidence / "performance-evidence-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("performance", "Performance", ["performance-evidence-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("web vital metric exceeds good threshold: lcp_ms" in item for item in result["weak"])
+    assert any("web vital metric is not positive: inp_ms" in item for item in result["weak"])
+    assert any("web vital metric is missing: cls" in item for item in result["weak"])
+
+
 def test_valid_route_security_summary_json_evidence_is_proven(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     (evidence / "route-security-summary.json").write_text(json.dumps(_route_security_summary()))
@@ -1167,6 +1183,14 @@ def _performance_summary() -> dict:
                 {"key": "database_connections", "value": 4},
                 {"key": "queue_depth", "value": 0},
                 {"key": "error_rate", "value": 0},
+            ],
+            "web_vitals": [
+                {"key": "lcp_ms", "value": 1200, "good_threshold": 2500},
+                {"key": "inp_ms", "value": 120, "good_threshold": 200},
+                {"key": "cls", "value": 0.02, "good_threshold": 0.1},
+                {"key": "fcp_ms", "value": 900, "good_threshold": 1800},
+                {"key": "ttfb_ms", "value": 120, "good_threshold": 800},
+                {"key": "tbt_ms", "value": 30, "good_threshold": 200},
             ],
         },
     }

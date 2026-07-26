@@ -41,6 +41,16 @@ RUNTIME_REQUIRED = {
     "error_rate": "error rate",
 }
 
+WEB_VITAL_REQUIRED = {
+    "lcp_ms": ("LCP", 2500),
+    "inp_ms": ("INP", 200),
+    "cls": ("CLS", 0.1),
+    "fcp_ms": ("FCP", 1800),
+    "ttfb_ms": ("TTFB", 800),
+    "tbt_ms": ("TBT", 200),
+}
+POSITIVE_WEB_VITALS = {"lcp_ms", "inp_ms", "fcp_ms", "ttfb_ms"}
+
 
 def git_value(*args: str) -> str:
     try:
@@ -180,6 +190,14 @@ def supplemental_template() -> dict[str, Any]:
             "queue_depth": 0,
             "error_rate": 0,
         },
+        "web_vitals": {
+            "lcp_ms": 0,
+            "inp_ms": 0,
+            "cls": 0,
+            "fcp_ms": 0,
+            "ttfb_ms": 0,
+            "tbt_ms": 0,
+        },
     }
 
 
@@ -222,6 +240,21 @@ def supplemental_runtime_rows(supplemental: dict[str, Any] | None) -> list[dict[
     return [
         {"key": key, "label": label, "value": resources.get(key)}
         for key, label in RUNTIME_REQUIRED.items()
+    ]
+
+
+def supplemental_vital_rows(supplemental: dict[str, Any] | None) -> list[dict[str, Any]]:
+    if not supplemental:
+        return []
+    vitals = supplemental.get("web_vitals") or {}
+    return [
+        {
+            "key": key,
+            "label": label,
+            "value": vitals.get(key),
+            "good_threshold": threshold,
+        }
+        for key, (label, threshold) in WEB_VITAL_REQUIRED.items()
     ]
 
 
@@ -308,6 +341,16 @@ def evaluate(
             if not non_negative_number(row.get("value")):
                 failures.append(f"runtime resource metric is missing: {row['key']}")
 
+        for row in supplemental_vital_rows(supplemental):
+            key = row["key"]
+            value = row.get("value")
+            if not non_negative_number(value):
+                failures.append(f"web vital metric is missing: {key}")
+            elif key in POSITIVE_WEB_VITALS and float(value) <= 0:
+                failures.append(f"web vital metric is not positive: {key}")
+            elif float(value) > float(row["good_threshold"]):
+                failures.append(f"web vital metric exceeds good threshold: {key}")
+
     return failures, warnings
 
 
@@ -364,6 +407,7 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
             "external_locations": supplemental_location_rows(supplemental),
             "app_layer": supplemental_app_rows(supplemental),
             "runtime_resources": supplemental_runtime_rows(supplemental),
+            "web_vitals": supplemental_vital_rows(supplemental),
         },
         "failures": failures,
         "warnings": warnings,
@@ -476,6 +520,17 @@ def markdown(payload: dict[str, Any]) -> str:
         ])
         for row in supplemental["runtime_resources"]:
             lines.append(f"| {row['label']} | {row['value']} |")
+
+    if supplemental["web_vitals"]:
+        lines.extend([
+            "",
+            "## Web Vitals",
+            "",
+            "| Metric | Value | Good threshold |",
+            "|---|---:|---:|",
+        ])
+        for row in supplemental["web_vitals"]:
+            lines.append(f"| {row['label']} | {row['value']} | {row['good_threshold']} |")
 
     lines.extend([
         "",
