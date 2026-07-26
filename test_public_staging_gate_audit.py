@@ -5,7 +5,14 @@ import json
 from pathlib import Path
 
 import scripts.public_staging_gate_audit as audit
+from scripts.public_staging_infra_reports import build_payload as build_infra_payload
 from scripts.public_staging_ops_reports import build_payload as build_ops_payload
+from test_public_staging_infra_reports import (
+    _image_manifest as infra_image_manifest,
+    _infra as infra_evidence,
+    _preflight as infra_preflight,
+    _render_deploy as infra_render_deploy,
+)
 from test_public_staging_ops_reports import _evidence as ops_evidence
 
 
@@ -340,6 +347,47 @@ def test_ops_summary_requires_worker_network_restore_rollback_and_alerts(tmp_pat
     assert any("observability_alerts required check is not true: alert.api_readiness_failure" in item for item in result["weak"])
 
 
+def test_valid_infra_summary_json_evidence_is_proven(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_infra_payload(infra_evidence(), infra_preflight(), infra_render_deploy(), infra_image_manifest())
+    (evidence / "infra-evidence-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("infra", "Infrastructure", ["infra-evidence-summary.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_infra_summary_requires_dns_access_render_and_migration_sections(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_infra_payload(infra_evidence(), infra_preflight(), infra_render_deploy(), infra_image_manifest())
+    summary["results"]["dns_tls_edge"]["verdict"] = "investigate"
+    _set_infra_row(summary, "dns_tls_edge", "TLS ok", False)
+    summary["results"]["cloudflare_access"]["failures"] = ["service-token probe did not return 200"]
+    _set_infra_row(summary, "cloudflare_access", "service-token status", 403)
+    summary["results"]["render_services"]["rows"] = [
+        row for row in summary["results"]["render_services"]["rows"]
+        if row.get("label") != "Render managed PostgreSQL exists"
+    ]
+    summary["results"]["migration_version"]["rows"] = [
+        row for row in summary["results"]["migration_version"]["rows"]
+        if row.get("label") != "DATABASE_URL redacted"
+    ]
+    _set_infra_row(summary, "migration_version", "current revision", "deadbeef")
+    (evidence / "infra-evidence-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("infra", "Infrastructure", ["infra-evidence-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("dns_tls_edge verdict is not pass" in item for item in result["weak"])
+    assert any("dns_tls_edge TLS ok is not True" in item for item in result["weak"])
+    assert any("cloudflare_access has failures" in item for item in result["weak"])
+    assert any("cloudflare_access service-token status is not 200" in item for item in result["weak"])
+    assert any("render_services missing row: Render managed PostgreSQL exists" in item for item in result["weak"])
+    assert any("migration_version missing row: DATABASE_URL redacted" in item for item in result["weak"])
+    assert any("migration_version current revision is not 29995ef61d8e" in item for item in result["weak"])
+
+
 def test_image_manifest_json_pass_with_latest_tag_is_weak(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     manifest = _image_manifest()
@@ -395,6 +443,14 @@ def _set_ops_row(summary: dict, section: str, key: str, value: bool) -> None:
             row["value"] = value
             return
     raise AssertionError(f"missing ops summary row: {section}.{key}")
+
+
+def _set_infra_row(summary: dict, section: str, label: str, value: object) -> None:
+    for row in summary["results"][section]["rows"]:
+        if row.get("label") == label:
+            row["value"] = value
+            return
+    raise AssertionError(f"missing infra summary row: {section}.{label}")
 
 
 def _write_required_docs(tmp_path: Path) -> None:

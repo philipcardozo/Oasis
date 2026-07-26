@@ -155,12 +155,12 @@ REQUIRED_DOCS = [
 
 
 REQUIREMENTS = [
-    ("public_dns", "Public DNS", ["00-public-staging-preflight.json"], ["dns"]),
-    ("public_tls", "Public TLS", ["00-public-staging-preflight.json"], ["tls"]),
-    ("secret_management", "Secure secret management", ["04-render-services.md"], []),
-    ("managed_postgres", "Managed PostgreSQL", ["04-render-services.md", "05-migration-version.md"], []),
+    ("public_dns", "Public DNS", ["00-public-staging-preflight.json", "infra-evidence-summary.json"], ["dns"]),
+    ("public_tls", "Public TLS", ["00-public-staging-preflight.json", "infra-evidence-summary.json"], ["tls"]),
+    ("secret_management", "Secure secret management", ["04-render-services.md", "infra-evidence-summary.json"], []),
+    ("managed_postgres", "Managed PostgreSQL", ["04-render-services.md", "05-migration-version.md", "infra-evidence-summary.json"], []),
     ("persistent_storage", "Persistent object and database storage", ["04-render-services.md", "12-backup-restore.md", "ops-evidence-summary.json"], []),
-    ("reverse_proxy", "Public reverse-proxy behavior", ["00-public-staging-preflight.json", "02-dns-tls-edge.md"], []),
+    ("reverse_proxy", "Public reverse-proxy behavior", ["00-public-staging-preflight.json", "02-dns-tls-edge.md", "infra-evidence-summary.json"], []),
     ("email_delivery", "Authentication email delivery", ["06-auth-email.md", "auth-email-summary.json"], []),
     ("api_worker_separation", "API and worker separation", ["02-render-deploy.json", "10-worker-jobs.md", "ops-evidence-summary.json"], []),
     ("attack_surface", "External attack-surface controls", ["03-cloudflare-access.md", "09-route-security.md", "route-security-summary.json"], []),
@@ -177,11 +177,11 @@ REQUIREMENTS = [
 
 ACCEPTANCE = [
     ("https_reachable", "Public staging is reachable through HTTPS", ["00-public-staging-preflight.json"]),
-    ("outer_access", "Outer staging access control is enabled", ["03-cloudflare-access.md"]),
-    ("dns_cert_valid", "DNS and certificates are valid", ["00-public-staging-preflight.json", "02-dns-tls-edge.md"]),
+    ("outer_access", "Outer staging access control is enabled", ["03-cloudflare-access.md", "infra-evidence-summary.json"]),
+    ("dns_cert_valid", "DNS and certificates are valid", ["00-public-staging-preflight.json", "02-dns-tls-edge.md", "infra-evidence-summary.json"]),
     ("tested_commit_image", "Deployed image matches a tested commit", ["01-image-manifest.json", "02-render-deploy.json"]),
     ("postgres_backed_up", "PostgreSQL is persistent and backed up", ["12-backup-restore.md", "ops-evidence-summary.json"]),
-    ("explicit_migrations", "Migrations complete explicitly", ["05-migration-version.md"]),
+    ("explicit_migrations", "Migrations complete explicitly", ["05-migration-version.md", "infra-evidence-summary.json"]),
     ("api_worker_separate", "API and worker are separate", ["02-render-deploy.json", "10-worker-jobs.md", "ops-evidence-summary.json"]),
     ("auth_email", "Email verification and password reset work", ["06-auth-email.md", "auth-email-summary.json"]),
     ("secure_cookies", "Session cookies are secure", ["06-auth-email.md", "auth-email-summary.json", "00-public-staging-preflight.json"]),
@@ -810,12 +810,155 @@ def ops_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     return weak
 
 
+INFRA_REQUIRED_LABELS = {
+    "dns_tls_edge": {
+        "DNS record type, target, provider, and TTL are documented",
+        "TLS certificate issuer and renewal path are documented",
+        "HTTP-to-HTTPS redirect behavior is documented",
+        "trusted hosts match the staging hostname",
+        "allowed origins match the staging hostname",
+        "public and email-link base URLs use the staging hostname",
+        "staging HSTS scope avoids unsafe includeSubDomains/preload",
+        "preflight verdict",
+        "URL scheme",
+        "DNS ok",
+        "TLS ok",
+        "HTTP redirect status",
+        "/healthz successful",
+        "/readyz successful",
+        "/version successful",
+        "HSTS max-age present",
+    },
+    "cloudflare_access": {
+        "provider",
+        "Cloudflare Access is enabled",
+        "tester allowlist policy is configured",
+        "unauthenticated public access is denied or challenged",
+        "service-token probe reaches OASIS through Access",
+        "OASIS auth works inside the edge boundary",
+        "OASIS registration is invitation or allowlist bounded",
+        "hidden URL is not the only access control",
+        "Access audit logs were reviewed",
+        "Cloudflare WAF or rate rules are enabled for staging",
+        "unauthenticated status",
+        "service-token status",
+        "OASIS auth status",
+        "header names only",
+    },
+    "render_services": {
+        "Render API web service exists",
+        "Render worker service exists",
+        "Render managed PostgreSQL exists",
+        "database connectivity is private/provider scoped",
+        "PostgreSQL TLS is required or provider enforced",
+        "managed PostgreSQL backups are enabled",
+        "secrets are stored in provider secret management",
+        "evidence contains only secret names/status, not values",
+        "required staging environment names are present",
+        "SMTP email settings are configured",
+        "S3/R2 storage settings are configured",
+        "object storage bucket remains private",
+        "API and worker use separate process commands",
+        "API and worker use the same immutable image",
+        "API and worker use the same tested commit",
+        "Render health checks are configured",
+        "previous successful deploy remains available for rollback",
+        "provider logs are available for API and worker",
+        "staging cannot fall back to SQLite",
+        "image manifest verdict",
+        "Render deploy verdict",
+        "Render deploy roles",
+        "deploy image matches manifest",
+    },
+    "migration_version": {
+        "Render API predeploy ran before traffic",
+        "alembic upgrade head ran",
+        "server.migration_check returned ok",
+        "migration verification completed before worker deploy",
+        "deployed database engine is PostgreSQL",
+        "deployed environment did not fall back to SQLite",
+        "deployed /version or migration evidence was checked",
+        "migration failure stops the release",
+        "expected revision",
+        "current revision",
+        "image manifest migration check",
+        "Render deploy verdict",
+        "DATABASE_URL redacted",
+    },
+}
+
+
+def infra_summary_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if not data.get("input_captured_at"):
+        weak.append("infra summary input captured timestamp is missing")
+    results = data.get("results") or {}
+    for section, required_labels in INFRA_REQUIRED_LABELS.items():
+        result = results.get(section) or {}
+        if result.get("verdict") != "pass":
+            weak.append(f"infra {section} verdict is not pass")
+        if result.get("failures"):
+            weak.append(f"infra {section} has failures")
+        rows = {str(row.get("label") or ""): row.get("value") for row in result.get("rows") or []}
+        for label in sorted(required_labels - set(rows)):
+            weak.append(f"infra {section} missing row: {label}")
+        if section == "dns_tls_edge":
+            expected = {
+                "preflight verdict": "pass",
+                "URL scheme": "https",
+                "DNS ok": True,
+                "TLS ok": True,
+                "/healthz successful": True,
+                "/readyz successful": True,
+                "/version successful": True,
+                "HSTS max-age present": True,
+            }
+            for label, value in expected.items():
+                if rows.get(label) != value:
+                    weak.append(f"infra {section} {label} is not {value}")
+            if rows.get("HTTP redirect status") not in {301, 302, 307, 308}:
+                weak.append("infra dns_tls_edge HTTP redirect status is not a redirect")
+        elif section == "cloudflare_access":
+            if "cloudflare" not in str(rows.get("provider") or "").lower():
+                weak.append("infra cloudflare_access provider is not Cloudflare")
+            if rows.get("unauthenticated status") not in {302, 401, 403}:
+                weak.append("infra cloudflare_access unauthenticated status is not denied/challenged")
+            if rows.get("service-token status") != 200:
+                weak.append("infra cloudflare_access service-token status is not 200")
+            if rows.get("OASIS auth status") != 200:
+                weak.append("infra cloudflare_access OASIS auth status is not 200")
+            if rows.get("header names only") is not True:
+                weak.append("infra cloudflare_access header names only is not true")
+        elif section == "render_services":
+            if rows.get("image manifest verdict") != "pass":
+                weak.append("infra render_services image manifest verdict is not pass")
+            if rows.get("Render deploy verdict") != "pass":
+                weak.append("infra render_services Render deploy verdict is not pass")
+            if rows.get("Render deploy roles") != "api, worker":
+                weak.append("infra render_services Render deploy roles are not api, worker")
+            if rows.get("deploy image matches manifest") is not True:
+                weak.append("infra render_services deploy image does not match manifest")
+        elif section == "migration_version":
+            if rows.get("expected revision") != "29995ef61d8e":
+                weak.append("infra migration_version expected revision is not 29995ef61d8e")
+            if rows.get("current revision") != "29995ef61d8e":
+                weak.append("infra migration_version current revision is not 29995ef61d8e")
+            if rows.get("image manifest migration check") != "pass":
+                weak.append("infra migration_version image manifest migration check is not pass")
+            if rows.get("Render deploy verdict") != "pass":
+                weak.append("infra migration_version Render deploy verdict is not pass")
+            if rows.get("DATABASE_URL redacted") is not True:
+                weak.append("infra migration_version DATABASE_URL redacted is not true")
+    return weak
+
+
 JSON_VALIDATORS = {
     "00-public-staging-preflight.json": preflight_weaknesses,
     "01-image-manifest.json": image_manifest_weaknesses,
     "02-render-deploy.json": render_deploy_weaknesses,
     "auth-email-summary.json": auth_email_summary_weaknesses,
     "browser-map-summary.json": browser_map_summary_weaknesses,
+    "infra-evidence-summary.json": infra_summary_weaknesses,
     "ops-evidence-summary.json": ops_summary_weaknesses,
     "performance-evidence-summary.json": performance_summary_weaknesses,
     "route-security-summary.json": route_security_summary_weaknesses,

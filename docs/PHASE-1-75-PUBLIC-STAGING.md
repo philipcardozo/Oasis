@@ -103,6 +103,9 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
 - `05-migration-version.md`, generated from the Render predeploy log summary
   and `server.migration_check` evidence with
   `scripts/public_staging_infra_reports.py`
+- `infra-evidence-summary.json`, generated beside the infrastructure Markdown
+  reports for strict DNS/TLS, Cloudflare Access, Render, secret, Postgres, and
+  migration checks
 - `06-auth-email.md`
 - `auth-email-summary.json`, generated beside `06-auth-email.md` for strict
   email verification, password-reset, secure-cookie, and CSRF checks

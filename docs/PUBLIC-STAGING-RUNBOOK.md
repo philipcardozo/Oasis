@@ -93,7 +93,8 @@ python3 scripts/public_staging_infra_reports.py \
   --preflight=docs/evidence/public-staging/00-public-staging-preflight.json \
   --render-deploy=docs/evidence/public-staging/02-render-deploy.json \
   --image-manifest=docs/evidence/public-staging/01-image-manifest.json \
-  --output-dir=docs/evidence/public-staging
+  --output-dir=docs/evidence/public-staging \
+  --summary-output=docs/evidence/public-staging/infra-evidence-summary.json
 ```
 
 The input JSON must contain `cloudflare_access`, `render_services`, and
@@ -102,9 +103,10 @@ commit IDs, image digests, environment variable names, and redaction status, but
 must not include secret values, database URLs, cookies, private token URLs, SMTP
 credentials, storage credentials, or raw authorization headers. The script
 writes `02-dns-tls-edge.md`, `03-cloudflare-access.md`,
-`04-render-services.md`, and `05-migration-version.md`; each report gets
-`Verdict: pass` only when the structured evidence proves the gate and remains
-secret-free.
+`04-render-services.md`, `05-migration-version.md`, and
+`infra-evidence-summary.json`; each report gets `Verdict: pass`, and the
+summary validates as pass in the final audit, only when the structured evidence
+proves the gate and remains secret-free.
 
 Then run the Proxyman/browser capture from `docs/PERFORMANCE-PROXYMAN-RUNBOOK.md`
 Prompt 8 and the public prompts appended there. After the public browser

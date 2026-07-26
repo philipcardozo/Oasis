@@ -667,17 +667,20 @@ python3 scripts/public_staging_infra_reports.py \
   --preflight=docs/evidence/public-staging/00-public-staging-preflight.json \
   --render-deploy=docs/evidence/public-staging/02-render-deploy.json \
   --image-manifest=docs/evidence/public-staging/01-image-manifest.json \
-  --output-dir=docs/evidence/public-staging
+  --output-dir=docs/evidence/public-staging \
+  --summary-output=docs/evidence/public-staging/infra-evidence-summary.json
 
 Inspect:
 - docs/evidence/public-staging/02-dns-tls-edge.md
 - docs/evidence/public-staging/03-cloudflare-access.md
 - docs/evidence/public-staging/04-render-services.md
 - docs/evidence/public-staging/05-migration-version.md
+- docs/evidence/public-staging/infra-evidence-summary.json
 
-Each report must show `Verdict: pass`. Any missing Cloudflare Access boundary,
-failed preflight, Render deploy/image mismatch, missing managed Postgres/storage
-proof, SQLite fallback, migration revision mismatch, or secret-like value keeps
+Each report must show `Verdict: pass`, and the summary must validate in the
+final audit. Any missing Cloudflare Access boundary, failed preflight, Render
+deploy/image mismatch, missing managed Postgres/storage proof, SQLite fallback,
+migration revision mismatch, or secret-like value keeps
 the report at `Verdict: investigate`.
 ```
 
