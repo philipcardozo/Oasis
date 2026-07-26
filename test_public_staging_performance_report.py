@@ -47,6 +47,7 @@ def test_public_staging_performance_report_passes_with_required_evidence(tmp_pat
     data = json.loads(summary.read_text())
     assert data["verdict"] == "pass"
     assert data["browser"]["direct_comparison_present"] is True
+    assert data["browser"]["direct_flows"][0]["bulk"] is False
     assert data["auth_map_slot"]["rows"][0]["p95_ms"] == 10
     assert len(data["supplemental"]["external_locations"]) == 2
     assert data["supplemental"]["runtime_resources"][0]["key"] == "api_cpu_percent"
@@ -61,7 +62,22 @@ def test_public_staging_performance_report_fails_when_first_paint_loads_bulk(tmp
     result = _run_report(browser, output)
 
     assert result.returncode == 1
-    assert "first paint requested /api/universe/bulk" in output.read_text()
+    assert "browser first paint requested /api/universe/bulk" in output.read_text()
+
+
+def test_public_staging_performance_report_requires_clean_direct_capture(tmp_path):
+    browser = tmp_path / "browser.json"
+    direct = tmp_path / "direct-browser.json"
+    output = tmp_path / "15-performance.md"
+    browser.write_text(json.dumps(_browser_summary(bulk=False)))
+    direct.write_text(json.dumps(_browser_summary(bulk=True, proxy_server="http://127.0.0.1:9090")))
+
+    result = _run_report(browser, output, direct=direct)
+
+    assert result.returncode == 1
+    text = output.read_text()
+    assert "direct browser comparison unexpectedly records a proxy server" in text
+    assert "direct browser first paint requested /api/universe/bulk" in text
 
 
 def test_public_staging_performance_report_requires_two_external_locations(tmp_path):

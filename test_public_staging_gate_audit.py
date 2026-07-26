@@ -439,6 +439,7 @@ def test_performance_summary_requires_proxyman_and_app_layer_rows(tmp_path, monk
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     summary = _performance_summary()
     summary["target"]["proxy_server"] = ""
+    summary["target"]["direct_proxy_server"] = "http://127.0.0.1:9090"
     summary["browser"]["direct_comparison_present"] = False
     summary["auth_map_slot"]["rows"] = summary["auth_map_slot"]["rows"][:1]
     (evidence / "performance-evidence-summary.json").write_text(json.dumps(summary))
@@ -447,9 +448,26 @@ def test_performance_summary_requires_proxyman_and_app_layer_rows(tmp_path, monk
 
     assert result["status"] == "weak"
     assert any("Proxyman proxy is not recorded" in item for item in result["weak"])
+    assert any("direct capture unexpectedly records a proxy server" in item for item in result["weak"])
     assert any("direct network comparison is missing" in item for item in result["weak"])
     assert any("missing map-slot read app-layer latency" in item for item in result["weak"])
     assert any("missing map-slot write app-layer latency" in item for item in result["weak"])
+
+
+def test_performance_summary_requires_clean_direct_flows(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _performance_summary()
+    summary["target"]["direct_base_url"] = "https://other.example.com"
+    summary["browser"]["direct_flows"][0]["bulk"] = True
+    summary["browser"]["direct_flows"][1]["failed_requests"] = 1
+    (evidence / "performance-evidence-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("performance", "Performance", ["performance-evidence-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("direct base URL does not match proxied base URL" in item for item in result["weak"])
+    assert any("direct first paint requested /api/universe/bulk" in item for item in result["weak"])
+    assert any("direct 26-public-staging-05-local-search-intent recorded failed requests" in item for item in result["weak"])
 
 
 def test_performance_summary_requires_external_locations_and_runtime_resources(tmp_path, monkeypatch):
@@ -928,6 +946,10 @@ def _performance_report() -> str:
         "| Flow | Requests |\n"
         "|---|---:|\n"
         "| first-paint | 4 |\n\n"
+        "## Direct Browser Flows\n\n"
+        "| Flow | Requests |\n"
+        "|---|---:|\n"
+        "| first-paint | 4 |\n\n"
         "## DNS And TLS\n\n"
         "- Preflight verdict: `pass`\n\n"
         "This generated report contains sanitized evidence only.\n"
@@ -1099,10 +1121,30 @@ def _performance_summary() -> dict:
         "target": {
             "base_url": "https://staging.example.com",
             "proxy_server": "http://127.0.0.1:9090",
+            "direct_base_url": "https://staging.example.com",
+            "direct_proxy_server": None,
         },
         "browser": {
             "direct_comparison_present": True,
             "flows": [
+                {
+                    "name": "26-public-staging-03-local-first-paint",
+                    "flow": "cold first paint",
+                    "bulk": False,
+                    "unpkg": False,
+                    "console_errors": 0,
+                    "failed_requests": 0,
+                },
+                {
+                    "name": "26-public-staging-05-local-search-intent",
+                    "flow": "search intent and bulk load",
+                    "bulk": True,
+                    "unpkg": False,
+                    "console_errors": 0,
+                    "failed_requests": 0,
+                },
+            ],
+            "direct_flows": [
                 {
                     "name": "26-public-staging-03-local-first-paint",
                     "flow": "cold first paint",

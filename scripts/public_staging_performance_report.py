@@ -113,6 +113,23 @@ def first_paint(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
     return rows[0] if rows else None
 
 
+def flow_failures(rows: list[dict[str, Any]], label: str) -> list[str]:
+    failures: list[str] = []
+    first = first_paint(rows)
+    if not first:
+        failures.append(f"{label} summary has no captured flows")
+    elif first["bulk"]:
+        failures.append(f"{label} first paint requested /api/universe/bulk")
+
+    if any(row["unpkg"] for row in rows):
+        failures.append(f"{label} capture requested unpkg.com")
+    if any(row["console_errors"] for row in rows):
+        failures.append(f"{label} capture recorded console errors")
+    if any(row["failed_requests"] for row in rows):
+        failures.append(f"{label} capture recorded failed requests")
+    return failures
+
+
 def auth_rows(summary: dict[str, Any] | None) -> list[dict[str, Any]]:
     if not summary:
         return []
@@ -264,6 +281,10 @@ def non_negative_number(value: Any) -> bool:
 
 def evaluate(
     browser_rows: list[dict[str, Any]],
+    direct_rows: list[dict[str, Any]] | None,
+    browser_base_url: str,
+    direct_base_url: str,
+    direct_proxy_server: Any,
     preflight: dict[str, Any] | None,
     auth: dict[str, Any] | None,
     route_probe: dict[str, Any] | None,
@@ -272,18 +293,16 @@ def evaluate(
     failures: list[str] = []
     warnings: list[str] = []
 
-    first = first_paint(browser_rows)
-    if not first:
-        failures.append("browser summary has no captured flows")
-    elif first["bulk"]:
-        failures.append("first paint requested /api/universe/bulk")
+    failures.extend(flow_failures(browser_rows, "browser"))
 
-    if any(row["unpkg"] for row in browser_rows):
-        failures.append("browser capture requested unpkg.com")
-    if any(row["console_errors"] for row in browser_rows):
-        failures.append("browser capture recorded console errors")
-    if any(row["failed_requests"] for row in browser_rows):
-        failures.append("browser capture recorded failed requests")
+    if direct_rows is None:
+        failures.append("direct browser comparison input is missing")
+    else:
+        if safe_url(browser_base_url) != safe_url(direct_base_url):
+            failures.append("direct browser comparison base URL does not match proxied capture")
+        if direct_proxy_server:
+            failures.append("direct browser comparison unexpectedly records a proxy server")
+        failures.extend(flow_failures(direct_rows, "direct browser"))
 
     if preflight is None:
         warnings.append("public preflight input missing; DNS/TLS timings are not summarized")
@@ -363,7 +382,18 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
     supplemental = load_json(Path(args.supplemental)) if args.supplemental else None
 
     browser_rows = flow_rows(browser)
-    failures, warnings = evaluate(browser_rows, preflight, auth, route_probe, supplemental)
+    direct_rows = flow_rows(direct) if direct else None
+    failures, warnings = evaluate(
+        browser_rows,
+        direct_rows,
+        str(browser.get("baseUrl") or ""),
+        str(direct.get("baseUrl") or "") if direct else "",
+        direct.get("proxyServer") if direct else None,
+        preflight,
+        auth,
+        route_probe,
+        supplemental,
+    )
 
     return {
         "captured_at": datetime.now(timezone.utc).isoformat(),
@@ -381,11 +411,13 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
             "base_url": safe_url(browser.get("baseUrl")),
             "proxy_server": browser.get("proxyServer"),
             "direct_base_url": safe_url(direct.get("baseUrl")) if direct else None,
+            "direct_proxy_server": direct.get("proxyServer") if direct else None,
         },
         "browser": {
             "captured_at": browser.get("capturedAt"),
             "flows": browser_rows,
             "direct_comparison_present": bool(direct),
+            "direct_flows": direct_rows or [],
         },
         "preflight": {
             "verdict": preflight.get("verdict") if preflight else None,
@@ -432,6 +464,8 @@ def markdown(payload: dict[str, Any]) -> str:
         "",
         f"- Base URL: `{payload['target']['base_url']}`",
         f"- Proxyman proxy: `{payload['target']['proxy_server'] or 'not recorded'}`",
+        f"- Direct base URL: `{payload['target']['direct_base_url'] or 'not recorded'}`",
+        f"- Direct proxy: `{payload['target']['direct_proxy_server'] or 'not recorded'}`",
         f"- Direct comparison present: `{md_bool(payload['browser']['direct_comparison_present'])}`",
         "",
         "## Browser Flows",
@@ -447,6 +481,23 @@ def markdown(payload: dict[str, Any]) -> str:
             f"{md_bool(row['bulk'])} | {md_bool(row['unpkg'])} | "
             f"{row['console_errors']} | {hosts} |"
         )
+
+    if payload["browser"]["direct_flows"]:
+        lines.extend([
+            "",
+            "## Direct Browser Flows",
+            "",
+            "| Flow | Requests | Transfer KB | DOMContentLoaded ms | Load ms | Bulk | unpkg | Console errors | External hosts |",
+            "|---|---:|---:|---:|---:|---|---|---:|---|",
+        ])
+        for row in payload["browser"]["direct_flows"]:
+            hosts = ", ".join(row["external_hosts"]) or "-"
+            lines.append(
+                f"| {row['name']} | {row['requests']} | {row['transfer_kb']} | "
+                f"{row['dom_content_loaded_ms']} | {row['load_event_ms']} | "
+                f"{md_bool(row['bulk'])} | {md_bool(row['unpkg'])} | "
+                f"{row['console_errors']} | {hosts} |"
+            )
 
     auth_rows_ = payload["auth_map_slot"]["rows"]
     if auth_rows_:

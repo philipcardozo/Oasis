@@ -1039,6 +1039,10 @@ node scripts/browser_performance_capture.js \
   --flow-prefix=26-public-staging-direct \
   --summary-file=26-public-staging-direct-browser-har-summary.json
 
+The direct capture must use the same HTTPS `$STAGING_URL`, must not pass
+`--proxy-server`, and must show clean first-paint/request health independently
+of the Proxyman-routed capture.
+
 Repeat manually or with equivalent tooling for:
 - Brave or Edge
 - Firefox

@@ -137,9 +137,11 @@ proves the gate and remains secret-free.
 
 Then run the Proxyman/browser capture from `docs/PERFORMANCE-PROXYMAN-RUNBOOK.md`
 Prompt 8 and the public prompts appended there. After the public browser
-capture, fill the supplemental public performance evidence file from external
-location probes and provider metrics, then generate the performance evidence
-report:
+capture, run the direct comparison against the same public staging URL without
+`--proxy-server`; the generated performance report must include clean proxied
+and direct browser flow rows. Then fill the supplemental public performance
+evidence file from external location probes and provider metrics, and generate
+the performance evidence report:
 
 ```bash
 python3 scripts/public_staging_performance_report.py --print-supplemental-template \

@@ -155,6 +155,7 @@ MARKDOWN_REQUIRED_TEXT = {
     "15-performance.md": [
         "# Public Staging Performance Evidence",
         "## Browser Flows",
+        "## Direct Browser Flows",
         "## DNS And TLS",
     ],
     "16-deployment-automation.md": [
@@ -545,6 +546,13 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("performance summary base URL is not HTTPS")
     if not target.get("proxy_server"):
         weak.append("performance summary Proxyman proxy is not recorded")
+    direct_parsed = urlparse(str(target.get("direct_base_url") or ""))
+    if direct_parsed.scheme != "https":
+        weak.append("performance summary direct base URL is not HTTPS")
+    elif parsed.netloc and direct_parsed.netloc != parsed.netloc:
+        weak.append("performance summary direct base URL does not match proxied base URL")
+    if target.get("direct_proxy_server"):
+        weak.append("performance summary direct capture unexpectedly records a proxy server")
 
     browser = data.get("browser") or {}
     flows = list(browser.get("flows") or [])
@@ -563,6 +571,21 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
             weak.append(f"performance summary {name} recorded console errors")
         if int(row.get("failed_requests") or 0):
             weak.append(f"performance summary {name} recorded failed requests")
+
+    direct_flows = list(browser.get("direct_flows") or [])
+    if browser.get("direct_comparison_present") and not direct_flows:
+        weak.append("performance summary direct browser flows are missing")
+    direct_first_flow = next((item for item in direct_flows if "first-paint" in str(item.get("name") or "")), direct_flows[0] if direct_flows else {})
+    if direct_first_flow.get("bulk") is True:
+        weak.append("performance summary direct first paint requested /api/universe/bulk")
+    for row in direct_flows:
+        name = row.get("name") or "unknown direct flow"
+        if row.get("unpkg") is True:
+            weak.append(f"performance summary direct {name} requested unpkg.com")
+        if int(row.get("console_errors") or 0):
+            weak.append(f"performance summary direct {name} recorded console errors")
+        if int(row.get("failed_requests") or 0):
+            weak.append(f"performance summary direct {name} recorded failed requests")
 
     preflight = data.get("preflight") or {}
     if preflight.get("verdict") != "pass":
