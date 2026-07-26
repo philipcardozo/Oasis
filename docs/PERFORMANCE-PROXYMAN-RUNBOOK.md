@@ -1041,7 +1041,9 @@ node scripts/browser_performance_capture.js \
 
 The direct capture must use the same HTTPS `$STAGING_URL`, must not pass
 `--proxy-server`, and must show clean first-paint/request health independently
-of the Proxyman-routed capture.
+of the Proxyman-routed capture. Both captures must include the same eight
+browser flows: first paint, reload, search intent, map interactions, DCF
+workbook fetch, entity drawer, data-quality panel, and report preview.
 
 Repeat manually or with equivalent tooling for:
 - Brave or Edge

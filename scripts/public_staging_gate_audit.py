@@ -49,6 +49,26 @@ WEB_VITAL_THRESHOLDS = {
     "tbt_ms": 200,
 }
 POSITIVE_WEB_VITALS = {"lcp_ms", "inp_ms", "fcp_ms", "ttfb_ms"}
+REQUIRED_BROWSER_FLOWS = {
+    "first_paint": "cold first paint",
+    "reload": "warm reload",
+    "search_intent": "search intent and bulk load",
+    "map_interactions": "Map Studio and basemap switching",
+    "dcf_download": "DCF workbook fetch",
+    "entity_drawer": "entity drawer hydration",
+    "data_quality": "data quality panel",
+    "report_preview": "report preview",
+}
+FLOW_KEY_PATTERNS = {
+    "first_paint": ("03 local first paint", "cold first paint"),
+    "reload": ("04 local reload", "warm reload"),
+    "search_intent": ("05 local search intent", "search intent"),
+    "map_interactions": ("06 local map interactions", "map studio", "basemap switching"),
+    "dcf_download": ("07 local dcf download", "dcf workbook"),
+    "entity_drawer": ("12 local entity drawer", "entity drawer"),
+    "data_quality": ("13 local data quality panel", "data quality panel"),
+    "report_preview": ("14 local report preview", "report preview"),
+}
 SENSITIVE_KEY_RE = re.compile(
     r"(password|passwd|token|cookie|authorization|secret|api[_-]?key|private[_-]?key|credential|database[_-]?url)",
     re.IGNORECASE,
@@ -329,6 +349,23 @@ def status_ok(value: Any) -> bool:
     return str(value or "").lower() in {"pass", "passed", "ok", "success", "succeeded", "true", "present"}
 
 
+def normalized_text(*values: Any) -> str:
+    return " ".join(str(value or "").lower().replace("-", " ").replace("_", " ") for value in values)
+
+
+def canonical_flow_key(row: dict[str, Any]) -> str:
+    text = normalized_text(row.get("name"), row.get("flow"))
+    for key, patterns in FLOW_KEY_PATTERNS.items():
+        if row.get("flow_key") == key or any(pattern in text for pattern in patterns):
+            return key
+    return ""
+
+
+def missing_flow_labels(rows: list[dict[str, Any]]) -> list[str]:
+    seen = {canonical_flow_key(row) for row in rows}
+    return [label for key, label in REQUIRED_BROWSER_FLOWS.items() if key not in seen]
+
+
 def safe_secret_value(value: str, *, names_only: bool = False) -> bool:
     lowered = value.lower()
     if value in {"", "<redacted>", "redacted", "***", "present", "configured", "missing"}:
@@ -558,6 +595,8 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     flows = list(browser.get("flows") or [])
     if not flows:
         weak.append("performance summary has no browser flows")
+    for missing in missing_flow_labels(flows):
+        weak.append(f"performance summary proxied capture missing required flow: {missing}")
     if not browser.get("direct_comparison_present"):
         weak.append("performance summary direct network comparison is missing")
     first_flow = next((item for item in flows if "first-paint" in str(item.get("name") or "")), flows[0] if flows else {})
@@ -575,6 +614,8 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     direct_flows = list(browser.get("direct_flows") or [])
     if browser.get("direct_comparison_present") and not direct_flows:
         weak.append("performance summary direct browser flows are missing")
+    for missing in missing_flow_labels(direct_flows):
+        weak.append(f"performance summary direct capture missing required flow: {missing}")
     direct_first_flow = next((item for item in direct_flows if "first-paint" in str(item.get("name") or "")), direct_flows[0] if direct_flows else {})
     if direct_first_flow.get("bulk") is True:
         weak.append("performance summary direct first paint requested /api/universe/bulk")

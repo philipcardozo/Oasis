@@ -51,6 +51,28 @@ WEB_VITAL_REQUIRED = {
 }
 POSITIVE_WEB_VITALS = {"lcp_ms", "inp_ms", "fcp_ms", "ttfb_ms"}
 
+REQUIRED_BROWSER_FLOWS = {
+    "first_paint": "cold first paint",
+    "reload": "warm reload",
+    "search_intent": "search intent and bulk load",
+    "map_interactions": "Map Studio and basemap switching",
+    "dcf_download": "DCF workbook fetch",
+    "entity_drawer": "entity drawer hydration",
+    "data_quality": "data quality panel",
+    "report_preview": "report preview",
+}
+
+FLOW_KEY_PATTERNS = {
+    "first_paint": ("03 local first paint", "cold first paint"),
+    "reload": ("04 local reload", "warm reload"),
+    "search_intent": ("05 local search intent", "search intent"),
+    "map_interactions": ("06 local map interactions", "map studio", "basemap switching"),
+    "dcf_download": ("07 local dcf download", "dcf workbook"),
+    "entity_drawer": ("12 local entity drawer", "entity drawer"),
+    "data_quality": ("13 local data quality panel", "data quality panel"),
+    "report_preview": ("14 local report preview", "report preview"),
+}
+
 
 def git_value(*args: str) -> str:
     try:
@@ -101,7 +123,25 @@ def flow_rows(summary: dict[str, Any]) -> list[dict[str, Any]]:
             "external_hosts": flow.get("externalHosts") or [],
             "har_path": flow.get("harPath"),
         })
+        rows[-1]["flow_key"] = canonical_flow_key(rows[-1])
     return rows
+
+
+def normalized_text(*values: Any) -> str:
+    return " ".join(str(value or "").lower().replace("-", " ").replace("_", " ") for value in values)
+
+
+def canonical_flow_key(row: dict[str, Any]) -> str:
+    text = normalized_text(row.get("name"), row.get("flow"))
+    for key, patterns in FLOW_KEY_PATTERNS.items():
+        if any(pattern in text for pattern in patterns):
+            return key
+    return ""
+
+
+def missing_flow_labels(rows: list[dict[str, Any]]) -> list[str]:
+    seen = {row.get("flow_key") for row in rows}
+    return [label for key, label in REQUIRED_BROWSER_FLOWS.items() if key not in seen]
 
 
 def first_paint(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -115,6 +155,9 @@ def first_paint(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
 
 def flow_failures(rows: list[dict[str, Any]], label: str) -> list[str]:
     failures: list[str] = []
+    for missing in missing_flow_labels(rows):
+        failures.append(f"{label} capture missing required flow: {missing}")
+
     first = first_paint(rows)
     if not first:
         failures.append(f"{label} summary has no captured flows")

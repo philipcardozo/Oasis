@@ -459,7 +459,7 @@ def test_performance_summary_requires_clean_direct_flows(tmp_path, monkeypatch):
     summary = _performance_summary()
     summary["target"]["direct_base_url"] = "https://other.example.com"
     summary["browser"]["direct_flows"][0]["bulk"] = True
-    summary["browser"]["direct_flows"][1]["failed_requests"] = 1
+    summary["browser"]["direct_flows"][2]["failed_requests"] = 1
     (evidence / "performance-evidence-summary.json").write_text(json.dumps(summary))
 
     result = audit.evaluate("performance", "Performance", ["performance-evidence-summary.json"])
@@ -468,6 +468,21 @@ def test_performance_summary_requires_clean_direct_flows(tmp_path, monkeypatch):
     assert any("direct base URL does not match proxied base URL" in item for item in result["weak"])
     assert any("direct first paint requested /api/universe/bulk" in item for item in result["weak"])
     assert any("direct 26-public-staging-05-local-search-intent recorded failed requests" in item for item in result["weak"])
+
+
+def test_performance_summary_requires_all_public_browser_flows(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _performance_summary()
+    summary["browser"]["flows"] = summary["browser"]["flows"][:-1]
+    summary["browser"]["direct_flows"] = summary["browser"]["direct_flows"][:-2]
+    (evidence / "performance-evidence-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("performance", "Performance", ["performance-evidence-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("proxied capture missing required flow: report preview" in item for item in result["weak"])
+    assert any("direct capture missing required flow: data quality panel" in item for item in result["weak"])
+    assert any("direct capture missing required flow: report preview" in item for item in result["weak"])
 
 
 def test_performance_summary_requires_external_locations_and_runtime_resources(tmp_path, monkeypatch):
@@ -1114,6 +1129,31 @@ def _browser_map_summary() -> dict:
 
 
 def _performance_summary() -> dict:
+    flow_defs = [
+        ("03-local-first-paint", "cold first paint", False),
+        ("04-local-reload", "warm reload", False),
+        ("05-local-search-intent", "search intent and bulk load", True),
+        ("06-local-map-interactions", "Map Studio and basemap switching", False),
+        ("07-local-dcf-download", "DCF workbook fetch", False),
+        ("12-local-entity-drawer", "entity drawer hydration", True),
+        ("13-local-data-quality-panel", "data quality panel", False),
+        ("14-local-report-preview", "report preview", False),
+    ]
+
+    def rows() -> list[dict]:
+        return [
+            {
+                "name": f"26-public-staging-{suffix}",
+                "flow": flow,
+                "flow_key": "",
+                "bulk": requested_bulk,
+                "unpkg": False,
+                "console_errors": 0,
+                "failed_requests": 0,
+            }
+            for suffix, flow, requested_bulk in flow_defs
+        ]
+
     return {
         "verdict": "pass",
         "failures": [],
@@ -1126,42 +1166,8 @@ def _performance_summary() -> dict:
         },
         "browser": {
             "direct_comparison_present": True,
-            "flows": [
-                {
-                    "name": "26-public-staging-03-local-first-paint",
-                    "flow": "cold first paint",
-                    "bulk": False,
-                    "unpkg": False,
-                    "console_errors": 0,
-                    "failed_requests": 0,
-                },
-                {
-                    "name": "26-public-staging-05-local-search-intent",
-                    "flow": "search intent and bulk load",
-                    "bulk": True,
-                    "unpkg": False,
-                    "console_errors": 0,
-                    "failed_requests": 0,
-                },
-            ],
-            "direct_flows": [
-                {
-                    "name": "26-public-staging-03-local-first-paint",
-                    "flow": "cold first paint",
-                    "bulk": False,
-                    "unpkg": False,
-                    "console_errors": 0,
-                    "failed_requests": 0,
-                },
-                {
-                    "name": "26-public-staging-05-local-search-intent",
-                    "flow": "search intent and bulk load",
-                    "bulk": True,
-                    "unpkg": False,
-                    "console_errors": 0,
-                    "failed_requests": 0,
-                },
-            ],
+            "flows": rows(),
+            "direct_flows": rows(),
         },
         "preflight": {
             "verdict": "pass",

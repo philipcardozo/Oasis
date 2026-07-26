@@ -80,6 +80,25 @@ def test_public_staging_performance_report_requires_clean_direct_capture(tmp_pat
     assert "direct browser first paint requested /api/universe/bulk" in text
 
 
+def test_public_staging_performance_report_requires_all_public_browser_flows(tmp_path):
+    browser = tmp_path / "browser.json"
+    direct = tmp_path / "direct-browser.json"
+    output = tmp_path / "15-performance.md"
+    proxied = _browser_summary(bulk=False)
+    del proxied["flows"]["26-public-staging-14-local-report-preview"]
+    direct_data = _browser_summary(bulk=False, proxy_server=None)
+    del direct_data["flows"]["26-public-staging-13-local-data-quality-panel"]
+    browser.write_text(json.dumps(proxied))
+    direct.write_text(json.dumps(direct_data))
+
+    result = _run_report(browser, output, direct=direct)
+
+    assert result.returncode == 1
+    text = output.read_text()
+    assert "browser capture missing required flow: report preview" in text
+    assert "direct browser capture missing required flow: data quality panel" in text
+
+
 def test_public_staging_performance_report_requires_two_external_locations(tmp_path):
     browser = tmp_path / "browser.json"
     supplemental = tmp_path / "performance-supplemental.json"
@@ -164,35 +183,34 @@ def _run_report(
 
 
 def _browser_summary(*, bulk: bool, proxy_server: str | None = "http://127.0.0.1:9090") -> dict:
+    flow_defs = [
+        ("03-local-first-paint", "cold first paint", bulk),
+        ("04-local-reload", "warm reload", False),
+        ("05-local-search-intent", "search intent and bulk load", True),
+        ("06-local-map-interactions", "Map Studio and basemap switching", False),
+        ("07-local-dcf-download", "DCF workbook fetch", False),
+        ("12-local-entity-drawer", "entity drawer hydration", True),
+        ("13-local-data-quality-panel", "data quality panel", False),
+        ("14-local-report-preview", "report preview", False),
+    ]
     return {
         "capturedAt": "2026-07-25T00:00:00Z",
         "baseUrl": "https://staging.example.com",
         "proxyServer": proxy_server,
         "flows": {
-            "26-public-staging-03-local-first-paint": {
-                "flow": "cold first paint",
+            f"26-public-staging-{suffix}": {
+                "flow": flow,
                 "requestCount": 9,
                 "resourceTransferKb": 350.5,
                 "navigation": {"domContentLoadedMs": 300, "loadEventMs": 400},
-                "requestedUniverseBulk": bulk,
+                "requestedUniverseBulk": requested_bulk,
                 "requestedUnpkg": False,
                 "consoleErrors": [],
                 "failedRequestCount": 0,
                 "externalHosts": [],
-                "harPath": "docs/evidence/performance/26-public-staging-03-local-first-paint.har",
-            },
-            "26-public-staging-05-local-search-intent": {
-                "flow": "search intent and bulk load",
-                "requestCount": 4,
-                "resourceTransferKb": 200.0,
-                "navigation": {"domContentLoadedMs": 250, "loadEventMs": 300},
-                "requestedUniverseBulk": True,
-                "requestedUnpkg": False,
-                "consoleErrors": [],
-                "failedRequestCount": 0,
-                "externalHosts": [],
-                "harPath": "docs/evidence/performance/26-public-staging-05-local-search-intent.har",
-            },
+                "harPath": f"docs/evidence/performance/26-public-staging-{suffix}.har",
+            }
+            for suffix, flow, requested_bulk in flow_defs
         },
     }
 
