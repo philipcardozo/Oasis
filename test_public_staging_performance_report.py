@@ -99,6 +99,25 @@ def test_public_staging_performance_report_requires_all_public_browser_flows(tmp
     assert "direct browser capture missing required flow: data quality panel" in text
 
 
+def test_public_staging_performance_report_requires_har_paths(tmp_path):
+    browser = tmp_path / "browser.json"
+    direct = tmp_path / "direct-browser.json"
+    output = tmp_path / "15-performance.md"
+    proxied = _browser_summary(bulk=False)
+    proxied["flows"]["26-public-staging-03-local-first-paint"]["harPath"] = ""
+    direct_data = _browser_summary(bulk=False, proxy_server=None)
+    direct_data["flows"]["26-public-staging-04-local-reload"]["harPath"] = "tmp/reload.json"
+    browser.write_text(json.dumps(proxied))
+    direct.write_text(json.dumps(direct_data))
+
+    result = _run_report(browser, output, direct=direct)
+
+    assert result.returncode == 1
+    text = output.read_text()
+    assert "browser capture HAR path is missing or invalid: 26-public-staging-03-local-first-paint" in text
+    assert "direct browser capture HAR path is missing or invalid: 26-public-staging-04-local-reload" in text
+
+
 def test_public_staging_performance_report_requires_two_external_locations(tmp_path):
     browser = tmp_path / "browser.json"
     supplemental = tmp_path / "performance-supplemental.json"

@@ -170,6 +170,11 @@ def flow_failures(rows: list[dict[str, Any]], label: str) -> list[str]:
         failures.append(f"{label} capture recorded console errors")
     if any(row["failed_requests"] for row in rows):
         failures.append(f"{label} capture recorded failed requests")
+    for row in rows:
+        name = row.get("name") or "unknown flow"
+        har_path = str(row.get("har_path") or "")
+        if not har_path.startswith("docs/evidence/performance/") or not har_path.endswith(".har"):
+            failures.append(f"{label} capture HAR path is missing or invalid: {name}")
     return failures
 
 

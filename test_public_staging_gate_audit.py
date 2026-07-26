@@ -485,6 +485,20 @@ def test_performance_summary_requires_all_public_browser_flows(tmp_path, monkeyp
     assert any("direct capture missing required flow: report preview" in item for item in result["weak"])
 
 
+def test_performance_summary_requires_har_paths(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _performance_summary()
+    summary["browser"]["flows"][0]["har_path"] = ""
+    summary["browser"]["direct_flows"][1]["har_path"] = "tmp/reload.json"
+    (evidence / "performance-evidence-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("performance", "Performance", ["performance-evidence-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("HAR path is missing or invalid: 26-public-staging-03-local-first-paint" in item for item in result["weak"])
+    assert any("direct HAR path is missing or invalid: 26-public-staging-04-local-reload" in item for item in result["weak"])
+
+
 def test_performance_summary_requires_external_locations_and_runtime_resources(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     summary = _performance_summary()
@@ -1150,6 +1164,7 @@ def _performance_summary() -> dict:
                 "unpkg": False,
                 "console_errors": 0,
                 "failed_requests": 0,
+                "har_path": f"docs/evidence/performance/26-public-staging-{suffix}.har",
             }
             for suffix, flow, requested_bulk in flow_defs
         ]

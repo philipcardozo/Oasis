@@ -366,6 +366,11 @@ def missing_flow_labels(rows: list[dict[str, Any]]) -> list[str]:
     return [label for key, label in REQUIRED_BROWSER_FLOWS.items() if key not in seen]
 
 
+def valid_har_path(value: Any) -> bool:
+    path = str(value or "")
+    return path.startswith("docs/evidence/performance/") and path.endswith(".har")
+
+
 def safe_secret_value(value: str, *, names_only: bool = False) -> bool:
     lowered = value.lower()
     if value in {"", "<redacted>", "redacted", "***", "present", "configured", "missing"}:
@@ -604,6 +609,8 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("performance summary first paint requested /api/universe/bulk")
     for row in flows:
         name = row.get("name") or "unknown flow"
+        if not valid_har_path(row.get("har_path")):
+            weak.append(f"performance summary HAR path is missing or invalid: {name}")
         if row.get("unpkg") is True:
             weak.append(f"performance summary {name} requested unpkg.com")
         if int(row.get("console_errors") or 0):
@@ -621,6 +628,8 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("performance summary direct first paint requested /api/universe/bulk")
     for row in direct_flows:
         name = row.get("name") or "unknown direct flow"
+        if not valid_har_path(row.get("har_path")):
+            weak.append(f"performance summary direct HAR path is missing or invalid: {name}")
         if row.get("unpkg") is True:
             weak.append(f"performance summary direct {name} requested unpkg.com")
         if int(row.get("console_errors") or 0):
