@@ -15,6 +15,32 @@ ROOT = Path(__file__).resolve().parents[1]
 PERF_EVIDENCE = ROOT / "docs" / "evidence" / "performance"
 PUBLIC_EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
 
+LOCATION_REQUIRED = {
+    "dns_ms": "DNS time",
+    "tcp_ms": "TCP connection time",
+    "tls_ms": "TLS time",
+    "ttfb_ms": "TTFB",
+    "initial_transfer_kb": "initial transferred KB",
+    "initial_request_count": "initial request count",
+    "map_initialization_ms": "map initialization time",
+}
+
+APP_LAYER_REQUIRED = {
+    "search": "search p50/p95",
+    "comps": "comps p50/p95",
+    "export_job_creation": "export-job creation p50/p95",
+}
+
+RUNTIME_REQUIRED = {
+    "api_cpu_percent": "API CPU percent",
+    "api_memory_mb": "API memory MB",
+    "worker_cpu_percent": "worker CPU percent",
+    "worker_memory_mb": "worker memory MB",
+    "database_connections": "database connections",
+    "queue_depth": "queue depth",
+    "error_rate": "error rate",
+}
+
 
 def git_value(*args: str) -> str:
     try:
@@ -111,11 +137,104 @@ def route_rows(summary: dict[str, Any] | None) -> list[dict[str, Any]]:
     return rows
 
 
+def supplemental_template() -> dict[str, Any]:
+    return {
+        "input_captured_at": datetime.now(timezone.utc).isoformat(),
+        "base_url": "https://staging.example.com",
+        "secret_free_evidence": True,
+        "external_locations": [
+            {
+                "name": "replace-with-location-1",
+                "region": "replace-with-region-1",
+                "dns_ms": 0,
+                "tcp_ms": 0,
+                "tls_ms": 0,
+                "ttfb_ms": 0,
+                "initial_transfer_kb": 0,
+                "initial_request_count": 0,
+                "map_initialization_ms": 0,
+            },
+            {
+                "name": "replace-with-location-2",
+                "region": "replace-with-region-2",
+                "dns_ms": 0,
+                "tcp_ms": 0,
+                "tls_ms": 0,
+                "ttfb_ms": 0,
+                "initial_transfer_kb": 0,
+                "initial_request_count": 0,
+                "map_initialization_ms": 0,
+            },
+        ],
+        "app_layer": {
+            "search": {"p50_ms": 0, "p95_ms": 0, "target_ms": None, "target_met": True},
+            "comps": {"p50_ms": 0, "p95_ms": 0, "target_ms": 500, "target_met": True},
+            "export_job_creation": {"p50_ms": 0, "p95_ms": 0, "target_ms": None, "target_met": True},
+        },
+        "runtime_resources": {
+            "api_cpu_percent": 0,
+            "api_memory_mb": 0,
+            "worker_cpu_percent": 0,
+            "worker_memory_mb": 0,
+            "database_connections": 0,
+            "queue_depth": 0,
+            "error_rate": 0,
+        },
+    }
+
+
+def supplemental_location_rows(supplemental: dict[str, Any] | None) -> list[dict[str, Any]]:
+    if not supplemental:
+        return []
+    rows = []
+    for item in supplemental.get("external_locations") or []:
+        row = {
+            "name": item.get("name"),
+            "region": item.get("region"),
+        }
+        row.update({key: item.get(key) for key in LOCATION_REQUIRED})
+        rows.append(row)
+    return rows
+
+
+def supplemental_app_rows(supplemental: dict[str, Any] | None) -> list[dict[str, Any]]:
+    if not supplemental:
+        return []
+    rows = []
+    app = supplemental.get("app_layer") or {}
+    for key, label in APP_LAYER_REQUIRED.items():
+        item = app.get(key) or {}
+        rows.append({
+            "key": key,
+            "label": label,
+            "p50_ms": item.get("p50_ms"),
+            "p95_ms": item.get("p95_ms"),
+            "target_ms": item.get("target_ms"),
+            "target_met": item.get("target_met"),
+        })
+    return rows
+
+
+def supplemental_runtime_rows(supplemental: dict[str, Any] | None) -> list[dict[str, Any]]:
+    if not supplemental:
+        return []
+    resources = supplemental.get("runtime_resources") or {}
+    return [
+        {"key": key, "label": label, "value": resources.get(key)}
+        for key, label in RUNTIME_REQUIRED.items()
+    ]
+
+
+def non_negative_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and value >= 0
+
+
 def evaluate(
     browser_rows: list[dict[str, Any]],
     preflight: dict[str, Any] | None,
     auth: dict[str, Any] | None,
     route_probe: dict[str, Any] | None,
+    supplemental: dict[str, Any] | None,
 ) -> tuple[list[str], list[str]]:
     failures: list[str] = []
     warnings: list[str] = []
@@ -150,6 +269,45 @@ def evaluate(
     elif route_probe.get("verdict") != "pass" or route_probe.get("failure_count"):
         failures.append("public route-family probe verdict is not pass")
 
+    if supplemental is None:
+        warnings.append("supplemental public performance evidence missing; external-location and runtime-resource metrics are not summarized")
+    else:
+        if not supplemental.get("input_captured_at"):
+            failures.append("supplemental performance input captured timestamp is missing")
+        if urlparse(str(supplemental.get("base_url") or "")).scheme != "https":
+            failures.append("supplemental performance base URL is not HTTPS")
+        if supplemental.get("secret_free_evidence") is not True:
+            failures.append("supplemental performance evidence is not marked secret-free")
+
+        location_rows = supplemental_location_rows(supplemental)
+        if len(location_rows) < 2:
+            failures.append("fewer than two external performance locations are recorded")
+        for row in location_rows:
+            name = row.get("name") or "unknown location"
+            if not row.get("name") or not row.get("region"):
+                failures.append(f"external performance location identity is incomplete: {name}")
+            for key in LOCATION_REQUIRED:
+                value = row.get(key)
+                if not non_negative_number(value):
+                    failures.append(f"external performance location {name} missing non-negative {key}")
+            if not isinstance(row.get("initial_request_count"), int) or int(row.get("initial_request_count") or 0) <= 0:
+                failures.append(f"external performance location {name} initial_request_count is not positive")
+            if not non_negative_number(row.get("initial_transfer_kb")) or float(row.get("initial_transfer_kb") or 0) <= 0:
+                failures.append(f"external performance location {name} initial_transfer_kb is not positive")
+
+        for row in supplemental_app_rows(supplemental):
+            key = row["key"]
+            if not non_negative_number(row.get("p50_ms")):
+                failures.append(f"supplemental app-layer {key} p50_ms is missing")
+            if not non_negative_number(row.get("p95_ms")):
+                failures.append(f"supplemental app-layer {key} p95_ms is missing")
+            if row.get("target_met") is not True:
+                failures.append(f"supplemental app-layer {key} target is not met")
+
+        for row in supplemental_runtime_rows(supplemental):
+            if not non_negative_number(row.get("value")):
+                failures.append(f"runtime resource metric is missing: {row['key']}")
+
     return failures, warnings
 
 
@@ -159,9 +317,10 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
     preflight = load_json(Path(args.preflight)) if args.preflight else None
     auth = load_json(Path(args.auth_map_slot)) if args.auth_map_slot else None
     route_probe = load_json(Path(args.route_probe)) if args.route_probe else None
+    supplemental = load_json(Path(args.supplemental)) if args.supplemental else None
 
     browser_rows = flow_rows(browser)
-    failures, warnings = evaluate(browser_rows, preflight, auth, route_probe)
+    failures, warnings = evaluate(browser_rows, preflight, auth, route_probe, supplemental)
 
     return {
         "captured_at": datetime.now(timezone.utc).isoformat(),
@@ -173,6 +332,7 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
             "preflight": display_path(args.preflight) if args.preflight else "",
             "auth_map_slot": display_path(args.auth_map_slot) if args.auth_map_slot else "",
             "route_probe": display_path(args.route_probe) if args.route_probe else "",
+            "supplemental": display_path(args.supplemental) if args.supplemental else "",
         },
         "target": {
             "base_url": safe_url(browser.get("baseUrl")),
@@ -197,6 +357,13 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
             "captured_at": route_probe.get("captured_at") if route_probe else None,
             "verdict": route_probe.get("verdict") if route_probe else None,
             "rows": route_rows(route_probe),
+        },
+        "supplemental": {
+            "input_captured_at": supplemental.get("input_captured_at") if supplemental else None,
+            "base_url": safe_url(supplemental.get("base_url")) if supplemental else None,
+            "external_locations": supplemental_location_rows(supplemental),
+            "app_layer": supplemental_app_rows(supplemental),
+            "runtime_resources": supplemental_runtime_rows(supplemental),
         },
         "failures": failures,
         "warnings": warnings,
@@ -269,6 +436,47 @@ def markdown(payload: dict[str, Any]) -> str:
                 f"{row['p95_ms']} | {row['status_codes']} | {md_bool(row['ok'])} |"
             )
 
+    supplemental = payload["supplemental"]
+    if supplemental["external_locations"]:
+        lines.extend([
+            "",
+            "## External Locations",
+            "",
+            "| Location | Region | DNS ms | TCP ms | TLS ms | TTFB ms | Initial KB | Initial requests | Map init ms |",
+            "|---|---|---:|---:|---:|---:|---:|---:|---:|",
+        ])
+        for row in supplemental["external_locations"]:
+            lines.append(
+                f"| {row['name']} | {row['region']} | {row['dns_ms']} | {row['tcp_ms']} | "
+                f"{row['tls_ms']} | {row['ttfb_ms']} | {row['initial_transfer_kb']} | "
+                f"{row['initial_request_count']} | {row['map_initialization_ms']} |"
+            )
+
+    if supplemental["app_layer"]:
+        lines.extend([
+            "",
+            "## Supplemental App-Layer Latency",
+            "",
+            "| Measurement | p50 ms | p95 ms | Target ms | Target met |",
+            "|---|---:|---:|---:|---|",
+        ])
+        for row in supplemental["app_layer"]:
+            lines.append(
+                f"| {row['label']} | {row['p50_ms']} | {row['p95_ms']} | "
+                f"{row['target_ms'] if row['target_ms'] is not None else '-'} | {md_bool(row['target_met'])} |"
+            )
+
+    if supplemental["runtime_resources"]:
+        lines.extend([
+            "",
+            "## Runtime Resources",
+            "",
+            "| Metric | Value |",
+            "|---|---:|",
+        ])
+        for row in supplemental["runtime_resources"]:
+            lines.append(f"| {row['label']} | {row['value']} |")
+
     lines.extend([
         "",
         "## DNS And TLS",
@@ -294,14 +502,20 @@ def markdown(payload: dict[str, Any]) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--print-supplemental-template", action="store_true", help="print a non-secret supplemental performance evidence template and exit")
     parser.add_argument("--browser-summary", default=str(PERF_EVIDENCE / "26-public-staging-browser-har-summary.json"))
     parser.add_argument("--direct-summary", default="")
     parser.add_argument("--preflight", default=str(PUBLIC_EVIDENCE / "00-public-staging-preflight.json"))
     parser.add_argument("--auth-map-slot", default="")
     parser.add_argument("--route-probe", default=str(PERF_EVIDENCE / "25-public-route-family-probe.json"))
+    parser.add_argument("--supplemental", default=str(PUBLIC_EVIDENCE / "performance-supplemental.json"))
     parser.add_argument("--output", default=str(PUBLIC_EVIDENCE / "15-performance.md"))
     parser.add_argument("--summary-output", default=str(PUBLIC_EVIDENCE / "performance-evidence-summary.json"))
     args = parser.parse_args()
+
+    if args.print_supplemental_template:
+        print(json.dumps(supplemental_template(), indent=2, sort_keys=True))
+        return 0
 
     payload = build_payload(args)
     output = Path(args.output)

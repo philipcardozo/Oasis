@@ -404,6 +404,22 @@ def test_performance_summary_requires_proxyman_and_app_layer_rows(tmp_path, monk
     assert any("missing map-slot write app-layer latency" in item for item in result["weak"])
 
 
+def test_performance_summary_requires_external_locations_and_runtime_resources(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _performance_summary()
+    summary["supplemental"]["external_locations"] = summary["supplemental"]["external_locations"][:1]
+    summary["supplemental"]["app_layer"][0]["target_met"] = False
+    summary["supplemental"]["runtime_resources"][3]["value"] = None
+    (evidence / "performance-evidence-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("performance", "Performance", ["performance-evidence-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("fewer than two external locations" in item for item in result["weak"])
+    assert any("supplemental app-layer target is not met: search" in item for item in result["weak"])
+    assert any("runtime resource metric is missing: worker_memory_mb" in item for item in result["weak"])
+
+
 def test_valid_route_security_summary_json_evidence_is_proven(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     (evidence / "route-security-summary.json").write_text(json.dumps(_route_security_summary()))
@@ -1051,6 +1067,46 @@ def _performance_summary() -> dict:
                     "p95_ms": 150,
                     "ok": True,
                 }
+            ],
+        },
+        "supplemental": {
+            "external_locations": [
+                {
+                    "name": "us-east-probe",
+                    "region": "us-east",
+                    "dns_ms": 12.3,
+                    "tcp_ms": 20.1,
+                    "tls_ms": 44.5,
+                    "ttfb_ms": 90.0,
+                    "initial_transfer_kb": 350.5,
+                    "initial_request_count": 9,
+                    "map_initialization_ms": 650.0,
+                },
+                {
+                    "name": "us-west-probe",
+                    "region": "us-west",
+                    "dns_ms": 16.0,
+                    "tcp_ms": 33.0,
+                    "tls_ms": 55.0,
+                    "ttfb_ms": 120.0,
+                    "initial_transfer_kb": 352.0,
+                    "initial_request_count": 9,
+                    "map_initialization_ms": 700.0,
+                },
+            ],
+            "app_layer": [
+                {"key": "search", "p50_ms": 35, "p95_ms": 80, "target_met": True},
+                {"key": "comps", "p50_ms": 100, "p95_ms": 150, "target_met": True},
+                {"key": "export_job_creation", "p50_ms": 45, "p95_ms": 90, "target_met": True},
+            ],
+            "runtime_resources": [
+                {"key": "api_cpu_percent", "value": 12.5},
+                {"key": "api_memory_mb", "value": 256},
+                {"key": "worker_cpu_percent", "value": 10.0},
+                {"key": "worker_memory_mb", "value": 220},
+                {"key": "database_connections", "value": 4},
+                {"key": "queue_depth", "value": 0},
+                {"key": "error_rate", "value": 0},
             ],
         },
     }

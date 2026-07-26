@@ -137,17 +137,33 @@ proves the gate and remains secret-free.
 
 Then run the Proxyman/browser capture from `docs/PERFORMANCE-PROXYMAN-RUNBOOK.md`
 Prompt 8 and the public prompts appended there. After the public browser
-capture, generate the performance evidence report:
+capture, fill the supplemental public performance evidence file from external
+location probes and provider metrics, then generate the performance evidence
+report:
 
 ```bash
+python3 scripts/public_staging_performance_report.py --print-supplemental-template \
+  > /tmp/oasis-performance-supplemental.template.json
+
+# Fill this file from external probes and provider metrics:
+# docs/evidence/public-staging/performance-supplemental.json
+
 python3 scripts/public_staging_performance_report.py \
   --browser-summary=docs/evidence/performance/26-public-staging-browser-har-summary.json \
   --direct-summary=docs/evidence/performance/26-public-staging-direct-browser-har-summary.json \
   --auth-map-slot=docs/evidence/performance/27-public-auth-map-slots.json \
   --route-probe=docs/evidence/performance/25-public-route-family-probe.json \
+  --supplemental=docs/evidence/public-staging/performance-supplemental.json \
   --output=docs/evidence/public-staging/15-performance.md \
   --summary-output=docs/evidence/public-staging/performance-evidence-summary.json
 ```
+
+The supplemental file must record at least two external network locations, DNS,
+TCP, TLS, TTFB, initial transferred bytes, initial request count, map
+initialization timing, search/comps/export-job p50 and p95, API and worker CPU
+and memory, database connections, queue depth, and error rate. Keep the file
+secret-free; do not include cookies, authorization headers, private provider
+URLs, or raw telemetry links.
 
 After recording browser/OS versions and per-browser checks in
 `docs/evidence/public-staging/browser-matrix.json`, generate browser and

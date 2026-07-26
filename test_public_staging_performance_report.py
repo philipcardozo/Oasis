@@ -12,6 +12,7 @@ def test_public_staging_performance_report_passes_with_required_evidence(tmp_pat
     preflight = tmp_path / "preflight.json"
     auth = tmp_path / "auth.json"
     route = tmp_path / "route.json"
+    supplemental = tmp_path / "performance-supplemental.json"
     output = tmp_path / "15-performance.md"
     summary = tmp_path / "performance-evidence-summary.json"
     browser.write_text(json.dumps(_browser_summary(bulk=False)))
@@ -34,8 +35,9 @@ def test_public_staging_performance_report_passes_with_required_evidence(tmp_pat
             {"name": "entity comps", "family": "entity drawer/model", "method": "GET", "template": "/api/entity/{entity_id}/comps", "p50_ms": 100, "p95_ms": 150, "status_codes": [200], "ok": True},
         ],
     }))
+    supplemental.write_text(json.dumps(_supplemental()))
 
-    result = _run_report(browser, output, summary=summary, direct=direct, preflight=preflight, auth=auth, route=route)
+    result = _run_report(browser, output, summary=summary, direct=direct, preflight=preflight, auth=auth, route=route, supplemental=supplemental)
 
     assert result.returncode == 0, result.stderr
     text = output.read_text()
@@ -46,6 +48,8 @@ def test_public_staging_performance_report_passes_with_required_evidence(tmp_pat
     assert data["verdict"] == "pass"
     assert data["browser"]["direct_comparison_present"] is True
     assert data["auth_map_slot"]["rows"][0]["p95_ms"] == 10
+    assert len(data["supplemental"]["external_locations"]) == 2
+    assert data["supplemental"]["runtime_resources"][0]["key"] == "api_cpu_percent"
 
 
 def test_public_staging_performance_report_fails_when_first_paint_loads_bulk(tmp_path):
@@ -59,6 +63,36 @@ def test_public_staging_performance_report_fails_when_first_paint_loads_bulk(tmp
     assert "first paint requested /api/universe/bulk" in output.read_text()
 
 
+def test_public_staging_performance_report_requires_two_external_locations(tmp_path):
+    browser = tmp_path / "browser.json"
+    supplemental = tmp_path / "performance-supplemental.json"
+    output = tmp_path / "15-performance.md"
+    browser.write_text(json.dumps(_browser_summary(bulk=False)))
+    data = _supplemental()
+    data["external_locations"] = data["external_locations"][:1]
+    supplemental.write_text(json.dumps(data))
+
+    result = _run_report(browser, output, supplemental=supplemental)
+
+    assert result.returncode == 1
+    assert "fewer than two external performance locations are recorded" in output.read_text()
+
+
+def test_public_staging_performance_report_requires_runtime_resources(tmp_path):
+    browser = tmp_path / "browser.json"
+    supplemental = tmp_path / "performance-supplemental.json"
+    output = tmp_path / "15-performance.md"
+    browser.write_text(json.dumps(_browser_summary(bulk=False)))
+    data = _supplemental()
+    data["runtime_resources"]["worker_memory_mb"] = None
+    supplemental.write_text(json.dumps(data))
+
+    result = _run_report(browser, output, supplemental=supplemental)
+
+    assert result.returncode == 1
+    assert "runtime resource metric is missing: worker_memory_mb" in output.read_text()
+
+
 def _run_report(
     browser: Path,
     output: Path,
@@ -68,6 +102,7 @@ def _run_report(
     preflight: Path | None = None,
     auth: Path | None = None,
     route: Path | None = None,
+    supplemental: Path | None = None,
 ):
     cmd = [
         sys.executable,
@@ -86,6 +121,8 @@ def _run_report(
         cmd.extend(["--auth-map-slot", str(auth)])
     if route:
         cmd.extend(["--route-probe", str(route)])
+    if supplemental:
+        cmd.extend(["--supplemental", str(supplemental)])
     return subprocess.run(cmd, capture_output=True, text=True)
 
 
@@ -119,5 +156,51 @@ def _browser_summary(*, bulk: bool, proxy_server: str | None = "http://127.0.0.1
                 "externalHosts": [],
                 "harPath": "docs/evidence/performance/26-public-staging-05-local-search-intent.har",
             },
+        },
+    }
+
+
+def _supplemental() -> dict:
+    return {
+        "input_captured_at": "2026-07-25T00:00:00Z",
+        "base_url": "https://staging.example.com",
+        "secret_free_evidence": True,
+        "external_locations": [
+            {
+                "name": "us-east-probe",
+                "region": "us-east",
+                "dns_ms": 12.3,
+                "tcp_ms": 20.1,
+                "tls_ms": 44.5,
+                "ttfb_ms": 90.0,
+                "initial_transfer_kb": 350.5,
+                "initial_request_count": 9,
+                "map_initialization_ms": 650.0,
+            },
+            {
+                "name": "us-west-probe",
+                "region": "us-west",
+                "dns_ms": 16.0,
+                "tcp_ms": 33.0,
+                "tls_ms": 55.0,
+                "ttfb_ms": 120.0,
+                "initial_transfer_kb": 352.0,
+                "initial_request_count": 9,
+                "map_initialization_ms": 700.0,
+            },
+        ],
+        "app_layer": {
+            "search": {"p50_ms": 35, "p95_ms": 80, "target_ms": None, "target_met": True},
+            "comps": {"p50_ms": 100, "p95_ms": 150, "target_ms": 500, "target_met": True},
+            "export_job_creation": {"p50_ms": 45, "p95_ms": 90, "target_ms": None, "target_met": True},
+        },
+        "runtime_resources": {
+            "api_cpu_percent": 12.5,
+            "api_memory_mb": 256,
+            "worker_cpu_percent": 10.0,
+            "worker_memory_mb": 220,
+            "database_connections": 4,
+            "queue_depth": 0,
+            "error_rate": 0,
         },
     }

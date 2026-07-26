@@ -1060,6 +1060,20 @@ Verify:
 Record browser/OS versions and manual browser checks in:
 - docs/evidence/public-staging/browser-matrix.json
 
+Record supplemental public performance evidence in:
+- docs/evidence/public-staging/performance-supplemental.json
+
+Start from:
+python3 scripts/public_staging_performance_report.py --print-supplemental-template \
+  > /tmp/oasis-performance-supplemental.template.json
+
+Fill it from at least two external network locations and provider/runtime
+metrics. It must include DNS, TCP, TLS, TTFB, initial transferred bytes, initial
+request count, map initialization, search p50/p95, comps p50/p95, export-job
+creation p50/p95, API CPU/memory, worker CPU/memory, database connections,
+queue depth, and error rate. Do not include cookies, authorization headers,
+private provider URLs, account IDs, or raw telemetry links.
+
 Then generate strict browser and map-provider reports:
 
 python3 scripts/public_staging_browser_reports.py \
@@ -1076,6 +1090,7 @@ python3 scripts/public_staging_performance_report.py \
   --direct-summary=docs/evidence/performance/26-public-staging-direct-browser-har-summary.json \
   --auth-map-slot=docs/evidence/performance/27-public-auth-map-slots.json \
   --route-probe=docs/evidence/performance/25-public-route-family-probe.json \
+  --supplemental=docs/evidence/public-staging/performance-supplemental.json \
   --output=docs/evidence/public-staging/15-performance.md \
   --summary-output=docs/evidence/public-staging/performance-evidence-summary.json
 ```

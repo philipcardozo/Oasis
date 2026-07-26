@@ -553,6 +553,42 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
             weak.append(f"performance summary route probe failed: {route}")
         if row.get("p95_ms") is None:
             weak.append(f"performance summary route probe p95 is missing: {route}")
+
+    supplemental = data.get("supplemental") or {}
+    locations = list(supplemental.get("external_locations") or [])
+    if len(locations) < 2:
+        weak.append("performance summary has fewer than two external locations")
+    for row in locations:
+        name = row.get("name") or "unknown location"
+        if not row.get("name") or not row.get("region"):
+            weak.append(f"performance summary external location identity is incomplete: {name}")
+        for key in ("dns_ms", "tcp_ms", "tls_ms", "ttfb_ms", "initial_transfer_kb", "initial_request_count", "map_initialization_ms"):
+            value = row.get(key)
+            if not isinstance(value, (int, float)) or value < 0:
+                weak.append(f"performance summary external location {name} missing non-negative {key}")
+        if int(row.get("initial_request_count") or 0) <= 0:
+            weak.append(f"performance summary external location {name} initial_request_count is not positive")
+        if float(row.get("initial_transfer_kb") or 0) <= 0:
+            weak.append(f"performance summary external location {name} initial_transfer_kb is not positive")
+
+    app_rows = {row.get("key"): row for row in supplemental.get("app_layer") or []}
+    for key in ("search", "comps", "export_job_creation"):
+        row = app_rows.get(key)
+        if not row:
+            weak.append(f"performance summary missing supplemental app-layer latency: {key}")
+            continue
+        if row.get("target_met") is not True:
+            weak.append(f"performance summary supplemental app-layer target is not met: {key}")
+        if row.get("p50_ms") is None:
+            weak.append(f"performance summary supplemental app-layer p50 is missing: {key}")
+        if row.get("p95_ms") is None:
+            weak.append(f"performance summary supplemental app-layer p95 is missing: {key}")
+
+    resource_rows = {row.get("key"): row.get("value") for row in supplemental.get("runtime_resources") or []}
+    for key in ("api_cpu_percent", "api_memory_mb", "worker_cpu_percent", "worker_memory_mb", "database_connections", "queue_depth", "error_rate"):
+        value = resource_rows.get(key)
+        if not isinstance(value, (int, float)) or value < 0:
+            weak.append(f"performance summary runtime resource metric is missing: {key}")
     return weak
 
 
