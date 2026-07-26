@@ -110,6 +110,7 @@ MARKDOWN_REQUIRED_TEXT = {
         "## Route Probe",
         "### Unauthenticated Rejections",
         "## Auth And Authorization Checks",
+        "Fourth slot create attempt status",
     ],
     "10-worker-jobs.md": [
         "# Public Staging Worker Job Evidence",
@@ -685,6 +686,10 @@ def route_security_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("route-security stale-version conflict status is not 409")
     if auth.get("default_map_slot_count") != 3 or auth.get("default_map_slot_numbers") != [1, 2, 3]:
         weak.append("route-security exactly-three map-slot evidence is missing")
+    if auth.get("fourth_slot_create_status") not in {404, 405, 409, 422}:
+        weak.append("route-security fourth map-slot create attempt was not rejected")
+    if auth.get("fourth_slot_import_status") != 422:
+        weak.append("route-security fourth map-slot import attempt was not rejected with 422")
     return weak
 
 

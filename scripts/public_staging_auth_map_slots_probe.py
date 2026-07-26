@@ -255,6 +255,11 @@ def same_value_slot_body(slot: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def rejected_status(sample: dict[str, Any], allowed: set[int]) -> bool:
+    status = sample.get("status_code")
+    return isinstance(status, int) and status in allowed
+
+
 def exercise_slots(
     session: requests.Session,
     base_url: str,
@@ -330,6 +335,22 @@ def exercise_slots(
         timeout=timeout,
     ))
     checks["stale_version_conflict"] = response_sample(duration, response)
+
+    duration, response = timed(lambda: session.post(
+        f"{base_url}/api/map-slots",
+        json={"slot_number": 4, "name": "Fourth Slot Probe", "basemap": "standard", "config": {}},
+        headers={"X-CSRF-Token": csrf},
+        timeout=timeout,
+    ))
+    checks["fourth_slot_create_attempt"] = response_sample(duration, response)
+
+    duration, response = timed(lambda: session.post(
+        f"{base_url}/api/map-slots/import",
+        json={"slot_number": 4, "config_json": json.dumps({"kind": "map_slot", "basemap": "standard", "config": {}})},
+        headers={"X-CSRF-Token": csrf},
+        timeout=timeout,
+    ))
+    checks["fourth_slot_import_attempt"] = response_sample(duration, response)
     return checks, measurements, current_slot
 
 
@@ -500,6 +521,10 @@ def evaluate(payload: dict[str, Any]) -> tuple[list[str], list[str]]:
         failures.append("cross-user map-slot read denial is missing or not 403/404")
     if (checks.get("stale_version_conflict") or {}).get("status_code") != 409:
         failures.append("stale-version conflict did not return 409")
+    if not rejected_status(checks.get("fourth_slot_create_attempt") or {}, {404, 405, 409, 422}):
+        failures.append("fourth map-slot create attempt was not rejected")
+    if not rejected_status(checks.get("fourth_slot_import_attempt") or {}, {422}):
+        failures.append("fourth map-slot import attempt was not rejected with 422")
 
     reset = checks.get("password_reset") or {}
     if (reset.get("request") or {}).get("status_code") != 200:

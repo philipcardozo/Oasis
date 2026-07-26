@@ -145,6 +145,10 @@ def evaluate(
             warnings.append("map-slot conflict evidence is missing or not 409")
         if checks.get("default_map_slot_count") != 3 or checks.get("default_map_slot_numbers") != [1, 2, 3]:
             failures.append("exactly-three map-slot evidence is missing")
+        if checks.get("fourth_slot_create_attempt", {}).get("status_code") not in {404, 405, 409, 422}:
+            failures.append("fourth map-slot create attempt was not rejected")
+        if checks.get("fourth_slot_import_attempt", {}).get("status_code") != 422:
+            failures.append("fourth map-slot import attempt was not rejected with 422")
 
     return failures, warnings
 
@@ -211,6 +215,8 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
             "stale_conflict_status": checks.get("stale_version_conflict", {}).get("status_code"),
             "default_map_slot_count": checks.get("default_map_slot_count"),
             "default_map_slot_numbers": checks.get("default_map_slot_numbers"),
+            "fourth_slot_create_status": checks.get("fourth_slot_create_attempt", {}).get("status_code"),
+            "fourth_slot_import_status": checks.get("fourth_slot_import_attempt", {}).get("status_code"),
         },
         "failures": failures,
         "warnings": warnings,
@@ -257,6 +263,8 @@ def markdown(payload: dict[str, Any]) -> str:
         f"- Cross-user slot denial status: `{payload['auth_security']['cross_user_status']}`",
         f"- Stale version conflict status: `{payload['auth_security']['stale_conflict_status']}`",
         f"- Default map slots: `{payload['auth_security']['default_map_slot_numbers']}`",
+        f"- Fourth slot create attempt status: `{payload['auth_security']['fourth_slot_create_status']}`",
+        f"- Fourth slot import attempt status: `{payload['auth_security']['fourth_slot_import_status']}`",
     ])
     if payload["failures"]:
         lines.extend(["", "## Failures", ""])

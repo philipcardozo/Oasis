@@ -263,7 +263,8 @@ dedicated lifecycle account for destructive account-deletion proof, not the two
 map-slot tester accounts. The public probe also retries used verification and
 password-reset tokens and sends an unknown-account reset request; token reuse
 must be rejected and known/unknown reset responses must keep the same generic
-shape.
+shape. It also attempts direct fourth-slot creation and `slot_number: 4` import;
+both attempts must be rejected.
 
 Generate transactional-email delivery evidence after auth, infra, and ops
 summaries exist:

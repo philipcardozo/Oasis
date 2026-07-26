@@ -477,6 +477,8 @@ def test_route_security_summary_requires_auth_inventory_and_headers(tmp_path, mo
     summary["preflight"]["index_headers"].remove("permissions-policy")
     summary["inventory"]["class_summary"]["public-write-auth-flow-rate-limited"] = 4
     summary["auth_security"]["csrf_rejection_status"] = 200
+    summary["auth_security"]["fourth_slot_create_status"] = 201
+    summary["auth_security"]["fourth_slot_import_status"] = 200
     (evidence / "route-security-summary.json").write_text(json.dumps(summary))
 
     result = audit.evaluate("route", "Route security", ["route-security-summary.json"])
@@ -486,6 +488,8 @@ def test_route_security_summary_requires_auth_inventory_and_headers(tmp_path, mo
     assert any("missing header evidence: permissions-policy" in item for item in result["weak"])
     assert any("rate-limited public auth-flow class count is not 5" in item for item in result["weak"])
     assert any("CSRF rejection status is not 403" in item for item in result["weak"])
+    assert any("fourth map-slot create attempt was not rejected" in item for item in result["weak"])
+    assert any("fourth map-slot import attempt was not rejected with 422" in item for item in result["weak"])
 
 
 def test_valid_ops_summary_json_evidence_is_proven(tmp_path, monkeypatch):
@@ -1210,6 +1214,8 @@ def _route_security_summary() -> dict:
             "stale_conflict_status": 409,
             "default_map_slot_count": 3,
             "default_map_slot_numbers": [1, 2, 3],
+            "fourth_slot_create_status": 405,
+            "fourth_slot_import_status": 422,
         },
     }
 

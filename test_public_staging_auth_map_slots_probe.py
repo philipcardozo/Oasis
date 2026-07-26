@@ -52,6 +52,17 @@ def test_public_auth_map_slot_probe_requires_exactly_three_slots_and_cross_user_
     assert "cross-user map-slot read denial is missing or not 403/404" in failures
 
 
+def test_public_auth_map_slot_probe_requires_fourth_slot_denial():
+    payload = _payload()
+    payload["checks"]["fourth_slot_create_attempt"]["status_code"] = 201
+    payload["checks"]["fourth_slot_import_attempt"]["status_code"] = 200
+
+    failures, _ = evaluate(payload)
+
+    assert "fourth map-slot create attempt was not rejected" in failures
+    assert "fourth map-slot import attempt was not rejected with 422" in failures
+
+
 def test_email_domain_avoids_recording_complete_address():
     assert email_domain("beta.tester+probe@example.com") == "example.com"
     assert email_domain("not-an-email") == "<invalid>"
@@ -92,6 +103,8 @@ def _payload() -> dict:
             "default_map_slot_numbers": [1, 2, 3],
             "cross_user_slot_read_denied": {"status_code": 404},
             "stale_version_conflict": {"status_code": 409},
+            "fourth_slot_create_attempt": {"status_code": 405},
+            "fourth_slot_import_attempt": {"status_code": 422},
             "password_reset": {
                 "request": {"status_code": 200, "json_keys": ["message", "ok"]},
                 "unknown_account_request": {"status_code": 200, "json_keys": ["message", "ok"]},

@@ -22,6 +22,8 @@ def test_public_route_security_report_passes_with_complete_evidence(tmp_path):
     data = json.loads(summary.read_text())
     assert data["verdict"] == "pass"
     assert data["auth_security"]["stale_conflict_status"] == 409
+    assert data["auth_security"]["fourth_slot_create_status"] == 405
+    assert data["auth_security"]["fourth_slot_import_status"] == 422
     assert data["inventory"]["class_summary"]["public-write-auth-flow-rate-limited"] == 5
 
 
@@ -118,6 +120,8 @@ def _write_inputs(tmp_path: Path, *, include_auth: bool) -> dict[str, Path]:
                 "stale_version_conflict": {"status_code": 409},
                 "default_map_slot_count": 3,
                 "default_map_slot_numbers": [1, 2, 3],
+                "fourth_slot_create_attempt": {"status_code": 405},
+                "fourth_slot_import_attempt": {"status_code": 422},
             },
         }))
         files["auth"] = auth

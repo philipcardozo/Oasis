@@ -993,6 +993,7 @@ Verify:
 - exactly three map slots exist for the tester
 - stale-version map-slot write returns 409
 - cross-user map-slot read is denied with 403 or 404
+- direct fourth-slot creation and `slot_number: 4` import attempts are rejected
 - disposable lifecycle user can list sessions, revoke a second session, change
   password, prove the old password fails, login with the new password, logout
   all sessions, delete the account, and prove the deleted account cannot log in
@@ -1169,7 +1170,8 @@ Using the real staging URL and provider dashboards/logs, verify and record:
 - authentication email delivery for registration verification and password reset
 - secure session cookie flags, no reusable localStorage token, CSRF rejection
 - two users, exactly three map slots per user, cross-user denial, conflict
-  handling, API restart persistence, deploy revision compatibility
+  handling, direct fourth-slot denial, API restart persistence, deploy revision
+  compatibility
 - controlled noop worker job claim/progress/completion/failure/retry/restart
 - API remains responsive while worker runs
 - API normal user requests perform zero external acquisition
