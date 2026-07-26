@@ -116,7 +116,8 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
   migration checks
 - `06-auth-email.md`
 - `auth-email-summary.json`, generated beside `06-auth-email.md` for strict
-  email verification, password-reset, secure-cookie, and CSRF checks
+  email verification, password-reset, secure-cookie, CSRF, session revocation,
+  logout-all, password-change, and account-deletion checks
 - `07-browser-matrix.md`
 - `08-map-provider-capture.md`
 - `browser-map-summary.json`, generated beside the browser/map Markdown reports

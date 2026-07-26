@@ -259,6 +259,20 @@ def test_auth_email_summary_requires_reset_cookie_and_csrf_evidence(tmp_path, mo
     assert any("csrf_rejection_status is not 403" in item for item in result["weak"])
 
 
+def test_auth_email_summary_requires_account_lifecycle_evidence(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _auth_email_summary()
+    summary["rows"]["session_revoke_status"] = 404
+    summary["rows"]["post_delete_login_status"] = 200
+    (evidence / "auth-email-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("auth", "Auth email", ["auth-email-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("session_revoke_status is not 200" in item for item in result["weak"])
+    assert any("post_delete_login_status is not 401" in item for item in result["weak"])
+
+
 def test_valid_browser_map_summary_json_evidence_is_proven(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     (evidence / "browser-map-summary.json").write_text(json.dumps(_browser_map_summary()))
@@ -710,6 +724,10 @@ def _auth_email_summary() -> dict:
             "user_b_verification_token_supplied": True,
             "user_b_verification_status": 200,
             "user_b_login_status": 200,
+            "lifecycle_user_registration_status": 201,
+            "lifecycle_user_verification_token_supplied": True,
+            "lifecycle_user_verification_status": 200,
+            "lifecycle_user_login_status": 200,
             "password_reset_request_status": 200,
             "password_reset_token_supplied": True,
             "password_reset_complete_status": 200,
@@ -718,6 +736,23 @@ def _auth_email_summary() -> dict:
             "session_cookie_httponly": True,
             "csrf_cookie_secure": True,
             "csrf_rejection_status": 403,
+            "lifecycle_changed_password_supplied": True,
+            "lifecycle_csrf_cookie_present": True,
+            "session_list_status": 200,
+            "revoke_target_login_status": 200,
+            "revoke_target_session_found": True,
+            "session_revoke_status": 200,
+            "revoked_session_me_status": 401,
+            "password_change_status": 200,
+            "old_password_login_after_change_status": 401,
+            "new_password_login_after_change_status": 200,
+            "logout_all_status": 200,
+            "post_logout_all_me_status": 401,
+            "original_session_after_logout_all_me_status": 401,
+            "delete_login_status": 200,
+            "account_delete_status": 200,
+            "post_delete_me_status": 401,
+            "post_delete_login_status": 401,
         },
     }
 

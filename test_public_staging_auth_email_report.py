@@ -14,6 +14,8 @@ def test_auth_email_report_passes_with_complete_sanitized_evidence():
     assert failures == []
     assert rows["user_a_verification_status"] == 200
     assert rows["password_reset_complete_status"] == 200
+    assert rows["password_change_status"] == 200
+    assert rows["account_delete_status"] == 200
 
 
 def test_auth_email_report_requires_reset_completion():
@@ -23,6 +25,17 @@ def test_auth_email_report_requires_reset_completion():
     failures, _ = evaluate(auth)
 
     assert "password reset completion did not return 200" in failures
+
+
+def test_auth_email_report_requires_account_lifecycle_completion():
+    auth = _auth()
+    auth["checks"]["account_lifecycle"]["logout_all"]["status_code"] = 500
+    auth["checks"]["account_lifecycle"]["post_delete_login"]["status_code"] = 200
+
+    failures, _ = evaluate(auth)
+
+    assert "account lifecycle logout_all_status is not 200" in failures
+    assert "account lifecycle post_delete_login_status is not 401" in failures
 
 
 def test_auth_email_report_rejects_complete_emails_and_secret_values():
@@ -86,6 +99,15 @@ def _auth() -> dict:
                 "verify_email": {"status_code": 200},
                 "login": {"status_code": 200},
             },
+            "lifecycle_user": {
+                "email_env": "OASIS_PUBLIC_LIFECYCLE_EMAIL",
+                "email_domain": "example.com",
+                "verification_token_env": "OASIS_PUBLIC_LIFECYCLE_VERIFY_TOKEN",
+                "verification_token_supplied": True,
+                "register": {"status_code": 201},
+                "verify_email": {"status_code": 200},
+                "login": {"status_code": 200},
+            },
         },
         "checks": {
             "session_cookie_secure": True,
@@ -100,6 +122,26 @@ def _auth() -> dict:
                 "request": {"status_code": 200},
                 "complete": {"status_code": 200},
                 "post_reset_login": {"status_code": 200},
+            },
+            "account_lifecycle": {
+                "changed_password_env": "OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD",
+                "changed_password_supplied": True,
+                "csrf_cookie_present": True,
+                "session_list": {"status_code": 200},
+                "revoke_target_login": {"status_code": 200},
+                "revoke_target_session_found": True,
+                "session_revoke": {"status_code": 200},
+                "revoked_session_me": {"status_code": 401},
+                "password_change": {"status_code": 200},
+                "old_password_login_after_change": {"status_code": 401},
+                "new_password_login_after_change": {"status_code": 200},
+                "logout_all": {"status_code": 200},
+                "post_logout_all_me": {"status_code": 401},
+                "original_session_after_logout_all_me": {"status_code": 401},
+                "delete_login": {"status_code": 200},
+                "account_delete": {"status_code": 200},
+                "post_delete_me": {"status_code": 401},
+                "post_delete_login": {"status_code": 401},
             },
         },
     }

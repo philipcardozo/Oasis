@@ -81,7 +81,7 @@ def evaluate(auth: dict[str, Any]) -> tuple[list[str], dict[str, Any]]:
         failures.append(f"auth evidence contains secret-like string values: {', '.join(secret_paths)}")
 
     users = auth.get("users") or {}
-    for label in ("user_a", "user_b"):
+    for label in ("user_a", "user_b", "lifecycle_user"):
         user = users.get(label) or {}
         rows[f"{label}_registration_status"] = status(user.get("register"))
         rows[f"{label}_verification_token_supplied"] = user.get("verification_token_supplied")
@@ -124,6 +124,49 @@ def evaluate(auth: dict[str, Any]) -> tuple[list[str], dict[str, Any]]:
         failures.append("CSRF cookie is not Secure")
     if rows["csrf_rejection_status"] != 403:
         failures.append("CSRF rejection did not return 403")
+
+    lifecycle = checks.get("account_lifecycle") or {}
+    rows.update({
+        "lifecycle_changed_password_supplied": lifecycle.get("changed_password_supplied"),
+        "lifecycle_csrf_cookie_present": lifecycle.get("csrf_cookie_present"),
+        "session_list_status": status(lifecycle.get("session_list")),
+        "revoke_target_login_status": status(lifecycle.get("revoke_target_login")),
+        "revoke_target_session_found": lifecycle.get("revoke_target_session_found"),
+        "session_revoke_status": status(lifecycle.get("session_revoke")),
+        "revoked_session_me_status": status(lifecycle.get("revoked_session_me")),
+        "password_change_status": status(lifecycle.get("password_change")),
+        "old_password_login_after_change_status": status(lifecycle.get("old_password_login_after_change")),
+        "new_password_login_after_change_status": status(lifecycle.get("new_password_login_after_change")),
+        "logout_all_status": status(lifecycle.get("logout_all")),
+        "post_logout_all_me_status": status(lifecycle.get("post_logout_all_me")),
+        "original_session_after_logout_all_me_status": status(lifecycle.get("original_session_after_logout_all_me")),
+        "delete_login_status": status(lifecycle.get("delete_login")),
+        "account_delete_status": status(lifecycle.get("account_delete")),
+        "post_delete_me_status": status(lifecycle.get("post_delete_me")),
+        "post_delete_login_status": status(lifecycle.get("post_delete_login")),
+    })
+    lifecycle_expected = {
+        "lifecycle_changed_password_supplied": True,
+        "lifecycle_csrf_cookie_present": True,
+        "session_list_status": 200,
+        "revoke_target_login_status": 200,
+        "revoke_target_session_found": True,
+        "session_revoke_status": 200,
+        "revoked_session_me_status": 401,
+        "password_change_status": 200,
+        "old_password_login_after_change_status": 401,
+        "new_password_login_after_change_status": 200,
+        "logout_all_status": 200,
+        "post_logout_all_me_status": 401,
+        "original_session_after_logout_all_me_status": 401,
+        "delete_login_status": 200,
+        "account_delete_status": 200,
+        "post_delete_me_status": 401,
+        "post_delete_login_status": 401,
+    }
+    for key, expected in lifecycle_expected.items():
+        if rows.get(key) != expected:
+            failures.append(f"account lifecycle {key} is not {expected}")
 
     return failures, rows
 

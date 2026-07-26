@@ -90,6 +90,8 @@ MARKDOWN_REQUIRED_TEXT = {
         "## Checks",
         "session cookie secure",
         "csrf rejection status",
+        "password change status",
+        "account delete status",
     ],
     "07-browser-matrix.md": [
         "# Public Staging Browser Matrix Evidence",
@@ -611,7 +613,7 @@ def auth_email_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("auth-email summary has failures")
 
     rows = data.get("rows") or {}
-    for user in ("user_a", "user_b"):
+    for user in ("user_a", "user_b", "lifecycle_user"):
         registration = rows.get(f"{user}_registration_status")
         if registration not in {200, 201, 202}:
             weak.append(f"auth-email {user} registration status is not generic success")
@@ -631,6 +633,23 @@ def auth_email_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         "session_cookie_httponly": True,
         "csrf_cookie_secure": True,
         "csrf_rejection_status": 403,
+        "lifecycle_changed_password_supplied": True,
+        "lifecycle_csrf_cookie_present": True,
+        "session_list_status": 200,
+        "revoke_target_login_status": 200,
+        "revoke_target_session_found": True,
+        "session_revoke_status": 200,
+        "revoked_session_me_status": 401,
+        "password_change_status": 200,
+        "old_password_login_after_change_status": 401,
+        "new_password_login_after_change_status": 200,
+        "logout_all_status": 200,
+        "post_logout_all_me_status": 401,
+        "original_session_after_logout_all_me_status": 401,
+        "delete_login_status": 200,
+        "account_delete_status": 200,
+        "post_delete_me_status": 401,
+        "post_delete_login_status": 401,
     }
     for key, expected in required_rows.items():
         if rows.get(key) != expected:

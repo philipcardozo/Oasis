@@ -359,13 +359,102 @@ def password_reset(
     return out
 
 
+def account_lifecycle(
+    session: requests.Session,
+    base_url: str,
+    user: TestUser,
+    args: argparse.Namespace,
+    headers: dict[str, str],
+) -> dict[str, Any]:
+    changed_password = os.environ.get(args.lifecycle_changed_password_env, "")
+    csrf = cookie_value(session, "oasis_csrf")
+    out: dict[str, Any] = {
+        "changed_password_env": args.lifecycle_changed_password_env,
+        "changed_password_supplied": bool(changed_password),
+        "csrf_cookie_present": bool(csrf),
+    }
+
+    duration, response = timed(lambda: session.get(f"{base_url}/api/auth/sessions", timeout=args.timeout))
+    out["session_list"] = response_sample(duration, response)
+
+    revoke_target = make_session(args, headers)
+    revoke_target.headers["User-Agent"] = "oasis-public-staging-auth-map-slots-probe-revoke-target"
+    out["revoke_target_login"] = login(revoke_target, base_url, user, args.timeout)
+    duration, response = timed(lambda: session.get(f"{base_url}/api/auth/sessions", timeout=args.timeout))
+    out["session_list_after_revoke_target_login"] = response_sample(duration, response)
+
+    revoke_session_id = ""
+    if response.status_code == 200:
+        for row in (response.json().get("sessions") or []):
+            if "revoke-target" in str(row.get("user_agent") or "") and row.get("revoked") is False:
+                revoke_session_id = str(row.get("id") or "")
+                break
+    out["revoke_target_session_found"] = bool(revoke_session_id)
+
+    if csrf and revoke_session_id:
+        duration, response = timed(lambda: session.delete(
+            f"{base_url}/api/auth/sessions/{revoke_session_id}",
+            headers={"X-CSRF-Token": csrf},
+            timeout=args.timeout,
+        ))
+        out["session_revoke"] = response_sample(duration, response)
+        duration, response = timed(lambda: revoke_target.get(f"{base_url}/api/auth/me", timeout=args.timeout))
+        out["revoked_session_me"] = response_sample(duration, response)
+
+    if csrf and changed_password:
+        duration, response = timed(lambda: session.post(
+            f"{base_url}/api/auth/password-change",
+            json={"current_password": user.password, "new_password": changed_password},
+            headers={"X-CSRF-Token": csrf},
+            timeout=args.timeout,
+        ))
+        out["password_change"] = response_sample(duration, response)
+
+        old_login_session = make_session(args, headers)
+        out["old_password_login_after_change"] = login(old_login_session, base_url, user, args.timeout)
+
+        changed_session = make_session(args, headers)
+        out["new_password_login_after_change"] = login(changed_session, base_url, user, args.timeout, password=changed_password)
+        changed_csrf = cookie_value(changed_session, "oasis_csrf")
+        out["changed_session_csrf_cookie_present"] = bool(changed_csrf)
+
+        if changed_csrf:
+            duration, response = timed(lambda: changed_session.post(
+                f"{base_url}/api/auth/logout-all",
+                headers={"X-CSRF-Token": changed_csrf},
+                timeout=args.timeout,
+            ))
+            out["logout_all"] = response_sample(duration, response)
+            duration, response = timed(lambda: changed_session.get(f"{base_url}/api/auth/me", timeout=args.timeout))
+            out["post_logout_all_me"] = response_sample(duration, response)
+            duration, response = timed(lambda: session.get(f"{base_url}/api/auth/me", timeout=args.timeout))
+            out["original_session_after_logout_all_me"] = response_sample(duration, response)
+
+        delete_session = make_session(args, headers)
+        out["delete_login"] = login(delete_session, base_url, user, args.timeout, password=changed_password)
+        delete_csrf = cookie_value(delete_session, "oasis_csrf")
+        out["delete_session_csrf_cookie_present"] = bool(delete_csrf)
+        if delete_csrf:
+            duration, response = timed(lambda: delete_session.delete(
+                f"{base_url}/api/auth/account",
+                headers={"X-CSRF-Token": delete_csrf},
+                timeout=args.timeout,
+            ))
+            out["account_delete"] = response_sample(duration, response)
+            duration, response = timed(lambda: delete_session.get(f"{base_url}/api/auth/me", timeout=args.timeout))
+            out["post_delete_me"] = response_sample(duration, response)
+            deleted_login_session = make_session(args, headers)
+            out["post_delete_login"] = login(deleted_login_session, base_url, user, args.timeout, password=changed_password)
+    return out
+
+
 def evaluate(payload: dict[str, Any]) -> tuple[list[str], list[str]]:
     failures: list[str] = []
     warnings: list[str] = []
     users = payload.get("users") or {}
     checks = payload.get("checks") or {}
 
-    for label in ("user_a", "user_b"):
+    for label in ("user_a", "user_b", "lifecycle_user"):
         user = users.get(label) or {}
         if (user.get("register") or {}).get("status_code") not in {200, 201, 202}:
             failures.append(f"{label} registration did not return a generic success")
@@ -403,6 +492,42 @@ def evaluate(payload: dict[str, Any]) -> tuple[list[str], list[str]]:
     elif (reset.get("post_reset_login") or {}).get("status_code") != 200:
         failures.append("post-reset login did not return 200")
 
+    lifecycle = checks.get("account_lifecycle") or {}
+    if not lifecycle.get("changed_password_supplied"):
+        failures.append("lifecycle changed password env is missing")
+    if not lifecycle.get("csrf_cookie_present"):
+        failures.append("lifecycle CSRF cookie is missing")
+    if (lifecycle.get("session_list") or {}).get("status_code") != 200:
+        failures.append("session listing did not return 200")
+    if (lifecycle.get("revoke_target_login") or {}).get("status_code") != 200:
+        failures.append("revoke-target login did not return 200")
+    if not lifecycle.get("revoke_target_session_found"):
+        failures.append("revoke-target session was not found in session listing")
+    if (lifecycle.get("session_revoke") or {}).get("status_code") != 200:
+        failures.append("session revocation did not return 200")
+    if (lifecycle.get("revoked_session_me") or {}).get("status_code") != 401:
+        failures.append("revoked session was still usable")
+    if (lifecycle.get("password_change") or {}).get("status_code") != 200:
+        failures.append("password change did not return 200")
+    if (lifecycle.get("old_password_login_after_change") or {}).get("status_code") != 401:
+        failures.append("old password still logged in after password change")
+    if (lifecycle.get("new_password_login_after_change") or {}).get("status_code") != 200:
+        failures.append("new password login did not return 200 after password change")
+    if (lifecycle.get("logout_all") or {}).get("status_code") != 200:
+        failures.append("logout-all did not return 200")
+    if (lifecycle.get("post_logout_all_me") or {}).get("status_code") != 401:
+        failures.append("changed session remained usable after logout-all")
+    if (lifecycle.get("original_session_after_logout_all_me") or {}).get("status_code") != 401:
+        failures.append("original session remained usable after logout-all")
+    if (lifecycle.get("delete_login") or {}).get("status_code") != 200:
+        failures.append("delete-session login did not return 200")
+    if (lifecycle.get("account_delete") or {}).get("status_code") != 200:
+        failures.append("account deletion did not return 200")
+    if (lifecycle.get("post_delete_me") or {}).get("status_code") != 401:
+        failures.append("deleted account session remained usable")
+    if (lifecycle.get("post_delete_login") or {}).get("status_code") != 401:
+        failures.append("deleted account was still able to log in")
+
     for row in payload.get("measurements") or []:
         if row.get("target_met") is False:
             failures.append(f"latency target missed: {row.get('name')}")
@@ -420,15 +545,19 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
     headers, header_names = env_headers(args.header)
     user_a = TestUser("user_a", args.user_a_email_env, args.user_a_password_env, args.user_a_verification_token_env)
     user_b = TestUser("user_b", args.user_b_email_env, args.user_b_password_env, args.user_b_verification_token_env)
+    lifecycle_user = TestUser("lifecycle_user", args.lifecycle_email_env, args.lifecycle_password_env, args.lifecycle_verification_token_env)
     session_a = make_session(args, headers)
     session_b = make_session(args, headers)
+    session_lifecycle = make_session(args, headers)
 
     users: dict[str, Any] = {
         "user_a": register_and_verify(session_a, base_url, user_a, args.timeout),
         "user_b": register_and_verify(session_b, base_url, user_b, args.timeout),
+        "lifecycle_user": register_and_verify(session_lifecycle, base_url, lifecycle_user, args.timeout),
     }
     users["user_a"]["login"] = login(session_a, base_url, user_a, args.timeout)
     users["user_b"]["login"] = login(session_b, base_url, user_b, args.timeout)
+    users["lifecycle_user"]["login"] = login(session_lifecycle, base_url, lifecycle_user, args.timeout)
 
     checks: dict[str, Any] = {}
     checks.update(cookie_security(session_a))
@@ -457,6 +586,12 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
 
     if users["user_a"]["login"]["status_code"] == 200:
         checks["password_reset"] = password_reset(session_a, base_url, user_a, args)
+
+    if (
+        users["lifecycle_user"]["login"]["status_code"] == 200
+        and (users["lifecycle_user"].get("verify_email") or {}).get("status_code") == 200
+    ):
+        checks["account_lifecycle"] = account_lifecycle(session_lifecycle, base_url, lifecycle_user, args, headers)
 
     payload = {
         "captured_at": datetime.now(timezone.utc).isoformat(),
@@ -497,6 +632,10 @@ def main() -> int:
     parser.add_argument("--user-b-email-env", default="OASIS_PUBLIC_TESTER_B_EMAIL")
     parser.add_argument("--user-b-password-env", default="OASIS_PUBLIC_TESTER_B_PASSWORD")
     parser.add_argument("--user-b-verification-token-env", default="OASIS_PUBLIC_TESTER_B_VERIFY_TOKEN")
+    parser.add_argument("--lifecycle-email-env", default="OASIS_PUBLIC_LIFECYCLE_EMAIL")
+    parser.add_argument("--lifecycle-password-env", default="OASIS_PUBLIC_LIFECYCLE_PASSWORD")
+    parser.add_argument("--lifecycle-verification-token-env", default="OASIS_PUBLIC_LIFECYCLE_VERIFY_TOKEN")
+    parser.add_argument("--lifecycle-changed-password-env", default="OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD")
     args = parser.parse_args()
 
     payload = build_payload(args)

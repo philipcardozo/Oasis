@@ -17,11 +17,13 @@ def test_public_auth_map_slot_probe_requires_email_tokens_and_csrf():
     payload = _payload()
     payload["users"]["user_a"]["verification_token_supplied"] = False
     payload["checks"]["csrf_rejection"]["status_code"] = 200
+    payload["checks"]["account_lifecycle"]["password_change"]["status_code"] = 403
 
     failures, _ = evaluate(payload)
 
     assert "user_a verification token env is missing" in failures
     assert "CSRF rejection status is not 403" in failures
+    assert "password change did not return 200" in failures
 
 
 def test_public_auth_map_slot_probe_requires_exactly_three_slots_and_cross_user_denial():
@@ -56,6 +58,12 @@ def _payload() -> dict:
                 "verify_email": {"status_code": 200},
                 "login": {"status_code": 200},
             },
+            "lifecycle_user": {
+                "register": {"status_code": 201},
+                "verification_token_supplied": True,
+                "verify_email": {"status_code": 200},
+                "login": {"status_code": 200},
+            },
         },
         "checks": {
             "session_cookie_secure": True,
@@ -72,6 +80,25 @@ def _payload() -> dict:
                 "reset_password_supplied": True,
                 "complete": {"status_code": 200},
                 "post_reset_login": {"status_code": 200},
+            },
+            "account_lifecycle": {
+                "changed_password_supplied": True,
+                "csrf_cookie_present": True,
+                "session_list": {"status_code": 200},
+                "revoke_target_login": {"status_code": 200},
+                "revoke_target_session_found": True,
+                "session_revoke": {"status_code": 200},
+                "revoked_session_me": {"status_code": 401},
+                "password_change": {"status_code": 200},
+                "old_password_login_after_change": {"status_code": 401},
+                "new_password_login_after_change": {"status_code": 200},
+                "logout_all": {"status_code": 200},
+                "post_logout_all_me": {"status_code": 401},
+                "original_session_after_logout_all_me": {"status_code": 401},
+                "delete_login": {"status_code": 200},
+                "account_delete": {"status_code": 200},
+                "post_delete_me": {"status_code": 401},
+                "post_delete_login": {"status_code": 401},
             },
         },
         "measurements": [
