@@ -5,8 +5,16 @@ import json
 from pathlib import Path
 
 import scripts.public_staging_gate_audit as audit
+from scripts.public_staging_deployment_report import build_payload as build_deployment_payload
 from scripts.public_staging_infra_reports import build_payload as build_infra_payload
 from scripts.public_staging_ops_reports import build_payload as build_ops_payload
+from test_public_staging_deployment_report import (
+    _image_manifest as deployment_image_manifest,
+    _preflight as deployment_preflight,
+    _render_deploy as deployment_render_deploy,
+    _run as deployment_run,
+    _workflow_text as deployment_workflow_text,
+)
 from test_public_staging_infra_reports import (
     _image_manifest as infra_image_manifest,
     _infra as infra_evidence,
@@ -388,6 +396,49 @@ def test_infra_summary_requires_dns_access_render_and_migration_sections(tmp_pat
     assert any("migration_version current revision is not 29995ef61d8e" in item for item in result["weak"])
 
 
+def test_valid_deployment_automation_summary_json_evidence_is_proven(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_deployment_payload(
+        workflow_text=deployment_workflow_text(),
+        run=deployment_run(),
+        image_manifest=deployment_image_manifest(),
+        render_deploy=deployment_render_deploy(),
+        preflight=deployment_preflight(),
+        workflow_path=".github/workflows/deploy.yml",
+    )
+    (evidence / "deployment-automation-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("deployment", "Deployment automation", ["deployment-automation-summary.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_deployment_automation_summary_requires_run_and_artifact_checks(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_deployment_payload(
+        workflow_text=deployment_workflow_text(),
+        run=deployment_run(),
+        image_manifest=deployment_image_manifest(),
+        render_deploy=deployment_render_deploy(),
+        preflight=deployment_preflight(),
+        workflow_path=".github/workflows/deploy.yml",
+    )
+    summary["target"]["environment"] = "production"
+    summary["warnings"] = ["workflow run audit trail was incomplete"]
+    _set_deployment_row(summary, "run", "manual_approval", False)
+    _set_deployment_row(summary, "artifacts", "render_image_matches_manifest", False)
+    (evidence / "deployment-automation-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("deployment", "Deployment automation", ["deployment-automation-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("deployment automation environment is not staging" in item for item in result["weak"])
+    assert any("deployment automation summary has warnings" in item for item in result["weak"])
+    assert any("run required check is not true: manual_approval" in item for item in result["weak"])
+    assert any("artifacts required check is not true: render_image_matches_manifest" in item for item in result["weak"])
+
+
 def test_image_manifest_json_pass_with_latest_tag_is_weak(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     manifest = _image_manifest()
@@ -451,6 +502,14 @@ def _set_infra_row(summary: dict, section: str, label: str, value: object) -> No
             row["value"] = value
             return
     raise AssertionError(f"missing infra summary row: {section}.{label}")
+
+
+def _set_deployment_row(summary: dict, section: str, key: str, value: bool) -> None:
+    for row in summary[section]["rows"]:
+        if row.get("key") == key:
+            row["value"] = value
+            return
+    raise AssertionError(f"missing deployment summary row: {section}.{key}")
 
 
 def _write_required_docs(tmp_path: Path) -> None:

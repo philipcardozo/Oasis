@@ -54,6 +54,7 @@ GENERATED_MARKDOWN = {
     "13-failure-rollback.md",
     "14-observability-alerts.md",
     "15-performance.md",
+    "16-deployment-automation.md",
 }
 
 MARKDOWN_REQUIRED_TEXT = {
@@ -133,6 +134,12 @@ MARKDOWN_REQUIRED_TEXT = {
         "## Browser Flows",
         "## DNS And TLS",
     ],
+    "16-deployment-automation.md": [
+        "# Public Staging Deployment Automation Evidence",
+        "## Workflow Checks",
+        "## Run Checks",
+        "## Artifact Consistency",
+    ],
 }
 
 REQUIRED_DOCS = [
@@ -165,7 +172,12 @@ REQUIREMENTS = [
     ("api_worker_separation", "API and worker separation", ["02-render-deploy.json", "10-worker-jobs.md", "ops-evidence-summary.json"], []),
     ("attack_surface", "External attack-surface controls", ["03-cloudflare-access.md", "09-route-security.md", "route-security-summary.json"], []),
     ("browser_compatibility", "Remote browser compatibility", ["07-browser-matrix.md", "browser-map-summary.json"], []),
-    ("deployment_automation", "Deployment automation", ["01-image-manifest.json", "02-render-deploy.json"], []),
+    (
+        "deployment_automation",
+        "Deployment automation",
+        ["01-image-manifest.json", "02-render-deploy.json", "16-deployment-automation.md", "deployment-automation-summary.json"],
+        [],
+    ),
     ("rollback", "Rollback", ["13-failure-rollback.md", "ops-evidence-summary.json"], []),
     ("backup_restore", "Backup and restore", ["12-backup-restore.md", "ops-evidence-summary.json"], []),
     ("monitoring_alerting", "Monitoring and alerting", ["14-observability-alerts.md", "ops-evidence-summary.json"], []),
@@ -201,7 +213,7 @@ ACCEPTANCE = [
     ("alerts", "Alerts detect key failures", ["14-observability-alerts.md", "ops-evidence-summary.json"]),
     ("providers_disabled", "Unlicensed providers remain disabled", ["08-map-provider-capture.md", "browser-map-summary.json"]),
     ("test_suites_pass", "Test suites pass", ["01-image-manifest.json"]),
-    ("cicd_safe", "CI/CD deploys immutable images safely", ["01-image-manifest.json", "02-render-deploy.json"]),
+    ("cicd_safe", "CI/CD deploys immutable images safely", ["01-image-manifest.json", "02-render-deploy.json", "16-deployment-automation.md", "deployment-automation-summary.json"]),
     ("docs_current", "Documentation is current", REQUIRED_DOCS),
 ]
 
@@ -952,12 +964,100 @@ def infra_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     return weak
 
 
+DEPLOYMENT_REQUIRED = {
+    "workflow": {
+        "workflow_dispatch_staging",
+        "push_main_only",
+        "protected_environment_declared",
+        "deployment_concurrency",
+        "permissions_minimal_for_release",
+        "migration_validation",
+        "python_tests",
+        "playwright_tests",
+        "ghcr_login",
+        "linux_amd64_build",
+        "immutable_tags",
+        "provenance",
+        "sbom",
+        "blocking_image_scan",
+        "image_manifest",
+        "render_deploy",
+        "public_preflight",
+        "artifact_upload",
+        "no_production_target",
+    },
+    "run": {
+        "run_captured",
+        "run_success",
+        "environment_staging",
+        "protected_environment",
+        "manual_approval",
+        "secrets_isolated",
+        "no_production_deploy",
+        "concurrency_observed",
+        "artifact_uploaded",
+        "install_dependencies",
+        "validate_migrations",
+        "python_tests",
+        "playwright_tests",
+        "build_publish_image",
+        "scan_image",
+        "record_image_manifest",
+        "deploy_render",
+        "public_preflight",
+        "upload_evidence",
+    },
+    "artifacts": {
+        "image_manifest_pass",
+        "render_deploy_pass",
+        "preflight_pass",
+        "workflow_run_matches_manifest",
+        "commit_consistent",
+        "image_digest_pinned",
+        "render_image_matches_manifest",
+        "api_worker_deployed",
+        "preflight_version_matches_commit",
+    },
+}
+
+
+def deployment_summary_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if data.get("verdict") != "pass":
+        weak.append("deployment automation summary verdict is not pass")
+    if data.get("failures"):
+        weak.append("deployment automation summary has failures")
+    if data.get("warnings"):
+        weak.append("deployment automation summary has warnings")
+    if not data.get("input_captured_at"):
+        weak.append("deployment automation input captured timestamp is missing")
+
+    target = data.get("target") or {}
+    if target.get("workflow") != "Deploy":
+        weak.append("deployment automation workflow is not Deploy")
+    if target.get("environment") != "staging":
+        weak.append("deployment automation environment is not staging")
+    if not str(target.get("run_id") or ""):
+        weak.append("deployment automation run id is missing")
+    if not str(target.get("commit") or ""):
+        weak.append("deployment automation commit is missing")
+
+    for section, required_keys in DEPLOYMENT_REQUIRED.items():
+        result = data.get(section) or {}
+        rows = {row.get("key"): row.get("value") for row in result.get("rows") or []}
+        for key in sorted(required_keys):
+            if rows.get(key) is not True:
+                weak.append(f"deployment automation {section} required check is not true: {key}")
+    return weak
+
+
 JSON_VALIDATORS = {
     "00-public-staging-preflight.json": preflight_weaknesses,
     "01-image-manifest.json": image_manifest_weaknesses,
     "02-render-deploy.json": render_deploy_weaknesses,
     "auth-email-summary.json": auth_email_summary_weaknesses,
     "browser-map-summary.json": browser_map_summary_weaknesses,
+    "deployment-automation-summary.json": deployment_summary_weaknesses,
     "infra-evidence-summary.json": infra_summary_weaknesses,
     "ops-evidence-summary.json": ops_summary_weaknesses,
     "performance-evidence-summary.json": performance_summary_weaknesses,

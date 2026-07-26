@@ -81,6 +81,33 @@ python3 scripts/public_staging_preflight.py \
   --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET
 ```
 
+Generate deployment automation evidence from the GitHub Actions run, workflow
+file, image manifest, Render deploy result, and public preflight:
+
+```bash
+python3 scripts/public_staging_deployment_report.py --print-template \
+  > /tmp/oasis-deployment-automation-run.template.json
+
+# Fill this file from the successful GitHub Actions Deploy run without secrets:
+# docs/evidence/public-staging/deployment-automation-run.json
+
+python3 scripts/public_staging_deployment_report.py \
+  --run-evidence=docs/evidence/public-staging/deployment-automation-run.json \
+  --image-manifest=docs/evidence/public-staging/01-image-manifest.json \
+  --render-deploy=docs/evidence/public-staging/02-render-deploy.json \
+  --preflight=docs/evidence/public-staging/00-public-staging-preflight.json \
+  --output=docs/evidence/public-staging/16-deployment-automation.md \
+  --summary-output=docs/evidence/public-staging/deployment-automation-summary.json
+```
+
+The run evidence may include GitHub workflow names, run IDs, run attempts, step
+conclusions, commit IDs, artifact names, and booleans for protected staging
+environment, manual approval, secret isolation, concurrency, and no production
+deploy. Do not include secrets, tokens, authorization headers, private log URLs,
+or raw provider identifiers. The generated report and summary must show
+`Verdict: pass`; otherwise the CI/CD and immutable deployment gate remains
+unproven.
+
 Generate infrastructure evidence reports from the public preflight, exact image
 manifest, Render deploy evidence, and sanitized provider evidence:
 
@@ -243,6 +270,10 @@ pinning, passing CI checks, and successful API plus worker deployments. A
 hand-written `verdict: pass` is not enough. The audit also cross-checks that
 public `/version` includes the tested image commit and that Render deploy
 evidence records Alembic plus `server.migration_check` before the worker deploy.
+Deployment automation evidence must prove the protected GitHub staging
+environment, manual approval, deployment concurrency, immutable build/scan/SBOM
+sequence, Render API/worker deploy, public preflight, uploaded evidence
+artifact, and commit/image consistency.
 All public evidence is scanned for secret-like values; raw authorization
 headers, token-bearing URLs, database URLs with credentials, and provider keys
 make the evidence weak even when other checks pass.

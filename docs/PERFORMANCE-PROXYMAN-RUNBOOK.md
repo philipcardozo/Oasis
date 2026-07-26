@@ -684,6 +684,63 @@ migration revision mismatch, or secret-like value keeps
 the report at `Verdict: investigate`.
 ```
 
+### Prompt 12.75: Public Staging Deployment Automation Evidence
+
+```text
+Generate public staging deployment automation evidence from the real GitHub
+Actions Deploy run. Do not edit product behavior.
+
+Work in:
+/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis
+
+Prerequisites:
+- The Deploy workflow completed successfully for staging.
+- docs/evidence/public-staging/00-public-staging-preflight.json exists.
+- docs/evidence/public-staging/01-image-manifest.json exists.
+- docs/evidence/public-staging/02-render-deploy.json exists.
+- GitHub `staging` environment protection and manual approval status were
+  checked in the repository settings or the run audit trail.
+
+Run:
+python3 scripts/public_staging_deployment_report.py --print-template \
+  > /tmp/oasis-deployment-automation-run.template.json
+
+Create docs/evidence/public-staging/deployment-automation-run.json from the
+successful GitHub Actions Deploy run using only:
+- workflow name
+- run ID and run attempt
+- event, branch, commit
+- environment name
+- conclusion/status strings
+- step names and success/failure conclusions
+- artifact name
+- booleans for protected environment, manual approval, staging secret isolation,
+  deployment concurrency observed, evidence artifact uploaded, and no production
+  deploy
+
+Do not include secrets, token-bearing URLs, authorization headers, private log
+URLs, raw provider identifiers, cookies, SMTP credentials, storage credentials,
+or database URLs.
+
+Generate:
+python3 scripts/public_staging_deployment_report.py \
+  --run-evidence=docs/evidence/public-staging/deployment-automation-run.json \
+  --image-manifest=docs/evidence/public-staging/01-image-manifest.json \
+  --render-deploy=docs/evidence/public-staging/02-render-deploy.json \
+  --preflight=docs/evidence/public-staging/00-public-staging-preflight.json \
+  --output=docs/evidence/public-staging/16-deployment-automation.md \
+  --summary-output=docs/evidence/public-staging/deployment-automation-summary.json
+
+Inspect:
+- docs/evidence/public-staging/16-deployment-automation.md
+- docs/evidence/public-staging/deployment-automation-summary.json
+
+Both must show `Verdict: pass`. Any missing protected-environment/manual
+approval proof, failed CI step, mutable image, missing SBOM/provenance/scan,
+Render image mismatch, preflight failure, missing evidence artifact, production
+deploy ambiguity, or secret-like value keeps the final gate unapproved.
+```
+
 ### Prompt 13: Public Staging Route And Attack-Surface Probe
 
 ```text

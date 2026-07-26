@@ -94,6 +94,14 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
 
 - `00-public-staging-preflight.json`
 - `01-image-manifest.json`
+- `02-render-deploy.json`
+- `16-deployment-automation.md`, generated from the GitHub Actions Deploy run,
+  workflow file, image manifest, Render deploy result, and public preflight
+  with `scripts/public_staging_deployment_report.py`
+- `deployment-automation-summary.json`, generated beside
+  `16-deployment-automation.md` for strict protected-environment,
+  manual-approval, concurrency, immutable-image, deploy, preflight, and
+  artifact-upload checks
 - `02-dns-tls-edge.md`, generated from public preflight and infra evidence
   with `scripts/public_staging_infra_reports.py`
 - `03-cloudflare-access.md`, generated from sanitized Cloudflare Access
