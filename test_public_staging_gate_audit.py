@@ -9,6 +9,7 @@ from scripts.public_staging_deployment_report import build_payload as build_depl
 from scripts.public_staging_infra_reports import build_payload as build_infra_payload
 from scripts.public_staging_licensing_report import build_payload as build_licensing_payload
 from scripts.public_staging_ops_reports import build_payload as build_ops_payload
+from scripts.public_staging_rate_limit_report import build_payload as build_rate_limit_payload
 from test_public_staging_deployment_report import (
     _image_manifest as deployment_image_manifest,
     _preflight as deployment_preflight,
@@ -27,6 +28,11 @@ from test_public_staging_licensing_report import (
     _evidence as licensing_evidence,
 )
 from test_public_staging_ops_reports import _evidence as ops_evidence
+from test_public_staging_rate_limit_report import (
+    _evidence as rate_limit_evidence,
+    _preflight as rate_limit_preflight,
+    _route_security as rate_limit_route_security,
+)
 
 
 DIGEST = "sha256:" + "a" * 64
@@ -481,6 +487,47 @@ def test_licensing_summary_requires_disabled_providers_and_browser_checks(tmp_pa
     assert any("browser/map check is not true: disabled_providers_unused" in item for item in result["weak"])
 
 
+def test_valid_rate_limit_summary_json_evidence_is_proven(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_rate_limit_payload(
+        rate_limit_evidence(),
+        rate_limit_route_security(),
+        rate_limit_preflight(),
+        input_path="rate-limit-evidence.json",
+        route_security_path="route-security-summary.json",
+        preflight_path="00-public-staging-preflight.json",
+    )
+    (evidence / "rate-limit-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("rate-limit", "Rate limiting", ["rate-limit-summary.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_rate_limit_summary_requires_edge_client_ip_and_route_family_checks(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_rate_limit_payload(
+        rate_limit_evidence(),
+        rate_limit_route_security(),
+        rate_limit_preflight(),
+        input_path="rate-limit-evidence.json",
+        route_security_path="route-security-summary.json",
+        preflight_path="00-public-staging-preflight.json",
+    )
+    _set_rate_limit_row(summary, "edge_controls", "waf_or_rate_rules_enabled", False)
+    _set_rate_limit_row(summary, "client_ip", "spoofed_forwarded_for_rejected_or_ignored", False)
+    _set_rate_limit_row(summary, "route_families", "exports", False)
+    (evidence / "rate-limit-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("rate-limit", "Rate limiting", ["rate-limit-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("edge_controls required check is not true: waf_or_rate_rules_enabled" in item for item in result["weak"])
+    assert any("client_ip required check is not true: spoofed_forwarded_for_rejected_or_ignored" in item for item in result["weak"])
+    assert any("route_families required check is not true: exports" in item for item in result["weak"])
+
+
 def test_image_manifest_json_pass_with_latest_tag_is_weak(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     manifest = _image_manifest()
@@ -560,6 +607,14 @@ def _set_licensing_row(summary: dict, section: str, key: str, value: bool) -> No
             row["value"] = value
             return
     raise AssertionError(f"missing licensing summary row: {section}.{key}")
+
+
+def _set_rate_limit_row(summary: dict, section: str, key: str, value: bool) -> None:
+    for row in summary[section]["rows"]:
+        if row.get("key") == key:
+            row["value"] = value
+            return
+    raise AssertionError(f"missing rate-limit summary row: {section}.{key}")
 
 
 def _write_required_docs(tmp_path: Path) -> None:

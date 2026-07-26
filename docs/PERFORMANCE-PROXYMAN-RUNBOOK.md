@@ -783,6 +783,66 @@ The report and summary must end with `Verdict: pass`; otherwise the strict
 public gate audit continues to treat route security as unproven.
 ```
 
+### Prompt 13.25: Public Staging Rate-Limit And Client-IP Evidence
+
+```text
+Generate public staging rate-limit evidence without editing product code.
+
+Work in:
+/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis
+
+Prerequisites:
+- docs/evidence/public-staging/00-public-staging-preflight.json exists.
+- docs/evidence/public-staging/route-security-summary.json exists.
+- Cloudflare Access/WAF/rate-rule status and logs were reviewed.
+- The public staging API replica count is known.
+
+Probe and record rate limiting for:
+- login attempts
+- registration
+- password reset
+- search
+- financial models
+- exports
+- map-slot writes
+- administrative operations
+
+Also record:
+- one API replica plus documented per-process limitation, or multiple replicas
+  plus shared/provider-native rate-limit store
+- Cloudflare/edge abuse controls
+- outer access enforcement
+- provider log review
+- trusted-proxy/client-IP handling
+- spoofed X-Forwarded-For rejection or ignore behavior
+- Retry-After presence for app-level 429 responses where expected
+
+Run:
+python3 scripts/public_staging_rate_limit_report.py --print-template \
+  > /tmp/oasis-rate-limit-evidence.template.json
+
+Create docs/evidence/public-staging/rate-limit-evidence.json from sanitized
+public probes and provider evidence. Do not include cookies, authorization
+headers, service-token values, tester passwords, raw IP allowlists, private log
+URLs, or account identifiers.
+
+Generate:
+python3 scripts/public_staging_rate_limit_report.py \
+  --input=docs/evidence/public-staging/rate-limit-evidence.json \
+  --route-security=docs/evidence/public-staging/route-security-summary.json \
+  --preflight=docs/evidence/public-staging/00-public-staging-preflight.json \
+  --output=docs/evidence/public-staging/18-rate-limiting.md \
+  --summary-output=docs/evidence/public-staging/rate-limit-summary.json
+
+Inspect:
+- docs/evidence/public-staging/18-rate-limiting.md
+- docs/evidence/public-staging/rate-limit-summary.json
+
+Both must show `Verdict: pass`. If public staging has more than one API replica,
+the summary must prove a shared limiter store or provider-native equivalent.
+Otherwise the private-beta gate remains unapproved.
+```
+
 ### Prompt 13.5: Public Staging Auth And Map-Slot Probe
 
 ```text

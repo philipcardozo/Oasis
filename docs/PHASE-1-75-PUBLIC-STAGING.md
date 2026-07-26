@@ -125,6 +125,11 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
   with `scripts/public_staging_route_security_report.py`
 - `route-security-summary.json`, generated beside `09-route-security.md` for
   strict CSRF, cross-user, route-inventory, header, and rate-limit-class checks
+- `18-rate-limiting.md`, generated from public/proxy rate-limit evidence,
+  route-security summary, and public preflight with
+  `scripts/public_staging_rate_limit_report.py`
+- `rate-limit-summary.json`, generated beside `18-rate-limiting.md` for strict
+  edge-control, client-IP, replica-shape, and route-family rate-limit checks
 - `10-worker-jobs.md`
 - `11-network-isolation.md`
 - `12-backup-restore.md`

@@ -56,6 +56,7 @@ GENERATED_MARKDOWN = {
     "15-performance.md",
     "16-deployment-automation.md",
     "17-licensing-gates.md",
+    "18-rate-limiting.md",
 }
 
 MARKDOWN_REQUIRED_TEXT = {
@@ -147,6 +148,13 @@ MARKDOWN_REQUIRED_TEXT = {
         "## Feature Flags",
         "## Browser Map Licensing Checks",
     ],
+    "18-rate-limiting.md": [
+        "# Public Staging Rate Limiting Evidence",
+        "## Deployment Shape",
+        "## Edge Controls",
+        "## Client IP Handling",
+        "## Route Families",
+    ],
 }
 
 REQUIRED_DOCS = [
@@ -178,6 +186,7 @@ REQUIREMENTS = [
     ("email_delivery", "Authentication email delivery", ["06-auth-email.md", "auth-email-summary.json"], []),
     ("api_worker_separation", "API and worker separation", ["02-render-deploy.json", "10-worker-jobs.md", "ops-evidence-summary.json"], []),
     ("attack_surface", "External attack-surface controls", ["03-cloudflare-access.md", "09-route-security.md", "route-security-summary.json"], []),
+    ("rate_limiting", "Rate limiting", ["09-route-security.md", "18-rate-limiting.md", "rate-limit-summary.json"], []),
     ("browser_compatibility", "Remote browser compatibility", ["07-browser-matrix.md", "browser-map-summary.json"], []),
     (
         "deployment_automation",
@@ -214,7 +223,7 @@ ACCEPTANCE = [
     ("worker_recovery", "Worker jobs are bounded and recoverable", ["10-worker-jobs.md", "ops-evidence-summary.json"]),
     ("private_storage", "Object storage remains private", ["12-backup-restore.md", "ops-evidence-summary.json"]),
     ("headers_cors_hosts", "Security headers, CORS, and trusted hosts are correct", ["00-public-staging-preflight.json", "09-route-security.md", "route-security-summary.json"]),
-    ("rate_limit_proxy", "Rate limiting works through public proxy", ["09-route-security.md", "route-security-summary.json"]),
+    ("rate_limit_proxy", "Rate limiting works through public proxy", ["09-route-security.md", "route-security-summary.json", "18-rate-limiting.md", "rate-limit-summary.json"]),
     ("restore_success", "Backup and restore succeed", ["12-backup-restore.md", "ops-evidence-summary.json"]),
     ("rollback_success", "Deployment rollback succeeds", ["13-failure-rollback.md", "ops-evidence-summary.json"]),
     ("alerts", "Alerts detect key failures", ["14-observability-alerts.md", "ops-evidence-summary.json"]),
@@ -1120,6 +1129,63 @@ def licensing_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     return weak
 
 
+RATE_LIMIT_REQUIRED = {
+    "deployment_shape": {
+        "api_replica_count_recorded",
+        "single_replica_policy_ok",
+        "multi_replica_shared_store",
+        "no_unbounded_public_replica",
+    },
+    "edge_controls": {
+        "edge_controls_enabled",
+        "waf_or_rate_rules_enabled",
+        "outer_access_enforced",
+        "provider_logs_reviewed",
+        "no_hidden_url_dependency",
+        "provider_cloudflare",
+    },
+    "client_ip": {
+        "trusted_proxy_enabled",
+        "x_forwarded_for_honored_only_from_edge",
+        "client_ip_probe_recorded",
+        "spoofed_forwarded_for_rejected_or_ignored",
+        "rate_limit_key_uses_client_ip",
+    },
+    "route_families": {
+        "login_attempts",
+        "registration",
+        "password_reset",
+        "search",
+        "financial_models",
+        "exports",
+        "map_slot_writes",
+        "administrative_operations",
+    },
+    "cross_checks": {
+        "route_security_summary_pass",
+        "preflight_https_pass",
+    },
+}
+
+
+def rate_limit_summary_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if data.get("verdict") != "pass":
+        weak.append("rate-limit summary verdict is not pass")
+    if data.get("failures"):
+        weak.append("rate-limit summary has failures")
+    if not data.get("input_captured_at"):
+        weak.append("rate-limit input captured timestamp is missing")
+    if urlparse(str(data.get("base_url") or "")).scheme != "https":
+        weak.append("rate-limit base URL is not HTTPS")
+    for section, required_keys in RATE_LIMIT_REQUIRED.items():
+        rows = {row.get("key"): row.get("value") for row in (data.get(section) or {}).get("rows") or []}
+        for key in sorted(required_keys):
+            if rows.get(key) is not True:
+                weak.append(f"rate-limit {section} required check is not true: {key}")
+    return weak
+
+
 JSON_VALIDATORS = {
     "00-public-staging-preflight.json": preflight_weaknesses,
     "01-image-manifest.json": image_manifest_weaknesses,
@@ -1131,6 +1197,7 @@ JSON_VALIDATORS = {
     "licensing-summary.json": licensing_summary_weaknesses,
     "ops-evidence-summary.json": ops_summary_weaknesses,
     "performance-evidence-summary.json": performance_summary_weaknesses,
+    "rate-limit-summary.json": rate_limit_summary_weaknesses,
     "route-security-summary.json": route_security_summary_weaknesses,
 }
 

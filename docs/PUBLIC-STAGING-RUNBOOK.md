@@ -251,6 +251,33 @@ python3 scripts/public_staging_route_security_report.py \
   --summary-output=docs/evidence/public-staging/route-security-summary.json
 ```
 
+Generate public proxy/rate-limit evidence:
+
+```bash
+python3 scripts/public_staging_rate_limit_report.py --print-template \
+  > /tmp/oasis-rate-limit-evidence.template.json
+
+# Fill this file from public staging probes and provider/edge logs:
+# docs/evidence/public-staging/rate-limit-evidence.json
+
+python3 scripts/public_staging_rate_limit_report.py \
+  --input=docs/evidence/public-staging/rate-limit-evidence.json \
+  --route-security=docs/evidence/public-staging/route-security-summary.json \
+  --preflight=docs/evidence/public-staging/00-public-staging-preflight.json \
+  --output=docs/evidence/public-staging/18-rate-limiting.md \
+  --summary-output=docs/evidence/public-staging/rate-limit-summary.json
+```
+
+The input JSON must record the public staging API replica count, whether a
+shared limiter store is used, the temporary single-replica limitation if
+applicable, Cloudflare WAF/rate rules, outer access enforcement, provider log
+review, trusted-proxy/client-IP handling, and route-family probes for login,
+registration, password reset, search, financial models, exports, map-slot
+writes, and administrative operations. The generated report and summary must
+show `Verdict: pass`; otherwise rate limiting through the public proxy remains
+unproven. Multiple API replicas require a shared limiter store or provider-native
+equivalent.
+
 Generate operations evidence reports from structured public/provider evidence:
 
 ```bash
@@ -302,6 +329,8 @@ artifact, and commit/image consistency.
 Licensing evidence must prove current official-source review metadata and that
 unresolved providers remain disabled and unused in the public browser/map
 capture.
+Rate-limit evidence must prove edge controls, trusted client-IP handling, route
+family probes, and an acceptable one-replica or shared-store limiter shape.
 All public evidence is scanned for secret-like values; raw authorization
 headers, token-bearing URLs, database URLs with credentials, and provider keys
 make the evidence weak even when other checks pass.
