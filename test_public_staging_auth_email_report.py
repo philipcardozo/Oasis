@@ -42,6 +42,23 @@ def test_auth_email_report_requires_single_use_email_tokens():
     assert "password reset token reuse did not return 400" in failures
 
 
+def test_auth_email_report_requires_cookie_attributes_and_rotation():
+    auth = _auth()
+    auth["checks"]["session_cookie_samesite"] = "none"
+    auth["checks"]["session_cookie_path"] = "/app"
+    auth["checks"]["session_cookie_domain_host_only"] = False
+    auth["checks"]["csrf_cookie_samesite"] = "strict"
+    auth["checks"]["password_reset"]["session_cookie_rotated_after_login"] = False
+
+    failures, _ = evaluate(auth)
+
+    assert "session cookie SameSite is not lax" in failures
+    assert "session cookie path is not /" in failures
+    assert "session cookie is not host-only" in failures
+    assert "CSRF cookie SameSite is not lax" in failures
+    assert "session cookie did not rotate after post-reset login" in failures
+
+
 def test_auth_email_report_requires_account_lifecycle_completion():
     auth = _auth()
     auth["checks"]["account_lifecycle"]["logout_all"]["status_code"] = 500
@@ -88,6 +105,8 @@ def test_auth_email_report_cli_writes_pass_markdown(tmp_path):
     assert data["verdict"] == "pass"
     assert data["rows"]["password_reset_complete_status"] == 200
     assert data["rows"]["session_cookie_httponly"] is True
+    assert data["rows"]["session_cookie_samesite"] == "lax"
+    assert data["rows"]["session_cookie_rotated_after_login"] is True
 
 
 def _auth() -> dict:
@@ -130,7 +149,13 @@ def _auth() -> dict:
         "checks": {
             "session_cookie_secure": True,
             "session_cookie_httponly": True,
+            "session_cookie_samesite": "lax",
+            "session_cookie_path": "/",
+            "session_cookie_domain_host_only": True,
             "csrf_cookie_secure": True,
+            "csrf_cookie_samesite": "lax",
+            "csrf_cookie_path": "/",
+            "csrf_cookie_domain_host_only": True,
             "csrf_rejection": {"status_code": 403},
             "password_reset": {
                 "reset_token_env": "OASIS_PUBLIC_TESTER_A_RESET_TOKEN",
@@ -141,6 +166,7 @@ def _auth() -> dict:
                 "unknown_account_request": {"status_code": 200, "json_keys": ["message", "ok"]},
                 "complete": {"status_code": 200},
                 "post_reset_login": {"status_code": 200},
+                "session_cookie_rotated_after_login": True,
                 "token_reuse": {"status_code": 400},
             },
             "account_lifecycle": {

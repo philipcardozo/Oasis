@@ -117,7 +117,8 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
 - `06-auth-email.md`
 - `auth-email-summary.json`, generated beside `06-auth-email.md` for strict
   email verification, password-reset, secure-cookie, CSRF, session revocation,
-  logout-all, password-change, and account-deletion checks
+  logout-all, password-change, cookie SameSite/path/domain, session-rotation,
+  and account-deletion checks
 - `20-email-delivery.md`, generated from transactional-email provider,
   delivery, token-safety, and failure-retry evidence with
   `scripts/public_staging_email_delivery_report.py`
@@ -127,7 +128,8 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
 - `07-browser-matrix.md`
 - `08-map-provider-capture.md`
 - `browser-map-summary.json`, generated beside the browser/map Markdown reports
-  for strict browser matrix, network-flow, provider-host, and map-license checks
+  for strict browser matrix, no reusable localStorage token, network-flow,
+  provider-host, and map-license checks
 - `09-route-security.md`, generated from public route/preflight/auth evidence
   with `scripts/public_staging_route_security_report.py`
 - `route-security-summary.json`, generated beside `09-route-security.md` for

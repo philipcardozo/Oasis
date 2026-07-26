@@ -987,7 +987,7 @@ Verify:
 - registration and verification returned expected generic/success responses
 - password reset request and completion succeeded
 - session cookie is Secure and HttpOnly
-- CSRF cookie is Secure
+- session and CSRF cookies are Secure, SameSite=Lax, Path=/, and host-only
 - CSRF rejection is 403
 - both users can log in
 - exactly three map slots exist for the tester
@@ -1054,6 +1054,7 @@ Verify:
 - exactly three Map Studio slots
 - slot sync, version conflict, export/import
 - responsive layout, keyboard navigation, basic accessibility
+- no reusable authentication token in localStorage
 - no unexpected console errors
 - no /api/universe/bulk during first paint
 - no unpkg.com
@@ -1168,7 +1169,8 @@ Work in:
 
 Using the real staging URL and provider dashboards/logs, verify and record:
 - authentication email delivery for registration verification and password reset
-- secure session cookie flags, no reusable localStorage token, CSRF rejection
+- secure session cookie flags, SameSite/path/domain, session rotation, no
+  reusable localStorage token, CSRF rejection
 - two users, exactly three map slots per user, cross-user denial, conflict
   handling, direct fourth-slot denial, API restart persistence, deploy revision
   compatibility

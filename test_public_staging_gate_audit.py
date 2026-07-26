@@ -303,6 +303,10 @@ def test_auth_email_summary_requires_reset_cookie_and_csrf_evidence(tmp_path, mo
     summary = _auth_email_summary()
     summary["rows"]["password_reset_complete_status"] = 400
     summary["rows"]["session_cookie_httponly"] = False
+    summary["rows"]["session_cookie_samesite"] = "none"
+    summary["rows"]["session_cookie_path"] = "/app"
+    summary["rows"]["session_cookie_domain_host_only"] = False
+    summary["rows"]["session_cookie_rotated_after_login"] = False
     summary["rows"]["csrf_rejection_status"] = 200
     (evidence / "auth-email-summary.json").write_text(json.dumps(summary))
 
@@ -311,6 +315,10 @@ def test_auth_email_summary_requires_reset_cookie_and_csrf_evidence(tmp_path, mo
     assert result["status"] == "weak"
     assert any("password_reset_complete_status is not 200" in item for item in result["weak"])
     assert any("session_cookie_httponly is not True" in item for item in result["weak"])
+    assert any("session_cookie_samesite is not lax" in item for item in result["weak"])
+    assert any("session_cookie_path is not /" in item for item in result["weak"])
+    assert any("session_cookie_domain_host_only is not True" in item for item in result["weak"])
+    assert any("session_cookie_rotated_after_login is not True" in item for item in result["weak"])
     assert any("csrf_rejection_status is not 403" in item for item in result["weak"])
 
 
@@ -938,10 +946,17 @@ def _auth_email_summary() -> dict:
             "password_reset_token_supplied": True,
             "password_reset_complete_status": 200,
             "post_reset_login_status": 200,
+            "session_cookie_rotated_after_login": True,
             "password_reset_token_reuse_status": 400,
             "session_cookie_secure": True,
             "session_cookie_httponly": True,
+            "session_cookie_samesite": "lax",
+            "session_cookie_path": "/",
+            "session_cookie_domain_host_only": True,
             "csrf_cookie_secure": True,
+            "csrf_cookie_samesite": "lax",
+            "csrf_cookie_path": "/",
+            "csrf_cookie_domain_host_only": True,
             "csrf_rejection_status": 403,
             "lifecycle_changed_password_supplied": True,
             "lifecycle_csrf_cookie_present": True,
@@ -969,6 +984,7 @@ def _browser_map_summary() -> dict:
         "application_shell": True,
         "registration_login": True,
         "session_persistence": True,
+        "no_reusable_local_storage_token": True,
         "standard_basemap": True,
         "dark_basemap": True,
         "satellite_disabled_or_failure": True,

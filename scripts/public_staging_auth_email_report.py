@@ -15,6 +15,12 @@ ROOT = Path(__file__).resolve().parents[1]
 PERF_EVIDENCE = ROOT / "docs" / "evidence" / "performance"
 PUBLIC_EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
 EMAIL_RE = re.compile(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}")
+SAFE_COOKIE_METADATA_FIELDS = {
+    "csrf_cookie_path",
+    "csrf_cookie_samesite",
+    "session_cookie_path",
+    "session_cookie_samesite",
+}
 
 
 def git_value(*args: str) -> str:
@@ -59,7 +65,12 @@ def secret_like_values(value: Any, path: str = "") -> list[str]:
             child = f"{path}.{key}" if path else str(key)
             if isinstance(item, str):
                 allowed_env_pointer = lowered.endswith("_env") or lowered.endswith("_names_sent")
-                if not allowed_env_pointer and any(marker in lowered for marker in ("password", "token", "cookie", "authorization", "secret")):
+                allowed_cookie_metadata = lowered in SAFE_COOKIE_METADATA_FIELDS
+                if (
+                    not allowed_env_pointer
+                    and not allowed_cookie_metadata
+                    and any(marker in lowered for marker in ("password", "token", "cookie", "authorization", "secret"))
+                ):
                     findings.append(child)
             findings.extend(secret_like_values(item, child))
     elif isinstance(value, list):
@@ -108,10 +119,17 @@ def evaluate(auth: dict[str, Any]) -> tuple[list[str], dict[str, Any]]:
         "password_reset_token_supplied": reset.get("reset_token_supplied"),
         "password_reset_complete_status": status(reset.get("complete")),
         "post_reset_login_status": status(reset.get("post_reset_login")),
+        "session_cookie_rotated_after_login": reset.get("session_cookie_rotated_after_login"),
         "password_reset_token_reuse_status": status(reset.get("token_reuse")),
         "session_cookie_secure": checks.get("session_cookie_secure"),
         "session_cookie_httponly": checks.get("session_cookie_httponly"),
+        "session_cookie_samesite": checks.get("session_cookie_samesite"),
+        "session_cookie_path": checks.get("session_cookie_path"),
+        "session_cookie_domain_host_only": checks.get("session_cookie_domain_host_only"),
         "csrf_cookie_secure": checks.get("csrf_cookie_secure"),
+        "csrf_cookie_samesite": checks.get("csrf_cookie_samesite"),
+        "csrf_cookie_path": checks.get("csrf_cookie_path"),
+        "csrf_cookie_domain_host_only": checks.get("csrf_cookie_domain_host_only"),
         "csrf_rejection_status": status(checks.get("csrf_rejection")),
     })
     if rows["password_reset_request_status"] != 200:
@@ -126,14 +144,28 @@ def evaluate(auth: dict[str, Any]) -> tuple[list[str], dict[str, Any]]:
         failures.append("password reset completion did not return 200")
     if rows["post_reset_login_status"] != 200:
         failures.append("post-reset login did not return 200")
+    if rows["session_cookie_rotated_after_login"] is not True:
+        failures.append("session cookie did not rotate after post-reset login")
     if rows["password_reset_token_reuse_status"] != 400:
         failures.append("password reset token reuse did not return 400")
     if rows["session_cookie_secure"] is not True:
         failures.append("session cookie is not Secure")
     if rows["session_cookie_httponly"] is not True:
         failures.append("session cookie is not HttpOnly")
+    if rows["session_cookie_samesite"] != "lax":
+        failures.append("session cookie SameSite is not lax")
+    if rows["session_cookie_path"] != "/":
+        failures.append("session cookie path is not /")
+    if rows["session_cookie_domain_host_only"] is not True:
+        failures.append("session cookie is not host-only")
     if rows["csrf_cookie_secure"] is not True:
         failures.append("CSRF cookie is not Secure")
+    if rows["csrf_cookie_samesite"] != "lax":
+        failures.append("CSRF cookie SameSite is not lax")
+    if rows["csrf_cookie_path"] != "/":
+        failures.append("CSRF cookie path is not /")
+    if rows["csrf_cookie_domain_host_only"] is not True:
+        failures.append("CSRF cookie is not host-only")
     if rows["csrf_rejection_status"] != 403:
         failures.append("CSRF rejection did not return 403")
 

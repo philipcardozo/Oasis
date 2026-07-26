@@ -180,7 +180,8 @@ python3 scripts/public_staging_browser_reports.py \
 
 Both generated reports and the summary must show `Verdict: pass`; otherwise
 browser compatibility, real map rendering, map-provider, and unlicensed-provider
-gates remain unproven.
+gates remain unproven. Each available browser row must also record that no
+reusable authentication token is present in `localStorage`.
 
 Generate licensing evidence after browser/map provider evidence is present:
 
@@ -257,14 +258,15 @@ python3 scripts/public_staging_auth_email_report.py \
 ```
 
 The report and summary must show `Verdict: pass`; otherwise email verification,
-password reset, secure-cookie, CSRF, session listing/revocation, password
-change, logout-all, and account deletion evidence remains unproven. Use the
-dedicated lifecycle account for destructive account-deletion proof, not the two
-map-slot tester accounts. The public probe also retries used verification and
-password-reset tokens and sends an unknown-account reset request; token reuse
-must be rejected and known/unknown reset responses must keep the same generic
-shape. It also attempts direct fourth-slot creation and `slot_number: 4` import;
-both attempts must be rejected.
+password reset, secure-cookie, SameSite/path/domain cookie attributes, session
+rotation, CSRF, session listing/revocation, password change, logout-all, and
+account deletion evidence remains unproven. Use the dedicated lifecycle account
+for destructive account-deletion proof, not the two map-slot tester accounts.
+The public probe also retries used verification and password-reset tokens and
+sends an unknown-account reset request; token reuse must be rejected and
+known/unknown reset responses must keep the same generic shape. It also
+attempts direct fourth-slot creation and `slot_number: 4` import; both attempts
+must be rejected.
 
 Generate transactional-email delivery evidence after auth, infra, and ops
 summaries exist:

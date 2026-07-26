@@ -17,6 +17,7 @@ def test_public_auth_map_slot_probe_requires_email_tokens_and_csrf():
     payload = _payload()
     payload["users"]["user_a"]["verification_token_supplied"] = False
     payload["checks"]["csrf_rejection"]["status_code"] = 200
+    payload["checks"]["session_cookie_samesite"] = "none"
     payload["checks"]["account_lifecycle"]["password_change"]["status_code"] = 403
     payload["checks"]["password_reset"]["token_reuse"]["status_code"] = 200
 
@@ -24,6 +25,7 @@ def test_public_auth_map_slot_probe_requires_email_tokens_and_csrf():
 
     assert "user_a verification token env is missing" in failures
     assert "CSRF rejection status is not 403" in failures
+    assert "session cookie SameSite is not lax" in failures
     assert "password change did not return 200" in failures
     assert "password reset token reuse was not rejected" in failures
 
@@ -97,7 +99,13 @@ def _payload() -> dict:
         "checks": {
             "session_cookie_secure": True,
             "session_cookie_httponly": True,
+            "session_cookie_samesite": "lax",
+            "session_cookie_path": "/",
+            "session_cookie_domain_host_only": True,
             "csrf_cookie_secure": True,
+            "csrf_cookie_samesite": "lax",
+            "csrf_cookie_path": "/",
+            "csrf_cookie_domain_host_only": True,
             "csrf_rejection": {"status_code": 403},
             "default_map_slot_count": 3,
             "default_map_slot_numbers": [1, 2, 3],
@@ -112,6 +120,7 @@ def _payload() -> dict:
                 "reset_password_supplied": True,
                 "complete": {"status_code": 200},
                 "post_reset_login": {"status_code": 200},
+                "session_cookie_rotated_after_login": True,
                 "token_reuse": {"status_code": 400},
             },
             "account_lifecycle": {

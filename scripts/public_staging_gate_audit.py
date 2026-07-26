@@ -34,6 +34,12 @@ AUTH_HEADER_RE = re.compile(r"(?i)\bauthorization\s*[:=]\s*(?!<redacted>|redacte
 SECRET_PREFIX_RE = re.compile(r"^(?:sk_|pk_|ghp_|ghs_|xoxb-|xoxp-)[A-Za-z0-9._~+/=-]{8,}")
 JWT_RE = re.compile(r"^[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}$")
 LONG_SECRET_RE = re.compile(r"(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9_\-+/=]{32,}")
+SAFE_COOKIE_METADATA_FIELDS = {
+    "csrf_cookie_path",
+    "csrf_cookie_samesite",
+    "session_cookie_path",
+    "session_cookie_samesite",
+}
 SENSITIVE_KEY_RE = re.compile(
     r"(password|passwd|token|cookie|authorization|secret|api[_-]?key|private[_-]?key|credential|database[_-]?url)",
     re.IGNORECASE,
@@ -352,7 +358,12 @@ def json_secret_paths(value: Any, path: str = "") -> list[str]:
             child = f"{path}.{key_text}" if path else key_text
             lowered = key_text.lower()
             names_only = any(marker in lowered for marker in ("env", "header_names", "secret_names", "credential_names"))
-            if SENSITIVE_KEY_RE.search(key_text) and isinstance(item, str) and not safe_secret_value(item, names_only=names_only):
+            if (
+                lowered not in SAFE_COOKIE_METADATA_FIELDS
+                and SENSITIVE_KEY_RE.search(key_text)
+                and isinstance(item, str)
+                and not safe_secret_value(item, names_only=names_only)
+            ):
                 findings.append(child)
             findings.extend(json_secret_paths(item, child))
     elif isinstance(value, list):
@@ -721,10 +732,17 @@ def auth_email_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         "password_reset_token_supplied": True,
         "password_reset_complete_status": 200,
         "post_reset_login_status": 200,
+        "session_cookie_rotated_after_login": True,
         "password_reset_token_reuse_status": 400,
         "session_cookie_secure": True,
         "session_cookie_httponly": True,
+        "session_cookie_samesite": "lax",
+        "session_cookie_path": "/",
+        "session_cookie_domain_host_only": True,
         "csrf_cookie_secure": True,
+        "csrf_cookie_samesite": "lax",
+        "csrf_cookie_path": "/",
+        "csrf_cookie_domain_host_only": True,
         "csrf_rejection_status": 403,
         "lifecycle_changed_password_supplied": True,
         "lifecycle_csrf_cookie_present": True,

@@ -121,18 +121,31 @@ def cookie_security(session: requests.Session) -> dict[str, Any]:
         "session_cookie_present": False,
         "session_cookie_secure": False,
         "session_cookie_httponly": False,
+        "session_cookie_samesite": None,
+        "session_cookie_path": None,
+        "session_cookie_domain_host_only": None,
         "csrf_cookie_present": False,
         "csrf_cookie_secure": False,
+        "csrf_cookie_samesite": None,
+        "csrf_cookie_path": None,
+        "csrf_cookie_domain_host_only": None,
     }
     for cookie in session.cookies:
-        rest_keys = {str(key).lower() for key in getattr(cookie, "_rest", {})}
+        rest = {str(key).lower(): value for key, value in getattr(cookie, "_rest", {}).items()}
+        rest_keys = set(rest)
         if cookie.name == "oasis_session":
             out["session_cookie_present"] = True
             out["session_cookie_secure"] = bool(cookie.secure)
             out["session_cookie_httponly"] = "httponly" in rest_keys
+            out["session_cookie_samesite"] = str(rest.get("samesite") or "").lower() or None
+            out["session_cookie_path"] = cookie.path
+            out["session_cookie_domain_host_only"] = not bool(getattr(cookie, "domain_specified", False))
         elif cookie.name == "oasis_csrf":
             out["csrf_cookie_present"] = True
             out["csrf_cookie_secure"] = bool(cookie.secure)
+            out["csrf_cookie_samesite"] = str(rest.get("samesite") or "").lower() or None
+            out["csrf_cookie_path"] = cookie.path
+            out["csrf_cookie_domain_host_only"] = not bool(getattr(cookie, "domain_specified", False))
     return out
 
 
@@ -389,7 +402,10 @@ def password_reset(
             timeout=args.timeout,
         ))
         out["complete"] = response_sample(duration, response)
+        cookie_before_login = cookie_value(session, "oasis_session")
         out["post_reset_login"] = login(session, base_url, user, args.timeout, password=password)
+        cookie_after_login = cookie_value(session, "oasis_session")
+        out["session_cookie_rotated_after_login"] = bool(cookie_before_login and cookie_after_login and cookie_before_login != cookie_after_login)
         duration, response = timed(lambda: session.post(
             f"{base_url}/api/auth/password-reset/complete",
             json={"token": token, "password": password},
@@ -511,8 +527,20 @@ def evaluate(payload: dict[str, Any]) -> tuple[list[str], list[str]]:
         failures.append("session cookie is missing or not Secure")
     if checks.get("session_cookie_httponly") is not True:
         failures.append("session cookie is missing or not HttpOnly")
+    if checks.get("session_cookie_samesite") != "lax":
+        failures.append("session cookie SameSite is not lax")
+    if checks.get("session_cookie_path") != "/":
+        failures.append("session cookie path is not /")
+    if checks.get("session_cookie_domain_host_only") is not True:
+        failures.append("session cookie is not host-only")
     if checks.get("csrf_cookie_secure") is not True:
         failures.append("CSRF cookie is missing or not Secure")
+    if checks.get("csrf_cookie_samesite") != "lax":
+        failures.append("CSRF cookie SameSite is not lax")
+    if checks.get("csrf_cookie_path") != "/":
+        failures.append("CSRF cookie path is not /")
+    if checks.get("csrf_cookie_domain_host_only") is not True:
+        failures.append("CSRF cookie is not host-only")
     if (checks.get("csrf_rejection") or {}).get("status_code") != 403:
         failures.append("CSRF rejection status is not 403")
     if checks.get("default_map_slot_count") != 3 or checks.get("default_map_slot_numbers") != [1, 2, 3]:
@@ -541,6 +569,8 @@ def evaluate(payload: dict[str, Any]) -> tuple[list[str], list[str]]:
         failures.append("password reset completion did not return 200")
     elif (reset.get("post_reset_login") or {}).get("status_code") != 200:
         failures.append("post-reset login did not return 200")
+    elif reset.get("session_cookie_rotated_after_login") is not True:
+        failures.append("session cookie did not rotate after post-reset login")
     elif (reset.get("token_reuse") or {}).get("status_code") != 400:
         failures.append("password reset token reuse was not rejected")
 

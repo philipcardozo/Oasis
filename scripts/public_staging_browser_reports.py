@@ -18,6 +18,7 @@ BROWSER_CHECKS = {
     "application_shell": "application shell",
     "registration_login": "registration and login",
     "session_persistence": "session persistence",
+    "no_reusable_local_storage_token": "no reusable token in localStorage",
     "standard_basemap": "Standard basemap",
     "dark_basemap": "Dark basemap",
     "satellite_disabled_or_failure": "Satellite disabled/failure behavior",

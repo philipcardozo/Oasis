@@ -81,6 +81,7 @@ def _checks() -> dict:
         "application_shell": True,
         "registration_login": True,
         "session_persistence": True,
+        "no_reusable_local_storage_token": True,
         "standard_basemap": True,
         "dark_basemap": True,
         "satellite_disabled_or_failure": True,
