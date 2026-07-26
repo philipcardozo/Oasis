@@ -7,6 +7,7 @@ from pathlib import Path
 import scripts.public_staging_gate_audit as audit
 from scripts.public_staging_deployment_report import build_payload as build_deployment_payload
 from scripts.public_staging_infra_reports import build_payload as build_infra_payload
+from scripts.public_staging_licensing_report import build_payload as build_licensing_payload
 from scripts.public_staging_ops_reports import build_payload as build_ops_payload
 from test_public_staging_deployment_report import (
     _image_manifest as deployment_image_manifest,
@@ -20,6 +21,10 @@ from test_public_staging_infra_reports import (
     _infra as infra_evidence,
     _preflight as infra_preflight,
     _render_deploy as infra_render_deploy,
+)
+from test_public_staging_licensing_report import (
+    _browser_map_summary as licensing_browser_map_summary,
+    _evidence as licensing_evidence,
 )
 from test_public_staging_ops_reports import _evidence as ops_evidence
 
@@ -439,6 +444,43 @@ def test_deployment_automation_summary_requires_run_and_artifact_checks(tmp_path
     assert any("artifacts required check is not true: render_image_matches_manifest" in item for item in result["weak"])
 
 
+def test_valid_licensing_summary_json_evidence_is_proven(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_licensing_payload(
+        licensing_evidence(),
+        licensing_browser_map_summary(),
+        input_path="licensing-evidence.json",
+        browser_map_path="browser-map-summary.json",
+    )
+    (evidence / "licensing-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("licensing", "Licensing", ["licensing-summary.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_licensing_summary_requires_disabled_providers_and_browser_checks(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_licensing_payload(
+        licensing_evidence(),
+        licensing_browser_map_summary(),
+        input_path="licensing-evidence.json",
+        browser_map_path="browser-map-summary.json",
+    )
+    summary["providers"]["rows"][0]["failures"] = ["terms review missing"]
+    _set_licensing_row(summary, "feature_flags", "OASIS_FEATURE_LOGOS", False)
+    _set_licensing_row(summary, "browser_map", "disabled_providers_unused", False)
+    (evidence / "licensing-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("licensing", "Licensing", ["licensing-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("provider has failures" in item for item in result["weak"])
+    assert any("feature flag check is not true: OASIS_FEATURE_LOGOS" in item for item in result["weak"])
+    assert any("browser/map check is not true: disabled_providers_unused" in item for item in result["weak"])
+
+
 def test_image_manifest_json_pass_with_latest_tag_is_weak(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     manifest = _image_manifest()
@@ -510,6 +552,14 @@ def _set_deployment_row(summary: dict, section: str, key: str, value: bool) -> N
             row["value"] = value
             return
     raise AssertionError(f"missing deployment summary row: {section}.{key}")
+
+
+def _set_licensing_row(summary: dict, section: str, key: str, value: bool) -> None:
+    for row in summary[section]["rows"]:
+        if row.get("key") == key:
+            row["value"] = value
+            return
+    raise AssertionError(f"missing licensing summary row: {section}.{key}")
 
 
 def _write_required_docs(tmp_path: Path) -> None:

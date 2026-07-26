@@ -136,6 +136,11 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
   `scripts/public_staging_performance_report.py`
 - `performance-evidence-summary.json`, generated beside `15-performance.md`
   for strict Proxyman, direct-comparison, DNS/TLS, and app-layer p95 validation
+- `17-licensing-gates.md`, generated from current official-source licensing
+  review metadata and browser/map provider evidence with
+  `scripts/public_staging_licensing_report.py`
+- `licensing-summary.json`, generated beside `17-licensing-gates.md` for strict
+  feature-flag, disabled-provider, official-source, and browser-provider checks
 - `99-public-staging-gate-audit.json`
 - `99-public-staging-gate-audit.md`
 

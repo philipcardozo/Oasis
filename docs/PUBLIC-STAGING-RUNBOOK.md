@@ -166,6 +166,31 @@ Both generated reports and the summary must show `Verdict: pass`; otherwise
 browser compatibility, real map rendering, map-provider, and unlicensed-provider
 gates remain unproven.
 
+Generate licensing evidence after browser/map provider evidence is present:
+
+```bash
+python3 scripts/public_staging_licensing_report.py --print-template \
+  > /tmp/oasis-licensing-evidence.template.json
+
+# Fill this file from current official source reviews without secrets:
+# docs/evidence/public-staging/licensing-evidence.json
+
+python3 scripts/public_staging_licensing_report.py \
+  --input=docs/evidence/public-staging/licensing-evidence.json \
+  --browser-map-summary=docs/evidence/public-staging/browser-map-summary.json \
+  --output=docs/evidence/public-staging/17-licensing-gates.md \
+  --summary-output=docs/evidence/public-staging/licensing-summary.json
+```
+
+The input JSON must cover Esri World Imagery, CARTO styles/tiles, Yahoo
+Finance/yfinance, company logos, news sources, political-trading feeds, property
+and parcel data, and other commercial datasets. Record only current official
+source URLs, review dates, permission/caching/redistribution/offline-use
+summaries, account/API-key requirement booleans, replacement providers, and
+whether each provider is enabled in public staging. Unresolved providers may
+remain unapproved for private beta only when disabled and unused in the browser
+capture. The generated report and summary must show `Verdict: pass`.
+
 Generate deployed auth, email-token, CSRF, and map-slot evidence with two
 dedicated tester accounts. The first run sends registration/password-reset
 emails and exits with `Verdict: investigate` until the token environment
@@ -274,6 +299,9 @@ Deployment automation evidence must prove the protected GitHub staging
 environment, manual approval, deployment concurrency, immutable build/scan/SBOM
 sequence, Render API/worker deploy, public preflight, uploaded evidence
 artifact, and commit/image consistency.
+Licensing evidence must prove current official-source review metadata and that
+unresolved providers remain disabled and unused in the public browser/map
+capture.
 All public evidence is scanned for secret-like values; raw authorization
 headers, token-bearing URLs, database URLs with credentials, and provider keys
 make the evidence weak even when other checks pass.

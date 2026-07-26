@@ -929,6 +929,68 @@ python3 scripts/public_staging_performance_report.py \
   --summary-output=docs/evidence/public-staging/performance-evidence-summary.json
 ```
 
+### Prompt 14.5: Public Staging Licensing Gate Evidence
+
+```text
+Generate licensing gate evidence after public browser/map-provider evidence is
+present. Do not edit product behavior or enable unresolved providers.
+
+Work in:
+/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis
+
+Prerequisites:
+- docs/evidence/public-staging/browser-map-summary.json exists and has pass
+  evidence for disabled providers unused, no unpkg.com, no provider credentials,
+  and approved map hosts only.
+- OASIS_FEATURE_SATELLITE=false, OASIS_FEATURE_PRICES=false, and
+  OASIS_FEATURE_LOGOS=false are confirmed in the public staging environment.
+
+Run:
+python3 scripts/public_staging_licensing_report.py --print-template \
+  > /tmp/oasis-licensing-evidence.template.json
+
+Create docs/evidence/public-staging/licensing-evidence.json from current
+official source reviews using only:
+- current official source URL
+- review date
+- commercial-use permission summary
+- caching, redistribution, attribution, and offline-use summary
+- account/API-key requirement boolean
+- replacement provider
+- enabled_in_public_staging boolean
+- status: approved, disabled, not_selected, or investigate
+
+Cover:
+- Esri World Imagery
+- CARTO styles and tiles
+- Yahoo Finance and yfinance
+- company logos
+- news sources
+- political-trading feeds
+- property and parcel data
+- other commercial datasets
+
+Do not include account IDs, API keys, cookies, token-bearing URLs, screenshots
+with credentials, raw provider authorization headers, or copied full terms text.
+
+Generate:
+python3 scripts/public_staging_licensing_report.py \
+  --input=docs/evidence/public-staging/licensing-evidence.json \
+  --browser-map-summary=docs/evidence/public-staging/browser-map-summary.json \
+  --output=docs/evidence/public-staging/17-licensing-gates.md \
+  --summary-output=docs/evidence/public-staging/licensing-summary.json
+
+Inspect:
+- docs/evidence/public-staging/17-licensing-gates.md
+- docs/evidence/public-staging/licensing-summary.json
+
+Both must show `Verdict: pass`. Licensing uncertainty can pass private beta only
+when the affected provider is disabled and unused in browser/provider evidence.
+Any stale review, unofficial source URL, enabled unresolved provider, missing
+replacement, missing feature-flag proof, or unexpected provider host keeps the
+final audit unapproved.
+```
+
 ### Prompt 15: Public Staging Auth, Worker, Backup, Rollback Gate
 
 ```text

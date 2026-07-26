@@ -55,6 +55,7 @@ GENERATED_MARKDOWN = {
     "14-observability-alerts.md",
     "15-performance.md",
     "16-deployment-automation.md",
+    "17-licensing-gates.md",
 }
 
 MARKDOWN_REQUIRED_TEXT = {
@@ -140,6 +141,12 @@ MARKDOWN_REQUIRED_TEXT = {
         "## Run Checks",
         "## Artifact Consistency",
     ],
+    "17-licensing-gates.md": [
+        "# Public Staging Licensing Gate Evidence",
+        "## Provider Reviews",
+        "## Feature Flags",
+        "## Browser Map Licensing Checks",
+    ],
 }
 
 REQUIRED_DOCS = [
@@ -183,7 +190,7 @@ REQUIREMENTS = [
     ("monitoring_alerting", "Monitoring and alerting", ["14-observability-alerts.md", "ops-evidence-summary.json"], []),
     ("private_beta_access", "Private-beta access control", ["03-cloudflare-access.md", "06-auth-email.md", "auth-email-summary.json"], []),
     ("performance", "Public performance measurements", ["15-performance.md", "performance-evidence-summary.json"], []),
-    ("licensing", "Licensing gates", ["15-performance.md", "08-map-provider-capture.md", "browser-map-summary.json"], []),
+    ("licensing", "Licensing gates", ["08-map-provider-capture.md", "browser-map-summary.json", "17-licensing-gates.md", "licensing-summary.json"], []),
 ]
 
 
@@ -211,7 +218,7 @@ ACCEPTANCE = [
     ("restore_success", "Backup and restore succeed", ["12-backup-restore.md", "ops-evidence-summary.json"]),
     ("rollback_success", "Deployment rollback succeeds", ["13-failure-rollback.md", "ops-evidence-summary.json"]),
     ("alerts", "Alerts detect key failures", ["14-observability-alerts.md", "ops-evidence-summary.json"]),
-    ("providers_disabled", "Unlicensed providers remain disabled", ["08-map-provider-capture.md", "browser-map-summary.json"]),
+    ("providers_disabled", "Unlicensed providers remain disabled", ["08-map-provider-capture.md", "browser-map-summary.json", "17-licensing-gates.md", "licensing-summary.json"]),
     ("test_suites_pass", "Test suites pass", ["01-image-manifest.json"]),
     ("cicd_safe", "CI/CD deploys immutable images safely", ["01-image-manifest.json", "02-render-deploy.json", "16-deployment-automation.md", "deployment-automation-summary.json"]),
     ("docs_current", "Documentation is current", REQUIRED_DOCS),
@@ -1051,6 +1058,68 @@ def deployment_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     return weak
 
 
+LICENSING_REQUIRED_PROVIDERS = {
+    "carto_tiles",
+    "company_logos",
+    "esri_world_imagery",
+    "news_sources",
+    "other_commercial_datasets",
+    "political_trading_feeds",
+    "property_parcel_data",
+    "yahoo_finance_yfinance",
+}
+
+LICENSING_REQUIRED_FLAGS = {
+    "OASIS_FEATURE_LOGOS",
+    "OASIS_FEATURE_PRICES",
+    "OASIS_FEATURE_SATELLITE",
+}
+
+LICENSING_REQUIRED_BROWSER_CHECKS = {
+    "approved_hosts_only",
+    "browser_map_summary_pass",
+    "disabled_providers_unused",
+    "no_provider_credentials",
+    "no_unpkg",
+}
+
+
+def licensing_summary_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if data.get("verdict") != "pass":
+        weak.append("licensing summary verdict is not pass")
+    if data.get("failures"):
+        weak.append("licensing summary has failures")
+    if not data.get("input_captured_at"):
+        weak.append("licensing input captured timestamp is missing")
+    if data.get("secure_mode") != "staging":
+        weak.append("licensing secure_mode is not staging")
+
+    provider_rows = {row.get("key"): row for row in (data.get("providers") or {}).get("rows") or []}
+    for key in sorted(LICENSING_REQUIRED_PROVIDERS - set(provider_rows)):
+        weak.append(f"licensing provider review is missing: {key}")
+    for key, row in sorted(provider_rows.items()):
+        if row.get("failures"):
+            weak.append(f"licensing provider has failures: {key}")
+        if not row.get("reviewed_at"):
+            weak.append(f"licensing provider reviewed_at is missing: {key}")
+        if not row.get("current_official_source_url"):
+            weak.append(f"licensing provider official source is missing: {key}")
+        if row.get("status") in {"disabled", "not_selected", "investigate"} and row.get("enabled_in_public_staging") is not False:
+            weak.append(f"licensing unresolved provider is enabled: {key}")
+
+    flags = {row.get("key"): row.get("value") for row in (data.get("feature_flags") or {}).get("rows") or []}
+    for key in sorted(LICENSING_REQUIRED_FLAGS):
+        if flags.get(key) is not True:
+            weak.append(f"licensing feature flag check is not true: {key}")
+
+    browser = {row.get("key"): row.get("value") for row in (data.get("browser_map") or {}).get("rows") or []}
+    for key in sorted(LICENSING_REQUIRED_BROWSER_CHECKS):
+        if browser.get(key) is not True:
+            weak.append(f"licensing browser/map check is not true: {key}")
+    return weak
+
+
 JSON_VALIDATORS = {
     "00-public-staging-preflight.json": preflight_weaknesses,
     "01-image-manifest.json": image_manifest_weaknesses,
@@ -1059,6 +1128,7 @@ JSON_VALIDATORS = {
     "browser-map-summary.json": browser_map_summary_weaknesses,
     "deployment-automation-summary.json": deployment_summary_weaknesses,
     "infra-evidence-summary.json": infra_summary_weaknesses,
+    "licensing-summary.json": licensing_summary_weaknesses,
     "ops-evidence-summary.json": ops_summary_weaknesses,
     "performance-evidence-summary.json": performance_summary_weaknesses,
     "route-security-summary.json": route_security_summary_weaknesses,
