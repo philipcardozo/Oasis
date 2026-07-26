@@ -364,6 +364,34 @@ script writes `10-worker-jobs.md`, `11-network-isolation.md`,
 the required structured checks are present, true, and secret-free; otherwise the
 evidence remains unproven.
 
+Generate dedicated controlled failure-exercise evidence after ops, browser/map,
+object-storage, and email-delivery summaries exist:
+
+```bash
+python3 scripts/public_staging_failure_exercises_report.py --print-template \
+  > /tmp/oasis-failure-exercises-evidence.template.json
+
+# Fill this file from controlled staging failure drills:
+# docs/evidence/public-staging/failure-exercises-evidence.json
+
+python3 scripts/public_staging_failure_exercises_report.py \
+  --input=docs/evidence/public-staging/failure-exercises-evidence.json \
+  --ops-summary=docs/evidence/public-staging/ops-evidence-summary.json \
+  --browser-map-summary=docs/evidence/public-staging/browser-map-summary.json \
+  --storage-summary=docs/evidence/public-staging/storage-summary.json \
+  --email-delivery-summary=docs/evidence/public-staging/email-delivery-summary.json \
+  --output=docs/evidence/public-staging/21-failure-exercises.md \
+  --summary-output=docs/evidence/public-staging/failure-exercises-summary.json
+```
+
+The input JSON must record sanitized results for database interruption, worker
+interruption, API replacement, failed deployment, map-provider outage,
+object-storage failure, and email failure. Do not include secrets, cookies,
+authorization headers, provider account IDs, raw signed URLs, token-bearing
+links, or private log URLs. The generated report and summary must show
+`Verdict: pass`; otherwise section 23 failure exercises remain unproven even
+when rollback, storage, and email summaries pass independently.
+
 For private-beta registration, set `OASIS_REGISTRATION_ALLOWED_EMAILS` to the
 comma-separated tester list before inviting users. Denied registrations return
 the same generic response and do not create users or send verification email.

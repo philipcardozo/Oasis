@@ -7,6 +7,7 @@ from pathlib import Path
 import scripts.public_staging_gate_audit as audit
 from scripts.public_staging_deployment_report import build_payload as build_deployment_payload
 from scripts.public_staging_email_delivery_report import build_payload as build_email_delivery_payload
+from scripts.public_staging_failure_exercises_report import build_payload as build_failure_exercises_payload
 from scripts.public_staging_infra_reports import build_payload as build_infra_payload
 from scripts.public_staging_licensing_report import build_payload as build_licensing_payload
 from scripts.public_staging_ops_reports import build_payload as build_ops_payload
@@ -24,6 +25,13 @@ from test_public_staging_email_delivery_report import (
     _evidence as email_delivery_evidence,
     _infra_summary as email_delivery_infra_summary,
     _ops_summary as email_delivery_ops_summary,
+)
+from test_public_staging_failure_exercises_report import (
+    _browser_map_summary as failure_browser_map_summary,
+    _email_summary as failure_email_summary,
+    _evidence as failure_exercises_evidence,
+    _ops_summary as failure_ops_summary,
+    _storage_summary as failure_storage_summary,
 )
 from test_public_staging_infra_reports import (
     _image_manifest as infra_image_manifest,
@@ -659,6 +667,55 @@ def test_storage_summary_requires_access_validation_failure_and_cross_checks(tmp
     assert any("cross_checks required check is not true: ops_storage_summary_pass" in item for item in result["weak"])
 
 
+def test_valid_failure_exercises_summary_json_evidence_is_proven(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_failure_exercises_payload(
+        failure_exercises_evidence(),
+        failure_ops_summary(),
+        failure_browser_map_summary(),
+        failure_storage_summary(),
+        failure_email_summary(),
+        input_path="failure-exercises-evidence.json",
+        ops_path="ops-evidence-summary.json",
+        browser_map_path="browser-map-summary.json",
+        storage_path="storage-summary.json",
+        email_path="email-delivery-summary.json",
+    )
+    (evidence / "failure-exercises-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("failure-exercises", "Failure exercises", ["failure-exercises-summary.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_failure_exercises_summary_requires_drills_and_cross_checks(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_failure_exercises_payload(
+        failure_exercises_evidence(),
+        failure_ops_summary(),
+        failure_browser_map_summary(),
+        failure_storage_summary(),
+        failure_email_summary(),
+        input_path="failure-exercises-evidence.json",
+        ops_path="ops-evidence-summary.json",
+        browser_map_path="browser-map-summary.json",
+        storage_path="storage-summary.json",
+        email_path="email-delivery-summary.json",
+    )
+    _set_failure_exercise_row(summary, "database_interruption", "readiness_fails", False)
+    _set_failure_exercise_row(summary, "failed_deployment", "traffic_not_shifted", False)
+    _set_failure_exercise_row(summary, "cross_checks", "storage_failure_pass", False)
+    (evidence / "failure-exercises-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("failure-exercises", "Failure exercises", ["failure-exercises-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("database_interruption required check is not true: readiness_fails" in item for item in result["weak"])
+    assert any("failed_deployment required check is not true: traffic_not_shifted" in item for item in result["weak"])
+    assert any("cross_checks required check is not true: storage_failure_pass" in item for item in result["weak"])
+
+
 def test_image_manifest_json_pass_with_latest_tag_is_weak(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     manifest = _image_manifest()
@@ -762,6 +819,14 @@ def _set_email_delivery_row(summary: dict, section: str, key: str, value: bool) 
             row["value"] = value
             return
     raise AssertionError(f"missing email-delivery summary row: {section}.{key}")
+
+
+def _set_failure_exercise_row(summary: dict, section: str, key: str, value: bool) -> None:
+    for row in summary[section]["rows"]:
+        if row.get("key") == key:
+            row["value"] = value
+            return
+    raise AssertionError(f"missing failure-exercises summary row: {section}.{key}")
 
 
 def _write_required_docs(tmp_path: Path) -> None:

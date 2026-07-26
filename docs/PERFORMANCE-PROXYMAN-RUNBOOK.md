@@ -1161,6 +1161,8 @@ Using the real staging URL and provider dashboards/logs, verify and record:
 - object storage private export behavior and bounded failure behavior
 - PostgreSQL backup restore into a separate database
 - API replacement and failed-health deployment rollback
+- section 23 failure exercises for database, worker, API, failed deploy, map,
+  object storage, and email failure behavior
 - observability signals and alert definitions
 - licensing-sensitive providers remain disabled
 
@@ -1169,8 +1171,10 @@ Record:
 - docs/evidence/public-staging/infra-evidence.json
 - docs/evidence/public-staging/ops-evidence.json
 - docs/evidence/public-staging/storage-evidence.json
+- docs/evidence/public-staging/failure-exercises-evidence.json
 
-Then generate strict infrastructure, operation, and object-storage reports:
+Then generate strict infrastructure, operation, object-storage, and
+failure-exercise reports:
 
 python3 scripts/public_staging_infra_reports.py --print-template \
   > /tmp/oasis-infra-evidence.template.json
@@ -1200,6 +1204,18 @@ python3 scripts/public_staging_storage_report.py \
   --output=docs/evidence/public-staging/19-object-storage.md \
   --summary-output=docs/evidence/public-staging/storage-summary.json
 
+python3 scripts/public_staging_failure_exercises_report.py --print-template \
+  > /tmp/oasis-failure-exercises-evidence.template.json
+
+python3 scripts/public_staging_failure_exercises_report.py \
+  --input=docs/evidence/public-staging/failure-exercises-evidence.json \
+  --ops-summary=docs/evidence/public-staging/ops-evidence-summary.json \
+  --browser-map-summary=docs/evidence/public-staging/browser-map-summary.json \
+  --storage-summary=docs/evidence/public-staging/storage-summary.json \
+  --email-delivery-summary=docs/evidence/public-staging/email-delivery-summary.json \
+  --output=docs/evidence/public-staging/21-failure-exercises.md \
+  --summary-output=docs/evidence/public-staging/failure-exercises-summary.json
+
 This writes:
 - docs/evidence/public-staging/02-dns-tls-edge.md
 - docs/evidence/public-staging/03-cloudflare-access.md
@@ -1213,6 +1229,8 @@ This writes:
 - docs/evidence/public-staging/ops-evidence-summary.json
 - docs/evidence/public-staging/19-object-storage.md
 - docs/evidence/public-staging/storage-summary.json
+- docs/evidence/public-staging/21-failure-exercises.md
+- docs/evidence/public-staging/failure-exercises-summary.json
 
 Final verdict stays NOT APPROVED unless every public-staging acceptance item is
 proven by current evidence.

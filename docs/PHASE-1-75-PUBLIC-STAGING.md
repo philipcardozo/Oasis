@@ -142,6 +142,12 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
 - `storage-summary.json`, generated beside `19-object-storage.md` for strict
   private-bucket, signed-operation, validation-limit, lifecycle, and storage
   failure-behavior checks
+- `21-failure-exercises.md`, generated from controlled database, worker, API
+  replacement, failed-deploy, map-provider, object-storage, and email failure
+  exercises with `scripts/public_staging_failure_exercises_report.py`
+- `failure-exercises-summary.json`, generated beside
+  `21-failure-exercises.md` for strict cross-checks against ops, browser/map,
+  object-storage, and email-delivery summaries
 - `10-worker-jobs.md`
 - `11-network-isolation.md`
 - `12-backup-restore.md`

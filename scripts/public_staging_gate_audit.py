@@ -59,6 +59,7 @@ GENERATED_MARKDOWN = {
     "18-rate-limiting.md",
     "19-object-storage.md",
     "20-email-delivery.md",
+    "21-failure-exercises.md",
 }
 
 MARKDOWN_REQUIRED_TEXT = {
@@ -175,6 +176,17 @@ MARKDOWN_REQUIRED_TEXT = {
         "## Failure Handling",
         "## Cross Checks",
     ],
+    "21-failure-exercises.md": [
+        "# Public Staging Failure Exercise Evidence",
+        "## Database Interruption",
+        "## Worker Interruption",
+        "## API Replacement",
+        "## Failed Deployment",
+        "## Map Provider Outage",
+        "## Object Storage Failure",
+        "## Email Failure",
+        "## Cross Checks",
+    ],
 }
 
 REQUIRED_DOCS = [
@@ -201,7 +213,7 @@ REQUIREMENTS = [
     ("public_tls", "Public TLS", ["00-public-staging-preflight.json", "infra-evidence-summary.json"], ["tls"]),
     ("secret_management", "Secure secret management", ["04-render-services.md", "infra-evidence-summary.json"], []),
     ("managed_postgres", "Managed PostgreSQL", ["04-render-services.md", "05-migration-version.md", "infra-evidence-summary.json"], []),
-    ("persistent_storage", "Persistent object and database storage", ["04-render-services.md", "12-backup-restore.md", "19-object-storage.md", "ops-evidence-summary.json", "storage-summary.json"], []),
+    ("persistent_storage", "Persistent object and database storage", ["04-render-services.md", "12-backup-restore.md", "19-object-storage.md", "21-failure-exercises.md", "ops-evidence-summary.json", "storage-summary.json", "failure-exercises-summary.json"], []),
     ("reverse_proxy", "Public reverse-proxy behavior", ["00-public-staging-preflight.json", "02-dns-tls-edge.md", "infra-evidence-summary.json"], []),
     ("email_delivery", "Authentication email delivery", ["06-auth-email.md", "20-email-delivery.md", "auth-email-summary.json", "email-delivery-summary.json"], []),
     ("api_worker_separation", "API and worker separation", ["02-render-deploy.json", "10-worker-jobs.md", "ops-evidence-summary.json"], []),
@@ -214,7 +226,8 @@ REQUIREMENTS = [
         ["01-image-manifest.json", "02-render-deploy.json", "16-deployment-automation.md", "deployment-automation-summary.json"],
         [],
     ),
-    ("rollback", "Rollback", ["13-failure-rollback.md", "ops-evidence-summary.json"], []),
+    ("rollback", "Rollback", ["13-failure-rollback.md", "21-failure-exercises.md", "ops-evidence-summary.json", "failure-exercises-summary.json"], []),
+    ("failure_exercises", "Failure exercises", ["13-failure-rollback.md", "21-failure-exercises.md", "ops-evidence-summary.json", "failure-exercises-summary.json"], []),
     ("backup_restore", "Backup and restore", ["12-backup-restore.md", "ops-evidence-summary.json"], []),
     ("monitoring_alerting", "Monitoring and alerting", ["14-observability-alerts.md", "ops-evidence-summary.json"], []),
     ("private_beta_access", "Private-beta access control", ["03-cloudflare-access.md", "06-auth-email.md", "auth-email-summary.json"], []),
@@ -240,12 +253,12 @@ ACCEPTANCE = [
     ("browser_map", "Real browser map rendering works", ["07-browser-matrix.md", "08-map-provider-capture.md", "browser-map-summary.json"]),
     ("no_bulk_first_paint", "/api/universe/bulk is absent from initial paint", ["15-performance.md", "performance-evidence-summary.json"]),
     ("zero_api_acquisition", "API user requests perform zero external acquisition", ["11-network-isolation.md", "ops-evidence-summary.json"]),
-    ("worker_recovery", "Worker jobs are bounded and recoverable", ["10-worker-jobs.md", "ops-evidence-summary.json"]),
-    ("private_storage", "Object storage remains private", ["12-backup-restore.md", "19-object-storage.md", "ops-evidence-summary.json", "storage-summary.json"]),
+    ("worker_recovery", "Worker jobs are bounded and recoverable", ["10-worker-jobs.md", "21-failure-exercises.md", "ops-evidence-summary.json", "failure-exercises-summary.json"]),
+    ("private_storage", "Object storage remains private", ["12-backup-restore.md", "19-object-storage.md", "21-failure-exercises.md", "ops-evidence-summary.json", "storage-summary.json", "failure-exercises-summary.json"]),
     ("headers_cors_hosts", "Security headers, CORS, and trusted hosts are correct", ["00-public-staging-preflight.json", "09-route-security.md", "route-security-summary.json"]),
     ("rate_limit_proxy", "Rate limiting works through public proxy", ["09-route-security.md", "route-security-summary.json", "18-rate-limiting.md", "rate-limit-summary.json"]),
     ("restore_success", "Backup and restore succeed", ["12-backup-restore.md", "ops-evidence-summary.json"]),
-    ("rollback_success", "Deployment rollback succeeds", ["13-failure-rollback.md", "ops-evidence-summary.json"]),
+    ("rollback_success", "Deployment rollback succeeds", ["13-failure-rollback.md", "21-failure-exercises.md", "ops-evidence-summary.json", "failure-exercises-summary.json"]),
     ("alerts", "Alerts detect key failures", ["14-observability-alerts.md", "ops-evidence-summary.json"]),
     ("providers_disabled", "Unlicensed providers remain disabled", ["08-map-provider-capture.md", "browser-map-summary.json", "17-licensing-gates.md", "licensing-summary.json"]),
     ("test_suites_pass", "Test suites pass", ["01-image-manifest.json"]),
@@ -1363,6 +1376,84 @@ def storage_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     return weak
 
 
+FAILURE_EXERCISES_REQUIRED = {
+    "database_interruption": {
+        "readiness_fails",
+        "liveness_truthful",
+        "api_recovers_after_restore",
+        "no_data_corruption",
+        "no_sqlite_fallback",
+    },
+    "worker_interruption": {
+        "browsing_continues",
+        "jobs_remain_pending",
+        "work_resumes_safely",
+        "api_responsive_while_worker_down",
+        "no_duplicate_completion",
+    },
+    "api_replacement": {
+        "traffic_healthy_instances_only",
+        "sessions_persist",
+        "map_slots_persist",
+        "no_migration_race",
+        "replacement_revision_recorded",
+    },
+    "failed_deployment": {
+        "failing_health_revision_used_or_simulated",
+        "traffic_not_shifted",
+        "previous_revision_available",
+        "rollback_command_recorded",
+        "rollback_verified",
+    },
+    "map_provider_outage": {
+        "application_usable",
+        "preferred_basemap_preserved",
+        "fallback_works",
+        "retry_bounded",
+        "no_unlicensed_provider_enabled",
+    },
+    "object_storage_failure": {
+        "export_status_accurate",
+        "partial_output_not_offered",
+        "retry_bounded",
+        "no_secret_leak",
+    },
+    "email_failure": {
+        "request_enumeration_resistant",
+        "delivery_retried",
+        "retry_bounded",
+        "tokens_not_exposed",
+    },
+    "cross_checks": {
+        "ops_worker_summary_pass",
+        "ops_backup_summary_pass",
+        "ops_rollback_summary_pass",
+        "ops_alerts_summary_pass",
+        "browser_map_failure_pass",
+        "storage_failure_pass",
+        "email_failure_pass",
+    },
+}
+
+
+def failure_exercises_summary_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if data.get("verdict") != "pass":
+        weak.append("failure-exercises summary verdict is not pass")
+    if data.get("failures"):
+        weak.append("failure-exercises summary has failures")
+    if not data.get("input_captured_at"):
+        weak.append("failure-exercises input captured timestamp is missing")
+    if urlparse(str(data.get("base_url") or "")).scheme != "https":
+        weak.append("failure-exercises base URL is not HTTPS")
+    for section, required_keys in FAILURE_EXERCISES_REQUIRED.items():
+        rows = {row.get("key"): row.get("value") for row in (data.get(section) or {}).get("rows") or []}
+        for key in sorted(required_keys):
+            if rows.get(key) is not True:
+                weak.append(f"failure-exercises {section} required check is not true: {key}")
+    return weak
+
+
 JSON_VALIDATORS = {
     "00-public-staging-preflight.json": preflight_weaknesses,
     "01-image-manifest.json": image_manifest_weaknesses,
@@ -1371,6 +1462,7 @@ JSON_VALIDATORS = {
     "browser-map-summary.json": browser_map_summary_weaknesses,
     "deployment-automation-summary.json": deployment_summary_weaknesses,
     "email-delivery-summary.json": email_delivery_summary_weaknesses,
+    "failure-exercises-summary.json": failure_exercises_summary_weaknesses,
     "infra-evidence-summary.json": infra_summary_weaknesses,
     "licensing-summary.json": licensing_summary_weaknesses,
     "ops-evidence-summary.json": ops_summary_weaknesses,
