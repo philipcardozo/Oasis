@@ -843,6 +843,66 @@ the summary must prove a shared limiter store or provider-native equivalent.
 Otherwise the private-beta gate remains unapproved.
 ```
 
+### Prompt 13.3: Public Staging Object Storage Evidence
+
+```text
+Generate public staging object-storage evidence without editing product code.
+
+Work in:
+/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis
+
+Prerequisites:
+- docs/evidence/public-staging/infra-evidence-summary.json exists.
+- docs/evidence/public-staging/ops-evidence-summary.json exists.
+- The staging object-storage provider, bucket/namespace policy, lifecycle
+  policy, and export failure behavior were checked.
+
+Verify and record:
+- Cloudflare R2 or approved S3-compatible staging backend
+- separate staging bucket or namespace
+- private default object access
+- server-side encryption
+- no public bucket listing
+- provider-managed least-privilege credentials
+- no browser-exposed raw storage credentials
+- expiring signed download/operation authorization
+- application ownership checks before object access
+- lifecycle expiration for temporary/private artifacts
+- generated exports, approved logos, future report artifacts, and temporary
+  private files are supported
+- max export size limit and content-type validation
+- storage-unavailable export behavior is accurate
+- partial output is not offered
+- retry behavior is bounded
+- storage errors do not leak secrets
+
+Run:
+python3 scripts/public_staging_storage_report.py --print-template \
+  > /tmp/oasis-storage-evidence.template.json
+
+Create docs/evidence/public-staging/storage-evidence.json from sanitized
+provider settings, public probes, and export failure evidence. Do not include
+bucket account IDs, access keys, secret keys, raw signed URLs, cookies,
+authorization headers, service-token values, private log URLs, screenshots with
+credentials, or account identifiers.
+
+Generate:
+python3 scripts/public_staging_storage_report.py \
+  --input=docs/evidence/public-staging/storage-evidence.json \
+  --infra-summary=docs/evidence/public-staging/infra-evidence-summary.json \
+  --ops-summary=docs/evidence/public-staging/ops-evidence-summary.json \
+  --output=docs/evidence/public-staging/19-object-storage.md \
+  --summary-output=docs/evidence/public-staging/storage-summary.json
+
+Inspect:
+- docs/evidence/public-staging/19-object-storage.md
+- docs/evidence/public-staging/storage-summary.json
+
+Both must show `Verdict: pass`. Any public listing, raw browser credential,
+missing signed-expiry/ownership check, missing size/content-type limit, or
+unbounded storage-failure behavior keeps the private-beta gate unapproved.
+```
+
 ### Prompt 13.5: Public Staging Auth And Map-Slot Probe
 
 ```text
@@ -1077,8 +1137,9 @@ Record:
 - docs/evidence/public-staging/06-auth-email.md
 - docs/evidence/public-staging/infra-evidence.json
 - docs/evidence/public-staging/ops-evidence.json
+- docs/evidence/public-staging/storage-evidence.json
 
-Then generate strict infrastructure and operation reports:
+Then generate strict infrastructure, operation, and object-storage reports:
 
 python3 scripts/public_staging_infra_reports.py --print-template \
   > /tmp/oasis-infra-evidence.template.json
@@ -1098,6 +1159,16 @@ python3 scripts/public_staging_ops_reports.py \
   --output-dir=docs/evidence/public-staging \
   --summary-output=docs/evidence/public-staging/ops-evidence-summary.json
 
+python3 scripts/public_staging_storage_report.py --print-template \
+  > /tmp/oasis-storage-evidence.template.json
+
+python3 scripts/public_staging_storage_report.py \
+  --input=docs/evidence/public-staging/storage-evidence.json \
+  --infra-summary=docs/evidence/public-staging/infra-evidence-summary.json \
+  --ops-summary=docs/evidence/public-staging/ops-evidence-summary.json \
+  --output=docs/evidence/public-staging/19-object-storage.md \
+  --summary-output=docs/evidence/public-staging/storage-summary.json
+
 This writes:
 - docs/evidence/public-staging/02-dns-tls-edge.md
 - docs/evidence/public-staging/03-cloudflare-access.md
@@ -1109,6 +1180,8 @@ This writes:
 - docs/evidence/public-staging/13-failure-rollback.md
 - docs/evidence/public-staging/14-observability-alerts.md
 - docs/evidence/public-staging/ops-evidence-summary.json
+- docs/evidence/public-staging/19-object-storage.md
+- docs/evidence/public-staging/storage-summary.json
 
 Final verdict stays NOT APPROVED unless every public-staging acceptance item is
 proven by current evidence.

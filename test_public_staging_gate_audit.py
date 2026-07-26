@@ -10,6 +10,7 @@ from scripts.public_staging_infra_reports import build_payload as build_infra_pa
 from scripts.public_staging_licensing_report import build_payload as build_licensing_payload
 from scripts.public_staging_ops_reports import build_payload as build_ops_payload
 from scripts.public_staging_rate_limit_report import build_payload as build_rate_limit_payload
+from scripts.public_staging_storage_report import build_payload as build_storage_payload
 from test_public_staging_deployment_report import (
     _image_manifest as deployment_image_manifest,
     _preflight as deployment_preflight,
@@ -32,6 +33,11 @@ from test_public_staging_rate_limit_report import (
     _evidence as rate_limit_evidence,
     _preflight as rate_limit_preflight,
     _route_security as rate_limit_route_security,
+)
+from test_public_staging_storage_report import (
+    _evidence as storage_evidence,
+    _infra_summary as storage_infra_summary,
+    _ops_summary as storage_ops_summary,
 )
 
 
@@ -528,6 +534,49 @@ def test_rate_limit_summary_requires_edge_client_ip_and_route_family_checks(tmp_
     assert any("route_families required check is not true: exports" in item for item in result["weak"])
 
 
+def test_valid_storage_summary_json_evidence_is_proven(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_storage_payload(
+        storage_evidence(),
+        storage_infra_summary(),
+        storage_ops_summary(),
+        input_path="storage-evidence.json",
+        infra_path="infra-evidence-summary.json",
+        ops_path="ops-evidence-summary.json",
+    )
+    (evidence / "storage-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("storage", "Object storage", ["storage-summary.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_storage_summary_requires_access_validation_failure_and_cross_checks(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_storage_payload(
+        storage_evidence(),
+        storage_infra_summary(),
+        storage_ops_summary(),
+        input_path="storage-evidence.json",
+        infra_path="infra-evidence-summary.json",
+        ops_path="ops-evidence-summary.json",
+    )
+    _set_storage_row(summary, "access_controls", "public_bucket_listing_disabled", False)
+    _set_storage_row(summary, "validation_limits", "content_type_validation", False)
+    _set_storage_row(summary, "failure_behavior", "partial_output_not_offered", False)
+    _set_storage_row(summary, "cross_checks", "ops_storage_summary_pass", False)
+    (evidence / "storage-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("storage", "Object storage", ["storage-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("access_controls required check is not true: public_bucket_listing_disabled" in item for item in result["weak"])
+    assert any("validation_limits required check is not true: content_type_validation" in item for item in result["weak"])
+    assert any("failure_behavior required check is not true: partial_output_not_offered" in item for item in result["weak"])
+    assert any("cross_checks required check is not true: ops_storage_summary_pass" in item for item in result["weak"])
+
+
 def test_image_manifest_json_pass_with_latest_tag_is_weak(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     manifest = _image_manifest()
@@ -615,6 +664,14 @@ def _set_rate_limit_row(summary: dict, section: str, key: str, value: bool) -> N
             row["value"] = value
             return
     raise AssertionError(f"missing rate-limit summary row: {section}.{key}")
+
+
+def _set_storage_row(summary: dict, section: str, key: str, value: bool) -> None:
+    for row in summary[section]["rows"]:
+        if row.get("key") == key:
+            row["value"] = value
+            return
+    raise AssertionError(f"missing storage summary row: {section}.{key}")
 
 
 def _write_required_docs(tmp_path: Path) -> None:

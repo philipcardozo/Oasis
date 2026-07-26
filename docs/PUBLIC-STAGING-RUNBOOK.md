@@ -278,6 +278,34 @@ show `Verdict: pass`; otherwise rate limiting through the public proxy remains
 unproven. Multiple API replicas require a shared limiter store or provider-native
 equivalent.
 
+Generate object-storage evidence after infra and operations summaries exist:
+
+```bash
+python3 scripts/public_staging_storage_report.py --print-template \
+  > /tmp/oasis-storage-evidence.template.json
+
+# Fill this file from public staging probes and provider settings:
+# docs/evidence/public-staging/storage-evidence.json
+
+python3 scripts/public_staging_storage_report.py \
+  --input=docs/evidence/public-staging/storage-evidence.json \
+  --infra-summary=docs/evidence/public-staging/infra-evidence-summary.json \
+  --ops-summary=docs/evidence/public-staging/ops-evidence-summary.json \
+  --output=docs/evidence/public-staging/19-object-storage.md \
+  --summary-output=docs/evidence/public-staging/storage-summary.json
+```
+
+The input JSON must record only sanitized provider and probe evidence: staging
+bucket/namespace alias, provider name, booleans for private default access,
+server-side encryption, lifecycle expiration, expiring signed authorization,
+ownership checks, public-listing denial, browser credential absence,
+least-privilege secret management, size limits, content-type validation, and
+bounded export behavior when storage is unavailable. Do not include bucket
+account IDs, raw object URLs with tokens, access keys, secret keys, cookies,
+authorization headers, screenshots with credentials, or private token-bearing
+URLs. The generated report and summary must show `Verdict: pass`; otherwise
+object storage remains unproven even when broader infra/ops summaries pass.
+
 Generate operations evidence reports from structured public/provider evidence:
 
 ```bash
@@ -331,6 +359,10 @@ unresolved providers remain disabled and unused in the public browser/map
 capture.
 Rate-limit evidence must prove edge controls, trusted client-IP handling, route
 family probes, and an acceptable one-replica or shared-store limiter shape.
+Object-storage evidence must prove private default access, no public listing,
+expiring signed authorization, ownership checks, lifecycle expiration, size and
+content-type validation, and bounded export behavior when storage is
+unavailable.
 All public evidence is scanned for secret-like values; raw authorization
 headers, token-bearing URLs, database URLs with credentials, and provider keys
 make the evidence weak even when other checks pass.

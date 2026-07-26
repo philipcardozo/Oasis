@@ -130,6 +130,11 @@ Store public-staging evidence in `docs/evidence/public-staging/`:
   `scripts/public_staging_rate_limit_report.py`
 - `rate-limit-summary.json`, generated beside `18-rate-limiting.md` for strict
   edge-control, client-IP, replica-shape, and route-family rate-limit checks
+- `19-object-storage.md`, generated from public object-storage evidence and
+  infra/ops summaries with `scripts/public_staging_storage_report.py`
+- `storage-summary.json`, generated beside `19-object-storage.md` for strict
+  private-bucket, signed-operation, validation-limit, lifecycle, and storage
+  failure-behavior checks
 - `10-worker-jobs.md`
 - `11-network-isolation.md`
 - `12-backup-restore.md`

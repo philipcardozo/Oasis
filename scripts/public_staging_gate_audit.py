@@ -57,6 +57,7 @@ GENERATED_MARKDOWN = {
     "16-deployment-automation.md",
     "17-licensing-gates.md",
     "18-rate-limiting.md",
+    "19-object-storage.md",
 }
 
 MARKDOWN_REQUIRED_TEXT = {
@@ -155,6 +156,14 @@ MARKDOWN_REQUIRED_TEXT = {
         "## Client IP Handling",
         "## Route Families",
     ],
+    "19-object-storage.md": [
+        "# Public Staging Object Storage Evidence",
+        "## Storage Configuration",
+        "## Access Controls",
+        "## Validation Limits",
+        "## Export Failure Behavior",
+        "## Cross Checks",
+    ],
 }
 
 REQUIRED_DOCS = [
@@ -181,7 +190,7 @@ REQUIREMENTS = [
     ("public_tls", "Public TLS", ["00-public-staging-preflight.json", "infra-evidence-summary.json"], ["tls"]),
     ("secret_management", "Secure secret management", ["04-render-services.md", "infra-evidence-summary.json"], []),
     ("managed_postgres", "Managed PostgreSQL", ["04-render-services.md", "05-migration-version.md", "infra-evidence-summary.json"], []),
-    ("persistent_storage", "Persistent object and database storage", ["04-render-services.md", "12-backup-restore.md", "ops-evidence-summary.json"], []),
+    ("persistent_storage", "Persistent object and database storage", ["04-render-services.md", "12-backup-restore.md", "19-object-storage.md", "ops-evidence-summary.json", "storage-summary.json"], []),
     ("reverse_proxy", "Public reverse-proxy behavior", ["00-public-staging-preflight.json", "02-dns-tls-edge.md", "infra-evidence-summary.json"], []),
     ("email_delivery", "Authentication email delivery", ["06-auth-email.md", "auth-email-summary.json"], []),
     ("api_worker_separation", "API and worker separation", ["02-render-deploy.json", "10-worker-jobs.md", "ops-evidence-summary.json"], []),
@@ -221,7 +230,7 @@ ACCEPTANCE = [
     ("no_bulk_first_paint", "/api/universe/bulk is absent from initial paint", ["15-performance.md", "performance-evidence-summary.json"]),
     ("zero_api_acquisition", "API user requests perform zero external acquisition", ["11-network-isolation.md", "ops-evidence-summary.json"]),
     ("worker_recovery", "Worker jobs are bounded and recoverable", ["10-worker-jobs.md", "ops-evidence-summary.json"]),
-    ("private_storage", "Object storage remains private", ["12-backup-restore.md", "ops-evidence-summary.json"]),
+    ("private_storage", "Object storage remains private", ["12-backup-restore.md", "19-object-storage.md", "ops-evidence-summary.json", "storage-summary.json"]),
     ("headers_cors_hosts", "Security headers, CORS, and trusted hosts are correct", ["00-public-staging-preflight.json", "09-route-security.md", "route-security-summary.json"]),
     ("rate_limit_proxy", "Rate limiting works through public proxy", ["09-route-security.md", "route-security-summary.json", "18-rate-limiting.md", "rate-limit-summary.json"]),
     ("restore_success", "Backup and restore succeed", ["12-backup-restore.md", "ops-evidence-summary.json"]),
@@ -1186,6 +1195,74 @@ def rate_limit_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     return weak
 
 
+STORAGE_REQUIRED = {
+    "storage_configuration": {
+        "backend_s3",
+        "provider_cloudflare_r2",
+        "staging_namespace_separate",
+        "bucket_identifier_sanitized",
+        "server_side_encryption",
+        "lifecycle_expiration",
+        "generated_exports_supported",
+        "approved_logos_supported",
+        "future_report_artifacts_supported",
+        "temporary_private_files_supported",
+    },
+    "access_controls": {
+        "private_by_default",
+        "public_bucket_listing_disabled",
+        "credentials_provider_managed",
+        "least_privilege_credentials",
+        "browser_credentials_absent",
+        "signed_downloads_expire",
+        "signed_operation_scope_limited",
+        "ownership_checks",
+        "no_raw_object_url_authorization",
+    },
+    "validation_limits": {
+        "size_limit_enforced",
+        "content_type_validation",
+        "max_export_bytes_configured",
+        "allowed_content_types_recorded",
+        "max_export_bytes_positive",
+        "allowed_content_type_count_positive",
+    },
+    "failure_behavior": {
+        "storage_unavailable_probe_recorded",
+        "export_status_accurate",
+        "partial_output_not_offered",
+        "retry_bounded",
+        "no_secret_leak_in_errors",
+    },
+    "cross_checks": {
+        "infra_storage_summary_pass",
+        "ops_storage_summary_pass",
+    },
+}
+
+
+def storage_summary_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if data.get("verdict") != "pass":
+        weak.append("storage summary verdict is not pass")
+    if data.get("failures"):
+        weak.append("storage summary has failures")
+    if not data.get("input_captured_at"):
+        weak.append("storage input captured timestamp is missing")
+    if urlparse(str(data.get("base_url") or "")).scheme != "https":
+        weak.append("storage base URL is not HTTPS")
+    if "cloudflare" not in str(data.get("provider") or "").lower() or "r2" not in str(data.get("provider") or "").lower():
+        weak.append("storage provider is not Cloudflare R2")
+    if not str(data.get("bucket_alias") or ""):
+        weak.append("storage bucket alias is missing")
+    for section, required_keys in STORAGE_REQUIRED.items():
+        rows = {row.get("key"): row.get("value") for row in (data.get(section) or {}).get("rows") or []}
+        for key in sorted(required_keys):
+            if rows.get(key) is not True:
+                weak.append(f"storage {section} required check is not true: {key}")
+    return weak
+
+
 JSON_VALIDATORS = {
     "00-public-staging-preflight.json": preflight_weaknesses,
     "01-image-manifest.json": image_manifest_weaknesses,
@@ -1199,6 +1276,7 @@ JSON_VALIDATORS = {
     "performance-evidence-summary.json": performance_summary_weaknesses,
     "rate-limit-summary.json": rate_limit_summary_weaknesses,
     "route-security-summary.json": route_security_summary_weaknesses,
+    "storage-summary.json": storage_summary_weaknesses,
 }
 
 
