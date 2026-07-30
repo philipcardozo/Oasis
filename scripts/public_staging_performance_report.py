@@ -61,6 +61,7 @@ REQUIRED_BROWSER_FLOWS = {
     "data_quality": "data quality panel",
     "report_preview": "report preview",
 }
+LOCAL_PROXY_HOSTS = {"127.0.0.1", "localhost"}
 
 FLOW_KEY_PATTERNS = {
     "first_paint": ("03 local first paint", "cold first paint"),
@@ -96,6 +97,19 @@ def safe_url(value: str | None) -> str:
     if not parsed.scheme:
         return value
     return parsed._replace(query="<redacted>" if parsed.query else "").geturl()
+
+
+def is_local_proxyman_proxy(value: Any) -> bool:
+    if not isinstance(value, str) or not value.strip():
+        return False
+    parsed = urlparse(value)
+    return (
+        parsed.scheme == "http"
+        and parsed.hostname in LOCAL_PROXY_HOSTS
+        and parsed.port is not None
+        and parsed.username is None
+        and parsed.password is None
+    )
 
 
 def display_path(value: str) -> str:
@@ -334,6 +348,7 @@ def evaluate(
     browser_rows: list[dict[str, Any]],
     direct_rows: list[dict[str, Any]] | None,
     browser_base_url: str,
+    browser_proxy_server: Any,
     direct_base_url: str,
     direct_proxy_server: Any,
     preflight: dict[str, Any] | None,
@@ -345,6 +360,8 @@ def evaluate(
     warnings: list[str] = []
 
     failures.extend(flow_failures(browser_rows, "browser"))
+    if not is_local_proxyman_proxy(browser_proxy_server):
+        failures.append("browser Proxyman proxy is not a local explicit proxy URL")
 
     if direct_rows is None:
         failures.append("direct browser comparison input is missing")
@@ -438,6 +455,7 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
         browser_rows,
         direct_rows,
         str(browser.get("baseUrl") or ""),
+        browser.get("proxyServer"),
         str(direct.get("baseUrl") or "") if direct else "",
         direct.get("proxyServer") if direct else None,
         preflight,

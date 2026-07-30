@@ -80,6 +80,19 @@ def test_public_staging_performance_report_requires_clean_direct_capture(tmp_pat
     assert "direct browser first paint requested /api/universe/bulk" in text
 
 
+def test_public_staging_performance_report_requires_local_proxyman_proxy(tmp_path):
+    browser = tmp_path / "browser.json"
+    output = tmp_path / "15-performance.md"
+    browser.write_text(json.dumps(
+        _browser_summary(bulk=False, proxy_server="https://proxy.example.com:9090")
+    ))
+
+    result = _run_report(browser, output)
+
+    assert result.returncode == 1
+    assert "browser Proxyman proxy is not a local explicit proxy URL" in output.read_text()
+
+
 def test_public_staging_performance_report_requires_all_public_browser_flows(tmp_path):
     browser = tmp_path / "browser.json"
     direct = tmp_path / "direct-browser.json"

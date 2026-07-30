@@ -138,11 +138,13 @@ proves the gate and remains secret-free.
 Then run the Proxyman/browser capture from `docs/PERFORMANCE-PROXYMAN-RUNBOOK.md`
 Prompt 8 and the public prompts appended there. After the public browser
 capture, run the direct comparison against the same public staging URL without
-`--proxy-server`; the generated performance report must include clean proxied
-and direct browser flow rows for first paint, reload, search intent, map
-interactions, DCF workbook fetch, entity drawer, data-quality panel, and report
-preview, with a HAR reference for every row under `docs/evidence/performance/`.
-Each row must record zero sensitive URL query values.
+`--proxy-server`; the Proxyman capture must record an explicit local proxy URL
+such as `http://127.0.0.1:9090`, and the generated performance report must
+include clean proxied and direct browser flow rows for first paint, reload,
+search intent, map interactions, DCF workbook fetch, entity drawer,
+data-quality panel, and report preview, with a HAR reference for every row
+under `docs/evidence/performance/`. Each row must record zero sensitive URL
+query values.
 Then fill the supplemental public performance evidence file from external
 location probes and provider metrics, and generate the performance evidence
 report:

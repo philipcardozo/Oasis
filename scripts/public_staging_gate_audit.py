@@ -59,6 +59,7 @@ REQUIRED_BROWSER_FLOWS = {
     "data_quality": "data quality panel",
     "report_preview": "report preview",
 }
+LOCAL_PROXY_HOSTS = {"127.0.0.1", "localhost"}
 FLOW_KEY_PATTERNS = {
     "first_paint": ("03 local first paint", "cold first paint"),
     "reload": ("04 local reload", "warm reload"),
@@ -371,6 +372,19 @@ def valid_har_path(value: Any) -> bool:
     return path.startswith("docs/evidence/performance/") and path.endswith(".har")
 
 
+def is_local_proxyman_proxy(value: Any) -> bool:
+    if not isinstance(value, str) or not value.strip():
+        return False
+    parsed = urlparse(value)
+    return (
+        parsed.scheme == "http"
+        and parsed.hostname in LOCAL_PROXY_HOSTS
+        and parsed.port is not None
+        and parsed.username is None
+        and parsed.password is None
+    )
+
+
 def safe_secret_value(value: str, *, names_only: bool = False) -> bool:
     lowered = value.lower()
     if value in {"", "<redacted>", "redacted", "***", "present", "configured", "missing"}:
@@ -586,8 +600,8 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     parsed = urlparse(str(target.get("base_url") or ""))
     if parsed.scheme != "https":
         weak.append("performance summary base URL is not HTTPS")
-    if not target.get("proxy_server"):
-        weak.append("performance summary Proxyman proxy is not recorded")
+    if not is_local_proxyman_proxy(target.get("proxy_server")):
+        weak.append("performance summary Proxyman proxy is not a local explicit proxy URL")
     direct_parsed = urlparse(str(target.get("direct_base_url") or ""))
     if direct_parsed.scheme != "https":
         weak.append("performance summary direct base URL is not HTTPS")

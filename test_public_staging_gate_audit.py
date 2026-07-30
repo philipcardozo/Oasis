@@ -447,7 +447,7 @@ def test_performance_summary_requires_proxyman_and_app_layer_rows(tmp_path, monk
     result = audit.evaluate("performance", "Performance", ["performance-evidence-summary.json"])
 
     assert result["status"] == "weak"
-    assert any("Proxyman proxy is not recorded" in item for item in result["weak"])
+    assert any("Proxyman proxy is not a local explicit proxy URL" in item for item in result["weak"])
     assert any("direct capture unexpectedly records a proxy server" in item for item in result["weak"])
     assert any("direct network comparison is missing" in item for item in result["weak"])
     assert any("missing map-slot read app-layer latency" in item for item in result["weak"])

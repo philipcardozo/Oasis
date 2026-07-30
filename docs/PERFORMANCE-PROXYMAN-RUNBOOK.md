@@ -1031,6 +1031,10 @@ node scripts/browser_performance_capture.js \
   --flow-prefix=26-public-staging \
   --summary-file=26-public-staging-browser-har-summary.json
 
+The Proxyman-routed summary must record an explicit local proxy URL such as
+`http://127.0.0.1:9090` or `http://localhost:9090`; remote proxy URLs,
+credentialed proxy URLs, and missing proxy metadata are rejected.
+
 Run the same Chrome capture without Proxyman to separate direct internet/browser
 latency from Proxyman-routed capture overhead:
 node scripts/browser_performance_capture.js \
