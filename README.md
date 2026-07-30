@@ -1,5 +1,7 @@
 # Oasis Relationship Graph
 
+OASIS will use Docker Compose with PostgreSQL, migrations, API, worker, and Caddy.
+
 Oasis is an accuracy-first static relationship graph for U.S. public companies, major private companies, government agencies, and curated business relationships. It builds static JSON under `graph/data/` and serves a single-file UI from `graph/index.html`; structural edges should stay cited.
 
 ## Three Commands
