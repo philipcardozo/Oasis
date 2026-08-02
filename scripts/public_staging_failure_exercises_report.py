@@ -19,6 +19,9 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
+LOCAL_PUBLIC_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
+RESERVED_PUBLIC_HOSTS = {"example.com", "example.net", "example.org"}
+RESERVED_PUBLIC_SUFFIXES = (".example.com", ".example.net", ".example.org", ".invalid", ".test")
 
 DATABASE_CHECKS = {
     "readiness_fails": "readiness fails during database interruption",
@@ -115,6 +118,19 @@ def display_path(value: str) -> str:
     return value
 
 
+def public_base_url_failures(url: str) -> list[str]:
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").lower()
+    failures: list[str] = []
+    if parsed.scheme != "https":
+        failures.append("failure exercise base URL is not HTTPS")
+    if not host or host in LOCAL_PUBLIC_HOSTS or host.endswith(".local"):
+        failures.append("failure exercise base URL is not a non-local public hostname")
+    if host in RESERVED_PUBLIC_HOSTS or host.endswith(RESERVED_PUBLIC_SUFFIXES):
+        failures.append("failure exercise base URL is a reserved documentation hostname")
+    return failures
+
+
 def bool_row(key: str, label: str, value: bool, **extra: Any) -> dict[str, Any]:
     return {"key": key, "label": label, "value": bool(value), **extra}
 
@@ -170,6 +186,9 @@ def ops_rollback_pass(ops: dict[str, Any] | None) -> bool:
         and rows.get("previous_revision_available") is True
         and rows.get("login_session_persistence") is True
         and rows.get("map_slots_persisted") is True
+        and rows.get("post_restart_readyz") is True
+        and rows.get("api_restart_session_persistence") is True
+        and rows.get("api_restart_map_slots_persisted") is True
         and rows.get("migration_race_absent") is True
         and rows.get("rollback_command_recorded") is True
     )
@@ -194,7 +213,7 @@ def browser_map_failure_pass(browser_map: dict[str, Any] | None) -> bool:
     provider = browser_map.get("map_provider") or {}
     rows = rows_by_key(browser_map, "map_provider")
     return (
-        urlparse(base_url).scheme == "https"
+        not public_base_url_failures(base_url)
         and provider.get("verdict") == "pass"
         and not provider.get("failures")
         and rows.get("preferred_basemap_preserved_after_failure") is True
@@ -275,8 +294,7 @@ def build_payload(
 
     if not data.get("input_captured_at"):
         failures.append("failure exercise input captured timestamp is missing")
-    if urlparse(str(data.get("base_url") or "")).scheme != "https":
-        failures.append("failure exercise base URL is not HTTPS")
+    failures.extend(public_base_url_failures(str(data.get("base_url") or "")))
     if data.get("secret_free_evidence") is not True:
         failures.append("failure exercise evidence is not marked secret-free")
 

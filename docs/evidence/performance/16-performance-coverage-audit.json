@@ -254,84 +254,85 @@
       "samples": 25
     }
   },
-  "branch": "main",
+  "branch": "phase1.75/public-staging",
   "browser": {
-    "captured_at": "2026-07-23T18:46:53.097Z",
+    "captured_at": "2026-07-30T05:20:54.739Z",
     "flows": {
       "15-compose-03-local-first-paint": {
         "bulk": false,
         "console_errors": 0,
         "external_hosts": [],
-        "requests": 9,
-        "transfer_kb": 352.9,
+        "requests": 10,
+        "transfer_kb": 353,
         "unpkg": false
       },
       "15-compose-04-local-reload": {
         "bulk": false,
         "console_errors": 0,
         "external_hosts": [],
-        "requests": 18,
-        "transfer_kb": 282,
+        "requests": 20,
+        "transfer_kb": 0.6,
         "unpkg": false
       },
       "15-compose-05-local-search-intent": {
         "bulk": true,
         "console_errors": 0,
         "external_hosts": [],
-        "requests": 10,
-        "transfer_kb": 1311,
+        "requests": 11,
+        "transfer_kb": 1311.2,
         "unpkg": false
       },
       "15-compose-06-local-map-interactions": {
         "bulk": false,
-        "console_errors": 8,
+        "console_errors": 0,
         "external_hosts": [
           "basemaps.cartocdn.com",
           "fonts.openmaptiles.org",
           "s3.amazonaws.com",
           "services.arcgisonline.com",
+          "tiles.basemaps.cartocdn.com",
           "tiles.openfreemap.org"
         ],
-        "requests": 106,
-        "transfer_kb": 1353.9,
+        "requests": 89,
+        "transfer_kb": 1354.1,
         "unpkg": false
       },
       "15-compose-07-local-dcf-download": {
         "bulk": false,
-        "console_errors": 1,
+        "console_errors": 0,
         "external_hosts": [],
-        "requests": 10,
-        "transfer_kb": 353.2,
+        "requests": 11,
+        "transfer_kb": 369.8,
         "unpkg": false
       },
       "15-compose-12-local-entity-drawer": {
         "bulk": true,
-        "console_errors": 3,
+        "console_errors": 0,
         "external_hosts": [],
-        "requests": 17,
-        "transfer_kb": 1313.3,
+        "requests": 18,
+        "transfer_kb": 1314.7,
         "unpkg": false
       },
       "15-compose-13-local-data-quality-panel": {
         "bulk": false,
-        "console_errors": 1,
+        "console_errors": 0,
         "external_hosts": [],
-        "requests": 10,
-        "transfer_kb": 353.2,
+        "requests": 11,
+        "transfer_kb": 353.7,
         "unpkg": false
       },
       "15-compose-14-local-report-preview": {
         "bulk": false,
-        "console_errors": 1,
+        "console_errors": 0,
         "external_hosts": [],
-        "requests": 10,
-        "transfer_kb": 353.2,
+        "requests": 11,
+        "transfer_kb": 355,
         "unpkg": false
       }
     },
-    "proxy_server": "http://127.0.0.1:9090"
+    "proxy_server": "http://localhost:9090"
   },
-  "commit": "9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e",
+  "commit": "788dc9b22bb932a6ff035d567cb67622650d4b40",
   "compose_failure_exercises": {
     "captured_at": "2026-07-23T19:44:15.521731+00:00",
     "full_restart_readyz": null,
@@ -344,11 +345,11 @@
   },
   "compose_map_gate": {
     "browser_channel": "chrome",
-    "browser_version": "150.0.7871.129",
-    "captured_at": "2026-07-23T19:36:59.595Z",
+    "browser_version": "150.0.7871.188",
+    "captured_at": "2026-07-30T05:21:27.988Z",
     "headed": true,
     "present": true,
-    "proxy_server": "http://127.0.0.1:9090",
+    "proxy_server": "http://localhost:9090",
     "requested_unpkg": false,
     "requested_vendored_maplibre": true,
     "screenshots": {
@@ -372,14 +373,14 @@
       "failure_count": 0,
       "measurement_count": 46,
       "present": true,
-      "proxy_server": "http://127.0.0.1:9090",
+      "proxy_server": "http://localhost:9090",
       "verdict": "pass"
     }
   },
   "gaps": [
     "no public deployed staging URL is configured in .env"
   ],
-  "generated_at": "2026-07-23T19:49:19.711152+00:00",
+  "generated_at": "2026-07-30T05:22:56.702531+00:00",
   "maplibre_headless_diagnostic": {
     "all_basemap_preserved": true,
     "all_style_loaded": true,
@@ -475,17 +476,18 @@
     "skipped_count": 0
   },
   "staging": {
-    "branch": "main",
-    "captured_at": "2026-07-23T19:40:42Z",
-    "commit": "9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e",
+    "branch": "phase1.75/public-staging",
+    "captured_at": "2026-07-30T05:22:56Z",
+    "commit": "788dc9b22bb932a6ff035d567cb67622650d4b40",
     "compose_staging": {
+      "auth_captured_at": "2026-07-30T04:54:09.426557+00:00",
       "auth_checks": {
         "cross_user_slot_read_denied": {
           "body_bytes": 31,
-          "cache_control": null,
-          "content_type": "application/json",
-          "duration_ms": 2.951,
-          "set_cookie_present": false,
+          "duration_ms": 13.12,
+          "json_keys": [
+            "detail"
+          ],
           "status_code": 404
         },
         "csrf_cookie_secure": true,
@@ -497,55 +499,73 @@
         ],
         "password_reset_complete": {
           "body_bytes": 11,
-          "cache_control": null,
-          "content_type": "application/json",
-          "duration_ms": 46.286,
-          "set_cookie_present": false,
+          "duration_ms": 193.242,
+          "json_keys": [
+            "ok"
+          ],
           "status_code": 200
         },
         "password_reset_request": {
           "body_bytes": 73,
-          "cache_control": null,
-          "content_type": "application/json",
-          "duration_ms": 9.142,
-          "set_cookie_present": false,
+          "duration_ms": 45.774,
+          "json_keys": [
+            "message",
+            "ok"
+          ],
           "status_code": 200
         },
         "post_api_restart_slot_count": 3,
+        "post_api_restart_slot_list": {
+          "body_bytes": 650,
+          "duration_ms": 232.948,
+          "json_keys": [
+            "slots"
+          ],
+          "status_code": 200
+        },
         "post_api_restart_slot_numbers": [
           1,
           2,
           3
         ],
         "post_reset_login": {
-          "body_bytes": 117,
-          "cache_control": null,
-          "content_type": "application/json",
-          "duration_ms": 49.882,
-          "set_cookie_present": true,
+          "body_bytes": 119,
+          "duration_ms": 124.686,
+          "json_keys": [
+            "ok",
+            "user"
+          ],
           "status_code": 200
         },
         "readyz_after_api_restart_status": 200,
         "session_cookie_secure": true,
+        "slot_list": {
+          "body_bytes": 650,
+          "duration_ms": 32.244,
+          "json_keys": [
+            "slots"
+          ],
+          "status_code": 200
+        },
         "stale_version_conflict": {
           "body_bytes": 59,
-          "cache_control": null,
-          "content_type": "application/json",
-          "duration_ms": 3.28,
-          "set_cookie_present": false,
+          "duration_ms": 22.274,
+          "json_keys": [
+            "detail"
+          ],
           "status_code": 409
         }
       },
       "auth_map_slots": "19-compose-auth-map-slots.json",
       "auth_measurements": [
         {
-          "body_bytes_max": 164,
-          "body_bytes_min": 164,
-          "max_ms": 3.738,
+          "body_bytes_max": 166,
+          "body_bytes_min": 166,
+          "max_ms": 9.678,
           "name": "session validation GET /api/auth/me",
-          "p50_ms": 2.997,
-          "p95_ms": 3.657,
-          "samples": 8,
+          "p50_ms": 4.992,
+          "p95_ms": 9.345,
+          "samples": 5,
           "status_codes": [
             200
           ]
@@ -553,11 +573,11 @@
         {
           "body_bytes_max": 650,
           "body_bytes_min": 650,
-          "max_ms": 4.701,
+          "max_ms": 7.374,
           "name": "map-slot list GET /api/map-slots",
-          "p50_ms": 2.78,
-          "p95_ms": 4.303,
-          "samples": 8,
+          "p50_ms": 3.902,
+          "p95_ms": 6.821,
+          "samples": 5,
           "status_codes": [
             200
           ]
@@ -565,23 +585,23 @@
         {
           "body_bytes_max": 211,
           "body_bytes_min": 211,
-          "max_ms": 4.141,
+          "max_ms": 13.369,
           "name": "map-slot read GET /api/map-slots/{id}",
-          "p50_ms": 2.558,
-          "p95_ms": 3.88,
-          "samples": 8,
+          "p50_ms": 4.776,
+          "p95_ms": 12.094,
+          "samples": 5,
           "status_codes": [
             200
           ]
         },
         {
           "body_bytes_max": 211,
-          "body_bytes_min": 207,
-          "max_ms": 5.205,
+          "body_bytes_min": 211,
+          "max_ms": 13.21,
           "name": "map-slot write PUT /api/map-slots/{id}",
-          "p50_ms": 3.159,
-          "p95_ms": 4.626,
-          "samples": 8,
+          "p50_ms": 7.414,
+          "p95_ms": 13.075,
+          "samples": 5,
           "status_codes": [
             200
           ]
@@ -590,12 +610,19 @@
       "auth_verdict": "pass",
       "backup_restore_drill": "22-compose-backup-restore-drill.json",
       "backup_restore_verdict": "pass",
+      "browser_captured_at": "2026-07-30T05:20:54.739Z",
+      "browser_headed": true,
       "browser_summary": "15-compose-browser-har-summary.json",
       "failure_exercises": "23-compose-failure-exercises.json",
       "failure_exercises_verdict": "pass",
       "first_paint": {
         "consoleErrors": [],
-        "duplicates": [],
+        "duplicates": [
+          {
+            "count": 2,
+            "key": "GET https://localhost:8443/Logo_Dark_BG_96.png"
+          }
+        ],
         "externalHosts": [],
         "failedRequestCount": 0,
         "flow": "cold first paint",
@@ -641,210 +668,336 @@
         },
         "navigation": {
           "decodedBodySize": 8842,
-          "domContentLoadedMs": 233.5,
-          "duration": 234.9,
+          "domContentLoadedMs": 504.7,
+          "duration": 507.9,
           "encodedBodySize": 2496,
-          "loadEventMs": 234.9,
+          "loadEventMs": 507.9,
           "transferSize": 2796
         },
-        "requestCount": 9,
+        "requestCount": 10,
         "requestedUniverseBulk": false,
         "requestedUnpkg": false,
         "resourceSummary": [
           {
             "decodedBodySize": 1638522,
-            "duration": 147.4,
+            "duration": 146.6,
             "encodedBodySize": 246189,
             "initiatorType": "fetch",
             "name": "https://localhost:8443/data/universe_core.json",
+            "sensitiveUrl": false,
             "transferSize": 246489
           },
           {
-            "decodedBodySize": 199910,
-            "duration": 37.8,
-            "encodedBodySize": 54130,
+            "decodedBodySize": 200483,
+            "duration": 135,
+            "encodedBodySize": 54284,
             "initiatorType": "script",
             "name": "https://localhost:8443/js/main.js",
-            "transferSize": 54430
+            "sensitiveUrl": false,
+            "transferSize": 54584
           },
           {
             "decodedBodySize": 123981,
-            "duration": 11.8,
+            "duration": 81.8,
             "encodedBodySize": 41985,
             "initiatorType": "fetch",
             "name": "https://localhost:8443/api/bootstrap/signals",
+            "sensitiveUrl": false,
             "transferSize": 42285
           },
           {
             "decodedBodySize": 36191,
-            "duration": 15.6,
+            "duration": 42.8,
             "encodedBodySize": 6486,
             "initiatorType": "link",
             "name": "https://localhost:8443/css/app.css",
+            "sensitiveUrl": false,
             "transferSize": 6786
           },
           {
             "decodedBodySize": 15499,
-            "duration": 17.6,
+            "duration": 33.6,
             "encodedBodySize": 4729,
             "initiatorType": "script",
             "name": "https://localhost:8443/js/config.js",
+            "sensitiveUrl": false,
             "transferSize": 5029
           },
           {
             "decodedBodySize": 10533,
-            "duration": 12.1,
+            "duration": 84.6,
             "encodedBodySize": 3323,
             "initiatorType": "script",
             "name": "https://localhost:8443/js/state.js",
+            "sensitiveUrl": false,
             "transferSize": 3623
           },
           {
             "decodedBodySize": 1612,
-            "duration": 25.1,
+            "duration": 102.4,
             "encodedBodySize": 1612,
             "initiatorType": "img",
             "name": "https://localhost:8443/Logo_Dark_BG_96.png",
+            "sensitiveUrl": false,
             "transferSize": 1912
           },
           {
             "decodedBodySize": 970,
-            "duration": 12,
+            "duration": 28.6,
             "encodedBodySize": 515,
             "initiatorType": "script",
             "name": "https://localhost:8443/js/util.js",
+            "sensitiveUrl": false,
             "transferSize": 815
+          },
+          {
+            "decodedBodySize": 1612,
+            "duration": 0.8,
+            "encodedBodySize": 1612,
+            "initiatorType": "other",
+            "name": "https://localhost:8443/Logo_Dark_BG_96.png",
+            "sensitiveUrl": false,
+            "transferSize": 0
           }
         ],
-        "resourceTransferBytes": 361369,
-        "resourceTransferKb": 352.9,
+        "resourceTransferBytes": 361523,
+        "resourceTransferKb": 353,
+        "sensitiveUrlCount": 0,
+        "sensitiveUrlExamples": [],
         "slowest": [
           {
             "cacheControl": "public, max-age=60, must-revalidate",
             "contentEncoding": "gzip",
             "contentLength": "2496",
-            "durationMs": 111,
+            "durationMs": 245,
             "failure": null,
             "method": "GET",
             "resourceType": "document",
+            "sensitiveUrl": false,
             "status": 200,
             "url": "https://localhost:8443/index.html"
           },
           {
             "cacheControl": "public, max-age=60, must-revalidate",
             "contentEncoding": "gzip",
-            "contentLength": "246189",
-            "durationMs": 80,
+            "contentLength": "54284",
+            "durationMs": 141,
             "failure": null,
             "method": "GET",
-            "resourceType": "fetch",
+            "resourceType": "script",
+            "sensitiveUrl": false,
             "status": 200,
-            "url": "https://localhost:8443/data/universe_core.json"
+            "url": "https://localhost:8443/js/main.js"
           },
           {
             "cacheControl": "public, max-age=60, must-revalidate",
             "contentEncoding": "gzip",
-            "contentLength": "54130",
-            "durationMs": 70,
+            "contentLength": "246189",
+            "durationMs": 131,
             "failure": null,
             "method": "GET",
-            "resourceType": "script",
+            "resourceType": "fetch",
+            "sensitiveUrl": false,
             "status": 200,
-            "url": "https://localhost:8443/js/main.js"
+            "url": "https://localhost:8443/data/universe_core.json"
           },
           {
             "cacheControl": "public, max-age=31536000, immutable",
             "contentEncoding": "identity",
             "contentLength": "1612",
-            "durationMs": 69,
+            "durationMs": 125,
             "failure": null,
             "method": "GET",
             "resourceType": "image",
+            "sensitiveUrl": false,
             "status": 200,
             "url": "https://localhost:8443/Logo_Dark_BG_96.png"
           },
           {
             "cacheControl": "public, max-age=60, must-revalidate",
             "contentEncoding": "gzip",
-            "contentLength": "4729",
-            "durationMs": 17,
-            "failure": null,
-            "method": "GET",
-            "resourceType": "script",
-            "status": 200,
-            "url": "https://localhost:8443/js/config.js"
-          },
-          {
-            "cacheControl": "public, max-age=60, must-revalidate",
-            "contentEncoding": "gzip",
-            "contentLength": "41985",
-            "durationMs": 17,
-            "failure": null,
-            "method": "GET",
-            "resourceType": "fetch",
-            "status": 200,
-            "url": "https://localhost:8443/api/bootstrap/signals"
-          },
-          {
-            "cacheControl": "public, max-age=60, must-revalidate",
-            "contentEncoding": "gzip",
-            "contentLength": "515",
-            "durationMs": 13,
-            "failure": null,
-            "method": "GET",
-            "resourceType": "script",
-            "status": 200,
-            "url": "https://localhost:8443/js/util.js"
-          },
-          {
-            "cacheControl": "public, max-age=60, must-revalidate",
-            "contentEncoding": "gzip",
             "contentLength": "3323",
-            "durationMs": 12,
+            "durationMs": 81,
             "failure": null,
             "method": "GET",
             "resourceType": "script",
+            "sensitiveUrl": false,
             "status": 200,
             "url": "https://localhost:8443/js/state.js"
           },
           {
             "cacheControl": "public, max-age=60, must-revalidate",
             "contentEncoding": "gzip",
+            "contentLength": "41985",
+            "durationMs": 74,
+            "failure": null,
+            "method": "GET",
+            "resourceType": "fetch",
+            "sensitiveUrl": false,
+            "status": 200,
+            "url": "https://localhost:8443/api/bootstrap/signals"
+          },
+          {
+            "cacheControl": "public, max-age=60, must-revalidate",
+            "contentEncoding": "gzip",
             "contentLength": "6486",
-            "durationMs": 11,
+            "durationMs": 40,
             "failure": null,
             "method": "GET",
             "resourceType": "stylesheet",
+            "sensitiveUrl": false,
             "status": 200,
             "url": "https://localhost:8443/css/app.css"
+          },
+          {
+            "cacheControl": "public, max-age=60, must-revalidate",
+            "contentEncoding": "gzip",
+            "contentLength": "4729",
+            "durationMs": 36,
+            "failure": null,
+            "method": "GET",
+            "resourceType": "script",
+            "sensitiveUrl": false,
+            "status": 200,
+            "url": "https://localhost:8443/js/config.js"
+          },
+          {
+            "cacheControl": "public, max-age=60, must-revalidate",
+            "contentEncoding": "gzip",
+            "contentLength": "515",
+            "durationMs": 25,
+            "failure": null,
+            "method": "GET",
+            "resourceType": "script",
+            "sensitiveUrl": false,
+            "status": 200,
+            "url": "https://localhost:8443/js/util.js"
+          },
+          {
+            "cacheControl": "public, max-age=31536000, immutable",
+            "contentEncoding": "identity",
+            "contentLength": "1612",
+            "durationMs": 1,
+            "failure": null,
+            "method": "GET",
+            "resourceType": "other",
+            "sensitiveUrl": false,
+            "status": 200,
+            "url": "https://localhost:8443/Logo_Dark_BG_96.png"
           }
         ]
       },
       "headed_map_gate": "24-compose-map-gate.json",
+      "headed_map_gate_browser": {
+        "actualHeadless": false,
+        "channel": "chrome",
+        "fallback": false,
+        "fallbackReason": null,
+        "requestedHeaded": true,
+        "version": "150.0.7871.188"
+      },
+      "headed_map_gate_captured_at": "2026-07-30T05:21:27.988Z",
       "headed_map_gate_verdict": "pass",
+      "map_interactions": {
+        "consoleErrorCount": 0,
+        "expectedProviderFailures": 28,
+        "externalHosts": [
+          "basemaps.cartocdn.com",
+          "fonts.openmaptiles.org",
+          "s3.amazonaws.com",
+          "services.arcgisonline.com",
+          "tiles.basemaps.cartocdn.com",
+          "tiles.openfreemap.org"
+        ],
+        "failedRequestCount": 8,
+        "requestCount": 89,
+        "requestedUnpkg": false,
+        "requestedVendoredMapLibre": true,
+        "unexpectedConsoleErrors": [],
+        "unexpectedFailedRequests": []
+      },
       "migration_version": "29995ef61d8e",
+      "network_invariants": {
+        "api_companyfacts_downloads": 0,
+        "api_sec_downloads": 0,
+        "logo_hosts": [
+          "localhost:8443"
+        ],
+        "maplibre_served_locally": true,
+        "remote_logo_downloads": 0,
+        "requested_unpkg_any_flow": false,
+        "sensitive_url_count_any_flow": 0
+      },
       "published_ports": [
-        "proxy 0.0.0.0:8443->8443/tcp"
+        "0.0.0.0:8443->8443/tcp"
       ],
+      "reload": {
+        "bootstrap_signals_reload_transferSize": 300,
+        "failedRequestCount": 2,
+        "note": "The two HAR failures are aborted 304 reload fetches; resource timing shows 300-byte header-only revalidation and 0 encoded body bytes for both startup JSON resources.",
+        "requestCount": 20,
+        "resourceTransferKb": 0.6,
+        "startup_json_revalidated": true,
+        "universe_core_reload_transferSize": 300
+      },
       "result": "compose_staging_performance_capture_current_with_public_url_gap",
       "reverse_proxy": {
         "healthz": 200,
+        "hsts": "max-age=31536000",
         "readyz": 200,
         "tls_issuer": "Caddy Local Authority - ECC Intermediate",
-        "version": 200
+        "version": 200,
+        "version_body": {
+          "commit": "unknown",
+          "version": "dev"
+        }
       },
+      "route_family_measurement_count": 46,
       "route_family_probe": "20-compose-route-family-probe.json",
       "route_family_probe_verdict": "pass",
+      "route_family_proxyman_captured_at": "2026-07-30T05:16:41.601541+00:00",
+      "route_family_proxyman_measurement_count": 46,
       "route_family_proxyman_probe": "21-compose-route-family-proxyman-probe.json",
       "route_family_proxyman_probe_verdict": "pass",
       "services": [
-        "db",
-        "migrate",
-        "api",
-        "worker",
-        "proxy"
+        {
+          "health": "healthy",
+          "name": "db",
+          "state": "Up"
+        },
+        {
+          "exit_code": 0,
+          "name": "migrate",
+          "state": "Exited"
+        },
+        {
+          "health": "healthy",
+          "name": "api",
+          "state": "Up"
+        },
+        {
+          "name": "worker",
+          "state": "Up"
+        },
+        {
+          "name": "proxy",
+          "published": "0.0.0.0:8443->8443/tcp",
+          "state": "Up"
+        }
       ],
-      "start_command": "docker compose --env-file .env.staging.local up --build -d"
+      "smtp_sink": {
+        "host": "host.docker.internal",
+        "messages_received": 6,
+        "port": 1025,
+        "raw_messages_stored_outside_repo": true
+      },
+      "start_command": "docker compose --env-file .env.staging.local up --build -d",
+      "tests": {
+        "diff_check": "git diff --check clean",
+        "playwright_compose_target": "15 passed (1.2m)",
+        "playwright_default_local": "15 passed (1.2m)",
+        "python": "274 passed, 1 skipped, 1 warning in 43.83s"
+      }
     },
     "current_environment": {
       "compose_base_url": "https://localhost:8443",
@@ -855,17 +1008,27 @@
       "docker_version": "Docker version 29.6.2, build dfc4efb",
       "dockerfile_exists": true,
       "env_public_base_url_set": false,
+      "env_staging_local_present_untracked": true,
       "proxyman_mcp_available": true
     },
     "proxyman": {
-      "browser_capture_proxy_server": "http://127.0.0.1:9090",
-      "mcp_recorded_flows": true,
-      "mcp_visibility": "CONNECT-level for HTTPS; Playwright HAR provides decrypted request details because Proxyman SSL interception is not exposed by current MCP tooling.",
-      "proxy_server": "http://127.0.0.1:9090"
+      "app_version": "6.12.0",
+      "browser_capture_proxy_server": "http://localhost:9090",
+      "build": "61200",
+      "healthz_through_proxy": 200,
+      "mcp_visibility": "MCP verified recording, system proxy, SSL proxying enabled, and localhost:8443 in the include list; headed Chrome browser/HAR, headed Chrome map-gate, and Proxyman route-family captures used the same proxy.",
+      "proxy_server": "http://localhost:9090",
+      "recording": "Active",
+      "ssl_proxying_enabled": true,
+      "ssl_proxying_include": [
+        "localhost:8443"
+      ],
+      "system_proxy_enabled": true,
+      "system_proxy_port": 9090
     },
     "remaining_limitations": [
-      "No public deployed staging URL is configured in .env.",
-      "Proxyman MCP recorded HTTPS CONNECTs; decrypted request/response detail is preserved in Playwright HAR summaries from the same proxied browser runs."
+      "Public deployed staging URL is still not configured in .env, so the private-beta gate remains NOT APPROVED.",
+      "Auth/map-slot evidence was captured through Proxyman before the localhost:8443 SSL include was added; after adding the SSL include, Proxyman state plus proxied healthz, headed browser, headed map, and route-family captures were refreshed."
     ],
     "result": "compose_staging_performance_capture_current_with_public_url_gap"
   }

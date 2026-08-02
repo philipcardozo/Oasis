@@ -1,8 +1,8 @@
 {
   "base_url": "https://localhost:8443",
-  "branch": "main",
-  "captured_at": "2026-07-23T19:14:21.964402+00:00",
-  "commit": "9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e",
+  "branch": "phase1.75/public-staging",
+  "captured_at": "2026-07-30T05:16:41.601541+00:00",
+  "commit": "788dc9b22bb932a6ff035d567cb67622650d4b40",
   "failure_count": 0,
   "failures": [],
   "families": [
@@ -146,13 +146,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 42.801,
+      "max_ms": 96.817,
       "method": "GET",
-      "min_ms": 2.177,
+      "min_ms": 3.881,
       "name": "asset search",
       "ok": true,
-      "p50_ms": 2.927,
-      "p95_ms": 38.814,
+      "p50_ms": 4.186,
+      "p95_ms": 87.553,
       "path": "/api/assets/search?limit=20",
       "samples": 3,
       "status_codes": [
@@ -318,13 +318,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 3.069,
+      "max_ms": 5.071,
       "method": "GET",
-      "min_ms": 1.636,
+      "min_ms": 1.512,
       "name": "asset profile",
       "ok": true,
-      "p50_ms": 2.502,
-      "p95_ms": 3.012,
+      "p50_ms": 1.547,
+      "p95_ms": 4.719,
       "path": "/api/assets/asset:demo-data-center-phx",
       "samples": 3,
       "status_codes": [
@@ -467,13 +467,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.765,
+      "max_ms": 5.413,
       "method": "GET",
-      "min_ms": 1.563,
+      "min_ms": 3.247,
       "name": "asset due diligence",
       "ok": true,
-      "p50_ms": 1.608,
-      "p95_ms": 1.75,
+      "p50_ms": 3.912,
+      "p95_ms": 5.263,
       "path": "/api/assets/asset:demo-data-center-phx/due-diligence",
       "samples": 3,
       "status_codes": [
@@ -619,13 +619,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.769,
+      "max_ms": 2.842,
       "method": "GET",
-      "min_ms": 1.264,
+      "min_ms": 1.92,
       "name": "asset entities",
       "ok": true,
-      "p50_ms": 1.553,
-      "p95_ms": 1.748,
+      "p50_ms": 2.048,
+      "p95_ms": 2.762,
       "path": "/api/assets/asset:demo-data-center-phx/entities",
       "samples": 3,
       "status_codes": [
@@ -758,13 +758,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.971,
+      "max_ms": 25.615,
       "method": "GET",
-      "min_ms": 1.294,
+      "min_ms": 3.218,
       "name": "asset nearby infrastructure",
       "ok": true,
-      "p50_ms": 1.522,
-      "p95_ms": 1.926,
+      "p50_ms": 6.553,
+      "p95_ms": 23.708,
       "path": "/api/assets/asset:demo-data-center-phx/nearby-infrastructure",
       "samples": 3,
       "status_codes": [
@@ -897,13 +897,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.813,
+      "max_ms": 9.317,
       "method": "GET",
-      "min_ms": 1.673,
+      "min_ms": 1.44,
       "name": "asset relationship graph",
       "ok": true,
-      "p50_ms": 1.694,
-      "p95_ms": 1.801,
+      "p50_ms": 3.382,
+      "p95_ms": 8.724,
       "path": "/api/assets/asset:demo-data-center-phx/relationship-graph",
       "samples": 3,
       "status_codes": [
@@ -1023,7 +1023,7 @@
         "content-encoding": "gzip",
         "content-length": "278",
         "content-type": "application/json",
-        "etag": "W/\"oasis-99007c6ccf429f72\""
+        "etag": "W/\"oasis-50074220d3c77d03\""
       },
       "json_shape": {
         "counts": {
@@ -1042,13 +1042,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 2.031,
+      "max_ms": 4.695,
       "method": "GET",
-      "min_ms": 1.591,
+      "min_ms": 1.775,
       "name": "asset risk score",
       "ok": true,
-      "p50_ms": 1.844,
-      "p95_ms": 2.012,
+      "p50_ms": 2.271,
+      "p95_ms": 4.453,
       "path": "/api/assets/asset:demo-data-center-phx/risk-score",
       "samples": 3,
       "status_codes": [
@@ -1184,13 +1184,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 2.655,
+      "max_ms": 3.466,
       "method": "GET",
-      "min_ms": 1.347,
+      "min_ms": 1.111,
       "name": "asset risk summary",
       "ok": true,
-      "p50_ms": 1.598,
-      "p95_ms": 2.549,
+      "p50_ms": 1.543,
+      "p95_ms": 3.274,
       "path": "/api/assets/asset:demo-data-center-phx/risk-summary",
       "samples": 3,
       "status_codes": [
@@ -1310,7 +1310,7 @@
         "content-encoding": "gzip",
         "content-length": "704",
         "content-type": "application/json",
-        "etag": "W/\"oasis-0f9e407316355067\""
+        "etag": "W/\"oasis-b1475fb2d1e1151e\""
       },
       "json_shape": {
         "counts": {
@@ -1345,13 +1345,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.494,
+      "max_ms": 3.687,
       "method": "GET",
-      "min_ms": 1.109,
+      "min_ms": 1.567,
       "name": "asset scenario",
       "ok": true,
-      "p50_ms": 1.274,
-      "p95_ms": 1.472,
+      "p50_ms": 1.946,
+      "p95_ms": 3.513,
       "path": "/api/assets/asset:demo-data-center-phx/scenario",
       "samples": 3,
       "status_codes": [
@@ -1471,7 +1471,7 @@
         "content-encoding": "gzip",
         "content-length": "704",
         "content-type": "application/json",
-        "etag": "W/\"oasis-a3b866e42721822d\""
+        "etag": "W/\"oasis-07e35c629fb58b65\""
       },
       "json_shape": {
         "counts": {
@@ -1506,13 +1506,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.781,
+      "max_ms": 3.293,
       "method": "GET",
-      "min_ms": 1.385,
+      "min_ms": 1.73,
       "name": "asset valuation",
       "ok": true,
-      "p50_ms": 1.41,
-      "p95_ms": 1.744,
+      "p50_ms": 1.971,
+      "p95_ms": 3.161,
       "path": "/api/assets/asset:demo-data-center-phx/valuation",
       "samples": 3,
       "status_codes": [
@@ -1632,7 +1632,7 @@
         "content-encoding": "gzip",
         "content-length": "312",
         "content-type": "application/json",
-        "etag": "W/\"oasis-82a33648a2507ed1\""
+        "etag": "W/\"oasis-44b464ea11701202\""
       },
       "json_shape": {
         "counts": {
@@ -1649,13 +1649,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.371,
+      "max_ms": 2.762,
       "method": "GET",
-      "min_ms": 1.348,
+      "min_ms": 1.67,
       "name": "asset valuation assumptions",
       "ok": true,
-      "p50_ms": 1.363,
-      "p95_ms": 1.37,
+      "p50_ms": 1.812,
+      "p95_ms": 2.667,
       "path": "/api/assets/asset:demo-data-center-phx/valuation-assumptions",
       "samples": 3,
       "status_codes": [
@@ -1787,13 +1787,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.777,
+      "max_ms": 4.488,
       "method": "GET",
-      "min_ms": 1.35,
+      "min_ms": 1.188,
       "name": "cameras public",
       "ok": true,
-      "p50_ms": 1.414,
-      "p95_ms": 1.741,
+      "p50_ms": 1.39,
+      "p95_ms": 4.178,
       "path": "/api/cameras/public.geojson?bbox=-180,-90,180,90",
       "samples": 3,
       "status_codes": [
@@ -1804,7 +1804,7 @@
     {
       "body_bytes_max": 337,
       "body_bytes_min": 337,
-      "body_sha256": "d0521f6a2d291736dcf53522c5cec048066c04b5c0728aa492590a2dd8aa9cb6",
+      "body_sha256": "26cf52cc70312c4710778150464455bcf7306a0df190458c4d4acda6d1bac6ab",
       "expected_statuses": [
         200,
         201,
@@ -1913,7 +1913,7 @@
         "content-encoding": "gzip",
         "content-length": "224",
         "content-type": "application/json",
-        "etag": "W/\"oasis-f584e61cae406dcb\""
+        "etag": "W/\"oasis-d881c7332253ade6\""
       },
       "json_shape": {
         "counts": {
@@ -1926,13 +1926,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 2.274,
+      "max_ms": 2.538,
       "method": "GET",
-      "min_ms": 1.504,
+      "min_ms": 1.13,
       "name": "data-quality layer farms",
       "ok": true,
-      "p50_ms": 1.573,
-      "p95_ms": 2.204,
+      "p50_ms": 2.135,
+      "p95_ms": 2.497,
       "path": "/api/data-quality/layer/farms",
       "samples": 3,
       "status_codes": [
@@ -1943,7 +1943,7 @@
     {
       "body_bytes_max": 304,
       "body_bytes_min": 304,
-      "body_sha256": "589eb411f7697081bae91a43db60a5fb2ba5cc7d45cca83e2b14ff5120f938c2",
+      "body_sha256": "74d0c2382a8b8c1b84747876315d94497a6bbf3aa5be1b2f430c89e3ce3894fb",
       "expected_statuses": [
         200,
         201,
@@ -2050,9 +2050,9 @@
       "headers": {
         "cache-control": "public, max-age=60, must-revalidate",
         "content-encoding": "gzip",
-        "content-length": "195",
+        "content-length": "194",
         "content-type": "application/json",
-        "etag": "W/\"oasis-30c584442f1dea55\""
+        "etag": "W/\"oasis-eb4616cf05427bee\""
       },
       "json_shape": {
         "counts": {},
@@ -2071,13 +2071,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.522,
+      "max_ms": 1.385,
       "method": "GET",
-      "min_ms": 1.497,
+      "min_ms": 1.067,
       "name": "data-quality summary",
       "ok": true,
-      "p50_ms": 1.507,
-      "p95_ms": 1.52,
+      "p50_ms": 1.154,
+      "p95_ms": 1.362,
       "path": "/api/data-quality/summary",
       "samples": 3,
       "status_codes": [
@@ -2212,13 +2212,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.805,
+      "max_ms": 2.344,
       "method": "GET",
-      "min_ms": 1.4,
+      "min_ms": 1.547,
       "name": "data sources status",
       "ok": true,
-      "p50_ms": 1.409,
-      "p95_ms": 1.766,
+      "p50_ms": 2.239,
+      "p95_ms": 2.333,
       "path": "/api/data-sources/status",
       "samples": 3,
       "status_codes": [
@@ -2350,13 +2350,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.538,
+      "max_ms": 4.68,
       "method": "GET",
-      "min_ms": 1.412,
+      "min_ms": 3.23,
       "name": "entity asset map",
       "ok": true,
-      "p50_ms": 1.51,
-      "p95_ms": 1.535,
+      "p50_ms": 3.873,
+      "p95_ms": 4.599,
       "path": "/api/entity/GM/asset-map.geojson",
       "samples": 3,
       "status_codes": [
@@ -2497,13 +2497,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.799,
+      "max_ms": 7.403,
       "method": "GET",
-      "min_ms": 1.392,
+      "min_ms": 1.298,
       "name": "entity combined neighborhood",
       "ok": true,
-      "p50_ms": 1.5,
-      "p95_ms": 1.769,
+      "p50_ms": 2.183,
+      "p95_ms": 6.881,
       "path": "/api/entity/GM/combined-neighborhood",
       "samples": 3,
       "status_codes": [
@@ -2640,13 +2640,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.612,
+      "max_ms": 2.144,
       "method": "GET",
-      "min_ms": 1.475,
+      "min_ms": 1.668,
       "name": "entity neighborhood",
       "ok": true,
-      "p50_ms": 1.567,
-      "p95_ms": 1.607,
+      "p50_ms": 1.919,
+      "p95_ms": 2.122,
       "path": "/api/entity/GM/neighborhood",
       "samples": 3,
       "status_codes": [
@@ -2657,7 +2657,7 @@
     {
       "body_bytes_max": 503,
       "body_bytes_min": 503,
-      "body_sha256": "972b2e089eb0d9871b507c93d1492bd4d6a35416f1c2c54550a5e97fe542b400",
+      "body_sha256": "9ea2374ff24d41c916d26afe4f3a49cd57dad3ca8a1ca036df5fcc2e7d9849bb",
       "expected_statuses": [
         200,
         201,
@@ -2766,7 +2766,7 @@
         "content-encoding": "gzip",
         "content-length": "266",
         "content-type": "application/json",
-        "etag": "W/\"oasis-ffdb77f8fb904389\""
+        "etag": "W/\"oasis-6fbef9052333f30e\""
       },
       "json_shape": {
         "counts": {},
@@ -2788,13 +2788,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.712,
+      "max_ms": 6.02,
       "method": "GET",
-      "min_ms": 1.518,
+      "min_ms": 1.749,
       "name": "evidence one",
       "ok": true,
-      "p50_ms": 1.672,
-      "p95_ms": 1.708,
+      "p50_ms": 2.39,
+      "p95_ms": 5.657,
       "path": "/api/evidence/ev:asset_asset_demo-city-hall-austin_asset_type_public_seed_government_facility",
       "samples": 3,
       "status_codes": [
@@ -2925,13 +2925,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.953,
+      "max_ms": 7.712,
       "method": "GET",
-      "min_ms": 1.734,
+      "min_ms": 1.204,
       "name": "listings search",
       "ok": true,
-      "p50_ms": 1.783,
-      "p95_ms": 1.936,
+      "p50_ms": 2.362,
+      "p95_ms": 7.177,
       "path": "/api/listings/search?asset_type=farm",
       "samples": 3,
       "status_codes": [
@@ -3064,13 +3064,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 4.816,
+      "max_ms": 2.34,
       "method": "GET",
-      "min_ms": 1.607,
+      "min_ms": 2.081,
       "name": "listing profile",
       "ok": true,
-      "p50_ms": 1.679,
-      "p95_ms": 4.502,
+      "p50_ms": 2.313,
+      "p95_ms": 2.337,
       "path": "/api/listings/listing:demo-farm-iowa",
       "samples": 3,
       "status_codes": [
@@ -3196,13 +3196,13 @@
         "count": 1044,
         "type": "array"
       },
-      "max_ms": 4.011,
+      "max_ms": 27.18,
       "method": "GET",
-      "min_ms": 2.741,
+      "min_ms": 3.089,
       "name": "location unknown",
       "ok": true,
-      "p50_ms": 3.574,
-      "p95_ms": 3.968,
+      "p50_ms": 3.155,
+      "p95_ms": 24.778,
       "path": "/api/location/unknown",
       "samples": 3,
       "status_codes": [
@@ -3334,13 +3334,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 2.06,
+      "max_ms": 403.639,
       "method": "GET",
-      "min_ms": 1.762,
+      "min_ms": 1.263,
       "name": "map features farms",
       "ok": true,
-      "p50_ms": 1.825,
-      "p95_ms": 2.037,
+      "p50_ms": 2.258,
+      "p95_ms": 363.501,
       "path": "/api/map/features.geojson?layer=farms&bbox=-180,-90,180,90",
       "samples": 3,
       "status_codes": [
@@ -3471,13 +3471,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.921,
+      "max_ms": 2.293,
       "method": "GET",
-      "min_ms": 1.791,
+      "min_ms": 1.123,
       "name": "permits search",
       "ok": true,
-      "p50_ms": 1.847,
-      "p95_ms": 1.914,
+      "p50_ms": 1.798,
+      "p95_ms": 2.243,
       "path": "/api/permits/search?bbox=-180,-90,180,90",
       "samples": 3,
       "status_codes": [
@@ -3622,13 +3622,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.783,
+      "max_ms": 1.564,
       "method": "GET",
-      "min_ms": 1.66,
+      "min_ms": 1.039,
       "name": "reliefs dem status",
       "ok": true,
-      "p50_ms": 1.773,
-      "p95_ms": 1.782,
+      "p50_ms": 1.164,
+      "p95_ms": 1.524,
       "path": "/api/reliefs/dem/status",
       "samples": 3,
       "status_codes": [
@@ -3961,13 +3961,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 2.085,
+      "max_ms": 1.68,
       "method": "GET",
-      "min_ms": 1.732,
+      "min_ms": 1.0,
       "name": "reliefs terrain coverage",
       "ok": true,
-      "p50_ms": 1.773,
-      "p95_ms": 2.054,
+      "p50_ms": 1.084,
+      "p95_ms": 1.62,
       "path": "/api/reliefs/terrain/coverage",
       "samples": 3,
       "status_codes": [
@@ -4096,13 +4096,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.783,
+      "max_ms": 1.589,
       "method": "GET",
-      "min_ms": 1.746,
+      "min_ms": 1.192,
       "name": "reliefs terrain jobs",
       "ok": true,
-      "p50_ms": 1.769,
-      "p95_ms": 1.781,
+      "p50_ms": 1.295,
+      "p95_ms": 1.559,
       "path": "/api/reliefs/terrain/jobs/status",
       "samples": 3,
       "status_codes": [
@@ -4235,13 +4235,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.801,
+      "max_ms": 1.713,
       "method": "GET",
-      "min_ms": 1.642,
+      "min_ms": 1.106,
       "name": "reliefs terrain sources",
       "ok": true,
-      "p50_ms": 1.724,
-      "p95_ms": 1.793,
+      "p50_ms": 1.24,
+      "p95_ms": 1.666,
       "path": "/api/reliefs/terrain/sources",
       "samples": 3,
       "status_codes": [
@@ -31536,13 +31536,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 9.656,
+      "max_ms": 60.344,
       "method": "GET",
-      "min_ms": 3.068,
+      "min_ms": 3.712,
       "name": "graph index",
       "ok": true,
-      "p50_ms": 4.752,
-      "p95_ms": 9.165,
+      "p50_ms": 4.233,
+      "p95_ms": 54.732,
       "path": "/data/graph-index.json",
       "samples": 3,
       "status_codes": [
@@ -31668,13 +31668,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 4.902,
+      "max_ms": 2.532,
       "method": "GET",
-      "min_ms": 1.625,
+      "min_ms": 1.712,
       "name": "health",
       "ok": true,
-      "p50_ms": 1.757,
-      "p95_ms": 4.588,
+      "p50_ms": 2.201,
+      "p95_ms": 2.499,
       "path": "/healthz",
       "samples": 3,
       "status_codes": [
@@ -31803,13 +31803,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 8.919,
+      "max_ms": 859.922,
       "method": "GET",
-      "min_ms": 2.682,
+      "min_ms": 2.51,
       "name": "readiness",
       "ok": true,
-      "p50_ms": 2.746,
-      "p95_ms": 8.302,
+      "p50_ms": 5.302,
+      "p95_ms": 774.46,
       "path": "/readyz",
       "samples": 3,
       "status_codes": [
@@ -31936,13 +31936,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 2.79,
+      "max_ms": 1.779,
       "method": "GET",
-      "min_ms": 1.514,
+      "min_ms": 1.086,
       "name": "version",
       "ok": true,
-      "p50_ms": 1.647,
-      "p95_ms": 2.675,
+      "p50_ms": 1.231,
+      "p95_ms": 1.724,
       "path": "/version",
       "samples": 3,
       "status_codes": [
@@ -32075,13 +32075,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.479,
+      "max_ms": 1.977,
       "method": "GET",
-      "min_ms": 1.332,
+      "min_ms": 0.97,
       "name": "map layers",
       "ok": true,
-      "p50_ms": 1.365,
-      "p95_ms": 1.468,
+      "p50_ms": 1.047,
+      "p95_ms": 1.884,
       "path": "/api/map/layers",
       "samples": 3,
       "status_codes": [
@@ -32213,13 +32213,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 27.711,
+      "max_ms": 49.391,
       "method": "GET",
-      "min_ms": 12.559,
+      "min_ms": 29.549,
       "name": "map entities",
       "ok": true,
-      "p50_ms": 27.291,
-      "p95_ms": 27.669,
+      "p50_ms": 36.801,
+      "p95_ms": 48.132,
       "path": "/api/map/entities.geojson",
       "samples": 3,
       "status_codes": [
@@ -32351,13 +32351,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 3.85,
+      "max_ms": 8.567,
       "method": "GET",
-      "min_ms": 1.835,
+      "min_ms": 2.282,
       "name": "map relationships",
       "ok": true,
-      "p50_ms": 1.995,
-      "p95_ms": 3.665,
+      "p50_ms": 2.325,
+      "p95_ms": 7.943,
       "path": "/api/map/relationships.geojson",
       "samples": 3,
       "status_codes": [
@@ -32494,13 +32494,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 2.045,
+      "max_ms": 3.509,
       "method": "GET",
-      "min_ms": 1.45,
+      "min_ms": 1.596,
       "name": "bootstrap signals",
       "ok": true,
-      "p50_ms": 1.468,
-      "p95_ms": 1.987,
+      "p50_ms": 2.121,
+      "p95_ms": 3.37,
       "path": "/api/bootstrap/signals",
       "samples": 3,
       "status_codes": [
@@ -32641,13 +32641,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 4.961,
+      "max_ms": 7.089,
       "method": "GET",
-      "min_ms": 3.995,
+      "min_ms": 5.661,
       "name": "universe core",
       "ok": true,
-      "p50_ms": 4.023,
-      "p95_ms": 4.867,
+      "p50_ms": 6.311,
+      "p95_ms": 7.012,
       "path": "/data/universe_core.json",
       "samples": 3,
       "status_codes": [
@@ -32779,13 +32779,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 14.616,
+      "max_ms": 396.15,
       "method": "GET",
-      "min_ms": 7.808,
+      "min_ms": 98.054,
       "name": "companies geojson",
       "ok": true,
-      "p50_ms": 8.864,
-      "p95_ms": 14.041,
+      "p50_ms": 101.354,
+      "p95_ms": 366.671,
       "path": "/data/companies.geojson",
       "samples": 3,
       "status_codes": [
@@ -32924,13 +32924,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 2.843,
+      "max_ms": 68.996,
       "method": "GET",
-      "min_ms": 1.222,
+      "min_ms": 1.333,
       "name": "entity details",
       "ok": true,
-      "p50_ms": 1.223,
-      "p95_ms": 2.681,
+      "p50_ms": 1.749,
+      "p95_ms": 62.271,
       "path": "/api/entity/GM",
       "samples": 3,
       "status_codes": [
@@ -33065,13 +33065,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 2.34,
+      "max_ms": 1036.73,
       "method": "GET",
-      "min_ms": 1.376,
+      "min_ms": 2.074,
       "name": "entity comps",
       "ok": true,
-      "p50_ms": 1.457,
-      "p95_ms": 2.251,
+      "p50_ms": 5.218,
+      "p95_ms": 933.579,
       "path": "/api/entity/GM/comps",
       "samples": 3,
       "status_codes": [
@@ -33201,13 +33201,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.991,
+      "max_ms": 3.217,
       "method": "GET",
-      "min_ms": 1.405,
+      "min_ms": 1.597,
       "name": "entity reverse dcf",
       "ok": true,
-      "p50_ms": 1.418,
-      "p95_ms": 1.933,
+      "p50_ms": 1.701,
+      "p95_ms": 3.066,
       "path": "/api/entity/GM/reverse-dcf",
       "samples": 3,
       "status_codes": [
@@ -33329,13 +33329,13 @@
         "content-type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "etag": "\"e8286288ea88eafaf26e046e4ef61186\""
       },
-      "max_ms": 2.026,
+      "max_ms": 4.166,
       "method": "GET",
-      "min_ms": 1.336,
+      "min_ms": 1.639,
       "name": "entity dcf workbook",
       "ok": true,
-      "p50_ms": 1.351,
-      "p95_ms": 1.958,
+      "p50_ms": 1.806,
+      "p95_ms": 3.93,
       "path": "/api/entity/GM/dcf.xlsx?method=cash_flow",
       "samples": 3,
       "status_codes": [
@@ -33346,7 +33346,7 @@
     {
       "body_bytes_max": 4939,
       "body_bytes_min": 4939,
-      "body_sha256": "4946ad29efd702a3212eda66681bdaa8930025c0da5d737a3b77e5e1a0cb6056",
+      "body_sha256": "71122cd2f52e28572be6a7dfb436261f2d7b1c4850cd74bc8e50a7602e964580",
       "expected_statuses": [
         200,
         201,
@@ -33455,7 +33455,7 @@
         "content-encoding": "gzip",
         "content-length": "1675",
         "content-type": "application/json",
-        "etag": "W/\"oasis-41906601e71a8bca\""
+        "etag": "W/\"oasis-fa4c7d2725564e7e\""
       },
       "json_shape": {
         "counts": {
@@ -33480,13 +33480,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 2.678,
+      "max_ms": 2.232,
       "method": "GET",
-      "min_ms": 1.175,
+      "min_ms": 1.25,
       "name": "report preview",
       "ok": true,
-      "p50_ms": 1.389,
-      "p95_ms": 2.549,
+      "p50_ms": 1.279,
+      "p95_ms": 2.136,
       "path": "/api/reports/entity/GM",
       "samples": 3,
       "status_codes": [
@@ -33514,13 +33514,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.943,
+      "max_ms": 57.318,
       "method": "GET",
-      "min_ms": 1.117,
+      "min_ms": 2.382,
       "name": "map slots unauthenticated",
       "ok": true,
-      "p50_ms": 1.206,
-      "p95_ms": 1.869,
+      "p50_ms": 2.604,
+      "p95_ms": 51.847,
       "path": "/api/map-slots",
       "samples": 3,
       "status_codes": [
@@ -33548,13 +33548,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.285,
+      "max_ms": 4.086,
       "method": "GET",
-      "min_ms": 1.114,
+      "min_ms": 2.046,
       "name": "auth me unauthenticated",
       "ok": true,
-      "p50_ms": 1.133,
-      "p95_ms": 1.27,
+      "p50_ms": 2.904,
+      "p95_ms": 3.968,
       "path": "/api/auth/me",
       "samples": 3,
       "status_codes": [
@@ -33582,13 +33582,13 @@
         ],
         "type": "object"
       },
-      "max_ms": 1.398,
+      "max_ms": 2.585,
       "method": "GET",
-      "min_ms": 1.206,
+      "min_ms": 2.223,
       "name": "auth sessions unauthenticated",
       "ok": true,
-      "p50_ms": 1.329,
-      "p95_ms": 1.391,
+      "p50_ms": 2.36,
+      "p95_ms": 2.563,
       "path": "/api/auth/sessions",
       "samples": 3,
       "status_codes": [
@@ -33598,7 +33598,7 @@
     }
   ],
   "ok_count": 46,
-  "proxy_server": "http://127.0.0.1:9090",
+  "proxy_server": "http://localhost:9090",
   "python": "3.13.9",
   "samples_per_route": 3,
   "transport": "HTTPS through compose reverse proxy",

@@ -1,6 +1,6 @@
 # OASIS Phase 1.75 Public Staging Gate
 
-Date: 2026-07-23
+Date: 2026-07-30
 
 Verdict: NOT APPROVED
 
@@ -25,6 +25,54 @@ Provider split:
 
 The current branch is `phase1.75/public-staging`. The staging deployment should
 use `main` after review/merge.
+
+## Current Readiness Snapshot
+
+The public-staging gate audit was rerun on 2026-07-30 and remains
+`NOT APPROVED`. The current setup checklist is recorded in
+`docs/evidence/public-staging/public-staging-setup-checklist.md` and
+`docs/evidence/public-staging/public-staging-setup-checklist.json` by running
+`python3 scripts/public_staging_setup_checklist.py`. A secret-free browser
+matrix fill-in template is recorded in
+`docs/evidence/public-staging/browser-matrix.template.json` and
+`docs/evidence/public-staging/browser-matrix-template.md` by running
+`python3 scripts/public_staging_browser_matrix_template.py --base-url="$STAGING_URL"`;
+it is operator guidance only, not proof. The Render/Compose config contract is
+recorded in `docs/evidence/public-staging/public-staging-config-contract.json`
+by running `python3 scripts/public_staging_config_contract.py`; it proves the
+repo keeps production-style staging env values outside Git and wired into
+Render/Compose, but it is not live public URL proof. The full public
+Playwright dry-run is recorded in
+`docs/evidence/public-staging/public-playwright-summary.json` and
+`docs/evidence/public-staging/22-public-playwright.md` by running
+`python3 scripts/public_staging_playwright_report.py --base-url="$STAGING_URL" --dry-run`;
+that dry-run is not live public URL proof. The full public verification command
+plan is recorded in
+`docs/evidence/public-staging/public-staging-full-verification-plan.md` and
+`docs/evidence/public-staging/public-staging-full-verification-run.json` by
+running `python3 scripts/public_staging_full_verification.py --base-url="$STAGING_URL" --dry-run`;
+that dry-run is also guidance only, not proof. The current readiness snapshot
+is recorded in
+`docs/evidence/public-staging/public-staging-readiness-status.json` by running
+`python3 scripts/public_staging_readiness.py --allow-not-ready`; the strict
+gate output is recorded in
+`docs/evidence/public-staging/99-public-staging-gate-audit.json` and
+`docs/evidence/public-staging/99-public-staging-gate-audit.md`.
+
+Current external prerequisites are not configured on this machine or in the
+GitHub `staging` environment: `STAGING_URL`, Render deploy secrets,
+Cloudflare/Access credentials, and public tester email credentials. Chrome,
+Firefox, and Safari are now available locally for the requested manual browser
+matrix once the public URL exists. The GitHub `staging` environment exists and
+is now protected with a required reviewer plus a custom branch policy for
+`main`. Do not dispatch or approve a public staging deployment until the
+remaining provider settings are present outside Git and the strict gate audit
+passes against the real public URL.
+
+The Deploy workflow now runs
+`python3 scripts/public_staging_readiness.py --mode=github-actions` before
+dependency installation, image build, vulnerability scan, or Render deployment,
+so missing injected staging values fail fast with a sanitized readiness artifact.
 
 ## Implemented In Repo
 
@@ -194,6 +242,7 @@ Current status:
 - Object storage: selected, not verified.
 - Browser matrix: pending public URL.
 - Backup/restore: pending managed PostgreSQL drill.
+- API restart persistence: pending public API restart drill.
 - Rollback: pending deployed revision.
 - Alerts: pending provider setup.
 - Performance: local/compose evidence exists; public latency evidence pending.

@@ -588,6 +588,13 @@ Only treat the headless shader warning as classified if every diagnostic variant
 has styleLoaded true, basemapPreserved true, and zero unclassified errors.
 ```
 
+For public staging prompts, the full verification and smoke wrappers reject
+explicit non-HTTPS and local loopback staging base URLs before writing plans or
+dispatching public evidence commands. Use the placeholder only for dry-run
+planning before the real staging URL exists.
+The public Playwright wrapper applies the same target rule before launching
+browsers or parsing a real JSON report.
+
 ### Prompt 12: Public Staging DNS/TLS/Security Preflight
 
 ```text
@@ -607,6 +614,9 @@ python3 scripts/public_staging_preflight.py \
   --base-url="$STAGING_URL" \
   --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID \
   --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET
+
+The preflight script rejects non-HTTPS and local loopback base URLs before DNS,
+TLS, redirect, health, readiness, version, or header probes are attempted.
 
 Inspect:
 - docs/evidence/public-staging/00-public-staging-preflight.json
@@ -779,6 +789,10 @@ python3 scripts/public_staging_route_security_report.py \
   --output=docs/evidence/public-staging/09-route-security.md \
   --summary-output=docs/evidence/public-staging/route-security-summary.json
 
+The route-security report rejects local or mismatched target evidence: the
+route-family probe, public preflight, and auth/map-slot security input must all
+record the same real non-local HTTPS staging base URL.
+
 The report and summary must end with `Verdict: pass`; otherwise the strict
 public gate audit continues to treat route security as unproven.
 ```
@@ -938,6 +952,10 @@ python3 scripts/public_staging_auth_map_slots_probe.py \
   --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID \
   --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET
 
+The public auth/map-slot probe rejects non-HTTPS or local loopback base URLs
+before making registration, email verification, cookie, map-slot, reset, or
+account-lifecycle requests.
+
 This first run is expected to write an investigate verdict until the delivered
 email tokens are supplied. Do not paste token values into docs, commits,
 Proxyman exports, screenshots, or terminal summaries.
@@ -1050,6 +1068,11 @@ browser flows: first paint, reload, search intent, map interactions, DCF
 workbook fetch, entity drawer, data-quality panel, and report preview. Every
 flow row must reference its saved HAR under `docs/evidence/performance/` and
 must record zero sensitive URL query values.
+
+The public performance report rejects local or mismatched target evidence:
+the Proxyman-routed browser summary, direct browser summary, supplemental
+performance file, and any preflight/auth-map-slot/route probe inputs with a
+base URL must all reference the same real non-local HTTPS `$STAGING_URL`.
 
 Repeat manually or with equivalent tooling for:
 - Brave or Edge

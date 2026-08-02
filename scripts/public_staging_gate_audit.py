@@ -23,6 +23,7 @@ PASS_VERDICT_RE = re.compile(r"^Verdict:\s*(?:\*\*)?pass(?:\*\*)?\s*$", re.IGNOR
 ANY_VERDICT_RE = re.compile(r"^Verdict:\s*(.+?)\s*$", re.IGNORECASE | re.MULTILINE)
 GENERATED_REPORT_RE = re.compile(r"\bThis generated report\b", re.IGNORECASE)
 IMAGE_DIGEST_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
+FULL_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 ENV_NAME_RE = re.compile(r"^[A-Z][A-Z0-9_]{2,}$")
 PUBLIC_HASH_RE = re.compile(r"(?:sha256:)?[0-9a-f]{7,128}", re.IGNORECASE)
 ARTIFACT_REFERENCE_RE = re.compile(
@@ -34,6 +35,9 @@ AUTH_HEADER_RE = re.compile(r"(?i)\bauthorization\s*[:=]\s*(?!<redacted>|redacte
 SECRET_PREFIX_RE = re.compile(r"^(?:sk_|pk_|ghp_|ghs_|xoxb-|xoxp-)[A-Za-z0-9._~+/=-]{8,}")
 JWT_RE = re.compile(r"^[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}$")
 LONG_SECRET_RE = re.compile(r"(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9_\-+/=]{32,}")
+JSON_ALLOWED_VERDICTS = {
+    "public-staging-readiness-status.json": {"ready"},
+}
 SAFE_COOKIE_METADATA_FIELDS = {
     "csrf_cookie_path",
     "csrf_cookie_samesite",
@@ -60,6 +64,9 @@ REQUIRED_BROWSER_FLOWS = {
     "report_preview": "report preview",
 }
 LOCAL_PROXY_HOSTS = {"127.0.0.1", "localhost"}
+RESERVED_PUBLIC_HOSTS = {"example.com", "example.net", "example.org"}
+RESERVED_PUBLIC_SUFFIXES = (".example.com", ".example.net", ".example.org", ".invalid", ".test")
+PLACEHOLDER_MARKERS = ("<", ">", "replace-", "record exact", "required when")
 FLOW_KEY_PATTERNS = {
     "first_paint": ("03 local first paint", "cold first paint"),
     "reload": ("04 local reload", "warm reload"),
@@ -74,6 +81,102 @@ SENSITIVE_KEY_RE = re.compile(
     r"(password|passwd|token|cookie|authorization|secret|api[_-]?key|private[_-]?key|credential|database[_-]?url)",
     re.IGNORECASE,
 )
+READINESS_REQUIRED_LOCAL_ENV = {
+    "STAGING_URL",
+    "OASIS_CF_ACCESS_CLIENT_ID",
+    "OASIS_CF_ACCESS_CLIENT_SECRET",
+    "CLOUDFLARE_API_TOKEN",
+    "CLOUDFLARE_ACCOUNT_ID",
+    "CLOUDFLARE_ZONE_ID",
+    "RENDER_API_KEY",
+    "RENDER_API_SERVICE_ID",
+    "RENDER_WORKER_SERVICE_ID",
+    "OASIS_PUBLIC_TESTER_A_EMAIL",
+    "OASIS_PUBLIC_TESTER_A_PASSWORD",
+    "OASIS_PUBLIC_TESTER_A_RESET_PASSWORD",
+    "OASIS_PUBLIC_TESTER_B_EMAIL",
+    "OASIS_PUBLIC_TESTER_B_PASSWORD",
+    "OASIS_PUBLIC_LIFECYCLE_EMAIL",
+    "OASIS_PUBLIC_LIFECYCLE_PASSWORD",
+    "OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD",
+}
+READINESS_REQUIRED_GITHUB_SECRETS = {
+    "RENDER_API_KEY",
+    "RENDER_API_SERVICE_ID",
+    "RENDER_WORKER_SERVICE_ID",
+    "OASIS_CF_ACCESS_CLIENT_ID",
+    "OASIS_CF_ACCESS_CLIENT_SECRET",
+}
+CONFIG_COMPOSE_REQUIRED_ENV_KEYS = {
+    "OASIS_SESSION_SECRET",
+    "OASIS_ALLOWED_ORIGINS",
+    "OASIS_TRUSTED_HOSTS",
+    "OASIS_PUBLIC_BASE_URL",
+    "OASIS_API_BASE_URL",
+    "OASIS_EMAIL_FROM",
+    "OASIS_SMTP_HOST",
+    "OASIS_SMTP_USER",
+    "OASIS_SMTP_PASSWORD",
+    "OASIS_STORAGE_BACKEND",
+    "OASIS_S3_BUCKET",
+    "OASIS_S3_ENDPOINT",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+}
+CONFIG_CONTRACT_REQUIRED_ROWS = {
+    "render_session_secret_generated",
+    "render_sync_false_OASIS_PUBLIC_BASE_URL",
+    "render_sync_false_OASIS_API_BASE_URL",
+    "render_sync_false_OASIS_ALLOWED_ORIGINS",
+    "render_sync_false_OASIS_TRUSTED_HOSTS",
+    "render_sync_false_OASIS_EMAIL_FROM",
+    "render_sync_false_OASIS_SMTP_HOST",
+    "render_sync_false_OASIS_SMTP_USER",
+    "render_sync_false_OASIS_SMTP_PASSWORD",
+    "render_sync_false_OASIS_S3_BUCKET",
+    "render_sync_false_OASIS_S3_ENDPOINT",
+    "render_sync_false_AWS_ACCESS_KEY_ID",
+    "render_sync_false_AWS_SECRET_ACCESS_KEY",
+    "render_value_OASIS_EMAIL_BACKEND",
+    "render_value_OASIS_STORAGE_BACKEND",
+    "render_postgres_exists",
+    "render_postgres_ip_allowlist_empty",
+    "render_api_OASIS_DATABASE_URL_from_postgres",
+    "render_worker_OASIS_DATABASE_URL_from_postgres",
+    "compose_api_env_OASIS_API_BASE_URL",
+    "compose_api_env_OASIS_STORAGE_BACKEND",
+    "compose_worker_env_OASIS_API_BASE_URL",
+    "compose_worker_env_OASIS_STORAGE_BACKEND",
+    "compose_migrate_env_OASIS_API_BASE_URL",
+    "compose_migrate_env_OASIS_STORAGE_BACKEND",
+} | {
+    f"compose_{role}_env_required_{key}"
+    for role in ("api", "worker", "migrate")
+    for key in CONFIG_COMPOSE_REQUIRED_ENV_KEYS
+}
+FULL_VERIFICATION_REQUIRED_STEPS = {
+    "setup_checklist",
+    "browser_matrix_template",
+    "config_contract",
+    "readiness",
+    "preflight",
+    "route_family_probe",
+    "auth_map_slots_probe",
+    "auth_email_report",
+    "route_security_report",
+    "public_playwright",
+    "proxyman_browser_capture",
+    "direct_browser_capture",
+    "browser_reports",
+    "performance_report",
+    "infra_reports",
+    "ops_reports",
+    "email_delivery_report",
+    "rate_limit_report",
+    "storage_report",
+    "licensing_report",
+    "failure_exercises_report",
+}
 
 GENERATED_MARKDOWN = {
     "02-dns-tls-edge.md",
@@ -96,6 +199,7 @@ GENERATED_MARKDOWN = {
     "19-object-storage.md",
     "20-email-delivery.md",
     "21-failure-exercises.md",
+    "22-public-playwright.md",
 }
 
 MARKDOWN_REQUIRED_TEXT = {
@@ -225,6 +329,11 @@ MARKDOWN_REQUIRED_TEXT = {
         "## Email Failure",
         "## Cross Checks",
     ],
+    "22-public-playwright.md": [
+        "# Public Staging Playwright Evidence",
+        "## Test Summary",
+        "## Failed Tests",
+    ],
 }
 
 REQUIRED_DOCS = [
@@ -247,6 +356,8 @@ REQUIRED_DOCS = [
 
 
 REQUIREMENTS = [
+    ("provider_readiness", "Provider and staging env readiness", ["public-staging-readiness-status.json", "public-staging-config-contract.json"], []),
+    ("full_verification_run", "Full public verification run", ["public-staging-full-verification-run.json"], []),
     ("public_dns", "Public DNS", ["00-public-staging-preflight.json", "infra-evidence-summary.json"], ["dns"]),
     ("public_tls", "Public TLS", ["00-public-staging-preflight.json", "infra-evidence-summary.json"], ["tls"]),
     ("secret_management", "Secure secret management", ["04-render-services.md", "infra-evidence-summary.json"], []),
@@ -269,12 +380,15 @@ REQUIREMENTS = [
     ("backup_restore", "Backup and restore", ["12-backup-restore.md", "ops-evidence-summary.json"], []),
     ("monitoring_alerting", "Monitoring and alerting", ["14-observability-alerts.md", "ops-evidence-summary.json"], []),
     ("private_beta_access", "Private-beta access control", ["03-cloudflare-access.md", "06-auth-email.md", "auth-email-summary.json"], []),
+    ("public_playwright", "Public Playwright browser tests", ["22-public-playwright.md", "public-playwright-summary.json"], []),
     ("performance", "Public performance measurements", ["15-performance.md", "performance-evidence-summary.json"], []),
     ("licensing", "Licensing gates", ["08-map-provider-capture.md", "browser-map-summary.json", "17-licensing-gates.md", "licensing-summary.json"], []),
 ]
 
 
 ACCEPTANCE = [
+    ("staging_values_outside_git", "Production-style staging values are configured outside Git", ["public-staging-readiness-status.json", "public-staging-config-contract.json"]),
+    ("full_public_verification_sequence", "Full public verification sequence was run", ["public-staging-full-verification-run.json"]),
     ("https_reachable", "Public staging is reachable through HTTPS", ["00-public-staging-preflight.json"]),
     ("outer_access", "Outer staging access control is enabled", ["03-cloudflare-access.md", "infra-evidence-summary.json"]),
     ("dns_cert_valid", "DNS and certificates are valid", ["00-public-staging-preflight.json", "02-dns-tls-edge.md", "infra-evidence-summary.json"]),
@@ -299,13 +413,13 @@ ACCEPTANCE = [
     ("rollback_success", "Deployment rollback succeeds", ["13-failure-rollback.md", "21-failure-exercises.md", "ops-evidence-summary.json", "failure-exercises-summary.json"]),
     ("alerts", "Alerts detect key failures", ["14-observability-alerts.md", "ops-evidence-summary.json"]),
     ("providers_disabled", "Unlicensed providers remain disabled", ["08-map-provider-capture.md", "browser-map-summary.json", "17-licensing-gates.md", "licensing-summary.json"]),
-    ("test_suites_pass", "Test suites pass", ["01-image-manifest.json"]),
+    ("test_suites_pass", "Test suites pass", ["01-image-manifest.json", "22-public-playwright.md", "public-playwright-summary.json"]),
     ("cicd_safe", "CI/CD deploys immutable images safely", ["01-image-manifest.json", "02-render-deploy.json", "16-deployment-automation.md", "deployment-automation-summary.json"]),
     ("docs_current", "Documentation is current", REQUIRED_DOCS),
 ]
 
 FINAL_RESPONSE_ITEMS = [
-    ("hosting_provider_architecture", "Hosting provider and architecture", ("secret_management", "managed_postgres", "api_worker_separation", "private_beta_access")),
+    ("hosting_provider_architecture", "Hosting provider and architecture", ("provider_readiness", "secret_management", "managed_postgres", "api_worker_separation", "private_beta_access")),
     ("public_staging_hostname", "Public staging hostname", ("public_dns", "https_reachable")),
     ("deployed_branch_commit_image_digest", "Deployed branch, commit, and image digest", ("tested_commit_image", "deployment_automation")),
     ("dns_tls_result", "DNS and TLS result", ("public_dns", "public_tls", "dns_cert_valid")),
@@ -323,7 +437,7 @@ FINAL_RESPONSE_ITEMS = [
     ("observability_alerting_result", "Observability and alerting result", ("monitoring_alerting", "alerts")),
     ("performance_measurements", "Performance measurements", ("performance", "no_bulk_first_paint")),
     ("licensing_gates", "Licensing gates", ("licensing", "providers_disabled")),
-    ("cicd_result", "CI/CD result", ("deployment_automation", "cicd_safe", "test_suites_pass")),
+    ("cicd_result", "CI/CD result", ("deployment_automation", "cicd_safe", "test_suites_pass", "public_playwright", "full_verification_run")),
     ("commits_created", "Commits created", ("tested_commit_image",)),
     ("remaining_risks", "Remaining risks", ()),
     ("private_beta_verdict", "Private-beta verdict", ()),
@@ -354,6 +468,11 @@ def normalized_text(*values: Any) -> str:
     return " ".join(str(value or "").lower().replace("-", " ").replace("_", " ") for value in values)
 
 
+def has_placeholder(value: Any) -> bool:
+    text = str(value or "").strip().lower()
+    return any(marker in text for marker in PLACEHOLDER_MARKERS)
+
+
 def canonical_flow_key(row: dict[str, Any]) -> str:
     text = normalized_text(row.get("name"), row.get("flow"))
     for key, patterns in FLOW_KEY_PATTERNS.items():
@@ -369,7 +488,11 @@ def missing_flow_labels(rows: list[dict[str, Any]]) -> list[str]:
 
 def valid_har_path(value: Any) -> bool:
     path = str(value or "")
-    return path.startswith("docs/evidence/performance/") and path.endswith(".har")
+    return (
+        path.startswith("docs/evidence/performance/")
+        and path.endswith(".har")
+        and (ROOT / path).is_file()
+    )
 
 
 def is_local_proxyman_proxy(value: Any) -> bool:
@@ -385,9 +508,30 @@ def is_local_proxyman_proxy(value: Any) -> bool:
     )
 
 
+def public_https_url_weaknesses(value: Any, label: str) -> list[str]:
+    url = str(value or "").strip()
+    if not url:
+        return [f"{label} base URL is missing"]
+    parsed = urlparse(url)
+    weak: list[str] = []
+    if parsed.scheme != "https":
+        weak.append(f"{label} base URL is not HTTPS")
+    hostname = (parsed.hostname or "").lower()
+    if hostname in LOCAL_PROXY_HOSTS or hostname in {"0.0.0.0", "::1"} or hostname.endswith(".local"):
+        weak.append(f"{label} base URL is not public")
+    return weak
+
+
+def reserved_public_hostname_weaknesses(value: Any, label: str) -> list[str]:
+    hostname = (urlparse(str(value or "").strip()).hostname or "").lower()
+    if hostname in RESERVED_PUBLIC_HOSTS or hostname.endswith(RESERVED_PUBLIC_SUFFIXES):
+        return [f"{label} base URL is a reserved documentation hostname"]
+    return []
+
+
 def safe_secret_value(value: str, *, names_only: bool = False) -> bool:
     lowered = value.lower()
-    if value in {"", "<redacted>", "redacted", "***", "present", "configured", "missing"}:
+    if value in {"", "<redacted>", "redacted", "***", "present", "configured", "missing", "set"}:
         return True
     if lowered.startswith("replace-with-"):
         return True
@@ -396,6 +540,18 @@ def safe_secret_value(value: str, *, names_only: bool = False) -> bool:
     if PUBLIC_HASH_RE.fullmatch(value):
         return True
     return False
+
+
+def safe_metadata_string(path: str, value: str) -> bool:
+    if ".rows[" not in path or not path.endswith((".key", ".label", ".detail")):
+        return False
+    return not (
+        URL_WITH_CREDENTIALS_RE.search(value)
+        or TOKEN_QUERY_RE.search(value)
+        or AUTH_HEADER_RE.search(value)
+        or SECRET_PREFIX_RE.match(value)
+        or JWT_RE.match(value)
+    )
 
 
 def secretish_string(value: str) -> bool:
@@ -423,7 +579,7 @@ def json_secret_paths(value: Any, path: str = "") -> list[str]:
             key_text = str(key)
             child = f"{path}.{key_text}" if path else key_text
             lowered = key_text.lower()
-            names_only = any(marker in lowered for marker in ("env", "header_names", "secret_names", "credential_names"))
+            names_only = any(marker in lowered for marker in ("env", "header_names", "secret_names", "credential_names")) or "local_environment" in child
             if (
                 lowered not in SAFE_COOKIE_METADATA_FIELDS
                 and SENSITIVE_KEY_RE.search(key_text)
@@ -439,7 +595,7 @@ def json_secret_paths(value: Any, path: str = "") -> list[str]:
             if isinstance(item, str) and not safe_secret_value(item, names_only=names_only) and secretish_string(item):
                 findings.append(child)
             findings.extend(json_secret_paths(item, child))
-    elif isinstance(value, str) and secretish_string(value):
+    elif isinstance(value, str) and not safe_metadata_string(path, value) and secretish_string(value):
         findings.append(path or "<root>")
     return sorted(set(findings))
 
@@ -480,8 +636,16 @@ def preflight_weaknesses(data: dict[str, Any]) -> list[str]:
     weak: list[str] = []
     if data.get("verdict") != "pass":
         weak.append("preflight verdict is not pass")
-    if (data.get("url") or {}).get("scheme") != "https":
-        weak.append("preflight base URL is not HTTPS")
+    weak.extend(public_https_url_weaknesses(data.get("base_url"), "preflight"))
+    weak.extend(reserved_public_hostname_weaknesses(data.get("base_url"), "preflight"))
+    url = data.get("url") or {}
+    if url.get("scheme") != "https":
+        weak.append("preflight parsed URL scheme is not HTTPS")
+    hostname = str(url.get("hostname") or "").lower()
+    if hostname in LOCAL_PROXY_HOSTS or hostname in {"0.0.0.0", "::1"} or hostname.endswith(".local"):
+        weak.append("preflight parsed URL host is not public")
+    if hostname in RESERVED_PUBLIC_HOSTS or hostname.endswith(RESERVED_PUBLIC_SUFFIXES):
+        weak.append("preflight parsed URL host is a reserved documentation hostname")
     if (data.get("dns") or {}).get("ok") is not True:
         weak.append("preflight DNS is not ok")
     if (data.get("tls") or {}).get("ok") is not True:
@@ -598,14 +762,14 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
 
     target = data.get("target") or {}
     parsed = urlparse(str(target.get("base_url") or ""))
-    if parsed.scheme != "https":
-        weak.append("performance summary base URL is not HTTPS")
+    weak.extend(public_https_url_weaknesses(target.get("base_url"), "performance summary"))
+    weak.extend(reserved_public_hostname_weaknesses(target.get("base_url"), "performance summary"))
     if not is_local_proxyman_proxy(target.get("proxy_server")):
         weak.append("performance summary Proxyman proxy is not a local explicit proxy URL")
     direct_parsed = urlparse(str(target.get("direct_base_url") or ""))
-    if direct_parsed.scheme != "https":
-        weak.append("performance summary direct base URL is not HTTPS")
-    elif parsed.netloc and direct_parsed.netloc != parsed.netloc:
+    weak.extend(public_https_url_weaknesses(target.get("direct_base_url"), "performance summary direct"))
+    weak.extend(reserved_public_hostname_weaknesses(target.get("direct_base_url"), "performance summary direct"))
+    if parsed.netloc and direct_parsed.netloc and direct_parsed.netloc != parsed.netloc:
         weak.append("performance summary direct base URL does not match proxied base URL")
     if target.get("direct_proxy_server"):
         weak.append("performance summary direct capture unexpectedly records a proxy server")
@@ -699,6 +863,8 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         name = row.get("name") or "unknown location"
         if not row.get("name") or not row.get("region"):
             weak.append(f"performance summary external location identity is incomplete: {name}")
+        if has_placeholder(row.get("name")) or has_placeholder(row.get("region")):
+            weak.append(f"performance summary external location identity is still a placeholder: {name}")
         for key in ("dns_ms", "tcp_ms", "tls_ms", "ttfb_ms", "initial_transfer_kb", "initial_request_count", "map_initialization_ms"):
             value = row.get(key)
             if not isinstance(value, (int, float)) or value < 0:
@@ -743,6 +909,135 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     return weak
 
 
+def config_contract_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if data.get("verdict") != "pass":
+        weak.append("config contract verdict is not pass")
+    if data.get("failures"):
+        weak.append("config contract has failures")
+    for section in ("render", "compose"):
+        payload = data.get(section) or {}
+        if payload.get("verdict") != "pass":
+            weak.append(f"config contract {section} verdict is not pass")
+        if payload.get("failures"):
+            weak.append(f"config contract {section} has failures")
+        for row in payload.get("rows") or []:
+            if row.get("ok") is not True:
+                weak.append(f"config contract row is not ok: {row.get('key')}")
+    rows = {
+        row.get("key")
+        for section in ("render", "compose")
+        for row in (data.get(section) or {}).get("rows") or []
+    }
+    for key in sorted(CONFIG_CONTRACT_REQUIRED_ROWS - rows):
+        weak.append(f"config contract required row is missing: {key}")
+    if data.get("not_public_staging_proof") is not True:
+        weak.append("config contract not_public_staging_proof marker is missing")
+    return weak
+
+
+def readiness_status_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if data.get("verdict") != "ready":
+        weak.append("readiness verdict is not ready")
+    if data.get("blocking_external_inputs"):
+        weak.append("readiness has blocking external inputs")
+    if data.get("mode") != "local":
+        weak.append("readiness mode is not local")
+    local = data.get("local_environment") or {}
+    for name in sorted(READINESS_REQUIRED_LOCAL_ENV):
+        if local.get(name) != "set":
+            weak.append(f"readiness local env is not set: {name}")
+    staging_url = data.get("staging_url") or {}
+    if staging_url.get("public_https") is not True:
+        weak.append("readiness STAGING_URL is not a real public HTTPS hostname")
+    if staging_url.get("reserved_documentation_hostname") is True:
+        weak.append("readiness STAGING_URL is a reserved documentation hostname")
+    github = data.get("github") or {}
+    if github.get("gh_authenticated") is not True:
+        weak.append("readiness GitHub CLI is not authenticated")
+    if github.get("staging_environment_exists") is not True:
+        weak.append("readiness GitHub staging environment is missing")
+    if int(github.get("staging_environment_protection_rule_count") or 0) < 1:
+        weak.append("readiness GitHub staging environment has no protection rules")
+    branch_policy = github.get("staging_environment_deployment_branch_policy") or {}
+    if branch_policy.get("custom_branch_policies") is not True:
+        weak.append("readiness GitHub staging environment does not require custom branch policies")
+    if "main" not in set(github.get("staging_branch_policies_configured") or []):
+        weak.append("readiness GitHub staging main branch policy is missing")
+    for name in sorted(READINESS_REQUIRED_GITHUB_SECRETS):
+        if name not in set(github.get("staging_secret_names_configured") or []):
+            weak.append(f"readiness GitHub staging secret is missing: {name}")
+    if "STAGING_URL" not in set(github.get("staging_variable_names_configured") or []):
+        weak.append("readiness GitHub staging STAGING_URL variable is missing")
+    browsers = data.get("local_browser_availability") or {}
+    for name in ("chrome", "firefox", "safari"):
+        if browsers.get(name) is not True:
+            weak.append(f"readiness browser app is missing: {name}")
+    contract = data.get("public_staging_config_contract") or {}
+    if contract.get("verdict") != "pass":
+        weak.append("readiness embedded config contract verdict is not pass")
+    if data.get("not_public_staging_proof") is not True:
+        weak.append("readiness not_public_staging_proof marker is missing")
+    return weak
+
+
+def full_verification_run_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if data.get("verdict") != "pass":
+        weak.append("full verification verdict is not pass")
+    if data.get("failures"):
+        weak.append("full verification run has failures")
+    if data.get("dry_run") is True or data.get("not_public_staging_proof") is True:
+        weak.append("full verification run is a dry-run plan")
+    base_url = str(data.get("base_url") or "")
+    weak.extend(public_https_url_weaknesses(base_url, "full verification"))
+    weak.extend(reserved_public_hostname_weaknesses(base_url, "full verification"))
+    if not is_local_proxyman_proxy(data.get("proxy_server")):
+        weak.append("full verification Proxyman proxy is not a local explicit proxy URL")
+    steps = {item.get("key") for item in data.get("steps") or []}
+    for key in sorted(FULL_VERIFICATION_REQUIRED_STEPS - steps):
+        weak.append(f"full verification required step is missing: {key}")
+    unexpected_steps = steps - FULL_VERIFICATION_REQUIRED_STEPS
+    if "final_gate_audit" in unexpected_steps:
+        weak.append("full verification run must not include the final gate audit step")
+    results = {item.get("key"): item for item in data.get("results") or []}
+    for key in sorted(FULL_VERIFICATION_REQUIRED_STEPS):
+        result = results.get(key)
+        if not result:
+            weak.append(f"full verification result is missing: {key}")
+        elif result.get("returncode") != 0:
+            weak.append(f"full verification step failed: {key}")
+    return weak
+
+
+def public_playwright_summary_weaknesses(data: dict[str, Any]) -> list[str]:
+    weak: list[str] = []
+    if data.get("verdict") != "pass":
+        weak.append("public Playwright verdict is not pass")
+    if data.get("failures"):
+        weak.append("public Playwright summary has failures")
+    base_url = str(data.get("base_url") or "")
+    weak.extend(public_https_url_weaknesses(base_url, "public Playwright"))
+    weak.extend(reserved_public_hostname_weaknesses(base_url, "public Playwright"))
+    summary = data.get("summary") or {}
+    stats = summary.get("stats") or {}
+    if int(stats.get("expected") or 0) <= 0:
+        weak.append("public Playwright expected pass count is zero")
+    if int(stats.get("unexpected") or 0) != 0:
+        weak.append("public Playwright unexpected count is not zero")
+    if int(stats.get("flaky") or 0) != 0:
+        weak.append("public Playwright flaky count is not zero")
+    projects = set(summary.get("project_names") or [])
+    for project in sorted({"chromium", "firefox", "webkit"} - projects):
+        weak.append(f"public Playwright project is missing: {project}")
+    if summary.get("failed_tests"):
+        weak.append("public Playwright failed tests are present")
+    if data.get("dry_run") or data.get("not_public_staging_proof"):
+        weak.append("public Playwright evidence is a dry-run plan")
+    return weak
+
+
 def route_security_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     weak: list[str] = []
     if data.get("verdict") != "pass":
@@ -753,6 +1048,9 @@ def route_security_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("route-security summary has warnings")
 
     route_probe = data.get("route_probe") or {}
+    route_base_url = route_probe.get("base_url")
+    weak.extend(public_https_url_weaknesses(route_base_url, "route-security route probe"))
+    weak.extend(reserved_public_hostname_weaknesses(route_base_url, "route-security route probe"))
     if route_probe.get("verdict") != "pass":
         weak.append("route-security route probe verdict is not pass")
     if route_probe.get("failure_count") != 0:
@@ -778,6 +1076,11 @@ def route_security_summary_weaknesses(data: dict[str, Any]) -> list[str]:
             weak.append(f"route-security unauthenticated probe did not reject with 401/403: {name}")
 
     preflight = data.get("preflight") or {}
+    preflight_base_url = preflight.get("base_url")
+    weak.extend(public_https_url_weaknesses(preflight_base_url, "route-security preflight"))
+    weak.extend(reserved_public_hostname_weaknesses(preflight_base_url, "route-security preflight"))
+    if route_base_url and preflight_base_url and route_base_url != preflight_base_url:
+        weak.append("route-security preflight base URL does not match route probe")
     if preflight.get("verdict") != "pass":
         weak.append("route-security preflight verdict is not pass")
     headers = set(preflight.get("index_headers") or [])
@@ -801,6 +1104,11 @@ def route_security_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("route-security class summary is missing")
 
     auth = data.get("auth_security") or {}
+    auth_base_url = auth.get("base_url")
+    weak.extend(public_https_url_weaknesses(auth_base_url, "route-security auth/security"))
+    weak.extend(reserved_public_hostname_weaknesses(auth_base_url, "route-security auth/security"))
+    if route_base_url and auth_base_url and route_base_url != auth_base_url:
+        weak.append("route-security auth/security base URL does not match route probe")
     if auth.get("verdict") != "pass":
         weak.append("route-security auth evidence verdict is not pass")
     if auth.get("csrf_rejection_status") != 403:
@@ -881,8 +1189,8 @@ def auth_email_summary_weaknesses(data: dict[str, Any]) -> list[str]:
             weak.append(f"auth-email {key} is not {expected}")
 
     base_url = str(data.get("auth_base_url") or "")
-    if base_url and urlparse(base_url).scheme != "https":
-        weak.append("auth-email base URL is not HTTPS")
+    weak.extend(public_https_url_weaknesses(base_url, "auth-email"))
+    weak.extend(reserved_public_hostname_weaknesses(base_url, "auth-email"))
     if not data.get("auth_captured_at"):
         weak.append("auth-email captured timestamp is missing")
     return weak
@@ -941,8 +1249,8 @@ def email_delivery_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("email-delivery summary has failures")
     if not data.get("input_captured_at"):
         weak.append("email-delivery input captured timestamp is missing")
-    if urlparse(str(data.get("base_url") or "")).scheme != "https":
-        weak.append("email-delivery base URL is not HTTPS")
+    weak.extend(public_https_url_weaknesses(data.get("base_url"), "email-delivery"))
+    weak.extend(reserved_public_hostname_weaknesses(data.get("base_url"), "email-delivery"))
     if not str(data.get("provider") or ""):
         weak.append("email-delivery provider is missing")
     if not str(data.get("sender_domain_alias") or ""):
@@ -958,11 +1266,26 @@ def email_delivery_summary_weaknesses(data: dict[str, Any]) -> list[str]:
 def browser_map_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     weak: list[str] = []
     target = data.get("target") or {}
-    base_url = str(target.get("matrix_base_url") or target.get("summary_base_url") or "")
-    if not base_url:
-        weak.append("browser-map base URL is missing")
-    elif urlparse(base_url).scheme != "https":
-        weak.append("browser-map base URL is not HTTPS")
+    matrix_base_url = str(target.get("matrix_base_url") or "").strip().rstrip("/")
+    summary_base_url = str(target.get("summary_base_url") or "").strip().rstrip("/")
+    for label, base_url in (("matrix", matrix_base_url), ("summary", summary_base_url)):
+        if not base_url:
+            weak.append(f"browser-map {label} base URL is missing")
+            continue
+        parsed = urlparse(base_url)
+        if parsed.scheme != "https":
+            weak.append(f"browser-map {label} base URL is not HTTPS")
+        hostname = (parsed.hostname or "").lower()
+        if hostname in LOCAL_PROXY_HOSTS or hostname in {"0.0.0.0", "::1"} or hostname.endswith(".local"):
+            weak.append(f"browser-map {label} base URL is not public")
+        if hostname in RESERVED_PUBLIC_HOSTS or hostname.endswith(RESERVED_PUBLIC_SUFFIXES):
+            weak.append(f"browser-map {label} base URL is a reserved documentation hostname")
+    if matrix_base_url and summary_base_url and matrix_base_url != summary_base_url:
+        weak.append("browser-map matrix and summary base URLs do not match")
+    if target.get("matrix_not_public_staging_proof") is True:
+        weak.append("browser-map matrix is still marked not public-staging proof")
+    if target.get("matrix_verdict") == "operator_input_required":
+        weak.append("browser-map matrix still requires operator input")
 
     browser = data.get("browser") or {}
     if browser.get("verdict") != "pass":
@@ -970,27 +1293,35 @@ def browser_map_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     if browser.get("failures"):
         weak.append("browser-map browser has failures")
     rows = list(browser.get("rows") or [])
-    required_desktop = {"chrome", "edge_or_brave", "firefox", "safari_macos"}
+    required_desktop = {"chrome", "firefox", "safari_macos"}
     optional_mobile = {"mobile_safari", "chrome_android"}
     by_key = {item.get("key"): item for item in rows}
     for key in sorted(required_desktop):
         row = by_key.get(key)
         if not row:
             weak.append(f"browser-map required browser is missing: {key}")
-        elif row.get("available") is False:
+            continue
+        if row.get("available") is False:
             weak.append(f"browser-map required browser is unavailable: {key}")
-        elif row.get("failed_checks"):
+            continue
+        if row.get("failed_checks"):
             weak.append(f"browser-map browser has failed checks: {key}")
-        elif not row.get("browser_version"):
+        if not row.get("browser_version"):
             weak.append(f"browser-map browser version is missing: {key}")
-        elif not row.get("os"):
+        elif has_placeholder(row.get("browser_version")):
+            weak.append(f"browser-map browser version is still a placeholder: {key}")
+        if not row.get("os"):
             weak.append(f"browser-map OS is missing: {key}")
+        elif has_placeholder(row.get("os")) or has_placeholder(row.get("os_version")):
+            weak.append(f"browser-map OS is still a placeholder: {key}")
     for key in sorted(optional_mobile):
         row = by_key.get(key)
         if not row:
             weak.append(f"browser-map mobile availability was not recorded: {key}")
         elif row.get("available") is False and not row.get("unavailable_reason"):
             weak.append(f"browser-map mobile unavailable reason is missing: {key}")
+        elif row.get("available") is False and has_placeholder(row.get("unavailable_reason")):
+            weak.append(f"browser-map mobile unavailable reason is still a placeholder: {key}")
         elif row.get("available") is not False and row.get("failed_checks"):
             weak.append(f"browser-map mobile browser has failed checks: {key}")
 
@@ -1002,6 +1333,8 @@ def browser_map_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("browser-map first paint requested /api/universe/bulk")
     for row in network_rows:
         flow = row.get("flow") or row.get("name") or "unknown flow"
+        if not valid_har_path(row.get("har_path")):
+            weak.append(f"browser-map HAR path is missing or invalid: {flow}")
         if row.get("requested_unpkg") is True:
             weak.append(f"browser-map flow requested unpkg.com: {flow}")
         if int(row.get("console_errors") or 0):
@@ -1017,6 +1350,9 @@ def browser_map_summary_weaknesses(data: dict[str, Any]) -> list[str]:
     approved_hosts = set(provider.get("approved_hosts") or [])
     if not approved_hosts:
         weak.append("browser-map approved provider hosts are missing")
+    for host in approved_hosts:
+        if has_placeholder(host):
+            weak.append(f"browser-map approved provider host is still a placeholder: {host}")
     observed_hosts = set(provider.get("observed_external_hosts") or [])
     unexpected_hosts = sorted(observed_hosts - approved_hosts)
     for host in unexpected_hosts:
@@ -1095,6 +1431,9 @@ OPS_REQUIRED = {
         "version",
         "login_session_persistence",
         "map_slots_persisted",
+        "post_restart_readyz",
+        "api_restart_session_persistence",
+        "api_restart_map_slots_persisted",
         "worker_job_recovery",
         "failed_health_no_traffic_shift",
         "previous_revision_available",
@@ -1155,6 +1494,28 @@ def ops_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         for key in sorted(required_keys):
             if rows.get(key) is not True:
                 weak.append(f"ops {section} required check is not true: {key}")
+        for key, value in rows.items():
+            if has_placeholder(value):
+                weak.append(f"ops {section} row is still a placeholder: {key}")
+        if section == "worker_jobs":
+            if rows.get("job.final_status") != "done":
+                weak.append("ops worker_jobs final status is not done")
+            if rows.get("job.correlation_id_present") is not True:
+                weak.append("ops worker_jobs correlation ID is missing")
+            if int(rows.get("job.completion_count") or 0) != 1:
+                weak.append("ops worker_jobs completion count is not exactly 1")
+        if section == "backup_restore":
+            if not rows.get("backup.restore_database") or rows.get("backup.restore_database") == "oasis_staging":
+                weak.append("ops backup_restore restore database is missing or not separate")
+            if rows.get("backup.sha256_present") is not True:
+                weak.append("ops backup_restore checksum is missing")
+            if int(rows.get("backup.size_bytes") or 0) <= 0:
+                weak.append("ops backup_restore size is missing or zero")
+        if section == "failure_rollback":
+            if not rows.get("rollback.to_revision"):
+                weak.append("ops failure_rollback target revision is missing")
+            if rows.get("rollback.from_revision") == rows.get("rollback.to_revision"):
+                weak.append("ops failure_rollback source and target revisions are identical")
     return weak
 
 
@@ -1248,6 +1609,9 @@ def infra_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         if result.get("failures"):
             weak.append(f"infra {section} has failures")
         rows = {str(row.get("label") or ""): row.get("value") for row in result.get("rows") or []}
+        for label, value in rows.items():
+            if has_placeholder(value):
+                weak.append(f"infra {section} row is still a placeholder: {label}")
         for label in sorted(required_labels - set(rows)):
             weak.append(f"infra {section} missing row: {label}")
         if section == "dns_tls_edge":
@@ -1324,6 +1688,11 @@ DEPLOYMENT_REQUIRED = {
     },
     "run": {
         "run_captured",
+        "run_identity_real",
+        "run_id_numeric",
+        "run_attempt_numeric",
+        "run_commit_full_sha",
+        "run_branch_main",
         "run_success",
         "environment_staging",
         "protected_environment",
@@ -1349,6 +1718,7 @@ DEPLOYMENT_REQUIRED = {
         "preflight_pass",
         "workflow_run_matches_manifest",
         "commit_consistent",
+        "commit_full_sha",
         "image_digest_pinned",
         "render_image_matches_manifest",
         "api_worker_deployed",
@@ -1367,16 +1737,27 @@ def deployment_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("deployment automation summary has warnings")
     if not data.get("input_captured_at"):
         weak.append("deployment automation input captured timestamp is missing")
+    elif str(data.get("input_captured_at")) == "2026-07-25T00:00:00Z":
+        weak.append("deployment automation input captured timestamp is still the template value")
 
     target = data.get("target") or {}
     if target.get("workflow") != "Deploy":
         weak.append("deployment automation workflow is not Deploy")
     if target.get("environment") != "staging":
         weak.append("deployment automation environment is not staging")
-    if not str(target.get("run_id") or ""):
+    run_id = str(target.get("run_id") or "")
+    run_attempt = str(target.get("run_attempt") or "")
+    commit = str(target.get("commit") or "")
+    if not run_id:
         weak.append("deployment automation run id is missing")
-    if not str(target.get("commit") or ""):
+    elif not run_id.isdigit():
+        weak.append("deployment automation run id is not numeric")
+    if run_attempt and not run_attempt.isdigit():
+        weak.append("deployment automation run attempt is not numeric")
+    if not commit:
         weak.append("deployment automation commit is missing")
+    elif not FULL_SHA_RE.match(commit):
+        weak.append("deployment automation commit is not a full 40-character SHA")
 
     for section, required_keys in DEPLOYMENT_REQUIRED.items():
         result = data.get(section) or {}
@@ -1496,8 +1877,8 @@ def rate_limit_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("rate-limit summary has failures")
     if not data.get("input_captured_at"):
         weak.append("rate-limit input captured timestamp is missing")
-    if urlparse(str(data.get("base_url") or "")).scheme != "https":
-        weak.append("rate-limit base URL is not HTTPS")
+    weak.extend(public_https_url_weaknesses(data.get("base_url"), "rate-limit"))
+    weak.extend(reserved_public_hostname_weaknesses(data.get("base_url"), "rate-limit"))
     for section, required_keys in RATE_LIMIT_REQUIRED.items():
         rows = {row.get("key"): row.get("value") for row in (data.get(section) or {}).get("rows") or []}
         for key in sorted(required_keys):
@@ -1560,8 +1941,8 @@ def storage_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("storage summary has failures")
     if not data.get("input_captured_at"):
         weak.append("storage input captured timestamp is missing")
-    if urlparse(str(data.get("base_url") or "")).scheme != "https":
-        weak.append("storage base URL is not HTTPS")
+    weak.extend(public_https_url_weaknesses(data.get("base_url"), "storage"))
+    weak.extend(reserved_public_hostname_weaknesses(data.get("base_url"), "storage"))
     if "cloudflare" not in str(data.get("provider") or "").lower() or "r2" not in str(data.get("provider") or "").lower():
         weak.append("storage provider is not Cloudflare R2")
     if not str(data.get("bucket_alias") or ""):
@@ -1642,8 +2023,8 @@ def failure_exercises_summary_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("failure-exercises summary has failures")
     if not data.get("input_captured_at"):
         weak.append("failure-exercises input captured timestamp is missing")
-    if urlparse(str(data.get("base_url") or "")).scheme != "https":
-        weak.append("failure-exercises base URL is not HTTPS")
+    weak.extend(public_https_url_weaknesses(data.get("base_url"), "failure-exercises"))
+    weak.extend(reserved_public_hostname_weaknesses(data.get("base_url"), "failure-exercises"))
     for section, required_keys in FAILURE_EXERCISES_REQUIRED.items():
         rows = {row.get("key"): row.get("value") for row in (data.get(section) or {}).get("rows") or []}
         for key in sorted(required_keys):
@@ -1665,6 +2046,10 @@ JSON_VALIDATORS = {
     "licensing-summary.json": licensing_summary_weaknesses,
     "ops-evidence-summary.json": ops_summary_weaknesses,
     "performance-evidence-summary.json": performance_summary_weaknesses,
+    "public-playwright-summary.json": public_playwright_summary_weaknesses,
+    "public-staging-config-contract.json": config_contract_weaknesses,
+    "public-staging-full-verification-run.json": full_verification_run_weaknesses,
+    "public-staging-readiness-status.json": readiness_status_weaknesses,
     "rate-limit-summary.json": rate_limit_summary_weaknesses,
     "route-security-summary.json": route_security_summary_weaknesses,
     "storage-summary.json": storage_summary_weaknesses,
@@ -1705,7 +2090,8 @@ def evaluate(key: str, label: str, files: list[str], json_checks: list[str] | No
     weak = []
     for item in statuses:
         verdict = item.get("json_verdict")
-        if verdict and verdict != "pass":
+        allowed_verdicts = JSON_ALLOWED_VERDICTS.get(Path(item["path"]).name, {"pass"})
+        if verdict and verdict not in allowed_verdicts:
             weak.append(f"{item['path']} verdict={verdict}")
         if item.get("parse_error"):
             weak.append(f"{item['path']} parse_error={item['parse_error']}")

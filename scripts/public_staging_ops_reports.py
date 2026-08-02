@@ -18,6 +18,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
+PLACEHOLDER_MARKERS = ("<", ">", "replace-", "record exact", "required when")
 
 REPORTS = {
     "worker_jobs": "10-worker-jobs.md",
@@ -82,6 +83,9 @@ ROLLBACK_REQUIRED = {
     "version": "version matched expected rollback revision",
     "login_session_persistence": "login/session persistence survived rollback",
     "map_slots_persisted": "map slots persisted through rollback",
+    "post_restart_readyz": "readyz passed after API restart",
+    "api_restart_session_persistence": "login/session persistence survived API restart",
+    "api_restart_map_slots_persisted": "map slots persisted through API restart",
     "worker_job_recovery": "worker job recovery worked after rollback",
     "failed_health_no_traffic_shift": "failed-health deploy did not receive traffic",
     "previous_revision_available": "previous revision remained available",
@@ -144,6 +148,22 @@ def check_bool(section: dict[str, Any], required: dict[str, str]) -> tuple[list[
         if value is not True:
             failures.append(f"{key} is not true")
     return failures, rows
+
+
+def has_placeholder(value: Any) -> bool:
+    text = str(value or "").strip().lower()
+    return any(marker in text for marker in PLACEHOLDER_MARKERS)
+
+
+def metadata_failures(section: dict[str, Any]) -> list[str]:
+    failures: list[str] = []
+    for field in ("captured_at", "source"):
+        value = section.get(field)
+        if not value:
+            failures.append(f"{field} is missing")
+        elif has_placeholder(value):
+            failures.append(f"{field} is still a placeholder")
+    return failures
 
 
 def false_checks(required: dict[str, str]) -> dict[str, bool]:
@@ -221,10 +241,18 @@ def evidence_template() -> dict[str, Any]:
 
 def evaluate_worker(section: dict[str, Any]) -> tuple[list[str], list[str], list[dict[str, Any]]]:
     failures, rows = check_bool(section, WORKER_REQUIRED)
+    failures.extend(metadata_failures(section))
     warnings: list[str] = []
     job = section.get("job") or {}
+    rows.extend([
+        {"key": "job.final_status", "label": "worker job final status", "value": job.get("final_status")},
+        {"key": "job.correlation_id_present", "label": "worker job correlation ID present", "value": bool(job.get("correlation_id"))},
+        {"key": "job.completion_count", "label": "worker job completion count", "value": job.get("completion_count")},
+    ])
     if job.get("kind") not in {"noop", "controlled-noop"}:
         failures.append("worker job kind is not a controlled noop")
+    if has_placeholder(job.get("final_status")):
+        failures.append("worker job final_status is still a placeholder")
     if job.get("final_status") != "done":
         failures.append("worker job final_status is not done")
     if not job.get("correlation_id"):
@@ -236,6 +264,7 @@ def evaluate_worker(section: dict[str, Any]) -> tuple[list[str], list[str], list
 
 def evaluate_network(section: dict[str, Any]) -> tuple[list[str], list[str], list[dict[str, Any]]]:
     failures, rows = check_bool(section, NETWORK_REQUIRED)
+    failures.extend(metadata_failures(section))
     warnings: list[str] = []
     for name, count_key in (
         ("SEC", "api_sec_requests"),
@@ -251,14 +280,22 @@ def evaluate_network(section: dict[str, Any]) -> tuple[list[str], list[str], lis
 
 def evaluate_backup(section: dict[str, Any]) -> tuple[list[str], list[str], list[dict[str, Any]]]:
     failures, rows = check_bool(section, BACKUP_REQUIRED)
+    failures.extend(metadata_failures(section))
     warnings: list[str] = []
     backup = section.get("backup") or {}
+    rows.extend([
+        {"key": "backup.restore_database", "label": "restore database", "value": backup.get("restore_database")},
+        {"key": "backup.sha256_present", "label": "backup checksum present", "value": bool(backup.get("sha256"))},
+        {"key": "backup.size_bytes", "label": "backup size bytes", "value": backup.get("size_bytes")},
+    ])
     if int(backup.get("size_bytes") or 0) <= 0:
         failures.append("backup size_bytes is missing or zero")
     if not str(backup.get("sha256") or ""):
         failures.append("backup sha256 is missing")
     if str(backup.get("restore_database") or "") in {"", str(backup.get("source_database") or "")}:
         failures.append("restore database is missing or not separate")
+    if has_placeholder(backup.get("restore_database")):
+        failures.append("restore database is still a placeholder")
     if float(backup.get("recovery_time_seconds") or 0) <= 0:
         failures.append("recovery time is missing or zero")
     return failures, warnings, rows
@@ -266,17 +303,25 @@ def evaluate_backup(section: dict[str, Any]) -> tuple[list[str], list[str], list
 
 def evaluate_rollback(section: dict[str, Any]) -> tuple[list[str], list[str], list[dict[str, Any]]]:
     failures, rows = check_bool(section, ROLLBACK_REQUIRED)
+    failures.extend(metadata_failures(section))
     warnings: list[str] = []
     rollback = section.get("rollback") or {}
+    rows.extend([
+        {"key": "rollback.from_revision", "label": "rollback source revision", "value": rollback.get("from_revision")},
+        {"key": "rollback.to_revision", "label": "rollback target revision", "value": rollback.get("to_revision")},
+    ])
     if rollback.get("from_revision") == rollback.get("to_revision"):
         failures.append("rollback from_revision and to_revision are identical")
     if not rollback.get("to_revision"):
         failures.append("rollback target revision is missing")
+    if has_placeholder(rollback.get("from_revision")) or has_placeholder(rollback.get("to_revision")):
+        failures.append("rollback revision is still a placeholder")
     return failures, warnings, rows
 
 
 def evaluate_observability(section: dict[str, Any]) -> tuple[list[str], list[str], list[dict[str, Any]]]:
     failures: list[str] = []
+    failures.extend(metadata_failures(section))
     warnings: list[str] = []
     rows: list[dict[str, Any]] = []
     signal_failures, signal_rows = check_bool({"checks": section.get("signals") or {}}, OBS_SIGNALS)

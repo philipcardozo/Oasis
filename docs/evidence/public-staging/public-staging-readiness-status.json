@@ -1,0 +1,787 @@
+{
+  "blocking_external_inputs": [
+    "local environment variables missing: STAGING_URL, OASIS_CF_ACCESS_CLIENT_ID, OASIS_CF_ACCESS_CLIENT_SECRET, CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_ZONE_ID, RENDER_API_KEY, RENDER_API_SERVICE_ID, RENDER_WORKER_SERVICE_ID, OASIS_PUBLIC_TESTER_A_EMAIL, OASIS_PUBLIC_TESTER_A_PASSWORD, OASIS_PUBLIC_TESTER_A_RESET_PASSWORD, OASIS_PUBLIC_TESTER_B_EMAIL, OASIS_PUBLIC_TESTER_B_PASSWORD, OASIS_PUBLIC_LIFECYCLE_EMAIL, OASIS_PUBLIC_LIFECYCLE_PASSWORD, OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD",
+    "GitHub staging secrets missing: RENDER_API_KEY, RENDER_API_SERVICE_ID, RENDER_WORKER_SERVICE_ID, OASIS_CF_ACCESS_CLIENT_ID, OASIS_CF_ACCESS_CLIENT_SECRET",
+    "GitHub staging variables missing: STAGING_URL"
+  ],
+  "branch": "phase1.75/public-staging",
+  "captured_at": "2026-07-30T09:04:07Z",
+  "commit": "788dc9b22bb932a6ff035d567cb67622650d4b40",
+  "github": {
+    "gh_auth_error": null,
+    "gh_authenticated": true,
+    "required_staging_branch_policies_missing": [],
+    "required_staging_secrets_missing": [
+      "RENDER_API_KEY",
+      "RENDER_API_SERVICE_ID",
+      "RENDER_WORKER_SERVICE_ID",
+      "OASIS_CF_ACCESS_CLIENT_ID",
+      "OASIS_CF_ACCESS_CLIENT_SECRET"
+    ],
+    "required_staging_vars_missing": [
+      "STAGING_URL"
+    ],
+    "staging_branch_policies_configured": [
+      "main"
+    ],
+    "staging_environment_can_admins_bypass": true,
+    "staging_environment_deployment_branch_policy": {
+      "custom_branch_policies": true,
+      "protected_branches": false
+    },
+    "staging_environment_exists": true,
+    "staging_environment_protection_rule_count": 2,
+    "staging_secret_names_configured": [],
+    "staging_variable_names_configured": []
+  },
+  "local_browser_availability": {
+    "chrome": true,
+    "firefox": true,
+    "safari": true
+  },
+  "local_environment": {
+    "CLOUDFLARE_ACCOUNT_ID": "missing",
+    "CLOUDFLARE_API_TOKEN": "missing",
+    "CLOUDFLARE_ZONE_ID": "missing",
+    "OASIS_CF_ACCESS_CLIENT_ID": "missing",
+    "OASIS_CF_ACCESS_CLIENT_SECRET": "missing",
+    "OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD": "missing",
+    "OASIS_PUBLIC_LIFECYCLE_EMAIL": "missing",
+    "OASIS_PUBLIC_LIFECYCLE_PASSWORD": "missing",
+    "OASIS_PUBLIC_TESTER_A_EMAIL": "missing",
+    "OASIS_PUBLIC_TESTER_A_PASSWORD": "missing",
+    "OASIS_PUBLIC_TESTER_A_RESET_PASSWORD": "missing",
+    "OASIS_PUBLIC_TESTER_B_EMAIL": "missing",
+    "OASIS_PUBLIC_TESTER_B_PASSWORD": "missing",
+    "RENDER_API_KEY": "missing",
+    "RENDER_API_SERVICE_ID": "missing",
+    "RENDER_WORKER_SERVICE_ID": "missing",
+    "STAGING_URL": "missing"
+  },
+  "mode": "local",
+  "not_public_staging_proof": true,
+  "public_staging_config_contract": {
+    "branch": "phase1.75/public-staging",
+    "captured_at": "2026-07-30T09:04:07Z",
+    "commit": "788dc9b22bb932a6ff035d567cb67622650d4b40",
+    "compose": {
+      "failures": [],
+      "rows": [
+        {
+          "detail": "migrate receives AWS_ACCESS_KEY_ID from local env/defaults",
+          "key": "compose_migrate_env_AWS_ACCESS_KEY_ID",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives AWS_SECRET_ACCESS_KEY from local env/defaults",
+          "key": "compose_migrate_env_AWS_SECRET_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_ALLOWED_ORIGINS from local env/defaults",
+          "key": "compose_migrate_env_OASIS_ALLOWED_ORIGINS",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_API_BASE_URL from local env/defaults",
+          "key": "compose_migrate_env_OASIS_API_BASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_DATABASE_URL from local env/defaults",
+          "key": "compose_migrate_env_OASIS_DATABASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_EMAIL_BACKEND from local env/defaults",
+          "key": "compose_migrate_env_OASIS_EMAIL_BACKEND",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_EMAIL_FROM from local env/defaults",
+          "key": "compose_migrate_env_OASIS_EMAIL_FROM",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_PUBLIC_BASE_URL from local env/defaults",
+          "key": "compose_migrate_env_OASIS_PUBLIC_BASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_S3_BUCKET from local env/defaults",
+          "key": "compose_migrate_env_OASIS_S3_BUCKET",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_S3_ENDPOINT from local env/defaults",
+          "key": "compose_migrate_env_OASIS_S3_ENDPOINT",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_S3_REGION from local env/defaults",
+          "key": "compose_migrate_env_OASIS_S3_REGION",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_SESSION_SECRET from local env/defaults",
+          "key": "compose_migrate_env_OASIS_SESSION_SECRET",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_SMTP_HOST from local env/defaults",
+          "key": "compose_migrate_env_OASIS_SMTP_HOST",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_SMTP_PASSWORD from local env/defaults",
+          "key": "compose_migrate_env_OASIS_SMTP_PASSWORD",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_SMTP_PORT from local env/defaults",
+          "key": "compose_migrate_env_OASIS_SMTP_PORT",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_SMTP_STARTTLS from local env/defaults",
+          "key": "compose_migrate_env_OASIS_SMTP_STARTTLS",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_SMTP_USER from local env/defaults",
+          "key": "compose_migrate_env_OASIS_SMTP_USER",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_STORAGE_BACKEND from local env/defaults",
+          "key": "compose_migrate_env_OASIS_STORAGE_BACKEND",
+          "ok": true
+        },
+        {
+          "detail": "migrate receives OASIS_TRUSTED_HOSTS from local env/defaults",
+          "key": "compose_migrate_env_OASIS_TRUSTED_HOSTS",
+          "ok": true
+        },
+        {
+          "detail": "migrate requires AWS_ACCESS_KEY_ID from env with no local/default fallback",
+          "key": "compose_migrate_env_required_AWS_ACCESS_KEY_ID",
+          "ok": true
+        },
+        {
+          "detail": "migrate requires AWS_SECRET_ACCESS_KEY from env with no local/default fallback",
+          "key": "compose_migrate_env_required_AWS_SECRET_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "detail": "migrate requires OASIS_ALLOWED_ORIGINS from env with no local/default fallback",
+          "key": "compose_migrate_env_required_OASIS_ALLOWED_ORIGINS",
+          "ok": true
+        },
+        {
+          "detail": "migrate requires OASIS_API_BASE_URL from env with no local/default fallback",
+          "key": "compose_migrate_env_required_OASIS_API_BASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "migrate requires OASIS_EMAIL_FROM from env with no local/default fallback",
+          "key": "compose_migrate_env_required_OASIS_EMAIL_FROM",
+          "ok": true
+        },
+        {
+          "detail": "migrate requires OASIS_PUBLIC_BASE_URL from env with no local/default fallback",
+          "key": "compose_migrate_env_required_OASIS_PUBLIC_BASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "migrate requires OASIS_S3_BUCKET from env with no local/default fallback",
+          "key": "compose_migrate_env_required_OASIS_S3_BUCKET",
+          "ok": true
+        },
+        {
+          "detail": "migrate requires OASIS_S3_ENDPOINT from env with no local/default fallback",
+          "key": "compose_migrate_env_required_OASIS_S3_ENDPOINT",
+          "ok": true
+        },
+        {
+          "detail": "migrate requires OASIS_SESSION_SECRET from env with no local/default fallback",
+          "key": "compose_migrate_env_required_OASIS_SESSION_SECRET",
+          "ok": true
+        },
+        {
+          "detail": "migrate requires OASIS_SMTP_HOST from env with no local/default fallback",
+          "key": "compose_migrate_env_required_OASIS_SMTP_HOST",
+          "ok": true
+        },
+        {
+          "detail": "migrate requires OASIS_SMTP_PASSWORD from env with no local/default fallback",
+          "key": "compose_migrate_env_required_OASIS_SMTP_PASSWORD",
+          "ok": true
+        },
+        {
+          "detail": "migrate requires OASIS_SMTP_USER from env with no local/default fallback",
+          "key": "compose_migrate_env_required_OASIS_SMTP_USER",
+          "ok": true
+        },
+        {
+          "detail": "migrate requires OASIS_STORAGE_BACKEND from env with no local/default fallback",
+          "key": "compose_migrate_env_required_OASIS_STORAGE_BACKEND",
+          "ok": true
+        },
+        {
+          "detail": "migrate requires OASIS_TRUSTED_HOSTS from env with no local/default fallback",
+          "key": "compose_migrate_env_required_OASIS_TRUSTED_HOSTS",
+          "ok": true
+        },
+        {
+          "detail": "api receives AWS_ACCESS_KEY_ID from local env/defaults",
+          "key": "compose_api_env_AWS_ACCESS_KEY_ID",
+          "ok": true
+        },
+        {
+          "detail": "api receives AWS_SECRET_ACCESS_KEY from local env/defaults",
+          "key": "compose_api_env_AWS_SECRET_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_ALLOWED_ORIGINS from local env/defaults",
+          "key": "compose_api_env_OASIS_ALLOWED_ORIGINS",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_API_BASE_URL from local env/defaults",
+          "key": "compose_api_env_OASIS_API_BASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_DATABASE_URL from local env/defaults",
+          "key": "compose_api_env_OASIS_DATABASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_EMAIL_BACKEND from local env/defaults",
+          "key": "compose_api_env_OASIS_EMAIL_BACKEND",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_EMAIL_FROM from local env/defaults",
+          "key": "compose_api_env_OASIS_EMAIL_FROM",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_PUBLIC_BASE_URL from local env/defaults",
+          "key": "compose_api_env_OASIS_PUBLIC_BASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_S3_BUCKET from local env/defaults",
+          "key": "compose_api_env_OASIS_S3_BUCKET",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_S3_ENDPOINT from local env/defaults",
+          "key": "compose_api_env_OASIS_S3_ENDPOINT",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_S3_REGION from local env/defaults",
+          "key": "compose_api_env_OASIS_S3_REGION",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_SESSION_SECRET from local env/defaults",
+          "key": "compose_api_env_OASIS_SESSION_SECRET",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_SMTP_HOST from local env/defaults",
+          "key": "compose_api_env_OASIS_SMTP_HOST",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_SMTP_PASSWORD from local env/defaults",
+          "key": "compose_api_env_OASIS_SMTP_PASSWORD",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_SMTP_PORT from local env/defaults",
+          "key": "compose_api_env_OASIS_SMTP_PORT",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_SMTP_STARTTLS from local env/defaults",
+          "key": "compose_api_env_OASIS_SMTP_STARTTLS",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_SMTP_USER from local env/defaults",
+          "key": "compose_api_env_OASIS_SMTP_USER",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_STORAGE_BACKEND from local env/defaults",
+          "key": "compose_api_env_OASIS_STORAGE_BACKEND",
+          "ok": true
+        },
+        {
+          "detail": "api receives OASIS_TRUSTED_HOSTS from local env/defaults",
+          "key": "compose_api_env_OASIS_TRUSTED_HOSTS",
+          "ok": true
+        },
+        {
+          "detail": "api requires AWS_ACCESS_KEY_ID from env with no local/default fallback",
+          "key": "compose_api_env_required_AWS_ACCESS_KEY_ID",
+          "ok": true
+        },
+        {
+          "detail": "api requires AWS_SECRET_ACCESS_KEY from env with no local/default fallback",
+          "key": "compose_api_env_required_AWS_SECRET_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "detail": "api requires OASIS_ALLOWED_ORIGINS from env with no local/default fallback",
+          "key": "compose_api_env_required_OASIS_ALLOWED_ORIGINS",
+          "ok": true
+        },
+        {
+          "detail": "api requires OASIS_API_BASE_URL from env with no local/default fallback",
+          "key": "compose_api_env_required_OASIS_API_BASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "api requires OASIS_EMAIL_FROM from env with no local/default fallback",
+          "key": "compose_api_env_required_OASIS_EMAIL_FROM",
+          "ok": true
+        },
+        {
+          "detail": "api requires OASIS_PUBLIC_BASE_URL from env with no local/default fallback",
+          "key": "compose_api_env_required_OASIS_PUBLIC_BASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "api requires OASIS_S3_BUCKET from env with no local/default fallback",
+          "key": "compose_api_env_required_OASIS_S3_BUCKET",
+          "ok": true
+        },
+        {
+          "detail": "api requires OASIS_S3_ENDPOINT from env with no local/default fallback",
+          "key": "compose_api_env_required_OASIS_S3_ENDPOINT",
+          "ok": true
+        },
+        {
+          "detail": "api requires OASIS_SESSION_SECRET from env with no local/default fallback",
+          "key": "compose_api_env_required_OASIS_SESSION_SECRET",
+          "ok": true
+        },
+        {
+          "detail": "api requires OASIS_SMTP_HOST from env with no local/default fallback",
+          "key": "compose_api_env_required_OASIS_SMTP_HOST",
+          "ok": true
+        },
+        {
+          "detail": "api requires OASIS_SMTP_PASSWORD from env with no local/default fallback",
+          "key": "compose_api_env_required_OASIS_SMTP_PASSWORD",
+          "ok": true
+        },
+        {
+          "detail": "api requires OASIS_SMTP_USER from env with no local/default fallback",
+          "key": "compose_api_env_required_OASIS_SMTP_USER",
+          "ok": true
+        },
+        {
+          "detail": "api requires OASIS_STORAGE_BACKEND from env with no local/default fallback",
+          "key": "compose_api_env_required_OASIS_STORAGE_BACKEND",
+          "ok": true
+        },
+        {
+          "detail": "api requires OASIS_TRUSTED_HOSTS from env with no local/default fallback",
+          "key": "compose_api_env_required_OASIS_TRUSTED_HOSTS",
+          "ok": true
+        },
+        {
+          "detail": "worker receives AWS_ACCESS_KEY_ID from local env/defaults",
+          "key": "compose_worker_env_AWS_ACCESS_KEY_ID",
+          "ok": true
+        },
+        {
+          "detail": "worker receives AWS_SECRET_ACCESS_KEY from local env/defaults",
+          "key": "compose_worker_env_AWS_SECRET_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_ALLOWED_ORIGINS from local env/defaults",
+          "key": "compose_worker_env_OASIS_ALLOWED_ORIGINS",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_API_BASE_URL from local env/defaults",
+          "key": "compose_worker_env_OASIS_API_BASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_DATABASE_URL from local env/defaults",
+          "key": "compose_worker_env_OASIS_DATABASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_EMAIL_BACKEND from local env/defaults",
+          "key": "compose_worker_env_OASIS_EMAIL_BACKEND",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_EMAIL_FROM from local env/defaults",
+          "key": "compose_worker_env_OASIS_EMAIL_FROM",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_PUBLIC_BASE_URL from local env/defaults",
+          "key": "compose_worker_env_OASIS_PUBLIC_BASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_S3_BUCKET from local env/defaults",
+          "key": "compose_worker_env_OASIS_S3_BUCKET",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_S3_ENDPOINT from local env/defaults",
+          "key": "compose_worker_env_OASIS_S3_ENDPOINT",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_S3_REGION from local env/defaults",
+          "key": "compose_worker_env_OASIS_S3_REGION",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_SESSION_SECRET from local env/defaults",
+          "key": "compose_worker_env_OASIS_SESSION_SECRET",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_SMTP_HOST from local env/defaults",
+          "key": "compose_worker_env_OASIS_SMTP_HOST",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_SMTP_PASSWORD from local env/defaults",
+          "key": "compose_worker_env_OASIS_SMTP_PASSWORD",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_SMTP_PORT from local env/defaults",
+          "key": "compose_worker_env_OASIS_SMTP_PORT",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_SMTP_STARTTLS from local env/defaults",
+          "key": "compose_worker_env_OASIS_SMTP_STARTTLS",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_SMTP_USER from local env/defaults",
+          "key": "compose_worker_env_OASIS_SMTP_USER",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_STORAGE_BACKEND from local env/defaults",
+          "key": "compose_worker_env_OASIS_STORAGE_BACKEND",
+          "ok": true
+        },
+        {
+          "detail": "worker receives OASIS_TRUSTED_HOSTS from local env/defaults",
+          "key": "compose_worker_env_OASIS_TRUSTED_HOSTS",
+          "ok": true
+        },
+        {
+          "detail": "worker requires AWS_ACCESS_KEY_ID from env with no local/default fallback",
+          "key": "compose_worker_env_required_AWS_ACCESS_KEY_ID",
+          "ok": true
+        },
+        {
+          "detail": "worker requires AWS_SECRET_ACCESS_KEY from env with no local/default fallback",
+          "key": "compose_worker_env_required_AWS_SECRET_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "detail": "worker requires OASIS_ALLOWED_ORIGINS from env with no local/default fallback",
+          "key": "compose_worker_env_required_OASIS_ALLOWED_ORIGINS",
+          "ok": true
+        },
+        {
+          "detail": "worker requires OASIS_API_BASE_URL from env with no local/default fallback",
+          "key": "compose_worker_env_required_OASIS_API_BASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "worker requires OASIS_EMAIL_FROM from env with no local/default fallback",
+          "key": "compose_worker_env_required_OASIS_EMAIL_FROM",
+          "ok": true
+        },
+        {
+          "detail": "worker requires OASIS_PUBLIC_BASE_URL from env with no local/default fallback",
+          "key": "compose_worker_env_required_OASIS_PUBLIC_BASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "worker requires OASIS_S3_BUCKET from env with no local/default fallback",
+          "key": "compose_worker_env_required_OASIS_S3_BUCKET",
+          "ok": true
+        },
+        {
+          "detail": "worker requires OASIS_S3_ENDPOINT from env with no local/default fallback",
+          "key": "compose_worker_env_required_OASIS_S3_ENDPOINT",
+          "ok": true
+        },
+        {
+          "detail": "worker requires OASIS_SESSION_SECRET from env with no local/default fallback",
+          "key": "compose_worker_env_required_OASIS_SESSION_SECRET",
+          "ok": true
+        },
+        {
+          "detail": "worker requires OASIS_SMTP_HOST from env with no local/default fallback",
+          "key": "compose_worker_env_required_OASIS_SMTP_HOST",
+          "ok": true
+        },
+        {
+          "detail": "worker requires OASIS_SMTP_PASSWORD from env with no local/default fallback",
+          "key": "compose_worker_env_required_OASIS_SMTP_PASSWORD",
+          "ok": true
+        },
+        {
+          "detail": "worker requires OASIS_SMTP_USER from env with no local/default fallback",
+          "key": "compose_worker_env_required_OASIS_SMTP_USER",
+          "ok": true
+        },
+        {
+          "detail": "worker requires OASIS_STORAGE_BACKEND from env with no local/default fallback",
+          "key": "compose_worker_env_required_OASIS_STORAGE_BACKEND",
+          "ok": true
+        },
+        {
+          "detail": "worker requires OASIS_TRUSTED_HOSTS from env with no local/default fallback",
+          "key": "compose_worker_env_required_OASIS_TRUSTED_HOSTS",
+          "ok": true
+        },
+        {
+          "detail": "worker role does not serve HTTP",
+          "key": "compose_worker_not_http",
+          "ok": true
+        },
+        {
+          "detail": "Postgres uses pgdata volume",
+          "key": "compose_db_persistent_volume",
+          "ok": true
+        }
+      ],
+      "verdict": "pass"
+    },
+    "failures": [],
+    "inputs": {
+      "compose": "compose.yaml",
+      "render": "render.yaml"
+    },
+    "not_public_staging_proof": true,
+    "render": {
+      "failures": [],
+      "rows": [
+        {
+          "detail": "OASIS_SESSION_SECRET uses generateValue and no committed value",
+          "key": "render_session_secret_generated",
+          "ok": true
+        },
+        {
+          "detail": "AWS_ACCESS_KEY_ID is sync:false outside Git",
+          "key": "render_sync_false_AWS_ACCESS_KEY_ID",
+          "ok": true
+        },
+        {
+          "detail": "AWS_SECRET_ACCESS_KEY is sync:false outside Git",
+          "key": "render_sync_false_AWS_SECRET_ACCESS_KEY",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_ALLOWED_ORIGINS is sync:false outside Git",
+          "key": "render_sync_false_OASIS_ALLOWED_ORIGINS",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_API_BASE_URL is sync:false outside Git",
+          "key": "render_sync_false_OASIS_API_BASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_EMAIL_FROM is sync:false outside Git",
+          "key": "render_sync_false_OASIS_EMAIL_FROM",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_PUBLIC_BASE_URL is sync:false outside Git",
+          "key": "render_sync_false_OASIS_PUBLIC_BASE_URL",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_REGISTRATION_ALLOWED_EMAILS is sync:false outside Git",
+          "key": "render_sync_false_OASIS_REGISTRATION_ALLOWED_EMAILS",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_S3_BUCKET is sync:false outside Git",
+          "key": "render_sync_false_OASIS_S3_BUCKET",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_S3_ENDPOINT is sync:false outside Git",
+          "key": "render_sync_false_OASIS_S3_ENDPOINT",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_SMTP_HOST is sync:false outside Git",
+          "key": "render_sync_false_OASIS_SMTP_HOST",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_SMTP_PASSWORD is sync:false outside Git",
+          "key": "render_sync_false_OASIS_SMTP_PASSWORD",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_SMTP_USER is sync:false outside Git",
+          "key": "render_sync_false_OASIS_SMTP_USER",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_TRUSTED_HOSTS is sync:false outside Git",
+          "key": "render_sync_false_OASIS_TRUSTED_HOSTS",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_COOKIE_SAMESITE=lax",
+          "key": "render_value_OASIS_COOKIE_SAMESITE",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_COOKIE_SECURE=true",
+          "key": "render_value_OASIS_COOKIE_SECURE",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_EMAIL_BACKEND=smtp",
+          "key": "render_value_OASIS_EMAIL_BACKEND",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_ENV=staging",
+          "key": "render_value_OASIS_ENV",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_FEATURE_LOGOS=false",
+          "key": "render_value_OASIS_FEATURE_LOGOS",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_FEATURE_PRICES=false",
+          "key": "render_value_OASIS_FEATURE_PRICES",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_FEATURE_SATELLITE=false",
+          "key": "render_value_OASIS_FEATURE_SATELLITE",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_LOG_JSON=true",
+          "key": "render_value_OASIS_LOG_JSON",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_MODE=staging",
+          "key": "render_value_OASIS_MODE",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_S3_REGION=auto",
+          "key": "render_value_OASIS_S3_REGION",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_SMTP_PORT=587",
+          "key": "render_value_OASIS_SMTP_PORT",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_SMTP_STARTTLS=true",
+          "key": "render_value_OASIS_SMTP_STARTTLS",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_STORAGE_BACKEND=s3",
+          "key": "render_value_OASIS_STORAGE_BACKEND",
+          "ok": true
+        },
+        {
+          "detail": "OASIS_TRUST_PROXY=true",
+          "key": "render_value_OASIS_TRUST_PROXY",
+          "ok": true
+        },
+        {
+          "detail": "oasis-postgres-staging database exists",
+          "key": "render_postgres_exists",
+          "ok": true
+        },
+        {
+          "detail": "managed Postgres has no public IP allow list",
+          "key": "render_postgres_ip_allowlist_empty",
+          "ok": true
+        },
+        {
+          "detail": "API predeploy runs migration check",
+          "key": "render_api_predeploy_migration_check",
+          "ok": true
+        },
+        {
+          "detail": "worker uses same image with worker command",
+          "key": "render_worker_is_worker",
+          "ok": true
+        },
+        {
+          "detail": "api OASIS_DATABASE_URL comes from managed Postgres",
+          "key": "render_api_OASIS_DATABASE_URL_from_postgres",
+          "ok": true
+        },
+        {
+          "detail": "api DATABASE_URL comes from managed Postgres",
+          "key": "render_api_DATABASE_URL_from_postgres",
+          "ok": true
+        },
+        {
+          "detail": "worker OASIS_DATABASE_URL comes from managed Postgres",
+          "key": "render_worker_OASIS_DATABASE_URL_from_postgres",
+          "ok": true
+        },
+        {
+          "detail": "worker DATABASE_URL comes from managed Postgres",
+          "key": "render_worker_DATABASE_URL_from_postgres",
+          "ok": true
+        }
+      ],
+      "verdict": "pass"
+    },
+    "verdict": "pass"
+  },
+  "safe_next_commands_after_ready": [
+    "python3 scripts/public_staging_config_contract.py",
+    "gh workflow run Deploy --ref main -f target=staging",
+    "python3 scripts/public_staging_preflight.py --base-url=\"$STAGING_URL\" --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET",
+    "python3 scripts/public_staging_gate_audit.py"
+  ],
+  "staging_url": {
+    "hostname_present": false,
+    "https": false,
+    "non_local_hostname": false,
+    "present": false,
+    "public_https": false,
+    "reserved_documentation_hostname": false
+  },
+  "verdict": "not_ready"
+}

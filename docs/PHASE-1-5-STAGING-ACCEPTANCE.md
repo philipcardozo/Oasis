@@ -1,10 +1,240 @@
 # OASIS Phase 1.5 Staging Acceptance
 
-Date: 2026-07-23
+Date: 2026-07-30
 
 Verdict: NOT APPROVED
 
-This report records the Phase 1.5 private-beta gate evidence gathered locally. OASIS is not yet approved for controlled private beta because the Docker Compose, PostgreSQL staging, reverse-proxy authentication, backup/restore, worker-isolation, security-boundary, observability, failure-recovery, and deployed performance gates still require a Docker-capable staging host and production-style secrets.
+This report records the Phase 1.5 private-beta gate evidence gathered locally.
+OASIS is not yet approved for controlled private beta because a public deployed
+staging URL and production-style deploy evidence are still pending.
+
+## 2026-07-30 Public Staging Readiness Check
+
+The accepted public staging architecture remains:
+
+```text
+Cloudflare DNS/TLS/WAF/Access
+Render web service: oasis-api-staging
+Render worker service: oasis-worker-staging
+Render PostgreSQL: oasis-postgres-staging
+Cloudflare R2 private object storage
+GitHub Actions Deploy workflow -> GHCR immutable image -> Render API/worker
+```
+
+The public staging gate audit was run locally:
+
+```text
+python3 scripts/public_staging_gate_audit.py
+verdict: NOT APPROVED
+```
+
+Readiness and operator-guidance evidence:
+
+```text
+python3 scripts/public_staging_setup_checklist.py
+python3 scripts/public_staging_browser_matrix_template.py --base-url="$STAGING_URL"
+python3 scripts/public_staging_config_contract.py
+python3 scripts/public_staging_playwright_report.py --base-url="$STAGING_URL" --dry-run
+python3 scripts/public_staging_full_verification.py --base-url="$STAGING_URL" --dry-run
+python3 scripts/public_staging_readiness.py --allow-not-ready
+python3 scripts/public_staging_smoke.py --base-url="$STAGING_URL" --dry-run
+docs/evidence/public-staging/public-staging-setup-checklist.md
+docs/evidence/public-staging/public-staging-setup-checklist.json
+docs/evidence/public-staging/browser-matrix.template.json
+docs/evidence/public-staging/browser-matrix-template.md
+docs/evidence/public-staging/public-staging-config-contract.json
+docs/evidence/public-staging/public-playwright-summary.json
+docs/evidence/public-staging/22-public-playwright.md
+docs/evidence/public-staging/public-staging-full-verification-plan.md
+docs/evidence/public-staging/public-staging-full-verification-run.json
+docs/evidence/public-staging/public-staging-readiness-status.json
+docs/evidence/public-staging/public-staging-smoke-run.json
+docs/evidence/public-staging/99-public-staging-gate-audit.json
+docs/evidence/public-staging/99-public-staging-gate-audit.md
+```
+
+Current blockers to an actual public deployment from this machine:
+
+```text
+STAGING_URL: missing
+Cloudflare API/account/zone credentials: missing
+Render API key and API/worker service IDs: missing
+Public auth/map-slot tester emails, passwords, and reset password: missing
+GitHub staging secrets: missing
+GitHub STAGING_URL environment variable: missing
+GitHub staging environment protection rules: required reviewer and branch policy present
+GitHub staging branch policy: main
+Chrome, Firefox, and Safari apps: present
+```
+
+Latest local public-staging gate hardening run:
+
+```text
+python3 -m pytest -q test_public_staging_*.py
+247 passed
+
+python3 scripts/public_staging_gate_audit.py
+verdict: NOT APPROVED
+requirements: 22
+missing: 19
+weak: 3
+
+python3 scripts/public_staging_readiness.py --allow-not-ready
+verdict: not_ready
+```
+
+The config contract now also rejects Compose public-staging env references that
+fall back to local/default values for public/API base URLs, origins, trusted
+hosts, SMTP identity/secrets, storage backend, and R2/S3 credentials. Those
+values must be supplied outside Git for API, worker, and migration roles.
+
+The GitHub Actions Deploy workflow now installs the minimal deploy-gate
+dependency, runs `python3 scripts/public_staging_config_contract.py`, then runs
+`python3 scripts/public_staging_readiness.py --mode=github-actions` immediately
+after checkout. With the current GitHub environment state, those gates would
+stop before application dependency install, image build, or Render deploy
+because the deployed URL, Render secrets, and Cloudflare Access secrets are not
+injected. The GitHub staging environment itself is now protected and restricted
+to the `main` deployment branch.
+
+Firefox 153.0.1 was installed with Homebrew so the requested manual
+Chrome/Firefox/Safari browser matrix can be performed once `STAGING_URL` exists.
+The browser/map gate now rejects local, reserved documentation, or mismatched
+matrix/HAR base URLs, and Edge/Brave is optional rather than a required browser
+for this approval.
+The strict public audit also rejects local loopback base URLs in preflight, full
+verification, public Playwright, auth/email, email delivery, rate-limit, storage,
+performance, and failure-exercise evidence.
+The public performance report generator now applies the same rule before
+issuing a pass verdict: Proxyman, direct, supplemental, preflight, auth/map-slot,
+and route-family performance inputs must all point at the same non-local HTTPS
+staging URL when those inputs include a base URL, and reserved documentation
+hostnames are rejected.
+The route-security report and final audit now independently require route probe,
+preflight, and auth/security evidence to share that same real non-local HTTPS
+staging URL as well; reserved documentation hostnames fail this gate.
+The public auth/map-slot probe itself now rejects non-HTTPS, local loopback, or
+reserved documentation base URLs before issuing registration, email
+verification, cookie, map-slot, password-reset, or account-lifecycle calls.
+The generated auth/email report and final audit independently reject missing,
+local, non-HTTPS, or reserved documentation auth base URLs before accepting
+email verification, reset, and secure-cookie evidence.
+The public preflight script now rejects non-HTTPS or local loopback base URLs
+before DNS, TLS, redirect, health, readiness, version, or header probes run.
+It also rejects reserved documentation hostnames such as `staging.example.com`,
+`staging.example.net`, `.test`, and `.invalid`; these are placeholders only and
+cannot prove a public staging deployment.
+The full verification and smoke orchestration wrappers now reject explicit
+non-HTTPS, local loopback, or reserved documentation staging URLs before they
+write command plans or dispatch public evidence commands.
+The public Playwright wrapper now rejects explicit non-HTTPS or local loopback
+base URLs before launching browser tests or parsing a real JSON report.
+
+The setup checklist, browser matrix template, config contract, public
+Playwright dry-run, and full verification dry-run plan are secret-free operator
+guidance/config evidence and are not counted as live public URL proof by the
+public staging audit. The filled `browser-matrix.json`, real public Playwright
+run, and real public verification run are still missing because the public URL
+does not exist yet.
+
+The audit currently marks 22 public-staging requirement groups as unproven:
+19 are missing; provider readiness is weak because external staging inputs are
+not configured; the full verification run is weak because only dry-run evidence
+exists; and public Playwright is weak because only dry-run evidence exists.
+Missing groups include public DNS, public TLS, secret management, managed
+PostgreSQL, persistent storage, reverse-proxy behavior, email delivery,
+API/worker separation, attack-surface controls, rate limiting, browser
+compatibility, deployment automation, rollback, failure exercises,
+backup/restore, monitoring/alerting, private-beta access control, public
+performance measurements, licensing gates, and public API restart persistence
+within the ops/failure evidence.
+
+Do not change the verdict to `APPROVED FOR CONTROLLED PRIVATE BETA` until
+`docs/evidence/public-staging/99-public-staging-gate-audit.json` returns an
+approved verdict after the real public URL and provider evidence are present.
+
+## 2026-07-30 Compose And Proxyman Refresh
+
+Docker and Compose are available on this machine:
+
+```text
+Docker version 29.6.2, build dfc4efb
+Docker Compose version v5.3.1
+```
+
+The compose staging stack was rebuilt and started with:
+
+```text
+docker compose --env-file .env.staging.local up --build -d
+```
+
+Verified through `https://localhost:8443`:
+
+```text
+branch: phase1.75/public-staging
+commit: 788dc9b22bb932a6ff035d567cb67622650d4b40
+services: db healthy, api healthy, migrate exited 0, worker up, proxy up
+published port: 0.0.0.0:8443->8443/tcp
+migration: 29995ef61d8e
+healthz: 200
+readyz: 200
+version: 200 {"version":"dev","commit":"unknown"}
+```
+
+Proxyman was verified with MCP:
+
+```text
+Proxyman: 6.12.0 build 61200
+recording: active
+system proxy: enabled on port 9090
+SSL proxying: enabled
+SSL include: localhost:8443
+proxied healthz: 200
+```
+
+Fresh performance evidence:
+
+```text
+headed browser capture: 2026-07-30T05:20:54.739Z via http://localhost:9090
+first paint: 10 requests, 0 failures, 353 KB, no /api/universe/bulk, no unpkg.com
+warm reload: 20 requests, 0.6 KB, startup JSON revalidated with 300-byte 304 transfers
+route-family direct probe: pass, 46 measurements, 0 failures
+route-family Proxyman probe: pass, 46 measurements, 0 failures
+map gate: pass, vendored MapLibre, no unpkg.com, 0 unexpected request/console failures
+auth/map slots: pass, SMTP verification, login, CSRF/session secure cookies, stale 409, cross-user 404, reset, API restart persistence
+default map slots: 1, 2, 3
+```
+
+Verification:
+
+```text
+python3 -m pytest -q
+274 passed, 1 skipped, 1 warning
+
+npx playwright test --config=/tmp/oasis-playwright-compose.config.js
+15 passed against https://localhost:8443
+
+npx playwright test
+15 passed against the default local target
+```
+
+Current evidence:
+
+```text
+docs/PERFORMANCE-EVIDENCE.md
+docs/PROXYMAN-COMPOSE-CAPTURE.md
+docs/evidence/performance/15-staging-capture-status.json
+docs/evidence/performance/15-compose-browser-har-summary.json
+docs/evidence/performance/19-compose-auth-map-slots.json
+docs/evidence/performance/20-compose-route-family-probe.json
+docs/evidence/performance/21-compose-route-family-proxyman-probe.json
+docs/evidence/performance/24-compose-map-gate.json
+docs/evidence/performance/16-performance-coverage-audit.md
+```
+
+This update replaces the earlier "Docker unavailable" blocker for local Compose
+evidence. The final private-beta verdict remains `NOT APPROVED` because the
+public deployment and deployed-staging evidence gates are still missing.
 
 ## 2026-07-23 Compose Update
 

@@ -24,6 +24,9 @@ import requests
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs" / "evidence" / "performance"
+LOCAL_PUBLIC_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
+RESERVED_PUBLIC_HOSTS = {"example.com", "example.net", "example.org"}
+RESERVED_PUBLIC_SUFFIXES = (".example.com", ".example.net", ".example.org", ".invalid", ".test")
 
 
 @dataclass(frozen=True)
@@ -84,6 +87,19 @@ def email_domain(email: str) -> str:
 def safe_base_url(url: str) -> str:
     parsed = urlparse(url)
     return parsed._replace(query="<redacted>" if parsed.query else "").geturl().rstrip("/")
+
+
+def public_base_url_failures(url: str) -> list[str]:
+    parsed = urlparse(url)
+    failures: list[str] = []
+    if parsed.scheme != "https":
+        failures.append("base URL is not HTTPS")
+    hostname = (parsed.hostname or "").lower()
+    if hostname in LOCAL_PUBLIC_HOSTS or hostname.endswith(".local"):
+        failures.append("base URL is not public")
+    if hostname in RESERVED_PUBLIC_HOSTS or hostname.endswith(RESERVED_PUBLIC_SUFFIXES):
+        failures.append("base URL is a reserved documentation hostname")
+    return failures
 
 
 def timed(call: Callable[[], requests.Response]) -> tuple[float, requests.Response]:
@@ -624,6 +640,9 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
     if not args.base_url:
         raise SystemExit("provide --base-url or STAGING_URL")
     base_url = args.base_url.rstrip("/")
+    target_failures = public_base_url_failures(base_url)
+    if target_failures:
+        raise SystemExit("; ".join(target_failures))
     headers, header_names = env_headers(args.header)
     user_a = TestUser("user_a", args.user_a_email_env, args.user_a_password_env, args.user_a_verification_token_env)
     user_b = TestUser("user_b", args.user_b_email_env, args.user_b_password_env, args.user_b_verification_token_env)

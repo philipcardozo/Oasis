@@ -378,8 +378,20 @@ window.addEventListener("beforeunload",saveViewNow);
 syncThemeButton();
 applyProductPrefs();
 
-fetch("data/universe_core.json").then(r=>r.json()).then(init).catch(()=>{ document.getElementById("loading").textContent="Could not load data/universe_core.json — run expand_us.py and serve this folder."; });
-fetch("/api/bootstrap/signals").then(r=>r.ok?r.json():{}).then(d=>{ if(d.aliases) assignALIASES(d.aliases||{}); if(d.hq_coords){ Object.assign(HQ_CITY_COORDS,d.hq_coords||{}); COMPANIES.forEach(c=>delete c._loc); updateDataHealth(); } if(Number.isFinite(Number(d.location_unknown_count))) globe.unknownCount=Number(d.location_unknown_count); if(d.news){ assignNEWS(d.news); updateFresh(); if(selected) select(selected); } assignEDGE_CANDIDATES(d.edge_candidates||[]); if(selected) select(selected); if(mode==="globe") drawGlobe(); }).catch(()=>{});
+async function cachedJson(url,key){
+  const cached=sessionStorage.getItem(key);
+  const etag=sessionStorage.getItem(`${key}:etag`);
+  const res=await fetch(url,{cache:"no-cache",headers:etag?{"If-None-Match":etag}:{}});
+  if(res.status===304&&cached) return JSON.parse(cached);
+  if(!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  const text=await res.text();
+  sessionStorage.setItem(key,text);
+  const nextEtag=res.headers.get("etag");
+  if(nextEtag) sessionStorage.setItem(`${key}:etag`,nextEtag);
+  return JSON.parse(text);
+}
+cachedJson("data/universe_core.json","oasis.cache.universeCore.v1").then(init).catch(()=>{ document.getElementById("loading").textContent="Could not load data/universe_core.json — run expand_us.py and serve this folder."; });
+cachedJson("/api/bootstrap/signals","oasis.cache.bootstrapSignals.v1").then(d=>{ if(d.aliases) assignALIASES(d.aliases||{}); if(d.hq_coords){ Object.assign(HQ_CITY_COORDS,d.hq_coords||{}); COMPANIES.forEach(c=>delete c._loc); updateDataHealth(); } if(Number.isFinite(Number(d.location_unknown_count))) globe.unknownCount=Number(d.location_unknown_count); if(d.news){ assignNEWS(d.news); updateFresh(); if(selected) select(selected); } assignEDGE_CANDIDATES(d.edge_candidates||[]); if(selected) select(selected); if(mode==="globe") drawGlobe(); }).catch(()=>{});
 let deferMapWarmupUntil=0;
 
 function initNode(c){

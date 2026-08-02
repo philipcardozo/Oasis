@@ -13,12 +13,22 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
 WORKFLOW = ROOT / ".github" / "workflows" / "deploy.yml"
 DIGEST_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
+FULL_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
+LOCAL_PUBLIC_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
+RESERVED_PUBLIC_HOSTS = {"example.com", "example.net", "example.org"}
+RESERVED_PUBLIC_SUFFIXES = (".example.com", ".example.net", ".example.org", ".invalid", ".test")
+TEMPLATE_RUN_VALUES = {
+    "captured_at": "2026-07-25T00:00:00Z",
+    "run_id": "123456789",
+    "commit": "abcdef123456",
+}
 
 
 WORKFLOW_CHECKS = {
@@ -41,6 +51,10 @@ WORKFLOW_CHECKS = {
     "permissions_minimal_for_release": (
         "release permissions cover packages, OIDC, and attestations",
         ("contents: read", "packages: write", "id-token: write", "attestations: write"),
+    ),
+    "config_contract": (
+        "public staging config contract runs before deployment",
+        ("Validate public staging config contract", "scripts/public_staging_config_contract.py"),
     ),
     "migration_validation": (
         "migration validation runs before deployment",
@@ -81,6 +95,11 @@ WORKFLOW_CHECKS = {
 
 RUN_CHECKS = {
     "run_captured": "workflow run evidence was captured",
+    "run_identity_real": "workflow run identity is not the template scaffold",
+    "run_id_numeric": "workflow run ID is numeric",
+    "run_attempt_numeric": "workflow run attempt is numeric",
+    "run_commit_full_sha": "workflow run commit is a full 40-character SHA",
+    "run_branch_main": "workflow ran from the main branch",
     "run_success": "workflow run concluded successfully",
     "environment_staging": "workflow ran in the staging environment",
     "protected_environment": "GitHub staging environment protection is enabled",
@@ -89,6 +108,7 @@ RUN_CHECKS = {
     "no_production_deploy": "run did not deploy production",
     "concurrency_observed": "deployment concurrency was observed or configured for the run",
     "artifact_uploaded": "public staging evidence artifact was uploaded",
+    "config_contract": "Validate public staging config contract step succeeded",
     "install_dependencies": "Install dependencies step succeeded",
     "validate_migrations": "Validate migrations step succeeded",
     "python_tests": "Python tests step succeeded",
@@ -102,6 +122,7 @@ RUN_CHECKS = {
 }
 
 STEP_NAMES = {
+    "config_contract": "Validate public staging config contract",
     "install_dependencies": "Install dependencies",
     "validate_migrations": "Validate migrations",
     "python_tests": "Python tests",
@@ -118,8 +139,10 @@ ARTIFACT_CHECKS = {
     "image_manifest_pass": "image manifest verdict is pass",
     "render_deploy_pass": "Render deploy verdict is pass",
     "preflight_pass": "public preflight verdict is pass",
+    "public_preflight_target": "public preflight target is non-local HTTPS",
     "workflow_run_matches_manifest": "workflow run identity matches the image manifest",
     "commit_consistent": "run, image manifest, deploy, and preflight commits agree",
+    "commit_full_sha": "run, image manifest, deploy, and preflight use full 40-character SHAs",
     "image_digest_pinned": "image is digest pinned",
     "render_image_matches_manifest": "Render deploy image matches the image manifest",
     "api_worker_deployed": "Render deployments include exactly API and worker",
@@ -165,6 +188,24 @@ def endpoint_text(preflight: dict[str, Any] | None, path: str) -> str:
     return str(result.get("body_text") or "")
 
 
+def public_base_url_failures(preflight: dict[str, Any] | None) -> list[str]:
+    preflight = preflight or {}
+    base_url = str(preflight.get("base_url") or "")
+    parsed = urlparse(base_url)
+    host = (parsed.hostname or "").lower()
+    recorded = str((preflight.get("url") or {}).get("hostname") or "").lower()
+    failures: list[str] = []
+    if parsed.scheme != "https":
+        failures.append("public preflight base URL is not HTTPS")
+    if not host or host in LOCAL_PUBLIC_HOSTS or host.endswith(".local"):
+        failures.append("public preflight base URL is not a non-local public hostname")
+    if host in RESERVED_PUBLIC_HOSTS or host.endswith(RESERVED_PUBLIC_SUFFIXES):
+        failures.append("public preflight base URL is a reserved documentation hostname")
+    if recorded and host and recorded != host:
+        failures.append("public preflight parsed hostname does not match base URL hostname")
+    return failures
+
+
 def render_roles(render_deploy: dict[str, Any] | None) -> list[str]:
     if not render_deploy:
         return []
@@ -185,8 +226,23 @@ def workflow_rows(text: str) -> list[dict[str, Any]]:
 
 def run_rows(run: dict[str, Any] | None) -> list[dict[str, Any]]:
     run = run or {}
+    run_id = str(run.get("run_id") or "")
+    run_attempt = str(run.get("run_attempt") or "")
+    run_commit = str(run.get("commit") or "")
+    captured_at = str(run.get("captured_at") or "")
     rows = [
-        check_row("run_captured", RUN_CHECKS["run_captured"], bool(run.get("captured_at") and run.get("run_id"))),
+        check_row("run_captured", RUN_CHECKS["run_captured"], bool(captured_at and run_id)),
+        check_row(
+            "run_identity_real",
+            RUN_CHECKS["run_identity_real"],
+            captured_at != TEMPLATE_RUN_VALUES["captured_at"]
+            and run_id != TEMPLATE_RUN_VALUES["run_id"]
+            and run_commit != TEMPLATE_RUN_VALUES["commit"],
+        ),
+        check_row("run_id_numeric", RUN_CHECKS["run_id_numeric"], run_id.isdigit() and int(run_id or 0) > 0),
+        check_row("run_attempt_numeric", RUN_CHECKS["run_attempt_numeric"], run_attempt.isdigit() and int(run_attempt or 0) > 0),
+        check_row("run_commit_full_sha", RUN_CHECKS["run_commit_full_sha"], FULL_SHA_RE.match(run_commit) is not None),
+        check_row("run_branch_main", RUN_CHECKS["run_branch_main"], run.get("branch") == "main"),
         check_row("run_success", RUN_CHECKS["run_success"], status_ok(run.get("conclusion"))),
         check_row("environment_staging", RUN_CHECKS["environment_staging"], run.get("environment") == "staging"),
         check_row("protected_environment", RUN_CHECKS["protected_environment"], run.get("protected_environment") is True),
@@ -219,11 +275,13 @@ def artifact_rows(
     run_commit = str(run.get("commit") or "")
     render_commit = str(render_deploy.get("commit") or manifest_commit)
     preflight_commit = str(preflight.get("commit") or manifest_commit)
+    commits = (manifest_commit, run_commit, render_commit, preflight_commit)
 
     rows = [
         check_row("image_manifest_pass", ARTIFACT_CHECKS["image_manifest_pass"], image_manifest.get("verdict") == "pass"),
         check_row("render_deploy_pass", ARTIFACT_CHECKS["render_deploy_pass"], render_deploy.get("verdict") == "pass"),
         check_row("preflight_pass", ARTIFACT_CHECKS["preflight_pass"], preflight.get("verdict") == "pass"),
+        check_row("public_preflight_target", ARTIFACT_CHECKS["public_preflight_target"], not public_base_url_failures(preflight)),
         check_row(
             "workflow_run_matches_manifest",
             ARTIFACT_CHECKS["workflow_run_matches_manifest"],
@@ -239,6 +297,7 @@ def artifact_rows(
             and manifest_commit == render_commit
             and manifest_commit == preflight_commit,
         ),
+        check_row("commit_full_sha", ARTIFACT_CHECKS["commit_full_sha"], all(FULL_SHA_RE.match(commit) is not None for commit in commits)),
         check_row("image_digest_pinned", ARTIFACT_CHECKS["image_digest_pinned"], "@" in image and DIGEST_RE.match(digest) is not None and image.endswith(f"@{digest}")),
         check_row("render_image_matches_manifest", ARTIFACT_CHECKS["render_image_matches_manifest"], render_deploy.get("image_url") == image),
         check_row("api_worker_deployed", ARTIFACT_CHECKS["api_worker_deployed"], render_roles(render_deploy) == ["api", "worker"]),

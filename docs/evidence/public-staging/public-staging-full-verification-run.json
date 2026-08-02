@@ -1,0 +1,299 @@
+{
+  "base_url": "https://staging.example.com",
+  "branch": "phase1.75/public-staging",
+  "captured_at": "2026-07-30T07:49:07Z",
+  "commit": "788dc9b22bb932a6ff035d567cb67622650d4b40",
+  "dry_run": true,
+  "failures": [],
+  "not_public_staging_proof": true,
+  "proxy_server": "http://127.0.0.1:9090",
+  "results": [],
+  "samples": 3,
+  "steps": [
+    {
+      "command": "python3 scripts/public_staging_setup_checklist.py",
+      "key": "setup_checklist",
+      "label": "Generate secret-free setup checklist",
+      "manual_input": false,
+      "produces": [
+        "docs/evidence/public-staging/public-staging-setup-checklist.md",
+        "docs/evidence/public-staging/public-staging-setup-checklist.json"
+      ],
+      "requires": []
+    },
+    {
+      "command": "python3 scripts/public_staging_browser_matrix_template.py --base-url=https://staging.example.com",
+      "key": "browser_matrix_template",
+      "label": "Generate manual browser matrix template",
+      "manual_input": true,
+      "produces": [
+        "docs/evidence/public-staging/browser-matrix.template.json",
+        "docs/evidence/public-staging/browser-matrix-template.md"
+      ],
+      "requires": []
+    },
+    {
+      "command": "python3 scripts/public_staging_config_contract.py",
+      "key": "config_contract",
+      "label": "Validate Render and Compose production-style staging value contract",
+      "manual_input": false,
+      "produces": [
+        "docs/evidence/public-staging/public-staging-config-contract.json"
+      ],
+      "requires": [
+        "render.yaml",
+        "compose.yaml"
+      ]
+    },
+    {
+      "command": "python3 scripts/public_staging_readiness.py",
+      "key": "readiness",
+      "label": "Verify external staging prerequisites are present",
+      "manual_input": false,
+      "produces": [
+        "docs/evidence/public-staging/public-staging-readiness-status.json"
+      ],
+      "requires": [
+        "GitHub staging env vars/secrets",
+        "Render service IDs",
+        "Cloudflare/Access credentials",
+        "tester emails"
+      ]
+    },
+    {
+      "command": "python3 scripts/public_staging_preflight.py --base-url=https://staging.example.com --header=CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header=CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET",
+      "key": "preflight",
+      "label": "Check public DNS, TLS, headers, health, readiness, version",
+      "manual_input": false,
+      "produces": [
+        "docs/evidence/public-staging/00-public-staging-preflight.json"
+      ],
+      "requires": [
+        "STAGING_URL",
+        "Cloudflare Access service-token env vars"
+      ]
+    },
+    {
+      "command": "python3 scripts/compose_route_family_probe.py --base-url=https://staging.example.com --samples=3 --output-file=25-public-route-family-probe.json --verify-tls --header=CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header=CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET --proxy-server=http://127.0.0.1:9090",
+      "key": "route_family_probe",
+      "label": "Probe public route families through the staging edge",
+      "manual_input": false,
+      "produces": [
+        "docs/evidence/performance/25-public-route-family-probe.json"
+      ],
+      "requires": [
+        "public URL reachable",
+        "Cloudflare Access service-token env vars"
+      ]
+    },
+    {
+      "command": "python3 scripts/public_staging_auth_map_slots_probe.py --base-url=https://staging.example.com --samples=3 --enforce-app-targets '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/27-public-auth-map-slots.json' --header=CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header=CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET --proxy-server=http://127.0.0.1:9090",
+      "key": "auth_map_slots_probe",
+      "label": "Exercise registration, verification, login, cookies, slots, CSRF, stale 409, cross-user denial, reset",
+      "manual_input": false,
+      "produces": [
+        "docs/evidence/performance/27-public-auth-map-slots.json"
+      ],
+      "requires": [
+        "tester emails/passwords and verification/reset tokens in local env"
+      ]
+    },
+    {
+      "command": "python3 scripts/public_staging_auth_email_report.py '--auth-map-slots=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/27-public-auth-map-slots.json' '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/06-auth-email.md' '--summary-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/auth-email-summary.json'",
+      "key": "auth_email_report",
+      "label": "Generate authentication/email evidence report",
+      "manual_input": false,
+      "produces": [
+        "docs/evidence/public-staging/06-auth-email.md",
+        "docs/evidence/public-staging/auth-email-summary.json"
+      ],
+      "requires": [
+        "docs/evidence/performance/27-public-auth-map-slots.json"
+      ]
+    },
+    {
+      "command": "python3 scripts/public_staging_route_security_report.py '--route-probe=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/25-public-route-family-probe.json' '--preflight=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/00-public-staging-preflight.json' '--auth-security=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/27-public-auth-map-slots.json' '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/09-route-security.md' '--summary-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/route-security-summary.json'",
+      "key": "route_security_report",
+      "label": "Generate route security and security-header report",
+      "manual_input": false,
+      "produces": [
+        "docs/evidence/public-staging/09-route-security.md",
+        "docs/evidence/public-staging/route-security-summary.json"
+      ],
+      "requires": [
+        "docs/evidence/performance/25-public-route-family-probe.json",
+        "docs/evidence/public-staging/00-public-staging-preflight.json",
+        "docs/evidence/performance/27-public-auth-map-slots.json"
+      ]
+    },
+    {
+      "command": "python3 scripts/public_staging_playwright_report.py --base-url=https://staging.example.com '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/public-playwright-summary.json' '--markdown-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/22-public-playwright.md'",
+      "key": "public_playwright",
+      "label": "Run Playwright tests against the public staging URL with Chromium, Firefox, and WebKit",
+      "manual_input": false,
+      "produces": [
+        "docs/evidence/public-staging/public-playwright-summary.json",
+        "docs/evidence/public-staging/22-public-playwright.md"
+      ],
+      "requires": [
+        "public URL reachable",
+        "Cloudflare Access service-token env vars"
+      ]
+    },
+    {
+      "command": "node scripts/browser_performance_capture.js --base-url=https://staging.example.com --no-start-server=true --proxy-server=http://127.0.0.1:9090 --flow-prefix=26-public-staging --summary-file=26-public-staging-browser-har-summary.json",
+      "key": "proxyman_browser_capture",
+      "label": "Capture Chrome public flows through Proxyman",
+      "manual_input": false,
+      "produces": [
+        "docs/evidence/performance/26-public-staging-browser-har-summary.json"
+      ],
+      "requires": [
+        "Proxyman running",
+        "SSL proxying enabled for staging and map hosts",
+        "browser can pass Access"
+      ]
+    },
+    {
+      "command": "node scripts/browser_performance_capture.js --base-url=https://staging.example.com --no-start-server=true --flow-prefix=26-public-staging-direct --summary-file=26-public-staging-direct-browser-har-summary.json",
+      "key": "direct_browser_capture",
+      "label": "Capture direct Chrome comparison without Proxyman",
+      "manual_input": false,
+      "produces": [
+        "docs/evidence/performance/26-public-staging-direct-browser-har-summary.json"
+      ],
+      "requires": [
+        "public URL reachable without local proxy"
+      ]
+    },
+    {
+      "command": "python3 scripts/public_staging_browser_reports.py '--browser-matrix=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/browser-matrix.json' '--browser-summary=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/26-public-staging-browser-har-summary.json' '--browser-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/07-browser-matrix.md' '--map-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/08-map-provider-capture.md' '--summary-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/browser-map-summary.json'",
+      "key": "browser_reports",
+      "label": "Generate browser matrix and map-provider reports",
+      "manual_input": true,
+      "produces": [
+        "docs/evidence/public-staging/07-browser-matrix.md",
+        "docs/evidence/public-staging/08-map-provider-capture.md",
+        "docs/evidence/public-staging/browser-map-summary.json"
+      ],
+      "requires": [
+        "filled docs/evidence/public-staging/browser-matrix.json",
+        "docs/evidence/performance/26-public-staging-browser-har-summary.json"
+      ]
+    },
+    {
+      "command": "python3 scripts/public_staging_performance_report.py '--browser-summary=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/26-public-staging-browser-har-summary.json' '--direct-summary=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/26-public-staging-direct-browser-har-summary.json' '--auth-map-slot=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/27-public-auth-map-slots.json' '--route-probe=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/25-public-route-family-probe.json' '--supplemental=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/performance-supplemental.json' '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/15-performance.md' '--summary-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/performance-evidence-summary.json'",
+      "key": "performance_report",
+      "label": "Generate public performance evidence report",
+      "manual_input": true,
+      "produces": [
+        "docs/evidence/public-staging/15-performance.md",
+        "docs/evidence/public-staging/performance-evidence-summary.json"
+      ],
+      "requires": [
+        "filled performance-supplemental.json",
+        "Proxyman and direct HAR summaries"
+      ]
+    },
+    {
+      "command": "python3 scripts/public_staging_infra_reports.py '--input=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/infra-evidence.json' '--preflight=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/00-public-staging-preflight.json' '--render-deploy=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/02-render-deploy.json' '--image-manifest=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/01-image-manifest.json' '--output-dir=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging' '--summary-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/infra-evidence-summary.json'",
+      "key": "infra_reports",
+      "label": "Generate DNS/TLS/Access/Render/migration reports",
+      "manual_input": true,
+      "produces": [
+        "docs/evidence/public-staging/02-dns-tls-edge.md",
+        "docs/evidence/public-staging/03-cloudflare-access.md",
+        "docs/evidence/public-staging/04-render-services.md",
+        "docs/evidence/public-staging/05-migration-version.md",
+        "docs/evidence/public-staging/infra-evidence-summary.json"
+      ],
+      "requires": [
+        "filled infra-evidence.json",
+        "Render deploy and image manifest evidence"
+      ]
+    },
+    {
+      "command": "python3 scripts/public_staging_ops_reports.py '--input=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/ops-evidence.json' '--output-dir=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging' '--summary-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/ops-evidence-summary.json'",
+      "key": "ops_reports",
+      "label": "Generate backup/restore, rollback, worker, and observability reports",
+      "manual_input": true,
+      "produces": [
+        "docs/evidence/public-staging/10-worker-jobs.md",
+        "docs/evidence/public-staging/12-backup-restore.md",
+        "docs/evidence/public-staging/13-failure-rollback.md",
+        "docs/evidence/public-staging/14-observability-alerts.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json"
+      ],
+      "requires": [
+        "filled ops-evidence.json from provider drills"
+      ]
+    },
+    {
+      "command": "python3 scripts/public_staging_email_delivery_report.py '--input=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/email-delivery-evidence.json' '--auth-email-summary=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/auth-email-summary.json' '--infra-summary=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/infra-evidence-summary.json' '--ops-summary=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/ops-evidence-summary.json' '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/20-email-delivery.md' '--summary-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/email-delivery-summary.json'",
+      "key": "email_delivery_report",
+      "label": "Generate transactional email delivery report",
+      "manual_input": true,
+      "produces": [
+        "docs/evidence/public-staging/20-email-delivery.md",
+        "docs/evidence/public-staging/email-delivery-summary.json"
+      ],
+      "requires": [
+        "filled email-delivery-evidence.json"
+      ]
+    },
+    {
+      "command": "python3 scripts/public_staging_rate_limit_report.py '--input=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/rate-limit-evidence.json' '--route-security=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/route-security-summary.json' '--preflight=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/00-public-staging-preflight.json' '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/18-rate-limiting.md' '--summary-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/rate-limit-summary.json'",
+      "key": "rate_limit_report",
+      "label": "Generate public proxy/rate-limit report",
+      "manual_input": true,
+      "produces": [
+        "docs/evidence/public-staging/18-rate-limiting.md",
+        "docs/evidence/public-staging/rate-limit-summary.json"
+      ],
+      "requires": [
+        "filled rate-limit-evidence.json"
+      ]
+    },
+    {
+      "command": "python3 scripts/public_staging_storage_report.py '--input=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/storage-evidence.json' '--infra-summary=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/infra-evidence-summary.json' '--ops-summary=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/ops-evidence-summary.json' '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/19-object-storage.md' '--summary-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/storage-summary.json'",
+      "key": "storage_report",
+      "label": "Generate object-storage report",
+      "manual_input": true,
+      "produces": [
+        "docs/evidence/public-staging/19-object-storage.md",
+        "docs/evidence/public-staging/storage-summary.json"
+      ],
+      "requires": [
+        "filled storage-evidence.json"
+      ]
+    },
+    {
+      "command": "python3 scripts/public_staging_licensing_report.py '--input=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/licensing-evidence.json' '--browser-map-summary=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/browser-map-summary.json' '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/17-licensing-gates.md' '--summary-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/licensing-summary.json'",
+      "key": "licensing_report",
+      "label": "Generate licensing report",
+      "manual_input": true,
+      "produces": [
+        "docs/evidence/public-staging/17-licensing-gates.md",
+        "docs/evidence/public-staging/licensing-summary.json"
+      ],
+      "requires": [
+        "filled licensing-evidence.json",
+        "browser-map-summary.json"
+      ]
+    },
+    {
+      "command": "python3 scripts/public_staging_failure_exercises_report.py '--input=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/failure-exercises-evidence.json' '--ops-summary=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/ops-evidence-summary.json' '--browser-map-summary=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/browser-map-summary.json' '--storage-summary=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/storage-summary.json' '--email-delivery-summary=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/email-delivery-summary.json' '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/21-failure-exercises.md' '--summary-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/failure-exercises-summary.json'",
+      "key": "failure_exercises_report",
+      "label": "Generate failure-exercise report",
+      "manual_input": true,
+      "produces": [
+        "docs/evidence/public-staging/21-failure-exercises.md",
+        "docs/evidence/public-staging/failure-exercises-summary.json"
+      ],
+      "requires": [
+        "filled failure-exercises-evidence.json"
+      ]
+    }
+  ],
+  "verdict": "planned"
+}

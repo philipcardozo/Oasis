@@ -9,12 +9,16 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
 PERF_EVIDENCE = ROOT / "docs" / "evidence" / "performance"
 PUBLIC_EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
 AUTH_INVENTORY = ROOT / "docs" / "evidence" / "phase-1-5" / "route-authorization-inventory.json"
+LOCAL_PUBLIC_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
+RESERVED_PUBLIC_HOSTS = {"example.com", "example.net", "example.org"}
+RESERVED_PUBLIC_SUFFIXES = (".example.com", ".example.net", ".example.org", ".invalid", ".test")
 
 
 def git_value(*args: str) -> str:
@@ -37,6 +41,30 @@ def display_path(value: str) -> str:
     if path.is_absolute() and path.is_relative_to(ROOT):
         return str(path.relative_to(ROOT))
     return value
+
+
+def normalized_url(value: Any) -> str:
+    return str(value or "").strip().rstrip("/")
+
+
+def public_https_url_failures(value: Any, label: str) -> list[str]:
+    url = normalized_url(value)
+    if not url:
+        return [f"{label} base URL is missing"]
+    parsed = urlparse(url)
+    failures: list[str] = []
+    if parsed.scheme != "https":
+        failures.append(f"{label} base URL is not HTTPS")
+    hostname = (parsed.hostname or "").lower()
+    if hostname in LOCAL_PUBLIC_HOSTS or hostname.endswith(".local"):
+        failures.append(f"{label} base URL is not public")
+    if hostname in RESERVED_PUBLIC_HOSTS or hostname.endswith(RESERVED_PUBLIC_SUFFIXES):
+        failures.append(f"{label} base URL is a reserved documentation hostname")
+    return failures
+
+
+def same_base_url(left: Any, right: Any) -> bool:
+    return normalized_url(left) == normalized_url(right)
 
 
 def status_subset(item: dict[str, Any], allowed: set[int]) -> bool:
@@ -93,6 +121,10 @@ def evaluate(
         failures.append("public route probe is missing")
     elif route_probe.get("verdict") != "pass" or route_probe.get("failure_count"):
         failures.append("public route probe verdict is not pass")
+    elif route_probe.get("base_url"):
+        failures.extend(public_https_url_failures(route_probe.get("base_url"), "public route probe"))
+    else:
+        failures.append("public route probe base URL is missing")
 
     failed_routes = [item for item in measurements if item.get("ok") is False]
     if failed_routes:
@@ -116,6 +148,10 @@ def evaluate(
         failures.append("public preflight is missing")
     elif preflight.get("verdict") != "pass":
         failures.append("public preflight verdict is not pass")
+    else:
+        failures.extend(public_https_url_failures(preflight.get("base_url"), "public preflight"))
+        if route_probe and route_probe.get("base_url") and preflight.get("base_url") and not same_base_url(route_probe.get("base_url"), preflight.get("base_url")):
+            failures.append("public preflight base URL does not match route probe")
 
     headers = ((preflight or {}).get("endpoints") or {}).get("/index.html", {}).get("headers", {})
     for header in ("content-security-policy", "strict-transport-security", "x-content-type-options", "referrer-policy", "permissions-policy"):
@@ -137,6 +173,9 @@ def evaluate(
     if not auth_security:
         failures.append("auth/CSRF/cross-user security evidence is missing")
     else:
+        failures.extend(public_https_url_failures(auth_security.get("base_url"), "auth/security"))
+        if route_probe and route_probe.get("base_url") and auth_security.get("base_url") and not same_base_url(route_probe.get("base_url"), auth_security.get("base_url")):
+            failures.append("auth/security base URL does not match route probe")
         if checks.get("csrf_rejection_status") != 403:
             failures.append("CSRF rejection status is not 403")
         if checks.get("cross_user_slot_read_denied", {}).get("status_code") not in {403, 404}:
@@ -199,6 +238,7 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
         },
         "preflight": {
             "captured_at": preflight.get("captured_at"),
+            "base_url": preflight.get("base_url"),
             "verdict": preflight.get("verdict"),
             "index_headers": sorted((((preflight.get("endpoints") or {}).get("/index.html") or {}).get("headers") or {}).keys()),
         },
@@ -209,6 +249,7 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
         },
         "auth_security": {
             "captured_at": auth_security.get("captured_at") if auth_security else None,
+            "base_url": auth_security.get("base_url") if auth_security else None,
             "verdict": auth_security.get("verdict") if auth_security else None,
             "csrf_rejection_status": checks.get("csrf_rejection_status"),
             "cross_user_status": checks.get("cross_user_slot_read_denied", {}).get("status_code"),
@@ -252,12 +293,14 @@ def markdown(payload: dict[str, Any]) -> str:
         "",
         "## Security Headers And Inventory",
         "",
+        f"- Preflight base URL: `{payload['preflight']['base_url']}`",
         f"- Preflight verdict: `{payload['preflight']['verdict']}`",
         f"- `/index.html` headers recorded: `{', '.join(payload['preflight']['index_headers'])}`",
         f"- Staging-secure route count: `{payload['inventory']['unique_method_paths']}`",
         "",
         "## Auth And Authorization Checks",
         "",
+        f"- Auth evidence base URL: `{payload['auth_security']['base_url'] or 'missing'}`",
         f"- Auth evidence verdict: `{payload['auth_security']['verdict'] or 'missing'}`",
         f"- CSRF rejection status: `{payload['auth_security']['csrf_rejection_status']}`",
         f"- Cross-user slot denial status: `{payload['auth_security']['cross_user_status']}`",

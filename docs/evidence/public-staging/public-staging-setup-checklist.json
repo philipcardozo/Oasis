@@ -1,0 +1,84 @@
+{
+  "branch": "phase1.75/public-staging",
+  "captured_at": "2026-07-30T07:15:51Z",
+  "cloudflare": [
+    "Create DNS hostname staging.<approved-domain> pointing to the Render web service target.",
+    "Enable HTTPS/TLS for the hostname and verify HSTS policy stays staging-safe.",
+    "Protect the hostname with Cloudflare Access and create service-token credentials for probes.",
+    "Configure WAF/rate controls for the controlled private-beta boundary.",
+    "Create a private Cloudflare R2 bucket and least-privilege S3-compatible credentials."
+  ],
+  "commit": "788dc9b22bb932a6ff035d567cb67622650d4b40",
+  "github_environment": {
+    "commands": [
+      "gh variable set STAGING_URL --env staging --body \"https://staging.<approved-domain>\"",
+      "gh secret set RENDER_API_KEY --env staging --body \"<render_api_key>\"",
+      "gh secret set RENDER_API_SERVICE_ID --env staging --body \"<render_api_service_id>\"",
+      "gh secret set RENDER_WORKER_SERVICE_ID --env staging --body \"<render_worker_service_id>\"",
+      "gh secret set OASIS_CF_ACCESS_CLIENT_ID --env staging --body \"<oasis_cf_access_client_id>\"",
+      "gh secret set OASIS_CF_ACCESS_CLIENT_SECRET --env staging --body \"<oasis_cf_access_client_secret>\""
+    ],
+    "manual_requirements": [
+      "Run python3 scripts/public_staging_github_environment.py to enforce required reviewer and main branch deployment policy.",
+      "Keep production deployment absent from this workflow."
+    ],
+    "name": "staging",
+    "required_secrets": [
+      "RENDER_API_KEY",
+      "RENDER_API_SERVICE_ID",
+      "RENDER_WORKER_SERVICE_ID",
+      "OASIS_CF_ACCESS_CLIENT_ID",
+      "OASIS_CF_ACCESS_CLIENT_SECRET"
+    ],
+    "required_variables": [
+      "STAGING_URL"
+    ]
+  },
+  "not_public_staging_proof": true,
+  "render": [
+    "Sync render.yaml or equivalent Render Blueprint.",
+    "Create registry credential ghcr-oasis with GHCR package read access.",
+    "Create oasis-api-staging web service and oasis-worker-staging worker service.",
+    "Create oasis-postgres-staging managed PostgreSQL with private networking.",
+    "Fill Render oasis-staging-shared values marked sync: false outside Git."
+  ],
+  "render_environment_group_values": [
+    "OASIS_PUBLIC_BASE_URL=https://staging.<approved-domain>",
+    "OASIS_API_BASE_URL=https://staging.<approved-domain>",
+    "OASIS_ALLOWED_ORIGINS=https://staging.<approved-domain>",
+    "OASIS_TRUSTED_HOSTS=staging.<approved-domain>",
+    "OASIS_EMAIL_FROM=OASIS Staging <no-reply@<approved-domain>>",
+    "OASIS_SMTP_HOST=<smtp-host>",
+    "OASIS_SMTP_USER=<smtp-user-if-required>",
+    "OASIS_SMTP_PASSWORD=<smtp-password-if-required>",
+    "OASIS_STORAGE_BACKEND=s3",
+    "OASIS_S3_BUCKET=<private-r2-bucket>",
+    "OASIS_S3_REGION=auto",
+    "OASIS_S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com",
+    "AWS_ACCESS_KEY_ID=<least-privilege-r2-access-key>",
+    "AWS_SECRET_ACCESS_KEY=<least-privilege-r2-secret-key>",
+    "OASIS_REGISTRATION_ALLOWED_EMAILS=<comma-separated-private-beta-testers>"
+  ],
+  "tester_requirements": [
+    "Create dedicated tester A, tester B, and lifecycle account email inboxes.",
+    "Set OASIS_PUBLIC_TESTER_A_EMAIL, OASIS_PUBLIC_TESTER_A_PASSWORD, and OASIS_PUBLIC_TESTER_A_RESET_PASSWORD outside Git.",
+    "Set OASIS_PUBLIC_TESTER_B_EMAIL and OASIS_PUBLIC_TESTER_B_PASSWORD outside Git.",
+    "Set OASIS_PUBLIC_LIFECYCLE_EMAIL, OASIS_PUBLIC_LIFECYCLE_PASSWORD, and OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD outside Git.",
+    "Record only verification/reset tokens in environment variables during probes.",
+    "Run python3 scripts/public_staging_browser_matrix_template.py --base-url=\"$STAGING_URL\" before manual browser verification.",
+    "Use installed Chrome, Firefox, and Safari apps to complete the manual browser matrix after STAGING_URL is live."
+  ],
+  "verdict": "operator_setup_required",
+  "verification_order": [
+    "python3 scripts/public_staging_config_contract.py",
+    "python3 scripts/public_staging_readiness.py",
+    "gh workflow run Deploy --ref main -f target=staging",
+    "python3 scripts/public_staging_full_verification.py --base-url=\"$STAGING_URL\" --dry-run",
+    "python3 scripts/public_staging_smoke.py --base-url=\"$STAGING_URL\"",
+    "python3 scripts/public_staging_preflight.py --base-url=\"$STAGING_URL\" --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET",
+    "python3 scripts/public_staging_playwright_report.py --base-url=\"$STAGING_URL\"",
+    "python3 scripts/public_staging_full_verification.py --base-url=\"$STAGING_URL\" --proxy-server=http://127.0.0.1:9090",
+    "Run public browser, auth, route, performance, infra, ops, storage, email, licensing, and failure report generators from docs/PUBLIC-STAGING-RUNBOOK.md.",
+    "python3 scripts/public_staging_gate_audit.py"
+  ]
+}

@@ -1,22 +1,28 @@
 # Proxyman Compose Capture
 
-Date: 2026-07-23
+Date: 2026-07-30
 
 Compose staging ran at `https://localhost:8443` with Chromium routed through
-Proxyman at `http://127.0.0.1:9090`.
+Proxyman at `http://localhost:9090`.
 
 ## Result
 
-The compose stack started successfully after two deployment-config fixes:
+The compose stack started successfully after local-staging deployment-config
+fixes:
 
 - Caddy local TLS now names `localhost:8443` and `127.0.0.1:8443`, allowing
   Caddy to issue a local certificate for the compose target.
 - The worker service disables the API image healthcheck, because the worker is a
   non-HTTP process by design.
+- The migrate service now receives the same local SMTP configuration as the app
+  services, including `OASIS_EMAIL_FROM`, `OASIS_SMTP_HOST`,
+  `OASIS_SMTP_PORT`, and `OASIS_SMTP_STARTTLS`, so staging validation matches
+  the running API/worker environment.
 
-The SMTP compose path also needed `OASIS_SMTP_PORT` and
-`OASIS_SMTP_STARTTLS` pass-through so local staging can use a plain temporary
-SMTP sink while production keeps STARTTLS enabled by default.
+Proxyman `6.12.0` build `61200` was recording, system proxying was enabled on
+port `9090`, SSL proxying was enabled, and `localhost:8443` was present in the
+SSL Proxying include list. A proxied `GET https://localhost:8443/healthz`
+returned 200 with Caddy/Uvicorn response headers.
 
 ## Captures
 
@@ -30,10 +36,12 @@ SMTP sink while production keeps STARTTLS enabled by default.
 
 ## Proxyman Visibility
 
-Proxyman MCP recorded localhost and map-provider HTTPS CONNECT flows during the
-compose browser run. The current MCP tool set does not expose a way to enable or
-verify SSL proxying rules, so decrypted request/response detail is taken from the
-Playwright HAR files generated during the same proxied browser run.
+Proxyman MCP verified recording state, port, system proxying, SSL proxying, and
+the `localhost:8443` SSL include. The refreshed browser/HAR capture, route-family
+proxy probe, and map gate used `http://localhost:9090`. Earlier Chromium launch
+with `http://127.0.0.1:9090` failed with `ERR_PROXY_CONNECTION_FAILED`, while
+`curl` and Python `requests` succeeded through that address; the final browser
+commands therefore used `http://localhost:9090`.
 
 ## Verdict
 

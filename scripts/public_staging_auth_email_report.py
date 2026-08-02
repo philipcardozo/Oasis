@@ -9,11 +9,15 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
 PERF_EVIDENCE = ROOT / "docs" / "evidence" / "performance"
 PUBLIC_EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
+LOCAL_PUBLIC_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
+RESERVED_PUBLIC_HOSTS = {"example.com", "example.net", "example.org"}
+RESERVED_PUBLIC_SUFFIXES = (".example.com", ".example.net", ".example.org", ".invalid", ".test")
 EMAIL_RE = re.compile(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}")
 SAFE_COOKIE_METADATA_FIELDS = {
     "csrf_cookie_path",
@@ -45,6 +49,22 @@ def display_path(value: str) -> str:
 
 def status(sample: dict[str, Any] | None) -> int | None:
     return sample.get("status_code") if isinstance(sample, dict) else None
+
+
+def public_base_url_failures(value: Any) -> list[str]:
+    url = str(value or "").strip().rstrip("/")
+    if not url:
+        return ["auth/map-slot base URL is missing"]
+    parsed = urlparse(url)
+    failures: list[str] = []
+    if parsed.scheme != "https":
+        failures.append("auth/map-slot base URL is not HTTPS")
+    hostname = (parsed.hostname or "").lower()
+    if not hostname or hostname in LOCAL_PUBLIC_HOSTS or hostname.endswith(".local"):
+        failures.append("auth/map-slot base URL is not public")
+    if hostname in RESERVED_PUBLIC_HOSTS or hostname.endswith(RESERVED_PUBLIC_SUFFIXES):
+        failures.append("auth/map-slot base URL is a reserved documentation hostname")
+    return failures
 
 
 def contains_complete_email(value: Any) -> bool:
@@ -85,6 +105,7 @@ def evaluate(auth: dict[str, Any]) -> tuple[list[str], dict[str, Any]]:
 
     if auth.get("verdict") != "pass":
         failures.append("auth/map-slot evidence verdict is not pass")
+    failures.extend(public_base_url_failures(auth.get("base_url")))
     if contains_complete_email(auth):
         failures.append("auth evidence contains a complete email address")
     secret_paths = secret_like_values(auth)

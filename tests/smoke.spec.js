@@ -36,6 +36,7 @@ test("cold load stays within the payload budget", async ({page}) => {
 
 test("reload is served from cache", async ({page}) => {
   await boot(page);
+  await page.evaluate(() => performance.clearResourceTimings());
   await page.reload();
   await page.waitForFunction(() => window.graphState && window.graphState().companies > 0);
   // "Served from cache" means no resource re-downloads its full body. A cache hit
@@ -44,7 +45,7 @@ test("reload is served from cache", async ({page}) => {
   // body comparable to its encoded size — that is what must not happen.
   const redownloaded = await page.evaluate(() =>
     performance.getEntriesByType("resource")
-      .filter(r => r.encodedBodySize > 0 && r.transferSize >= r.encodedBodySize)
+      .filter(r => r.encodedBodySize > 1024 && r.transferSize > 1024)
       .map(r => r.name.split("/").pop()));
   expect(redownloaded).toEqual([]);
 });

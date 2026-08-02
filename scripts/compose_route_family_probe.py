@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import platform
 import statistics
 import subprocess
@@ -34,6 +35,21 @@ def git_value(*args: str) -> str:
         return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
     except Exception as exc:  # pragma: no cover - diagnostics only
         return f"unavailable: {exc}"
+
+
+def env_headers(items: list[str]) -> tuple[dict[str, str], list[str]]:
+    headers: dict[str, str] = {}
+    names: list[str] = []
+    for item in items:
+        if "=" not in item:
+            raise SystemExit(f"--header must be Name=ENV_VAR, got {item!r}")
+        name, env_name = item.split("=", 1)
+        value = os.environ.get(env_name)
+        if not value:
+            raise SystemExit(f"missing environment variable for header {name}: {env_name}")
+        headers[name] = value
+        names.append(name)
+    return headers, names
 
 
 def percentile(values: list[float], pct: float) -> float:
@@ -168,6 +184,7 @@ def main() -> int:
     parser.add_argument("--proxy-server", default="")
     parser.add_argument("--output-file", default="20-compose-route-family-probe.json")
     parser.add_argument("--verify-tls", action="store_true")
+    parser.add_argument("--header", action="append", default=[], help="send Name=ENV_VAR without writing values to evidence")
     args = parser.parse_args()
 
     if not args.verify_tls:
@@ -177,7 +194,9 @@ def main() -> int:
     session = requests.Session()
     session.trust_env = False
     session.verify = bool(args.verify_tls)
+    headers, header_names = env_headers(args.header)
     session.headers.update({"User-Agent": "oasis-compose-route-family-probe"})
+    session.headers.update(headers)
     if args.proxy_server:
         session.proxies.update({"http": args.proxy_server, "https": args.proxy_server})
 
@@ -193,6 +212,7 @@ def main() -> int:
         "transport": "HTTPS through compose reverse proxy",
         "proxy_server": args.proxy_server or None,
         "verify_tls": bool(args.verify_tls),
+        "auth_header_names_sent": header_names,
         "samples_per_route": args.samples,
         "measurement_count": len(measurements),
         "ok_count": len(measurements) - len(failures),

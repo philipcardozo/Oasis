@@ -30,6 +30,9 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
+LOCAL_PUBLIC_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
+RESERVED_PUBLIC_HOSTS = {"example.com", "example.net", "example.org"}
+RESERVED_PUBLIC_SUFFIXES = (".example.com", ".example.net", ".example.org", ".invalid", ".test")
 
 
 class NoRedirect(HTTPRedirectHandler):
@@ -155,6 +158,21 @@ def safe_url(url: str) -> str:
     return parsed._replace(query="<redacted>" if parsed.query else "").geturl()
 
 
+def public_base_url_failures(url: str) -> list[str]:
+    parsed = urlparse(url)
+    failures: list[str] = []
+    if parsed.scheme != "https":
+        failures.append("base URL must use https")
+    if not parsed.hostname:
+        failures.append("base URL must include a hostname")
+    hostname = (parsed.hostname or "").lower()
+    if hostname in LOCAL_PUBLIC_HOSTS or hostname.endswith(".local"):
+        failures.append("base URL must be a non-local public hostname")
+    if hostname in RESERVED_PUBLIC_HOSTS or hostname.endswith(RESERVED_PUBLIC_SUFFIXES):
+        failures.append("base URL must not be a reserved documentation hostname")
+    return failures
+
+
 def cookie_flags(value: str) -> str:
     lowered = value.lower()
     flags = []
@@ -213,9 +231,10 @@ def main() -> int:
     if not args.base_url:
         raise SystemExit("provide --base-url or STAGING_URL")
     base_url = args.base_url.rstrip("/")
+    target_failures = public_base_url_failures(base_url)
+    if target_failures:
+        raise SystemExit("; ".join(target_failures))
     parsed = urlparse(base_url)
-    if not parsed.hostname:
-        raise SystemExit(f"invalid base URL: {base_url!r}")
     headers, header_names = env_headers(args.header)
 
     endpoints: dict[str, Any] = {}

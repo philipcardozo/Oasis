@@ -18,6 +18,9 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
+LOCAL_PUBLIC_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
+RESERVED_PUBLIC_HOSTS = {"example.com", "example.net", "example.org"}
+RESERVED_PUBLIC_SUFFIXES = (".example.com", ".example.net", ".example.org", ".invalid", ".test")
 
 CONFIGURATION_CHECKS = {
     "backend_s3": "S3-compatible backend is configured for staging",
@@ -78,6 +81,19 @@ def display_path(value: str) -> str:
     if path.is_absolute() and path.is_relative_to(ROOT):
         return str(path.relative_to(ROOT))
     return value
+
+
+def public_base_url_failures(url: str) -> list[str]:
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").lower()
+    failures: list[str] = []
+    if parsed.scheme != "https":
+        failures.append("storage base URL is not HTTPS")
+    if not host or host in LOCAL_PUBLIC_HOSTS or host.endswith(".local"):
+        failures.append("storage base URL is not a non-local public hostname")
+    if host in RESERVED_PUBLIC_HOSTS or host.endswith(RESERVED_PUBLIC_SUFFIXES):
+        failures.append("storage base URL is a reserved documentation hostname")
+    return failures
 
 
 def bool_row(key: str, label: str, value: bool, **extra: Any) -> dict[str, Any]:
@@ -162,8 +178,7 @@ def build_payload(data: dict[str, Any], infra: dict[str, Any] | None, ops: dict[
         failures.append("storage provider is not Cloudflare R2")
     if not data.get("input_captured_at"):
         failures.append("storage input captured timestamp is missing")
-    if urlparse(str(data.get("base_url") or "")).scheme != "https":
-        failures.append("storage base URL is not HTTPS")
+    failures.extend(public_base_url_failures(str(data.get("base_url") or "")))
     if data.get("secret_free_evidence") is not True:
         failures.append("storage evidence is not marked secret-free")
 

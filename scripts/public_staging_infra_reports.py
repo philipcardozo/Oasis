@@ -15,11 +15,16 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
 EXPECTED_MIGRATION = "29995ef61d8e"
+LOCAL_PUBLIC_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
+RESERVED_PUBLIC_HOSTS = {"example.com", "example.net", "example.org"}
+RESERVED_PUBLIC_SUFFIXES = (".example.com", ".example.net", ".example.org", ".invalid", ".test")
+PLACEHOLDER_MARKERS = ("<", ">", "replace-", "record exact", "required when")
 
 REPORTS = {
     "dns_tls_edge": "02-dns-tls-edge.md",
@@ -154,6 +159,22 @@ def secretish_string(value: str) -> bool:
     return bool(LONG_SECRET_RE.fullmatch(value)) and not ENV_NAME_RE.fullmatch(value)
 
 
+def has_placeholder(value: Any) -> bool:
+    text = str(value or "").strip().lower()
+    return any(marker in text for marker in PLACEHOLDER_MARKERS)
+
+
+def metadata_rows_and_failures(section: dict[str, Any], label: str) -> tuple[list[dict[str, Any]], list[str]]:
+    value = section.get("captured_at")
+    rows = [{"label": f"{label} source captured", "value": value}]
+    failures: list[str] = []
+    if not value:
+        failures.append(f"{label} captured_at is missing")
+    elif has_placeholder(value):
+        failures.append(f"{label} captured_at is still a placeholder")
+    return rows, failures
+
+
 def check_bool(section: dict[str, Any], required: dict[str, str]) -> tuple[list[str], list[dict[str, Any]]]:
     failures: list[str] = []
     rows: list[dict[str, Any]] = []
@@ -214,6 +235,23 @@ def endpoint_headers(preflight: dict[str, Any], path: str) -> dict[str, Any]:
     return ((preflight.get("endpoints") or {}).get(path) or {}).get("headers") or {}
 
 
+def public_base_url_failures(preflight: dict[str, Any], label: str = "preflight") -> list[str]:
+    base_url = str(preflight.get("base_url") or "")
+    parsed = urlparse(base_url)
+    host = (parsed.hostname or "").lower()
+    recorded = str((preflight.get("url") or {}).get("hostname") or "").lower()
+    failures: list[str] = []
+    if parsed.scheme != "https":
+        failures.append(f"{label} base URL is not HTTPS")
+    if not host or host in LOCAL_PUBLIC_HOSTS or host.endswith(".local"):
+        failures.append(f"{label} base URL is not a non-local public hostname")
+    if host in RESERVED_PUBLIC_HOSTS or host.endswith(RESERVED_PUBLIC_SUFFIXES):
+        failures.append(f"{label} base URL is a reserved documentation hostname")
+    if recorded and host and recorded != host:
+        failures.append(f"{label} parsed hostname does not match base URL hostname")
+    return failures
+
+
 def evaluate_dns_tls(preflight: dict[str, Any] | None, infra: dict[str, Any]) -> dict[str, Any]:
     failures: list[str] = []
     rows: list[dict[str, Any]] = []
@@ -223,6 +261,9 @@ def evaluate_dns_tls(preflight: dict[str, Any] | None, infra: dict[str, Any]) ->
     section_failures, section_rows = check_bool(section, DNS_EDGE_REQUIRED)
     failures.extend(section_failures)
     rows.extend(section_rows)
+    metadata_rows, metadata_failures = metadata_rows_and_failures(section, "dns_tls_edge")
+    rows.extend(metadata_rows)
+    failures.extend(metadata_failures)
     if not preflight:
         return result("dns_tls_edge", ["public preflight evidence is missing"], rows)
 
@@ -231,6 +272,7 @@ def evaluate_dns_tls(preflight: dict[str, Any] | None, infra: dict[str, Any]) ->
             {"label": "preflight verdict", "value": preflight.get("verdict")},
             {"label": "base URL", "value": preflight.get("base_url")},
             {"label": "URL scheme", "value": (preflight.get("url") or {}).get("scheme")},
+            {"label": "URL hostname", "value": (preflight.get("url") or {}).get("hostname")},
             {"label": "DNS ok", "value": (preflight.get("dns") or {}).get("ok")},
             {"label": "TLS ok", "value": (preflight.get("tls") or {}).get("ok")},
             {"label": "HTTP redirect status", "value": (preflight.get("http_to_https_redirect") or {}).get("status")},
@@ -238,6 +280,7 @@ def evaluate_dns_tls(preflight: dict[str, Any] | None, infra: dict[str, Any]) ->
     )
     if preflight.get("verdict") != "pass":
         failures.append("public preflight verdict is not pass")
+    failures.extend(public_base_url_failures(preflight))
     if (preflight.get("url") or {}).get("scheme") != "https":
         failures.append("base URL is not HTTPS")
     if (preflight.get("dns") or {}).get("ok") is not True:
@@ -282,6 +325,9 @@ def evaluate_cloudflare_access(infra: dict[str, Any]) -> dict[str, Any]:
     if not section:
         return result("cloudflare_access", ["cloudflare_access evidence section is missing"], [])
     failures, rows = check_bool(section, ACCESS_REQUIRED)
+    metadata_rows, metadata_failures = metadata_rows_and_failures(section, "cloudflare_access")
+    rows.extend(metadata_rows)
+    failures.extend(metadata_failures)
     provider = str(section.get("provider") or "")
     rows.insert(0, {"label": "provider", "value": provider or "missing"})
     if "cloudflare" not in provider.lower():
@@ -325,6 +371,9 @@ def evaluate_render_services(
     if not section:
         return result("render_services", ["render_services evidence section is missing"], [])
     failures, rows = check_bool(section, RENDER_REQUIRED)
+    metadata_rows, metadata_failures = metadata_rows_and_failures(section, "render_services")
+    rows.extend(metadata_rows)
+    failures.extend(metadata_failures)
     rows.extend(
         [
             {"label": "image manifest verdict", "value": (image_manifest or {}).get("verdict")},
@@ -371,6 +420,9 @@ def evaluate_migration_version(
     if not section:
         return result("migration_version", ["migration evidence section is missing"], [])
     failures, rows = check_bool(section, MIGRATION_REQUIRED)
+    metadata_rows, metadata_failures = metadata_rows_and_failures(section, "migration")
+    rows.extend(metadata_rows)
+    failures.extend(metadata_failures)
     expected = str(section.get("expected_revision") or EXPECTED_MIGRATION)
     current = current_revisions(section)
     rows.extend(

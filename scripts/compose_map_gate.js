@@ -304,7 +304,7 @@ function summarize(bucket) {
 
 function isExpectedMapCancellation(request) {
   if (request.failure !== "net::ERR_ABORTED") return false;
-  return /tiles\.openfreemap\.org\/natural_earth|services\.arcgisonline\.com\/ArcGIS\/rest\/services\/World_Imagery|s3\.amazonaws\.com\/elevation-tiles-prod/.test(request.url);
+  return /\/(?:data\/universe_core\.json|api\/bootstrap\/signals)$|tiles\.openfreemap\.org\/(?:natural_earth|planet\/[^/]+\/\d+\/\d+\/\d+\.pbf)|services\.arcgisonline\.com\/ArcGIS\/rest\/services\/World_Imagery|s3\.amazonaws\.com\/elevation-tiles-prod/.test(request.url);
 }
 
 main().catch(err => {

@@ -1,0 +1,321 @@
+{
+  "artifacts": {
+    "rows": [
+      {
+        "key": "image_manifest_pass",
+        "label": "image manifest verdict is pass",
+        "value": false
+      },
+      {
+        "key": "render_deploy_pass",
+        "label": "Render deploy verdict is pass",
+        "value": false
+      },
+      {
+        "key": "preflight_pass",
+        "label": "public preflight verdict is pass",
+        "value": false
+      },
+      {
+        "key": "public_preflight_target",
+        "label": "public preflight target is non-local HTTPS",
+        "value": false
+      },
+      {
+        "key": "workflow_run_matches_manifest",
+        "label": "workflow run identity matches the image manifest",
+        "value": false
+      },
+      {
+        "key": "commit_consistent",
+        "label": "run, image manifest, deploy, and preflight commits agree",
+        "value": false
+      },
+      {
+        "key": "commit_full_sha",
+        "label": "run, image manifest, deploy, and preflight use full 40-character SHAs",
+        "value": false
+      },
+      {
+        "key": "image_digest_pinned",
+        "label": "image is digest pinned",
+        "value": false
+      },
+      {
+        "key": "render_image_matches_manifest",
+        "label": "Render deploy image matches the image manifest",
+        "value": false
+      },
+      {
+        "key": "api_worker_deployed",
+        "label": "Render deployments include exactly API and worker",
+        "value": false
+      },
+      {
+        "key": "preflight_version_matches_commit",
+        "label": "public /version includes the deployed commit",
+        "value": false
+      }
+    ]
+  },
+  "captured_at": "2026-07-30T09:04:04.773931+00:00",
+  "failures": [
+    "run check is not true: run_identity_real",
+    "run check is not true: run_commit_full_sha",
+    "artifacts check is not true: image_manifest_pass",
+    "artifacts check is not true: render_deploy_pass",
+    "artifacts check is not true: preflight_pass",
+    "artifacts check is not true: public_preflight_target",
+    "artifacts check is not true: workflow_run_matches_manifest",
+    "artifacts check is not true: commit_consistent",
+    "artifacts check is not true: commit_full_sha",
+    "artifacts check is not true: image_digest_pinned",
+    "artifacts check is not true: render_image_matches_manifest",
+    "artifacts check is not true: api_worker_deployed",
+    "artifacts check is not true: preflight_version_matches_commit"
+  ],
+  "input_captured_at": "2026-07-25T00:00:00Z",
+  "run": {
+    "rows": [
+      {
+        "key": "run_captured",
+        "label": "workflow run evidence was captured",
+        "value": true
+      },
+      {
+        "key": "run_identity_real",
+        "label": "workflow run identity is not the template scaffold",
+        "value": false
+      },
+      {
+        "key": "run_id_numeric",
+        "label": "workflow run ID is numeric",
+        "value": true
+      },
+      {
+        "key": "run_attempt_numeric",
+        "label": "workflow run attempt is numeric",
+        "value": true
+      },
+      {
+        "key": "run_commit_full_sha",
+        "label": "workflow run commit is a full 40-character SHA",
+        "value": false
+      },
+      {
+        "key": "run_branch_main",
+        "label": "workflow ran from the main branch",
+        "value": true
+      },
+      {
+        "key": "run_success",
+        "label": "workflow run concluded successfully",
+        "value": true
+      },
+      {
+        "key": "environment_staging",
+        "label": "workflow ran in the staging environment",
+        "value": true
+      },
+      {
+        "key": "protected_environment",
+        "label": "GitHub staging environment protection is enabled",
+        "value": true
+      },
+      {
+        "key": "manual_approval",
+        "label": "manual approval or environment approval is recorded",
+        "value": true
+      },
+      {
+        "key": "secrets_isolated",
+        "label": "deployment secrets are isolated to the staging environment",
+        "value": true
+      },
+      {
+        "key": "no_production_deploy",
+        "label": "run did not deploy production",
+        "value": true
+      },
+      {
+        "key": "concurrency_observed",
+        "label": "deployment concurrency was observed or configured for the run",
+        "value": true
+      },
+      {
+        "key": "artifact_uploaded",
+        "label": "public staging evidence artifact was uploaded",
+        "value": true
+      },
+      {
+        "key": "config_contract",
+        "label": "Validate public staging config contract step succeeded",
+        "value": true
+      },
+      {
+        "key": "install_dependencies",
+        "label": "Install dependencies step succeeded",
+        "value": true
+      },
+      {
+        "key": "validate_migrations",
+        "label": "Validate migrations step succeeded",
+        "value": true
+      },
+      {
+        "key": "python_tests",
+        "label": "Python tests step succeeded",
+        "value": true
+      },
+      {
+        "key": "playwright_tests",
+        "label": "Playwright tests step succeeded",
+        "value": true
+      },
+      {
+        "key": "build_publish_image",
+        "label": "Build and publish immutable image step succeeded",
+        "value": true
+      },
+      {
+        "key": "scan_image",
+        "label": "Scan published image step succeeded",
+        "value": true
+      },
+      {
+        "key": "record_image_manifest",
+        "label": "Record image manifest step succeeded",
+        "value": true
+      },
+      {
+        "key": "deploy_render",
+        "label": "Deploy exact image to Render API and worker step succeeded",
+        "value": true
+      },
+      {
+        "key": "public_preflight",
+        "label": "Public staging preflight step succeeded",
+        "value": true
+      },
+      {
+        "key": "upload_evidence",
+        "label": "Upload public staging evidence step succeeded",
+        "value": true
+      }
+    ]
+  },
+  "target": {
+    "commit": "abcdef123456",
+    "environment": "staging",
+    "run_attempt": "1",
+    "run_id": "123456789",
+    "workflow": "Deploy",
+    "workflow_path": "/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/.github/workflows/deploy.yml"
+  },
+  "verdict": "investigate",
+  "warnings": [],
+  "workflow": {
+    "rows": [
+      {
+        "key": "workflow_dispatch_staging",
+        "label": "workflow_dispatch is limited to the staging target",
+        "value": true
+      },
+      {
+        "key": "push_main_only",
+        "label": "push deployment is scoped to main",
+        "value": true
+      },
+      {
+        "key": "protected_environment_declared",
+        "label": "GitHub staging environment is declared",
+        "value": true
+      },
+      {
+        "key": "deployment_concurrency",
+        "label": "deployment concurrency group is configured",
+        "value": true
+      },
+      {
+        "key": "permissions_minimal_for_release",
+        "label": "release permissions cover packages, OIDC, and attestations",
+        "value": true
+      },
+      {
+        "key": "config_contract",
+        "label": "public staging config contract runs before deployment",
+        "value": true
+      },
+      {
+        "key": "migration_validation",
+        "label": "migration validation runs before deployment",
+        "value": true
+      },
+      {
+        "key": "python_tests",
+        "label": "Python tests run",
+        "value": true
+      },
+      {
+        "key": "playwright_tests",
+        "label": "Playwright tests run",
+        "value": true
+      },
+      {
+        "key": "ghcr_login",
+        "label": "GHCR login is configured",
+        "value": true
+      },
+      {
+        "key": "linux_amd64_build",
+        "label": "linux/amd64 image build is configured",
+        "value": true
+      },
+      {
+        "key": "immutable_tags",
+        "label": "immutable SHA/staging tags are configured",
+        "value": true
+      },
+      {
+        "key": "provenance",
+        "label": "build provenance is enabled",
+        "value": true
+      },
+      {
+        "key": "sbom",
+        "label": "SBOM generation is enabled",
+        "value": true
+      },
+      {
+        "key": "blocking_image_scan",
+        "label": "high/critical image scan blocks deployment",
+        "value": true
+      },
+      {
+        "key": "image_manifest",
+        "label": "image manifest evidence is generated",
+        "value": true
+      },
+      {
+        "key": "render_deploy",
+        "label": "exact image deploy to Render API and worker is configured",
+        "value": true
+      },
+      {
+        "key": "public_preflight",
+        "label": "public staging preflight runs after deploy",
+        "value": true
+      },
+      {
+        "key": "artifact_upload",
+        "label": "public staging evidence artifact is uploaded",
+        "value": true
+      },
+      {
+        "key": "no_production_target",
+        "label": "workflow has no production deployment target",
+        "value": true
+      }
+    ]
+  }
+}

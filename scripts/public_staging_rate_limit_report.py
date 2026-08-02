@@ -18,6 +18,9 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
+LOCAL_PUBLIC_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
+RESERVED_PUBLIC_HOSTS = {"example.com", "example.net", "example.org"}
+RESERVED_PUBLIC_SUFFIXES = (".example.com", ".example.net", ".example.org", ".invalid", ".test")
 
 ROUTE_FAMILIES = {
     "login_attempts": "login attempts",
@@ -67,6 +70,19 @@ def display_path(value: str) -> str:
     return value
 
 
+def public_base_url_failures(url: str) -> list[str]:
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").lower()
+    failures: list[str] = []
+    if parsed.scheme != "https":
+        failures.append("rate-limit base URL is not HTTPS")
+    if not host or host in LOCAL_PUBLIC_HOSTS or host.endswith(".local"):
+        failures.append("rate-limit base URL is not a non-local public hostname")
+    if host in RESERVED_PUBLIC_HOSTS or host.endswith(RESERVED_PUBLIC_SUFFIXES):
+        failures.append("rate-limit base URL is a reserved documentation hostname")
+    return failures
+
+
 def route_security_pass(route_security: dict[str, Any] | None) -> bool:
     if not route_security:
         return False
@@ -79,7 +95,11 @@ def route_security_pass(route_security: dict[str, Any] | None) -> bool:
 def preflight_https(preflight: dict[str, Any] | None) -> bool:
     if not preflight:
         return False
-    return preflight.get("verdict") == "pass" and (preflight.get("url") or {}).get("scheme") == "https"
+    return (
+        preflight.get("verdict") == "pass"
+        and (preflight.get("url") or {}).get("scheme") == "https"
+        and not public_base_url_failures(str(preflight.get("base_url") or ""))
+    )
 
 
 def bool_row(key: str, label: str, value: bool, **extra: Any) -> dict[str, Any]:
@@ -164,15 +184,14 @@ def build_payload(data: dict[str, Any], route_security: dict[str, Any] | None, p
 
     cross_checks = [
         bool_row("route_security_summary_pass", "route-security summary has pass verdict and rate-limited auth class", route_security_pass(route_security)),
-        bool_row("preflight_https_pass", "public preflight is HTTPS and pass", preflight_https(preflight)),
+        bool_row("preflight_https_pass", "public preflight is non-local HTTPS and pass", preflight_https(preflight)),
     ]
     failures.extend(f"rate-limit cross-check is not true: {row['key']}" for row in cross_checks if row["value"] is not True)
 
     if not data.get("input_captured_at"):
         failures.append("rate-limit input captured timestamp is missing")
     base_url = str(data.get("base_url") or "")
-    if urlparse(base_url).scheme != "https":
-        failures.append("rate-limit base URL is not HTTPS")
+    failures.extend(public_base_url_failures(base_url))
 
     payload = {
         "captured_at": datetime.now(timezone.utc).isoformat(),

@@ -1,0 +1,31 @@
+{
+  "auth_header_names_sent": [],
+  "base_url": "https://staging.example.com",
+  "branch": "phase1.75/public-staging",
+  "captured_at": "2026-07-30T07:49:07Z",
+  "command": "npx playwright test --config=playwright.public.config.js --reporter=json",
+  "commit": "788dc9b22bb932a6ff035d567cb67622650d4b40",
+  "config": "playwright.public.config.js",
+  "dry_run": true,
+  "failures": [],
+  "not_public_staging_proof": true,
+  "parse_error": "",
+  "returncode": null,
+  "stderr_tail": "",
+  "summary": {
+    "failed_tests": [],
+    "missing_projects": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "project_names": [],
+    "stats": {},
+    "test_count": 0
+  },
+  "url_env_names_checked": [
+    "STAGING_URL",
+    "OASIS_PUBLIC_PLAYWRIGHT_BASE_URL"
+  ],
+  "verdict": "planned"
+}

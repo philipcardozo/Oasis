@@ -62,6 +62,10 @@ REQUIRED_BROWSER_FLOWS = {
     "report_preview": "report preview",
 }
 LOCAL_PROXY_HOSTS = {"127.0.0.1", "localhost"}
+LOCAL_PUBLIC_HOSTS = {*LOCAL_PROXY_HOSTS, "0.0.0.0", "::1"}
+RESERVED_PUBLIC_HOSTS = {"example.com", "example.net", "example.org"}
+RESERVED_PUBLIC_SUFFIXES = (".example.com", ".example.net", ".example.org", ".invalid", ".test")
+PLACEHOLDER_MARKERS = ("<", ">", "replace-", "record exact", "required when")
 
 FLOW_KEY_PATTERNS = {
     "first_paint": ("03 local first paint", "cold first paint"),
@@ -110,6 +114,35 @@ def is_local_proxyman_proxy(value: Any) -> bool:
         and parsed.username is None
         and parsed.password is None
     )
+
+
+def normalized_url(value: Any) -> str:
+    return str(value or "").strip().rstrip("/")
+
+
+def has_placeholder(value: Any) -> bool:
+    text = str(value or "").strip().lower()
+    return any(marker in text for marker in PLACEHOLDER_MARKERS)
+
+
+def public_https_url_failures(value: Any, label: str) -> list[str]:
+    url = normalized_url(value)
+    if not url:
+        return [f"{label} base URL is missing"]
+    parsed = urlparse(url)
+    failures: list[str] = []
+    if parsed.scheme != "https":
+        failures.append(f"{label} base URL is not HTTPS")
+    hostname = (parsed.hostname or "").lower()
+    if hostname in LOCAL_PUBLIC_HOSTS or hostname.endswith(".local"):
+        failures.append(f"{label} base URL is not public")
+    if hostname in RESERVED_PUBLIC_HOSTS or hostname.endswith(RESERVED_PUBLIC_SUFFIXES):
+        failures.append(f"{label} base URL is a reserved documentation hostname")
+    return failures
+
+
+def same_base_url(left: Any, right: Any) -> bool:
+    return safe_url(normalized_url(left)) == safe_url(normalized_url(right))
 
 
 def display_path(value: str) -> str:
@@ -190,7 +223,11 @@ def flow_failures(rows: list[dict[str, Any]], label: str) -> list[str]:
     for row in rows:
         name = row.get("name") or "unknown flow"
         har_path = str(row.get("har_path") or "")
-        if not har_path.startswith("docs/evidence/performance/") or not har_path.endswith(".har"):
+        if (
+            not har_path.startswith("docs/evidence/performance/")
+            or not har_path.endswith(".har")
+            or not (ROOT / har_path).is_file()
+        ):
             failures.append(f"{label} capture HAR path is missing or invalid: {name}")
     return failures
 
@@ -360,13 +397,15 @@ def evaluate(
     warnings: list[str] = []
 
     failures.extend(flow_failures(browser_rows, "browser"))
+    failures.extend(public_https_url_failures(browser_base_url, "browser"))
     if not is_local_proxyman_proxy(browser_proxy_server):
         failures.append("browser Proxyman proxy is not a local explicit proxy URL")
 
     if direct_rows is None:
         failures.append("direct browser comparison input is missing")
     else:
-        if safe_url(browser_base_url) != safe_url(direct_base_url):
+        failures.extend(public_https_url_failures(direct_base_url, "direct browser"))
+        if not same_base_url(browser_base_url, direct_base_url):
             failures.append("direct browser comparison base URL does not match proxied capture")
         if direct_proxy_server:
             failures.append("direct browser comparison unexpectedly records a proxy server")
@@ -376,10 +415,18 @@ def evaluate(
         warnings.append("public preflight input missing; DNS/TLS timings are not summarized")
     elif preflight.get("verdict") != "pass":
         failures.append("public preflight verdict is not pass")
+    elif preflight.get("base_url"):
+        failures.extend(public_https_url_failures(preflight.get("base_url"), "public preflight"))
+        if not same_base_url(browser_base_url, preflight.get("base_url")):
+            failures.append("public preflight base URL does not match browser capture")
 
     if auth is None:
         warnings.append("auth/map-slot latency input missing; p95 targets are not summarized")
     else:
+        if auth.get("base_url"):
+            failures.extend(public_https_url_failures(auth.get("base_url"), "auth/map-slot"))
+            if not same_base_url(browser_base_url, auth.get("base_url")):
+                failures.append("auth/map-slot base URL does not match browser capture")
         for row in auth_rows(auth):
             if row["target_met"] is False:
                 failures.append(f"auth/map-slot target missed: {row['name']}")
@@ -388,14 +435,19 @@ def evaluate(
         warnings.append("public route-family probe input missing; route p95s are not summarized")
     elif route_probe.get("verdict") != "pass" or route_probe.get("failure_count"):
         failures.append("public route-family probe verdict is not pass")
+    elif route_probe.get("base_url"):
+        failures.extend(public_https_url_failures(route_probe.get("base_url"), "public route-family probe"))
+        if not same_base_url(browser_base_url, route_probe.get("base_url")):
+            failures.append("public route-family probe base URL does not match browser capture")
 
     if supplemental is None:
         warnings.append("supplemental public performance evidence missing; external-location and runtime-resource metrics are not summarized")
     else:
         if not supplemental.get("input_captured_at"):
             failures.append("supplemental performance input captured timestamp is missing")
-        if urlparse(str(supplemental.get("base_url") or "")).scheme != "https":
-            failures.append("supplemental performance base URL is not HTTPS")
+        failures.extend(public_https_url_failures(supplemental.get("base_url"), "supplemental performance"))
+        if supplemental.get("base_url") and not same_base_url(browser_base_url, supplemental.get("base_url")):
+            failures.append("supplemental performance base URL does not match browser capture")
         if supplemental.get("secret_free_evidence") is not True:
             failures.append("supplemental performance evidence is not marked secret-free")
 
@@ -406,6 +458,8 @@ def evaluate(
             name = row.get("name") or "unknown location"
             if not row.get("name") or not row.get("region"):
                 failures.append(f"external performance location identity is incomplete: {name}")
+            if has_placeholder(row.get("name")) or has_placeholder(row.get("region")):
+                failures.append(f"external performance location identity is still a placeholder: {name}")
             for key in LOCATION_REQUIRED:
                 value = row.get(key)
                 if not non_negative_number(value):

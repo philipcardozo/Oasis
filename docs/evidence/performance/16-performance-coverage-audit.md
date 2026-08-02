@@ -1,7 +1,7 @@
 # Performance Evidence Coverage Audit
 
-**Generated:** 2026-07-23T19:49:19.711152+00:00
-**Commit:** `9fb135fc54d7f3cf3f44ab3a51fe86d4f0bcb01e`
+**Generated:** 2026-07-30T05:22:56.702531+00:00
+**Commit:** `788dc9b22bb932a6ff035d567cb67622650d4b40`
 
 ## Artifact Presence
 
@@ -39,18 +39,18 @@
 
 ## Browser Flows
 
-Source summary: `2026-07-23T18:46:53.097Z` via `http://127.0.0.1:9090`
+Source summary: `2026-07-30T05:20:54.739Z` via `http://localhost:9090`
 
 | Flow | Requests | Transfer KB | Bulk | unpkg | Console errors |
 |---|---:|---:|---|---|---:|
-| `15-compose-03-local-first-paint` | 9 | 352.9 | False | False | 0 |
-| `15-compose-04-local-reload` | 18 | 282 | False | False | 0 |
-| `15-compose-05-local-search-intent` | 10 | 1311 | True | False | 0 |
-| `15-compose-06-local-map-interactions` | 106 | 1353.9 | False | False | 8 |
-| `15-compose-07-local-dcf-download` | 10 | 353.2 | False | False | 1 |
-| `15-compose-12-local-entity-drawer` | 17 | 1313.3 | True | False | 3 |
-| `15-compose-13-local-data-quality-panel` | 10 | 353.2 | False | False | 1 |
-| `15-compose-14-local-report-preview` | 10 | 353.2 | False | False | 1 |
+| `15-compose-03-local-first-paint` | 10 | 353 | False | False | 0 |
+| `15-compose-04-local-reload` | 20 | 0.6 | False | False | 0 |
+| `15-compose-05-local-search-intent` | 11 | 1311.2 | True | False | 0 |
+| `15-compose-06-local-map-interactions` | 89 | 1354.1 | False | False | 0 |
+| `15-compose-07-local-dcf-download` | 11 | 369.8 | False | False | 0 |
+| `15-compose-12-local-entity-drawer` | 18 | 1314.7 | True | False | 0 |
+| `15-compose-13-local-data-quality-panel` | 11 | 353.7 | False | False | 0 |
+| `15-compose-14-local-report-preview` | 11 | 355 | False | False | 0 |
 
 ## Headless MapLibre Diagnostic
 
@@ -63,11 +63,11 @@ Source summary: `2026-07-23T18:46:53.097Z` via `http://127.0.0.1:9090`
 
 ## Headed Compose Map Gate
 
-- captured: `2026-07-23T19:36:59.595Z`
+- captured: `2026-07-30T05:21:27.988Z`
 - verdict: `pass`
-- browser: `chrome` `150.0.7871.129`
+- browser: `chrome` `150.0.7871.188`
 - headed: `True`
-- proxy: `http://127.0.0.1:9090`
+- proxy: `http://localhost:9090`
 - vendored MapLibre requested: `True`
 - unpkg requested: `False`
 - unexpected failed requests: `0`

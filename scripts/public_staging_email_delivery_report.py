@@ -19,6 +19,11 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
+LOCAL_PUBLIC_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
+PLACEHOLDER_MARKERS = ("<", ">", "replace-", "record exact", "required when")
+RESERVED_PUBLIC_HOSTS = {"example.com", "example.net", "example.org"}
+RESERVED_PUBLIC_SUFFIXES = (".example.com", ".example.net", ".example.org", ".invalid", ".test")
+EMAIL_PLACEHOLDER_VALUES = {"staging sender domain", "transactional email sandbox"}
 
 PROVIDER_CHECKS = {
     "transactional_service_configured": "transactional email service is configured",
@@ -83,6 +88,24 @@ def display_path(value: str) -> str:
 
 def bool_row(key: str, label: str, value: bool, **extra: Any) -> dict[str, Any]:
     return {"key": key, "label": label, "value": bool(value), **extra}
+
+
+def public_base_url_failures(url: str) -> list[str]:
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").lower()
+    failures: list[str] = []
+    if parsed.scheme != "https":
+        failures.append("email base URL is not HTTPS")
+    if not host or host in LOCAL_PUBLIC_HOSTS or host.endswith(".local"):
+        failures.append("email base URL is not a non-local public hostname")
+    if host in RESERVED_PUBLIC_HOSTS or host.endswith(RESERVED_PUBLIC_SUFFIXES):
+        failures.append("email base URL is a reserved documentation hostname")
+    return failures
+
+
+def has_placeholder(value: Any) -> bool:
+    text = str(value or "").strip().lower()
+    return text in EMAIL_PLACEHOLDER_VALUES or any(marker in text for marker in PLACEHOLDER_MARKERS)
 
 
 def check_rows(data: dict[str, Any], section: str, required: dict[str, str]) -> tuple[list[dict[str, Any]], list[str]]:
@@ -162,10 +185,13 @@ def build_payload(
 
     if not data.get("input_captured_at"):
         failures.append("email input captured timestamp is missing")
-    if urlparse(str(data.get("base_url") or "")).scheme != "https":
-        failures.append("email base URL is not HTTPS")
+    failures.extend(public_base_url_failures(str(data.get("base_url") or "")))
     if not str(data.get("provider") or ""):
         failures.append("email provider is missing")
+    elif has_placeholder(data.get("provider")):
+        failures.append("email provider is still a placeholder")
+    if has_placeholder(data.get("sender_domain_alias")):
+        failures.append("email sender domain alias is still a placeholder")
     if data.get("secret_free_evidence") is not True:
         failures.append("email evidence is not marked secret-free")
 

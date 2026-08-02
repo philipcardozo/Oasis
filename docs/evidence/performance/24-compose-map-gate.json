@@ -1,10 +1,10 @@
 {
-  "capturedAt": "2026-07-23T19:36:59.595Z",
+  "capturedAt": "2026-07-30T05:21:27.988Z",
   "baseUrl": "https://localhost:8443",
-  "proxyServer": "http://127.0.0.1:9090",
+  "proxyServer": "http://localhost:9090",
   "git": {
-    "branch": "main",
-    "commit": "9fb135f"
+    "branch": "phase1.75/public-staging",
+    "commit": "788dc9b"
   },
   "platform": {
     "os": "darwin",
@@ -18,7 +18,7 @@
     "actualHeadless": false,
     "fallback": false,
     "fallbackReason": null,
-    "version": "150.0.7871.129"
+    "version": "150.0.7871.188"
   },
   "checks": {
     "initialStandard": {
@@ -491,8 +491,8 @@
     "providerFailure": "/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/24-compose-map-gate-provider-failure.png"
   },
   "normalCapture": {
-    "requestCount": 378,
-    "failedRequestCount": 32,
+    "requestCount": 373,
+    "failedRequestCount": 27,
     "consoleErrorCount": 0,
     "pageErrorCount": 2,
     "requests": [
@@ -578,7 +578,7 @@
       },
       {
         "method": "GET",
-        "url": "blob:https://localhost:8443/2b27e515-23e5-4e12-8de6-47458748e64e",
+        "url": "blob:https://localhost:8443/7d3c1660-3d99-4c45-9c13-ba7adf89c688",
         "resourceType": "script"
       },
       {
@@ -678,17 +678,27 @@
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/0/0.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/1.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/0/1.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/1/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/1/0.pbf",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
+        "url": "https://fonts.openmaptiles.org/Noto%20Sans%20Bold/0-255.pbf",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
+        "url": "https://fonts.openmaptiles.org/Noto%20Sans%20Italic/0-255.pbf",
         "resourceType": "fetch"
       },
       {
@@ -788,17 +798,17 @@
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/0/0.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/1.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/0/1.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/1/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/1/0.pbf",
         "resourceType": "fetch"
       },
       {
@@ -848,57 +858,17 @@
       },
       {
         "method": "GET",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/0/0/0.pbf",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/0/0/0.pbf",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
         "url": "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/0/0/0.pbf",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/0/0/0.pbf",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/0.png",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/1.png",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/0.png",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/0.png",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/1.png",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/1.png",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/0/0/0.png",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/0/0/0.png",
         "resourceType": "fetch"
       },
       {
@@ -1033,6 +1003,46 @@
       },
       {
         "method": "GET",
+        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/0.png",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
+        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/0/1.png",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
+        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/0.png",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
+        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/0.png",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
+        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/1.png",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
+        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/1.png",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
+        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/0/0/0.png",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
+        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/0/0/0.png",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
         "url": "https://tiles.openfreemap.org/planet",
         "resourceType": "fetch"
       },
@@ -1083,6 +1093,31 @@
       },
       {
         "method": "GET",
+        "url": "https://fonts.openmaptiles.org/Noto%20Sans%20Bold/0-255.pbf",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/0/0.pbf",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/0/1.pbf",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/1/0.pbf",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
+        "url": "https://fonts.openmaptiles.org/Noto%20Sans%20Italic/0-255.pbf",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
         "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/2/2/0.png",
         "resourceType": "fetch"
       },
@@ -1123,42 +1158,17 @@
       },
       {
         "method": "GET",
-        "url": "https://fonts.openmaptiles.org/Noto%20Sans%20Bold/0-255.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/0/0/0.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/0/0/0.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/1.pbf",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/1/0.pbf",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://fonts.openmaptiles.org/Noto%20Sans%20Italic/0-255.pbf",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/1/1.pbf",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/0/0/0.pbf",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/0/0/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/1/1.pbf",
         "resourceType": "fetch"
       },
       {
@@ -1173,57 +1183,62 @@
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/2/0/1.pbf",
+        "url": "https://localhost:8443/api/universe/bulk",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/2/1/1.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/2/0/1.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/2/0/2.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/2/1/1.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/2/0/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/2/0/2.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/2/1/2.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/2/0/0.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/2/1/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/2/1/2.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/2/2/1.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/2/1/0.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/2/2/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/2/2/1.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/2/3/1.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/2/2/0.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/2/3/2.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/2/3/1.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/2/3/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/2/3/2.pbf",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/2/3/0.pbf",
         "resourceType": "fetch"
       },
       {
@@ -1268,27 +1283,17 @@
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/0/0.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/1.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/0/1.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/1/0.pbf",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/1/0.pbf",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://localhost:8443/api/universe/bulk",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/1/1.pbf",
         "resourceType": "fetch"
       },
       {
@@ -1373,17 +1378,17 @@
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/0/0/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/0/0/0.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/0/0/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/1/0.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/1/1.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/1/0.pbf",
         "resourceType": "fetch"
       },
       {
@@ -1463,37 +1468,12 @@
       },
       {
         "method": "GET",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/0/0/0.pbf",
+        "resourceType": "fetch"
+      },
+      {
+        "method": "GET",
         "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/2/1/0.png",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/2/2/1.png",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/2/2/0.png",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/2/3/1.png",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/2/3/2.png",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/2/3/0.png",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/1/1/0.png",
         "resourceType": "fetch"
       },
       {
@@ -1543,37 +1523,37 @@
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/4/3/6.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/4/3/6.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/4/3/5.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/4/3/5.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/4/4/6.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/4/4/6.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/4/4/5.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/4/4/5.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/4/2/6.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/4/2/6.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/4/2/5.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/4/2/5.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/4/2/7.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/4/2/7.pbf",
         "resourceType": "fetch"
       },
       {
@@ -1663,32 +1643,27 @@
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/3/1/3.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/3/1/3.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/3/1/2.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/3/1/2.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/3/2/3.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/3/2/3.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/3/2/2.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/3/2/2.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/2/0/1.pbf",
-        "resourceType": "fetch"
-      },
-      {
-        "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/2/1/1.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/2/1/1.pbf",
         "resourceType": "fetch"
       },
       {
@@ -1773,7 +1748,7 @@
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/2/0/1.pbf",
         "resourceType": "fetch"
       },
       {
@@ -2098,7 +2073,7 @@
       },
       {
         "method": "GET",
-        "url": "blob:https://localhost:8443/bd40f972-b5d8-490f-aeac-99ce683513ed",
+        "url": "blob:https://localhost:8443/c6a9cfdf-4f5f-40e6-849d-d24dc00e6a91",
         "resourceType": "script"
       },
       {
@@ -2402,55 +2377,13 @@
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/6/16/23.png",
-        "resourceType": "fetch",
-        "failure": "net::ERR_ABORTED"
-      },
-      {
-        "method": "GET",
         "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/6/12/25.png",
         "resourceType": "fetch",
         "failure": "net::ERR_ABORTED"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/6/16/25.png",
-        "resourceType": "fetch",
-        "failure": "net::ERR_ABORTED"
-      },
-      {
-        "method": "GET",
-        "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/6/13/26.png",
-        "resourceType": "fetch",
-        "failure": "net::ERR_ABORTED"
-      },
-      {
-        "method": "GET",
-        "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/6/15/26.png",
-        "resourceType": "fetch",
-        "failure": "net::ERR_ABORTED"
-      },
-      {
-        "method": "GET",
-        "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/6/12/22.png",
-        "resourceType": "fetch",
-        "failure": "net::ERR_ABORTED"
-      },
-      {
-        "method": "GET",
-        "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/6/16/22.png",
-        "resourceType": "fetch",
-        "failure": "net::ERR_ABORTED"
-      },
-      {
-        "method": "GET",
         "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/6/12/26.png",
-        "resourceType": "fetch",
-        "failure": "net::ERR_ABORTED"
-      },
-      {
-        "method": "GET",
-        "url": "https://tiles.openfreemap.org/natural_earth/ne2sr/6/16/26.png",
         "resourceType": "fetch",
         "failure": "net::ERR_ABORTED"
       },
@@ -2486,49 +2419,37 @@
       },
       {
         "method": "GET",
-        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/26/13",
+        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/23/17",
         "resourceType": "fetch",
         "failure": "net::ERR_ABORTED"
       },
       {
         "method": "GET",
-        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/25/12",
+        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/4/2/5.png",
         "resourceType": "fetch",
         "failure": "net::ERR_ABORTED"
       },
       {
         "method": "GET",
-        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/22/16",
+        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/4/3/6.png",
         "resourceType": "fetch",
         "failure": "net::ERR_ABORTED"
       },
       {
         "method": "GET",
-        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/24/11",
+        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/4/2/7.png",
         "resourceType": "fetch",
         "failure": "net::ERR_ABORTED"
       },
       {
         "method": "GET",
-        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/23/11",
+        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/26/11",
         "resourceType": "fetch",
         "failure": "net::ERR_ABORTED"
       },
       {
         "method": "GET",
-        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/22/12",
-        "resourceType": "fetch",
-        "failure": "net::ERR_ABORTED"
-      },
-      {
-        "method": "GET",
-        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/26/12",
-        "resourceType": "fetch",
-        "failure": "net::ERR_ABORTED"
-      },
-      {
-        "method": "GET",
-        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/23/16",
+        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/22/10",
         "resourceType": "fetch",
         "failure": "net::ERR_ABORTED"
       },
@@ -2540,25 +2461,31 @@
       },
       {
         "method": "GET",
-        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/25/16",
+        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/4/4/5.png",
         "resourceType": "fetch",
         "failure": "net::ERR_ABORTED"
       },
       {
         "method": "GET",
-        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/24/17",
+        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/26/17",
         "resourceType": "fetch",
         "failure": "net::ERR_ABORTED"
       },
       {
         "method": "GET",
-        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/26/15",
+        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/4/3/5.png",
         "resourceType": "fetch",
         "failure": "net::ERR_ABORTED"
       },
       {
         "method": "GET",
-        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/26/16",
+        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/4/4/6.png",
+        "resourceType": "fetch",
+        "failure": "net::ERR_ABORTED"
+      },
+      {
+        "method": "GET",
+        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/22/17",
         "resourceType": "fetch",
         "failure": "net::ERR_ABORTED"
       },
@@ -2570,13 +2497,31 @@
       },
       {
         "method": "GET",
-        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/23/17",
+        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/25/17",
         "resourceType": "fetch",
         "failure": "net::ERR_ABORTED"
       },
       {
         "method": "GET",
-        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/25/17",
+        "url": "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/4/2/6.png",
+        "resourceType": "fetch",
+        "failure": "net::ERR_ABORTED"
+      },
+      {
+        "method": "GET",
+        "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/6/22/18",
+        "resourceType": "fetch",
+        "failure": "net::ERR_ABORTED"
+      },
+      {
+        "method": "GET",
+        "url": "https://localhost:8443/api/bootstrap/signals",
+        "resourceType": "fetch",
+        "failure": "net::ERR_ABORTED"
+      },
+      {
+        "method": "GET",
+        "url": "https://localhost:8443/data/universe_core.json",
         "resourceType": "fetch",
         "failure": "net::ERR_ABORTED"
       }
@@ -2770,17 +2715,17 @@
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/0/0.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/0/1.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/0/1.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/1/1/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/1/1/0.pbf",
         "resourceType": "fetch"
       },
       {
@@ -2795,12 +2740,12 @@
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/0/0/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/0/0/0.pbf",
         "resourceType": "fetch"
       },
       {
         "method": "GET",
-        "url": "https://tiles.openfreemap.org/planet/20260621_080001_pt/0/0/0.pbf",
+        "url": "https://tiles.openfreemap.org/planet/20260726_080001_pt/0/0/0.pbf",
         "resourceType": "fetch"
       }
     ],
@@ -2820,7 +2765,7 @@
   "summary": {
     "requestedUnpkg": false,
     "requestedVendoredMapLibre": true,
-    "expectedProviderFailures": 33,
+    "expectedProviderFailures": 28,
     "unexpectedFailedRequests": [],
     "unexpectedConsoleErrors": [],
     "externalHosts": [

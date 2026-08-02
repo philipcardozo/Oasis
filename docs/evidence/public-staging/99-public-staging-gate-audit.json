@@ -1,0 +1,2356 @@
+{
+  "acceptance": [
+    {
+      "files": [
+        {
+          "bytes": 28735,
+          "exists": true,
+          "json_failures": null,
+          "json_schema_weak": [
+            "readiness verdict is not ready",
+            "readiness has blocking external inputs",
+            "readiness local env is not set: CLOUDFLARE_ACCOUNT_ID",
+            "readiness local env is not set: CLOUDFLARE_API_TOKEN",
+            "readiness local env is not set: CLOUDFLARE_ZONE_ID",
+            "readiness local env is not set: OASIS_CF_ACCESS_CLIENT_ID",
+            "readiness local env is not set: OASIS_CF_ACCESS_CLIENT_SECRET",
+            "readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD",
+            "readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_EMAIL",
+            "readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_PASSWORD",
+            "readiness local env is not set: OASIS_PUBLIC_TESTER_A_EMAIL",
+            "readiness local env is not set: OASIS_PUBLIC_TESTER_A_PASSWORD",
+            "readiness local env is not set: OASIS_PUBLIC_TESTER_A_RESET_PASSWORD",
+            "readiness local env is not set: OASIS_PUBLIC_TESTER_B_EMAIL",
+            "readiness local env is not set: OASIS_PUBLIC_TESTER_B_PASSWORD",
+            "readiness local env is not set: RENDER_API_KEY",
+            "readiness local env is not set: RENDER_API_SERVICE_ID",
+            "readiness local env is not set: RENDER_WORKER_SERVICE_ID",
+            "readiness local env is not set: STAGING_URL",
+            "readiness STAGING_URL is not a real public HTTPS hostname",
+            "readiness GitHub staging secret is missing: OASIS_CF_ACCESS_CLIENT_ID",
+            "readiness GitHub staging secret is missing: OASIS_CF_ACCESS_CLIENT_SECRET",
+            "readiness GitHub staging secret is missing: RENDER_API_KEY",
+            "readiness GitHub staging secret is missing: RENDER_API_SERVICE_ID",
+            "readiness GitHub staging secret is missing: RENDER_WORKER_SERVICE_ID",
+            "readiness GitHub staging STAGING_URL variable is missing"
+          ],
+          "json_verdict": "not_ready",
+          "parse_error": null,
+          "path": "docs/evidence/public-staging/public-staging-readiness-status.json",
+          "secret_weak": []
+        },
+        {
+          "bytes": 23980,
+          "exists": true,
+          "json_failures": [],
+          "json_schema_weak": [],
+          "json_verdict": "pass",
+          "parse_error": null,
+          "path": "docs/evidence/public-staging/public-staging-config-contract.json",
+          "secret_weak": []
+        }
+      ],
+      "key": "staging_values_outside_git",
+      "label": "Production-style staging values are configured outside Git",
+      "missing": [],
+      "status": "weak",
+      "weak": [
+        "docs/evidence/public-staging/public-staging-readiness-status.json verdict=not_ready",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness verdict is not ready",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness has blocking external inputs",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: CLOUDFLARE_ACCOUNT_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: CLOUDFLARE_API_TOKEN",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: CLOUDFLARE_ZONE_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_CF_ACCESS_CLIENT_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_CF_ACCESS_CLIENT_SECRET",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_EMAIL",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_PASSWORD",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_A_EMAIL",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_A_PASSWORD",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_A_RESET_PASSWORD",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_B_EMAIL",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_B_PASSWORD",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: RENDER_API_KEY",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: RENDER_API_SERVICE_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: RENDER_WORKER_SERVICE_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: STAGING_URL",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness STAGING_URL is not a real public HTTPS hostname",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: OASIS_CF_ACCESS_CLIENT_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: OASIS_CF_ACCESS_CLIENT_SECRET",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: RENDER_API_KEY",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: RENDER_API_SERVICE_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: RENDER_WORKER_SERVICE_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging STAGING_URL variable is missing"
+      ]
+    },
+    {
+      "files": [
+        {
+          "bytes": 18877,
+          "exists": true,
+          "json_failures": [],
+          "json_schema_weak": [
+            "full verification verdict is not pass",
+            "full verification run is a dry-run plan",
+            "full verification base URL is a reserved documentation hostname",
+            "full verification result is missing: auth_email_report",
+            "full verification result is missing: auth_map_slots_probe",
+            "full verification result is missing: browser_matrix_template",
+            "full verification result is missing: browser_reports",
+            "full verification result is missing: config_contract",
+            "full verification result is missing: direct_browser_capture",
+            "full verification result is missing: email_delivery_report",
+            "full verification result is missing: failure_exercises_report",
+            "full verification result is missing: infra_reports",
+            "full verification result is missing: licensing_report",
+            "full verification result is missing: ops_reports",
+            "full verification result is missing: performance_report",
+            "full verification result is missing: preflight",
+            "full verification result is missing: proxyman_browser_capture",
+            "full verification result is missing: public_playwright",
+            "full verification result is missing: rate_limit_report",
+            "full verification result is missing: readiness",
+            "full verification result is missing: route_family_probe",
+            "full verification result is missing: route_security_report",
+            "full verification result is missing: setup_checklist",
+            "full verification result is missing: storage_report"
+          ],
+          "json_verdict": "planned",
+          "parse_error": null,
+          "path": "docs/evidence/public-staging/public-staging-full-verification-run.json",
+          "secret_weak": []
+        }
+      ],
+      "key": "full_public_verification_sequence",
+      "label": "Full public verification sequence was run",
+      "missing": [],
+      "status": "weak",
+      "weak": [
+        "docs/evidence/public-staging/public-staging-full-verification-run.json verdict=planned",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification verdict is not pass",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification run is a dry-run plan",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification base URL is a reserved documentation hostname",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: auth_email_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: auth_map_slots_probe",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: browser_matrix_template",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: browser_reports",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: config_contract",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: direct_browser_capture",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: email_delivery_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: failure_exercises_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: infra_reports",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: licensing_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: ops_reports",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: performance_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: preflight",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: proxyman_browser_capture",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: public_playwright",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: rate_limit_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: readiness",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: route_family_probe",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: route_security_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: setup_checklist",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: storage_report"
+      ]
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/00-public-staging-preflight.json"
+        }
+      ],
+      "key": "https_reachable",
+      "label": "Public staging is reachable through HTTPS",
+      "missing": [
+        "docs/evidence/public-staging/00-public-staging-preflight.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/03-cloudflare-access.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/infra-evidence-summary.json"
+        }
+      ],
+      "key": "outer_access",
+      "label": "Outer staging access control is enabled",
+      "missing": [
+        "docs/evidence/public-staging/03-cloudflare-access.md",
+        "docs/evidence/public-staging/infra-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/00-public-staging-preflight.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/02-dns-tls-edge.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/infra-evidence-summary.json"
+        }
+      ],
+      "key": "dns_cert_valid",
+      "label": "DNS and certificates are valid",
+      "missing": [
+        "docs/evidence/public-staging/00-public-staging-preflight.json",
+        "docs/evidence/public-staging/02-dns-tls-edge.md",
+        "docs/evidence/public-staging/infra-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/01-image-manifest.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/02-render-deploy.json"
+        }
+      ],
+      "key": "tested_commit_image",
+      "label": "Deployed image matches a tested commit",
+      "missing": [
+        "docs/evidence/public-staging/01-image-manifest.json",
+        "docs/evidence/public-staging/02-render-deploy.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/12-backup-restore.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/ops-evidence-summary.json"
+        }
+      ],
+      "key": "postgres_backed_up",
+      "label": "PostgreSQL is persistent and backed up",
+      "missing": [
+        "docs/evidence/public-staging/12-backup-restore.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/05-migration-version.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/infra-evidence-summary.json"
+        }
+      ],
+      "key": "explicit_migrations",
+      "label": "Migrations complete explicitly",
+      "missing": [
+        "docs/evidence/public-staging/05-migration-version.md",
+        "docs/evidence/public-staging/infra-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/02-render-deploy.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/10-worker-jobs.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/ops-evidence-summary.json"
+        }
+      ],
+      "key": "api_worker_separate",
+      "label": "API and worker are separate",
+      "missing": [
+        "docs/evidence/public-staging/02-render-deploy.json",
+        "docs/evidence/public-staging/10-worker-jobs.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/06-auth-email.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/20-email-delivery.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/auth-email-summary.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/email-delivery-summary.json"
+        }
+      ],
+      "key": "auth_email",
+      "label": "Email verification and password reset work",
+      "missing": [
+        "docs/evidence/public-staging/06-auth-email.md",
+        "docs/evidence/public-staging/20-email-delivery.md",
+        "docs/evidence/public-staging/auth-email-summary.json",
+        "docs/evidence/public-staging/email-delivery-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/06-auth-email.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/auth-email-summary.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/00-public-staging-preflight.json"
+        }
+      ],
+      "key": "secure_cookies",
+      "label": "Session cookies are secure",
+      "missing": [
+        "docs/evidence/public-staging/06-auth-email.md",
+        "docs/evidence/public-staging/auth-email-summary.json",
+        "docs/evidence/public-staging/00-public-staging-preflight.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/09-route-security.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/route-security-summary.json"
+        }
+      ],
+      "key": "csrf",
+      "label": "CSRF works",
+      "missing": [
+        "docs/evidence/public-staging/09-route-security.md",
+        "docs/evidence/public-staging/route-security-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/09-route-security.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/route-security-summary.json"
+        }
+      ],
+      "key": "route_classification",
+      "label": "Every route has explicit security classification",
+      "missing": [
+        "docs/evidence/public-staging/09-route-security.md",
+        "docs/evidence/public-staging/route-security-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/09-route-security.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/route-security-summary.json"
+        }
+      ],
+      "key": "cross_user_denied",
+      "label": "Cross-user access is denied",
+      "missing": [
+        "docs/evidence/public-staging/09-route-security.md",
+        "docs/evidence/public-staging/route-security-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/07-browser-matrix.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/browser-map-summary.json"
+        }
+      ],
+      "key": "three_slots",
+      "label": "Exactly three map slots persist across devices",
+      "missing": [
+        "docs/evidence/public-staging/07-browser-matrix.md",
+        "docs/evidence/public-staging/browser-map-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/07-browser-matrix.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/08-map-provider-capture.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/browser-map-summary.json"
+        }
+      ],
+      "key": "browser_map",
+      "label": "Real browser map rendering works",
+      "missing": [
+        "docs/evidence/public-staging/07-browser-matrix.md",
+        "docs/evidence/public-staging/08-map-provider-capture.md",
+        "docs/evidence/public-staging/browser-map-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/15-performance.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/performance-evidence-summary.json"
+        }
+      ],
+      "key": "no_bulk_first_paint",
+      "label": "/api/universe/bulk is absent from initial paint",
+      "missing": [
+        "docs/evidence/public-staging/15-performance.md",
+        "docs/evidence/public-staging/performance-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/11-network-isolation.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/ops-evidence-summary.json"
+        }
+      ],
+      "key": "zero_api_acquisition",
+      "label": "API user requests perform zero external acquisition",
+      "missing": [
+        "docs/evidence/public-staging/11-network-isolation.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/10-worker-jobs.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/21-failure-exercises.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/ops-evidence-summary.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/failure-exercises-summary.json"
+        }
+      ],
+      "key": "worker_recovery",
+      "label": "Worker jobs are bounded and recoverable",
+      "missing": [
+        "docs/evidence/public-staging/10-worker-jobs.md",
+        "docs/evidence/public-staging/21-failure-exercises.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/failure-exercises-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/12-backup-restore.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/19-object-storage.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/21-failure-exercises.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/ops-evidence-summary.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/storage-summary.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/failure-exercises-summary.json"
+        }
+      ],
+      "key": "private_storage",
+      "label": "Object storage remains private",
+      "missing": [
+        "docs/evidence/public-staging/12-backup-restore.md",
+        "docs/evidence/public-staging/19-object-storage.md",
+        "docs/evidence/public-staging/21-failure-exercises.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/storage-summary.json",
+        "docs/evidence/public-staging/failure-exercises-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/00-public-staging-preflight.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/09-route-security.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/route-security-summary.json"
+        }
+      ],
+      "key": "headers_cors_hosts",
+      "label": "Security headers, CORS, and trusted hosts are correct",
+      "missing": [
+        "docs/evidence/public-staging/00-public-staging-preflight.json",
+        "docs/evidence/public-staging/09-route-security.md",
+        "docs/evidence/public-staging/route-security-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/09-route-security.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/route-security-summary.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/18-rate-limiting.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/rate-limit-summary.json"
+        }
+      ],
+      "key": "rate_limit_proxy",
+      "label": "Rate limiting works through public proxy",
+      "missing": [
+        "docs/evidence/public-staging/09-route-security.md",
+        "docs/evidence/public-staging/route-security-summary.json",
+        "docs/evidence/public-staging/18-rate-limiting.md",
+        "docs/evidence/public-staging/rate-limit-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/12-backup-restore.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/ops-evidence-summary.json"
+        }
+      ],
+      "key": "restore_success",
+      "label": "Backup and restore succeed",
+      "missing": [
+        "docs/evidence/public-staging/12-backup-restore.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/13-failure-rollback.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/21-failure-exercises.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/ops-evidence-summary.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/failure-exercises-summary.json"
+        }
+      ],
+      "key": "rollback_success",
+      "label": "Deployment rollback succeeds",
+      "missing": [
+        "docs/evidence/public-staging/13-failure-rollback.md",
+        "docs/evidence/public-staging/21-failure-exercises.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/failure-exercises-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/14-observability-alerts.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/ops-evidence-summary.json"
+        }
+      ],
+      "key": "alerts",
+      "label": "Alerts detect key failures",
+      "missing": [
+        "docs/evidence/public-staging/14-observability-alerts.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/08-map-provider-capture.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/browser-map-summary.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/17-licensing-gates.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/licensing-summary.json"
+        }
+      ],
+      "key": "providers_disabled",
+      "label": "Unlicensed providers remain disabled",
+      "missing": [
+        "docs/evidence/public-staging/08-map-provider-capture.md",
+        "docs/evidence/public-staging/browser-map-summary.json",
+        "docs/evidence/public-staging/17-licensing-gates.md",
+        "docs/evidence/public-staging/licensing-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/01-image-manifest.json"
+        },
+        {
+          "bytes": 549,
+          "exists": true,
+          "generated_report_marker": true,
+          "markdown_schema_weak": [],
+          "markdown_verdict": "**planned**",
+          "markdown_verdict_pass": false,
+          "path": "docs/evidence/public-staging/22-public-playwright.md",
+          "secret_weak": []
+        },
+        {
+          "bytes": 791,
+          "exists": true,
+          "json_failures": [],
+          "json_schema_weak": [
+            "public Playwright verdict is not pass",
+            "public Playwright base URL is a reserved documentation hostname",
+            "public Playwright expected pass count is zero",
+            "public Playwright project is missing: chromium",
+            "public Playwright project is missing: firefox",
+            "public Playwright project is missing: webkit",
+            "public Playwright evidence is a dry-run plan"
+          ],
+          "json_verdict": "planned",
+          "parse_error": null,
+          "path": "docs/evidence/public-staging/public-playwright-summary.json",
+          "secret_weak": []
+        }
+      ],
+      "key": "test_suites_pass",
+      "label": "Test suites pass",
+      "missing": [
+        "docs/evidence/public-staging/01-image-manifest.json"
+      ],
+      "status": "missing",
+      "weak": [
+        "docs/evidence/public-staging/22-public-playwright.md markdown verdict=**planned**",
+        "docs/evidence/public-staging/public-playwright-summary.json verdict=planned",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright verdict is not pass",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright base URL is a reserved documentation hostname",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright expected pass count is zero",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: chromium",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: firefox",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: webkit",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright evidence is a dry-run plan"
+      ]
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/01-image-manifest.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/02-render-deploy.json"
+        },
+        {
+          "bytes": 4147,
+          "exists": true,
+          "generated_report_marker": true,
+          "markdown_schema_weak": [],
+          "markdown_verdict": "**investigate**",
+          "markdown_verdict_pass": false,
+          "path": "docs/evidence/public-staging/16-deployment-automation.md",
+          "secret_weak": []
+        },
+        {
+          "bytes": 8973,
+          "exists": true,
+          "json_failures": [
+            "run check is not true: run_identity_real",
+            "run check is not true: run_commit_full_sha",
+            "artifacts check is not true: image_manifest_pass",
+            "artifacts check is not true: render_deploy_pass",
+            "artifacts check is not true: preflight_pass",
+            "artifacts check is not true: public_preflight_target",
+            "artifacts check is not true: workflow_run_matches_manifest",
+            "artifacts check is not true: commit_consistent",
+            "artifacts check is not true: commit_full_sha",
+            "artifacts check is not true: image_digest_pinned",
+            "artifacts check is not true: render_image_matches_manifest",
+            "artifacts check is not true: api_worker_deployed",
+            "artifacts check is not true: preflight_version_matches_commit"
+          ],
+          "json_schema_weak": [
+            "deployment automation summary verdict is not pass",
+            "deployment automation summary has failures",
+            "deployment automation input captured timestamp is still the template value",
+            "deployment automation commit is not a full 40-character SHA",
+            "deployment automation run required check is not true: run_commit_full_sha",
+            "deployment automation run required check is not true: run_identity_real",
+            "deployment automation artifacts required check is not true: api_worker_deployed",
+            "deployment automation artifacts required check is not true: commit_consistent",
+            "deployment automation artifacts required check is not true: commit_full_sha",
+            "deployment automation artifacts required check is not true: image_digest_pinned",
+            "deployment automation artifacts required check is not true: image_manifest_pass",
+            "deployment automation artifacts required check is not true: preflight_pass",
+            "deployment automation artifacts required check is not true: preflight_version_matches_commit",
+            "deployment automation artifacts required check is not true: render_deploy_pass",
+            "deployment automation artifacts required check is not true: render_image_matches_manifest",
+            "deployment automation artifacts required check is not true: workflow_run_matches_manifest"
+          ],
+          "json_verdict": "investigate",
+          "parse_error": null,
+          "path": "docs/evidence/public-staging/deployment-automation-summary.json",
+          "secret_weak": []
+        }
+      ],
+      "key": "cicd_safe",
+      "label": "CI/CD deploys immutable images safely",
+      "missing": [
+        "docs/evidence/public-staging/01-image-manifest.json",
+        "docs/evidence/public-staging/02-render-deploy.json"
+      ],
+      "status": "missing",
+      "weak": [
+        "docs/evidence/public-staging/16-deployment-automation.md markdown verdict=**investigate**",
+        "docs/evidence/public-staging/deployment-automation-summary.json verdict=investigate",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation summary verdict is not pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation summary has failures",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation input captured timestamp is still the template value",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation commit is not a full 40-character SHA",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation run required check is not true: run_commit_full_sha",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation run required check is not true: run_identity_real",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: api_worker_deployed",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: commit_consistent",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: commit_full_sha",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: image_digest_pinned",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: image_manifest_pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: preflight_pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: preflight_version_matches_commit",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: render_deploy_pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: render_image_matches_manifest",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: workflow_run_matches_manifest"
+      ]
+    },
+    {
+      "files": [
+        {
+          "bytes": 12854,
+          "exists": true,
+          "path": "docs/PHASE-1-75-PUBLIC-STAGING.md"
+        },
+        {
+          "bytes": 1613,
+          "exists": true,
+          "path": "docs/PUBLIC-STAGING-ARCHITECTURE.md"
+        },
+        {
+          "bytes": 33806,
+          "exists": true,
+          "path": "docs/PUBLIC-STAGING-RUNBOOK.md"
+        },
+        {
+          "bytes": 1645,
+          "exists": true,
+          "path": "docs/PRIVATE-BETA-OPERATIONS.md"
+        },
+        {
+          "bytes": 1173,
+          "exists": true,
+          "path": "docs/DEPLOYMENT-ROLLBACK.md"
+        },
+        {
+          "bytes": 837,
+          "exists": true,
+          "path": "docs/STAGING-OBSERVABILITY.md"
+        },
+        {
+          "bytes": 815,
+          "exists": true,
+          "path": "docs/STAGING-BACKUP-RESTORE.md"
+        },
+        {
+          "bytes": 2810,
+          "exists": true,
+          "path": "docs/LICENSING-GATES.md"
+        },
+        {
+          "bytes": 1529,
+          "exists": true,
+          "path": "docs/adr/0008-public-staging-provider.md"
+        },
+        {
+          "bytes": 1199,
+          "exists": true,
+          "path": "docs/adr/0009-edge-access-control.md"
+        },
+        {
+          "bytes": 707,
+          "exists": true,
+          "path": "docs/adr/0010-managed-postgresql.md"
+        },
+        {
+          "bytes": 632,
+          "exists": true,
+          "path": "docs/adr/0011-container-registry.md"
+        },
+        {
+          "bytes": 1052,
+          "exists": true,
+          "path": "docs/adr/0012-object-storage.md"
+        },
+        {
+          "bytes": 736,
+          "exists": true,
+          "path": "docs/adr/0013-email-provider.md"
+        },
+        {
+          "bytes": 999,
+          "exists": true,
+          "path": "docs/adr/0014-deployment-automation.md"
+        }
+      ],
+      "key": "docs_current",
+      "label": "Documentation is current",
+      "missing": [],
+      "status": "proven",
+      "weak": []
+    }
+  ],
+  "branch": "phase1.75/public-staging",
+  "captured_at": "2026-07-30T09:04:19.165274+00:00",
+  "commit": "788dc9b22bb932a6ff035d567cb67622650d4b40",
+  "final_response": [
+    {
+      "key": "hosting_provider_architecture",
+      "label": "Hosting provider and architecture",
+      "missing": [
+        "docs/evidence/public-staging/04-render-services.md",
+        "docs/evidence/public-staging/infra-evidence-summary.json",
+        "docs/evidence/public-staging/04-render-services.md",
+        "docs/evidence/public-staging/05-migration-version.md",
+        "docs/evidence/public-staging/infra-evidence-summary.json",
+        "docs/evidence/public-staging/02-render-deploy.json",
+        "docs/evidence/public-staging/10-worker-jobs.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/03-cloudflare-access.md",
+        "docs/evidence/public-staging/06-auth-email.md",
+        "docs/evidence/public-staging/auth-email-summary.json"
+      ],
+      "source_keys": [
+        "provider_readiness",
+        "secret_management",
+        "managed_postgres",
+        "api_worker_separation",
+        "private_beta_access"
+      ],
+      "status": "not_proven",
+      "weak": [
+        "docs/evidence/public-staging/public-staging-readiness-status.json verdict=not_ready",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness verdict is not ready",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness has blocking external inputs",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: CLOUDFLARE_ACCOUNT_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: CLOUDFLARE_API_TOKEN",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: CLOUDFLARE_ZONE_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_CF_ACCESS_CLIENT_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_CF_ACCESS_CLIENT_SECRET",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_EMAIL",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_PASSWORD",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_A_EMAIL",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_A_PASSWORD",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_A_RESET_PASSWORD",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_B_EMAIL",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_B_PASSWORD",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: RENDER_API_KEY",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: RENDER_API_SERVICE_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: RENDER_WORKER_SERVICE_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: STAGING_URL",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness STAGING_URL is not a real public HTTPS hostname",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: OASIS_CF_ACCESS_CLIENT_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: OASIS_CF_ACCESS_CLIENT_SECRET",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: RENDER_API_KEY",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: RENDER_API_SERVICE_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: RENDER_WORKER_SERVICE_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging STAGING_URL variable is missing"
+      ]
+    },
+    {
+      "key": "public_staging_hostname",
+      "label": "Public staging hostname",
+      "missing": [
+        "docs/evidence/public-staging/00-public-staging-preflight.json",
+        "docs/evidence/public-staging/infra-evidence-summary.json",
+        "docs/evidence/public-staging/00-public-staging-preflight.json"
+      ],
+      "source_keys": [
+        "public_dns",
+        "https_reachable"
+      ],
+      "status": "not_proven",
+      "weak": [
+        "preflight dns not ok"
+      ]
+    },
+    {
+      "key": "deployed_branch_commit_image_digest",
+      "label": "Deployed branch, commit, and image digest",
+      "missing": [
+        "docs/evidence/public-staging/01-image-manifest.json",
+        "docs/evidence/public-staging/02-render-deploy.json",
+        "docs/evidence/public-staging/01-image-manifest.json",
+        "docs/evidence/public-staging/02-render-deploy.json"
+      ],
+      "source_keys": [
+        "tested_commit_image",
+        "deployment_automation"
+      ],
+      "status": "not_proven",
+      "weak": [
+        "docs/evidence/public-staging/16-deployment-automation.md markdown verdict=**investigate**",
+        "docs/evidence/public-staging/deployment-automation-summary.json verdict=investigate",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation summary verdict is not pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation summary has failures",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation input captured timestamp is still the template value",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation commit is not a full 40-character SHA",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation run required check is not true: run_commit_full_sha",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation run required check is not true: run_identity_real",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: api_worker_deployed",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: commit_consistent",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: commit_full_sha",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: image_digest_pinned",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: image_manifest_pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: preflight_pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: preflight_version_matches_commit",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: render_deploy_pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: render_image_matches_manifest",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: workflow_run_matches_manifest"
+      ]
+    },
+    {
+      "key": "dns_tls_result",
+      "label": "DNS and TLS result",
+      "missing": [
+        "docs/evidence/public-staging/00-public-staging-preflight.json",
+        "docs/evidence/public-staging/infra-evidence-summary.json",
+        "docs/evidence/public-staging/00-public-staging-preflight.json",
+        "docs/evidence/public-staging/infra-evidence-summary.json",
+        "docs/evidence/public-staging/00-public-staging-preflight.json",
+        "docs/evidence/public-staging/02-dns-tls-edge.md",
+        "docs/evidence/public-staging/infra-evidence-summary.json"
+      ],
+      "source_keys": [
+        "public_dns",
+        "public_tls",
+        "dns_cert_valid"
+      ],
+      "status": "not_proven",
+      "weak": [
+        "preflight dns not ok",
+        "preflight tls not ok"
+      ]
+    },
+    {
+      "key": "access_control_result",
+      "label": "Access-control result",
+      "missing": [
+        "docs/evidence/public-staging/03-cloudflare-access.md",
+        "docs/evidence/public-staging/09-route-security.md",
+        "docs/evidence/public-staging/route-security-summary.json",
+        "docs/evidence/public-staging/03-cloudflare-access.md",
+        "docs/evidence/public-staging/infra-evidence-summary.json",
+        "docs/evidence/public-staging/03-cloudflare-access.md",
+        "docs/evidence/public-staging/06-auth-email.md",
+        "docs/evidence/public-staging/auth-email-summary.json"
+      ],
+      "source_keys": [
+        "attack_surface",
+        "outer_access",
+        "private_beta_access"
+      ],
+      "status": "not_proven",
+      "weak": []
+    },
+    {
+      "key": "postgresql_migration_result",
+      "label": "PostgreSQL and migration result",
+      "missing": [
+        "docs/evidence/public-staging/04-render-services.md",
+        "docs/evidence/public-staging/05-migration-version.md",
+        "docs/evidence/public-staging/infra-evidence-summary.json",
+        "docs/evidence/public-staging/05-migration-version.md",
+        "docs/evidence/public-staging/infra-evidence-summary.json",
+        "docs/evidence/public-staging/12-backup-restore.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json"
+      ],
+      "source_keys": [
+        "managed_postgres",
+        "explicit_migrations",
+        "postgres_backed_up"
+      ],
+      "status": "not_proven",
+      "weak": []
+    },
+    {
+      "key": "api_worker_result",
+      "label": "API and worker result",
+      "missing": [
+        "docs/evidence/public-staging/02-render-deploy.json",
+        "docs/evidence/public-staging/10-worker-jobs.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/02-render-deploy.json",
+        "docs/evidence/public-staging/10-worker-jobs.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/10-worker-jobs.md",
+        "docs/evidence/public-staging/21-failure-exercises.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/failure-exercises-summary.json"
+      ],
+      "source_keys": [
+        "api_worker_separation",
+        "api_worker_separate",
+        "worker_recovery"
+      ],
+      "status": "not_proven",
+      "weak": []
+    },
+    {
+      "key": "authentication_email_result",
+      "label": "Authentication and email result",
+      "missing": [
+        "docs/evidence/public-staging/06-auth-email.md",
+        "docs/evidence/public-staging/20-email-delivery.md",
+        "docs/evidence/public-staging/auth-email-summary.json",
+        "docs/evidence/public-staging/email-delivery-summary.json",
+        "docs/evidence/public-staging/06-auth-email.md",
+        "docs/evidence/public-staging/20-email-delivery.md",
+        "docs/evidence/public-staging/auth-email-summary.json",
+        "docs/evidence/public-staging/email-delivery-summary.json",
+        "docs/evidence/public-staging/06-auth-email.md",
+        "docs/evidence/public-staging/auth-email-summary.json",
+        "docs/evidence/public-staging/00-public-staging-preflight.json",
+        "docs/evidence/public-staging/09-route-security.md",
+        "docs/evidence/public-staging/route-security-summary.json"
+      ],
+      "source_keys": [
+        "email_delivery",
+        "auth_email",
+        "secure_cookies",
+        "csrf"
+      ],
+      "status": "not_proven",
+      "weak": []
+    },
+    {
+      "key": "map_browser_result",
+      "label": "Map and browser result",
+      "missing": [
+        "docs/evidence/public-staging/07-browser-matrix.md",
+        "docs/evidence/public-staging/browser-map-summary.json",
+        "docs/evidence/public-staging/07-browser-matrix.md",
+        "docs/evidence/public-staging/08-map-provider-capture.md",
+        "docs/evidence/public-staging/browser-map-summary.json",
+        "docs/evidence/public-staging/08-map-provider-capture.md",
+        "docs/evidence/public-staging/browser-map-summary.json",
+        "docs/evidence/public-staging/17-licensing-gates.md",
+        "docs/evidence/public-staging/licensing-summary.json"
+      ],
+      "source_keys": [
+        "browser_compatibility",
+        "browser_map",
+        "providers_disabled"
+      ],
+      "status": "not_proven",
+      "weak": []
+    },
+    {
+      "key": "map_slot_synchronization_result",
+      "label": "Map-slot synchronization result",
+      "missing": [
+        "docs/evidence/public-staging/07-browser-matrix.md",
+        "docs/evidence/public-staging/browser-map-summary.json",
+        "docs/evidence/public-staging/09-route-security.md",
+        "docs/evidence/public-staging/route-security-summary.json"
+      ],
+      "source_keys": [
+        "three_slots",
+        "cross_user_denied"
+      ],
+      "status": "not_proven",
+      "weak": []
+    },
+    {
+      "key": "route_security_result",
+      "label": "Route-security result",
+      "missing": [
+        "docs/evidence/public-staging/03-cloudflare-access.md",
+        "docs/evidence/public-staging/09-route-security.md",
+        "docs/evidence/public-staging/route-security-summary.json",
+        "docs/evidence/public-staging/09-route-security.md",
+        "docs/evidence/public-staging/route-security-summary.json",
+        "docs/evidence/public-staging/00-public-staging-preflight.json",
+        "docs/evidence/public-staging/09-route-security.md",
+        "docs/evidence/public-staging/route-security-summary.json"
+      ],
+      "source_keys": [
+        "attack_surface",
+        "route_classification",
+        "headers_cors_hosts"
+      ],
+      "status": "not_proven",
+      "weak": []
+    },
+    {
+      "key": "network_isolation_result",
+      "label": "Network-isolation result",
+      "missing": [
+        "docs/evidence/public-staging/11-network-isolation.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json"
+      ],
+      "source_keys": [
+        "zero_api_acquisition"
+      ],
+      "status": "not_proven",
+      "weak": []
+    },
+    {
+      "key": "object_storage_result",
+      "label": "Object-storage result",
+      "missing": [
+        "docs/evidence/public-staging/04-render-services.md",
+        "docs/evidence/public-staging/12-backup-restore.md",
+        "docs/evidence/public-staging/19-object-storage.md",
+        "docs/evidence/public-staging/21-failure-exercises.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/storage-summary.json",
+        "docs/evidence/public-staging/failure-exercises-summary.json",
+        "docs/evidence/public-staging/12-backup-restore.md",
+        "docs/evidence/public-staging/19-object-storage.md",
+        "docs/evidence/public-staging/21-failure-exercises.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/storage-summary.json",
+        "docs/evidence/public-staging/failure-exercises-summary.json"
+      ],
+      "source_keys": [
+        "persistent_storage",
+        "private_storage"
+      ],
+      "status": "not_proven",
+      "weak": []
+    },
+    {
+      "key": "backup_restore_result",
+      "label": "Backup and restore result",
+      "missing": [
+        "docs/evidence/public-staging/12-backup-restore.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/12-backup-restore.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json"
+      ],
+      "source_keys": [
+        "backup_restore",
+        "restore_success"
+      ],
+      "status": "not_proven",
+      "weak": []
+    },
+    {
+      "key": "failure_rollback_result",
+      "label": "Failure and rollback result",
+      "missing": [
+        "docs/evidence/public-staging/13-failure-rollback.md",
+        "docs/evidence/public-staging/21-failure-exercises.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/failure-exercises-summary.json",
+        "docs/evidence/public-staging/13-failure-rollback.md",
+        "docs/evidence/public-staging/21-failure-exercises.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/failure-exercises-summary.json",
+        "docs/evidence/public-staging/13-failure-rollback.md",
+        "docs/evidence/public-staging/21-failure-exercises.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/failure-exercises-summary.json"
+      ],
+      "source_keys": [
+        "failure_exercises",
+        "rollback",
+        "rollback_success"
+      ],
+      "status": "not_proven",
+      "weak": []
+    },
+    {
+      "key": "observability_alerting_result",
+      "label": "Observability and alerting result",
+      "missing": [
+        "docs/evidence/public-staging/14-observability-alerts.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/14-observability-alerts.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json"
+      ],
+      "source_keys": [
+        "monitoring_alerting",
+        "alerts"
+      ],
+      "status": "not_proven",
+      "weak": []
+    },
+    {
+      "key": "performance_measurements",
+      "label": "Performance measurements",
+      "missing": [
+        "docs/evidence/public-staging/15-performance.md",
+        "docs/evidence/public-staging/performance-evidence-summary.json",
+        "docs/evidence/public-staging/15-performance.md",
+        "docs/evidence/public-staging/performance-evidence-summary.json"
+      ],
+      "source_keys": [
+        "performance",
+        "no_bulk_first_paint"
+      ],
+      "status": "not_proven",
+      "weak": []
+    },
+    {
+      "key": "licensing_gates",
+      "label": "Licensing gates",
+      "missing": [
+        "docs/evidence/public-staging/08-map-provider-capture.md",
+        "docs/evidence/public-staging/browser-map-summary.json",
+        "docs/evidence/public-staging/17-licensing-gates.md",
+        "docs/evidence/public-staging/licensing-summary.json",
+        "docs/evidence/public-staging/08-map-provider-capture.md",
+        "docs/evidence/public-staging/browser-map-summary.json",
+        "docs/evidence/public-staging/17-licensing-gates.md",
+        "docs/evidence/public-staging/licensing-summary.json"
+      ],
+      "source_keys": [
+        "licensing",
+        "providers_disabled"
+      ],
+      "status": "not_proven",
+      "weak": []
+    },
+    {
+      "key": "cicd_result",
+      "label": "CI/CD result",
+      "missing": [
+        "docs/evidence/public-staging/01-image-manifest.json",
+        "docs/evidence/public-staging/02-render-deploy.json",
+        "docs/evidence/public-staging/01-image-manifest.json",
+        "docs/evidence/public-staging/02-render-deploy.json",
+        "docs/evidence/public-staging/01-image-manifest.json"
+      ],
+      "source_keys": [
+        "deployment_automation",
+        "cicd_safe",
+        "test_suites_pass",
+        "public_playwright",
+        "full_verification_run"
+      ],
+      "status": "not_proven",
+      "weak": [
+        "docs/evidence/public-staging/16-deployment-automation.md markdown verdict=**investigate**",
+        "docs/evidence/public-staging/deployment-automation-summary.json verdict=investigate",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation summary verdict is not pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation summary has failures",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation input captured timestamp is still the template value",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation commit is not a full 40-character SHA",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation run required check is not true: run_commit_full_sha",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation run required check is not true: run_identity_real",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: api_worker_deployed",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: commit_consistent",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: commit_full_sha",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: image_digest_pinned",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: image_manifest_pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: preflight_pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: preflight_version_matches_commit",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: render_deploy_pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: render_image_matches_manifest",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: workflow_run_matches_manifest",
+        "docs/evidence/public-staging/16-deployment-automation.md markdown verdict=**investigate**",
+        "docs/evidence/public-staging/deployment-automation-summary.json verdict=investigate",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation summary verdict is not pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation summary has failures",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation input captured timestamp is still the template value",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation commit is not a full 40-character SHA",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation run required check is not true: run_commit_full_sha",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation run required check is not true: run_identity_real",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: api_worker_deployed",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: commit_consistent",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: commit_full_sha",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: image_digest_pinned",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: image_manifest_pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: preflight_pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: preflight_version_matches_commit",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: render_deploy_pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: render_image_matches_manifest",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: workflow_run_matches_manifest",
+        "docs/evidence/public-staging/22-public-playwright.md markdown verdict=**planned**",
+        "docs/evidence/public-staging/public-playwright-summary.json verdict=planned",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright verdict is not pass",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright base URL is a reserved documentation hostname",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright expected pass count is zero",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: chromium",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: firefox",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: webkit",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright evidence is a dry-run plan",
+        "docs/evidence/public-staging/22-public-playwright.md markdown verdict=**planned**",
+        "docs/evidence/public-staging/public-playwright-summary.json verdict=planned",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright verdict is not pass",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright base URL is a reserved documentation hostname",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright expected pass count is zero",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: chromium",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: firefox",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: webkit",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright evidence is a dry-run plan",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json verdict=planned",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification verdict is not pass",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification run is a dry-run plan",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification base URL is a reserved documentation hostname",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: auth_email_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: auth_map_slots_probe",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: browser_matrix_template",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: browser_reports",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: config_contract",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: direct_browser_capture",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: email_delivery_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: failure_exercises_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: infra_reports",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: licensing_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: ops_reports",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: performance_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: preflight",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: proxyman_browser_capture",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: public_playwright",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: rate_limit_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: readiness",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: route_family_probe",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: route_security_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: setup_checklist",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: storage_report"
+      ]
+    },
+    {
+      "key": "commits_created",
+      "label": "Commits created",
+      "missing": [
+        "docs/evidence/public-staging/01-image-manifest.json",
+        "docs/evidence/public-staging/02-render-deploy.json"
+      ],
+      "source_keys": [
+        "tested_commit_image"
+      ],
+      "status": "not_proven",
+      "weak": []
+    },
+    {
+      "key": "remaining_risks",
+      "label": "Remaining risks",
+      "missing": [],
+      "source_keys": [
+        "provider_readiness",
+        "full_verification_run",
+        "public_dns",
+        "public_tls",
+        "secret_management",
+        "managed_postgres",
+        "persistent_storage",
+        "reverse_proxy",
+        "email_delivery",
+        "api_worker_separation",
+        "attack_surface",
+        "rate_limiting",
+        "browser_compatibility",
+        "deployment_automation",
+        "rollback",
+        "failure_exercises",
+        "backup_restore",
+        "monitoring_alerting",
+        "private_beta_access",
+        "public_playwright",
+        "performance",
+        "licensing",
+        "staging_values_outside_git",
+        "full_public_verification_sequence",
+        "https_reachable",
+        "outer_access",
+        "dns_cert_valid",
+        "tested_commit_image",
+        "postgres_backed_up",
+        "explicit_migrations",
+        "api_worker_separate",
+        "auth_email",
+        "secure_cookies",
+        "csrf",
+        "route_classification",
+        "cross_user_denied",
+        "three_slots",
+        "browser_map",
+        "no_bulk_first_paint",
+        "zero_api_acquisition",
+        "worker_recovery",
+        "private_storage",
+        "headers_cors_hosts",
+        "rate_limit_proxy",
+        "restore_success",
+        "rollback_success",
+        "alerts",
+        "providers_disabled",
+        "test_suites_pass",
+        "cicd_safe"
+      ],
+      "status": "not_proven",
+      "weak": [
+        "Provider and staging env readiness is weak: docs/evidence/public-staging/public-staging-readiness-status.json verdict=not_ready, docs/evidence/public-staging/public-staging-readiness-status.json readiness verdict is not ready, docs/evidence/public-staging/public-staging-readiness-status.json readiness has blocking external inputs, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: CLOUDFLARE_ACCOUNT_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: CLOUDFLARE_API_TOKEN, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: CLOUDFLARE_ZONE_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_CF_ACCESS_CLIENT_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_CF_ACCESS_CLIENT_SECRET, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_EMAIL, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_PASSWORD, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_A_EMAIL, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_A_PASSWORD, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_A_RESET_PASSWORD, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_B_EMAIL, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_B_PASSWORD, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: RENDER_API_KEY, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: RENDER_API_SERVICE_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: RENDER_WORKER_SERVICE_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: STAGING_URL, docs/evidence/public-staging/public-staging-readiness-status.json readiness STAGING_URL is not a real public HTTPS hostname, docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: OASIS_CF_ACCESS_CLIENT_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: OASIS_CF_ACCESS_CLIENT_SECRET, docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: RENDER_API_KEY, docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: RENDER_API_SERVICE_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: RENDER_WORKER_SERVICE_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging STAGING_URL variable is missing",
+        "Full public verification run is weak: docs/evidence/public-staging/public-staging-full-verification-run.json verdict=planned, docs/evidence/public-staging/public-staging-full-verification-run.json full verification verdict is not pass, docs/evidence/public-staging/public-staging-full-verification-run.json full verification run is a dry-run plan, docs/evidence/public-staging/public-staging-full-verification-run.json full verification base URL is a reserved documentation hostname, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: auth_email_report, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: auth_map_slots_probe, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: browser_matrix_template, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: browser_reports, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: config_contract, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: direct_browser_capture, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: email_delivery_report, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: failure_exercises_report, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: infra_reports, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: licensing_report, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: ops_reports, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: performance_report, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: preflight, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: proxyman_browser_capture, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: public_playwright, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: rate_limit_report, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: readiness, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: route_family_probe, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: route_security_report, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: setup_checklist, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: storage_report",
+        "Public DNS is missing: docs/evidence/public-staging/00-public-staging-preflight.json, docs/evidence/public-staging/infra-evidence-summary.json, preflight dns not ok",
+        "Public TLS is missing: docs/evidence/public-staging/00-public-staging-preflight.json, docs/evidence/public-staging/infra-evidence-summary.json, preflight tls not ok",
+        "Secure secret management is missing: docs/evidence/public-staging/04-render-services.md, docs/evidence/public-staging/infra-evidence-summary.json",
+        "Managed PostgreSQL is missing: docs/evidence/public-staging/04-render-services.md, docs/evidence/public-staging/05-migration-version.md, docs/evidence/public-staging/infra-evidence-summary.json",
+        "Persistent object and database storage is missing: docs/evidence/public-staging/04-render-services.md, docs/evidence/public-staging/12-backup-restore.md, docs/evidence/public-staging/19-object-storage.md, docs/evidence/public-staging/21-failure-exercises.md, docs/evidence/public-staging/ops-evidence-summary.json, docs/evidence/public-staging/storage-summary.json, docs/evidence/public-staging/failure-exercises-summary.json",
+        "Public reverse-proxy behavior is missing: docs/evidence/public-staging/00-public-staging-preflight.json, docs/evidence/public-staging/02-dns-tls-edge.md, docs/evidence/public-staging/infra-evidence-summary.json",
+        "Authentication email delivery is missing: docs/evidence/public-staging/06-auth-email.md, docs/evidence/public-staging/20-email-delivery.md, docs/evidence/public-staging/auth-email-summary.json, docs/evidence/public-staging/email-delivery-summary.json",
+        "API and worker separation is missing: docs/evidence/public-staging/02-render-deploy.json, docs/evidence/public-staging/10-worker-jobs.md, docs/evidence/public-staging/ops-evidence-summary.json",
+        "External attack-surface controls is missing: docs/evidence/public-staging/03-cloudflare-access.md, docs/evidence/public-staging/09-route-security.md, docs/evidence/public-staging/route-security-summary.json",
+        "Rate limiting is missing: docs/evidence/public-staging/09-route-security.md, docs/evidence/public-staging/18-rate-limiting.md, docs/evidence/public-staging/rate-limit-summary.json",
+        "Remote browser compatibility is missing: docs/evidence/public-staging/07-browser-matrix.md, docs/evidence/public-staging/browser-map-summary.json",
+        "Deployment automation is missing: docs/evidence/public-staging/01-image-manifest.json, docs/evidence/public-staging/02-render-deploy.json, docs/evidence/public-staging/16-deployment-automation.md markdown verdict=**investigate**, docs/evidence/public-staging/deployment-automation-summary.json verdict=investigate, docs/evidence/public-staging/deployment-automation-summary.json deployment automation summary verdict is not pass, docs/evidence/public-staging/deployment-automation-summary.json deployment automation summary has failures, docs/evidence/public-staging/deployment-automation-summary.json deployment automation input captured timestamp is still the template value, docs/evidence/public-staging/deployment-automation-summary.json deployment automation commit is not a full 40-character SHA, docs/evidence/public-staging/deployment-automation-summary.json deployment automation run required check is not true: run_commit_full_sha, docs/evidence/public-staging/deployment-automation-summary.json deployment automation run required check is not true: run_identity_real, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: api_worker_deployed, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: commit_consistent, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: commit_full_sha, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: image_digest_pinned, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: image_manifest_pass, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: preflight_pass, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: preflight_version_matches_commit, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: render_deploy_pass, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: render_image_matches_manifest, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: workflow_run_matches_manifest",
+        "Rollback is missing: docs/evidence/public-staging/13-failure-rollback.md, docs/evidence/public-staging/21-failure-exercises.md, docs/evidence/public-staging/ops-evidence-summary.json, docs/evidence/public-staging/failure-exercises-summary.json",
+        "Failure exercises is missing: docs/evidence/public-staging/13-failure-rollback.md, docs/evidence/public-staging/21-failure-exercises.md, docs/evidence/public-staging/ops-evidence-summary.json, docs/evidence/public-staging/failure-exercises-summary.json",
+        "Backup and restore is missing: docs/evidence/public-staging/12-backup-restore.md, docs/evidence/public-staging/ops-evidence-summary.json",
+        "Monitoring and alerting is missing: docs/evidence/public-staging/14-observability-alerts.md, docs/evidence/public-staging/ops-evidence-summary.json",
+        "Private-beta access control is missing: docs/evidence/public-staging/03-cloudflare-access.md, docs/evidence/public-staging/06-auth-email.md, docs/evidence/public-staging/auth-email-summary.json",
+        "Public Playwright browser tests is weak: docs/evidence/public-staging/22-public-playwright.md markdown verdict=**planned**, docs/evidence/public-staging/public-playwright-summary.json verdict=planned, docs/evidence/public-staging/public-playwright-summary.json public Playwright verdict is not pass, docs/evidence/public-staging/public-playwright-summary.json public Playwright base URL is a reserved documentation hostname, docs/evidence/public-staging/public-playwright-summary.json public Playwright expected pass count is zero, docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: chromium, docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: firefox, docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: webkit, docs/evidence/public-staging/public-playwright-summary.json public Playwright evidence is a dry-run plan",
+        "Public performance measurements is missing: docs/evidence/public-staging/15-performance.md, docs/evidence/public-staging/performance-evidence-summary.json",
+        "Licensing gates is missing: docs/evidence/public-staging/08-map-provider-capture.md, docs/evidence/public-staging/browser-map-summary.json, docs/evidence/public-staging/17-licensing-gates.md, docs/evidence/public-staging/licensing-summary.json",
+        "Production-style staging values are configured outside Git is weak: docs/evidence/public-staging/public-staging-readiness-status.json verdict=not_ready, docs/evidence/public-staging/public-staging-readiness-status.json readiness verdict is not ready, docs/evidence/public-staging/public-staging-readiness-status.json readiness has blocking external inputs, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: CLOUDFLARE_ACCOUNT_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: CLOUDFLARE_API_TOKEN, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: CLOUDFLARE_ZONE_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_CF_ACCESS_CLIENT_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_CF_ACCESS_CLIENT_SECRET, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_EMAIL, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_PASSWORD, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_A_EMAIL, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_A_PASSWORD, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_A_RESET_PASSWORD, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_B_EMAIL, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_B_PASSWORD, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: RENDER_API_KEY, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: RENDER_API_SERVICE_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: RENDER_WORKER_SERVICE_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: STAGING_URL, docs/evidence/public-staging/public-staging-readiness-status.json readiness STAGING_URL is not a real public HTTPS hostname, docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: OASIS_CF_ACCESS_CLIENT_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: OASIS_CF_ACCESS_CLIENT_SECRET, docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: RENDER_API_KEY, docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: RENDER_API_SERVICE_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: RENDER_WORKER_SERVICE_ID, docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging STAGING_URL variable is missing",
+        "Full public verification sequence was run is weak: docs/evidence/public-staging/public-staging-full-verification-run.json verdict=planned, docs/evidence/public-staging/public-staging-full-verification-run.json full verification verdict is not pass, docs/evidence/public-staging/public-staging-full-verification-run.json full verification run is a dry-run plan, docs/evidence/public-staging/public-staging-full-verification-run.json full verification base URL is a reserved documentation hostname, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: auth_email_report, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: auth_map_slots_probe, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: browser_matrix_template, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: browser_reports, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: config_contract, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: direct_browser_capture, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: email_delivery_report, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: failure_exercises_report, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: infra_reports, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: licensing_report, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: ops_reports, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: performance_report, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: preflight, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: proxyman_browser_capture, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: public_playwright, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: rate_limit_report, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: readiness, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: route_family_probe, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: route_security_report, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: setup_checklist, docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: storage_report",
+        "Public staging is reachable through HTTPS is missing: docs/evidence/public-staging/00-public-staging-preflight.json",
+        "Outer staging access control is enabled is missing: docs/evidence/public-staging/03-cloudflare-access.md, docs/evidence/public-staging/infra-evidence-summary.json",
+        "DNS and certificates are valid is missing: docs/evidence/public-staging/00-public-staging-preflight.json, docs/evidence/public-staging/02-dns-tls-edge.md, docs/evidence/public-staging/infra-evidence-summary.json",
+        "Deployed image matches a tested commit is missing: docs/evidence/public-staging/01-image-manifest.json, docs/evidence/public-staging/02-render-deploy.json",
+        "PostgreSQL is persistent and backed up is missing: docs/evidence/public-staging/12-backup-restore.md, docs/evidence/public-staging/ops-evidence-summary.json",
+        "Migrations complete explicitly is missing: docs/evidence/public-staging/05-migration-version.md, docs/evidence/public-staging/infra-evidence-summary.json",
+        "API and worker are separate is missing: docs/evidence/public-staging/02-render-deploy.json, docs/evidence/public-staging/10-worker-jobs.md, docs/evidence/public-staging/ops-evidence-summary.json",
+        "Email verification and password reset work is missing: docs/evidence/public-staging/06-auth-email.md, docs/evidence/public-staging/20-email-delivery.md, docs/evidence/public-staging/auth-email-summary.json, docs/evidence/public-staging/email-delivery-summary.json",
+        "Session cookies are secure is missing: docs/evidence/public-staging/06-auth-email.md, docs/evidence/public-staging/auth-email-summary.json, docs/evidence/public-staging/00-public-staging-preflight.json",
+        "CSRF works is missing: docs/evidence/public-staging/09-route-security.md, docs/evidence/public-staging/route-security-summary.json",
+        "Every route has explicit security classification is missing: docs/evidence/public-staging/09-route-security.md, docs/evidence/public-staging/route-security-summary.json",
+        "Cross-user access is denied is missing: docs/evidence/public-staging/09-route-security.md, docs/evidence/public-staging/route-security-summary.json",
+        "Exactly three map slots persist across devices is missing: docs/evidence/public-staging/07-browser-matrix.md, docs/evidence/public-staging/browser-map-summary.json",
+        "Real browser map rendering works is missing: docs/evidence/public-staging/07-browser-matrix.md, docs/evidence/public-staging/08-map-provider-capture.md, docs/evidence/public-staging/browser-map-summary.json",
+        "/api/universe/bulk is absent from initial paint is missing: docs/evidence/public-staging/15-performance.md, docs/evidence/public-staging/performance-evidence-summary.json",
+        "API user requests perform zero external acquisition is missing: docs/evidence/public-staging/11-network-isolation.md, docs/evidence/public-staging/ops-evidence-summary.json",
+        "Worker jobs are bounded and recoverable is missing: docs/evidence/public-staging/10-worker-jobs.md, docs/evidence/public-staging/21-failure-exercises.md, docs/evidence/public-staging/ops-evidence-summary.json, docs/evidence/public-staging/failure-exercises-summary.json",
+        "Object storage remains private is missing: docs/evidence/public-staging/12-backup-restore.md, docs/evidence/public-staging/19-object-storage.md, docs/evidence/public-staging/21-failure-exercises.md, docs/evidence/public-staging/ops-evidence-summary.json, docs/evidence/public-staging/storage-summary.json, docs/evidence/public-staging/failure-exercises-summary.json",
+        "Security headers, CORS, and trusted hosts are correct is missing: docs/evidence/public-staging/00-public-staging-preflight.json, docs/evidence/public-staging/09-route-security.md, docs/evidence/public-staging/route-security-summary.json",
+        "Rate limiting works through public proxy is missing: docs/evidence/public-staging/09-route-security.md, docs/evidence/public-staging/route-security-summary.json, docs/evidence/public-staging/18-rate-limiting.md, docs/evidence/public-staging/rate-limit-summary.json",
+        "Backup and restore succeed is missing: docs/evidence/public-staging/12-backup-restore.md, docs/evidence/public-staging/ops-evidence-summary.json",
+        "Deployment rollback succeeds is missing: docs/evidence/public-staging/13-failure-rollback.md, docs/evidence/public-staging/21-failure-exercises.md, docs/evidence/public-staging/ops-evidence-summary.json, docs/evidence/public-staging/failure-exercises-summary.json",
+        "Alerts detect key failures is missing: docs/evidence/public-staging/14-observability-alerts.md, docs/evidence/public-staging/ops-evidence-summary.json",
+        "Unlicensed providers remain disabled is missing: docs/evidence/public-staging/08-map-provider-capture.md, docs/evidence/public-staging/browser-map-summary.json, docs/evidence/public-staging/17-licensing-gates.md, docs/evidence/public-staging/licensing-summary.json",
+        "Test suites pass is missing: docs/evidence/public-staging/01-image-manifest.json, docs/evidence/public-staging/22-public-playwright.md markdown verdict=**planned**, docs/evidence/public-staging/public-playwright-summary.json verdict=planned, docs/evidence/public-staging/public-playwright-summary.json public Playwright verdict is not pass, docs/evidence/public-staging/public-playwright-summary.json public Playwright base URL is a reserved documentation hostname, docs/evidence/public-staging/public-playwright-summary.json public Playwright expected pass count is zero, docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: chromium, docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: firefox, docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: webkit, docs/evidence/public-staging/public-playwright-summary.json public Playwright evidence is a dry-run plan",
+        "CI/CD deploys immutable images safely is missing: docs/evidence/public-staging/01-image-manifest.json, docs/evidence/public-staging/02-render-deploy.json, docs/evidence/public-staging/16-deployment-automation.md markdown verdict=**investigate**, docs/evidence/public-staging/deployment-automation-summary.json verdict=investigate, docs/evidence/public-staging/deployment-automation-summary.json deployment automation summary verdict is not pass, docs/evidence/public-staging/deployment-automation-summary.json deployment automation summary has failures, docs/evidence/public-staging/deployment-automation-summary.json deployment automation input captured timestamp is still the template value, docs/evidence/public-staging/deployment-automation-summary.json deployment automation commit is not a full 40-character SHA, docs/evidence/public-staging/deployment-automation-summary.json deployment automation run required check is not true: run_commit_full_sha, docs/evidence/public-staging/deployment-automation-summary.json deployment automation run required check is not true: run_identity_real, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: api_worker_deployed, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: commit_consistent, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: commit_full_sha, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: image_digest_pinned, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: image_manifest_pass, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: preflight_pass, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: preflight_version_matches_commit, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: render_deploy_pass, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: render_image_matches_manifest, docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: workflow_run_matches_manifest"
+      ]
+    },
+    {
+      "key": "private_beta_verdict",
+      "label": "Private-beta verdict",
+      "missing": [],
+      "source_keys": [],
+      "status": "not_proven",
+      "weak": [
+        "private-beta verdict remains NOT APPROVED"
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "files": [
+        {
+          "bytes": 28735,
+          "exists": true,
+          "json_failures": null,
+          "json_schema_weak": [
+            "readiness verdict is not ready",
+            "readiness has blocking external inputs",
+            "readiness local env is not set: CLOUDFLARE_ACCOUNT_ID",
+            "readiness local env is not set: CLOUDFLARE_API_TOKEN",
+            "readiness local env is not set: CLOUDFLARE_ZONE_ID",
+            "readiness local env is not set: OASIS_CF_ACCESS_CLIENT_ID",
+            "readiness local env is not set: OASIS_CF_ACCESS_CLIENT_SECRET",
+            "readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD",
+            "readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_EMAIL",
+            "readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_PASSWORD",
+            "readiness local env is not set: OASIS_PUBLIC_TESTER_A_EMAIL",
+            "readiness local env is not set: OASIS_PUBLIC_TESTER_A_PASSWORD",
+            "readiness local env is not set: OASIS_PUBLIC_TESTER_A_RESET_PASSWORD",
+            "readiness local env is not set: OASIS_PUBLIC_TESTER_B_EMAIL",
+            "readiness local env is not set: OASIS_PUBLIC_TESTER_B_PASSWORD",
+            "readiness local env is not set: RENDER_API_KEY",
+            "readiness local env is not set: RENDER_API_SERVICE_ID",
+            "readiness local env is not set: RENDER_WORKER_SERVICE_ID",
+            "readiness local env is not set: STAGING_URL",
+            "readiness STAGING_URL is not a real public HTTPS hostname",
+            "readiness GitHub staging secret is missing: OASIS_CF_ACCESS_CLIENT_ID",
+            "readiness GitHub staging secret is missing: OASIS_CF_ACCESS_CLIENT_SECRET",
+            "readiness GitHub staging secret is missing: RENDER_API_KEY",
+            "readiness GitHub staging secret is missing: RENDER_API_SERVICE_ID",
+            "readiness GitHub staging secret is missing: RENDER_WORKER_SERVICE_ID",
+            "readiness GitHub staging STAGING_URL variable is missing"
+          ],
+          "json_verdict": "not_ready",
+          "parse_error": null,
+          "path": "docs/evidence/public-staging/public-staging-readiness-status.json",
+          "secret_weak": []
+        },
+        {
+          "bytes": 23980,
+          "exists": true,
+          "json_failures": [],
+          "json_schema_weak": [],
+          "json_verdict": "pass",
+          "parse_error": null,
+          "path": "docs/evidence/public-staging/public-staging-config-contract.json",
+          "secret_weak": []
+        }
+      ],
+      "key": "provider_readiness",
+      "label": "Provider and staging env readiness",
+      "missing": [],
+      "status": "weak",
+      "weak": [
+        "docs/evidence/public-staging/public-staging-readiness-status.json verdict=not_ready",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness verdict is not ready",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness has blocking external inputs",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: CLOUDFLARE_ACCOUNT_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: CLOUDFLARE_API_TOKEN",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: CLOUDFLARE_ZONE_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_CF_ACCESS_CLIENT_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_CF_ACCESS_CLIENT_SECRET",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_EMAIL",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_LIFECYCLE_PASSWORD",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_A_EMAIL",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_A_PASSWORD",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_A_RESET_PASSWORD",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_B_EMAIL",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: OASIS_PUBLIC_TESTER_B_PASSWORD",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: RENDER_API_KEY",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: RENDER_API_SERVICE_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: RENDER_WORKER_SERVICE_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness local env is not set: STAGING_URL",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness STAGING_URL is not a real public HTTPS hostname",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: OASIS_CF_ACCESS_CLIENT_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: OASIS_CF_ACCESS_CLIENT_SECRET",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: RENDER_API_KEY",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: RENDER_API_SERVICE_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging secret is missing: RENDER_WORKER_SERVICE_ID",
+        "docs/evidence/public-staging/public-staging-readiness-status.json readiness GitHub staging STAGING_URL variable is missing"
+      ]
+    },
+    {
+      "files": [
+        {
+          "bytes": 18877,
+          "exists": true,
+          "json_failures": [],
+          "json_schema_weak": [
+            "full verification verdict is not pass",
+            "full verification run is a dry-run plan",
+            "full verification base URL is a reserved documentation hostname",
+            "full verification result is missing: auth_email_report",
+            "full verification result is missing: auth_map_slots_probe",
+            "full verification result is missing: browser_matrix_template",
+            "full verification result is missing: browser_reports",
+            "full verification result is missing: config_contract",
+            "full verification result is missing: direct_browser_capture",
+            "full verification result is missing: email_delivery_report",
+            "full verification result is missing: failure_exercises_report",
+            "full verification result is missing: infra_reports",
+            "full verification result is missing: licensing_report",
+            "full verification result is missing: ops_reports",
+            "full verification result is missing: performance_report",
+            "full verification result is missing: preflight",
+            "full verification result is missing: proxyman_browser_capture",
+            "full verification result is missing: public_playwright",
+            "full verification result is missing: rate_limit_report",
+            "full verification result is missing: readiness",
+            "full verification result is missing: route_family_probe",
+            "full verification result is missing: route_security_report",
+            "full verification result is missing: setup_checklist",
+            "full verification result is missing: storage_report"
+          ],
+          "json_verdict": "planned",
+          "parse_error": null,
+          "path": "docs/evidence/public-staging/public-staging-full-verification-run.json",
+          "secret_weak": []
+        }
+      ],
+      "key": "full_verification_run",
+      "label": "Full public verification run",
+      "missing": [],
+      "status": "weak",
+      "weak": [
+        "docs/evidence/public-staging/public-staging-full-verification-run.json verdict=planned",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification verdict is not pass",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification run is a dry-run plan",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification base URL is a reserved documentation hostname",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: auth_email_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: auth_map_slots_probe",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: browser_matrix_template",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: browser_reports",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: config_contract",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: direct_browser_capture",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: email_delivery_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: failure_exercises_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: infra_reports",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: licensing_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: ops_reports",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: performance_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: preflight",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: proxyman_browser_capture",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: public_playwright",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: rate_limit_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: readiness",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: route_family_probe",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: route_security_report",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: setup_checklist",
+        "docs/evidence/public-staging/public-staging-full-verification-run.json full verification result is missing: storage_report"
+      ]
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/00-public-staging-preflight.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/infra-evidence-summary.json"
+        }
+      ],
+      "key": "public_dns",
+      "label": "Public DNS",
+      "missing": [
+        "docs/evidence/public-staging/00-public-staging-preflight.json",
+        "docs/evidence/public-staging/infra-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": [
+        "preflight dns not ok"
+      ]
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/00-public-staging-preflight.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/infra-evidence-summary.json"
+        }
+      ],
+      "key": "public_tls",
+      "label": "Public TLS",
+      "missing": [
+        "docs/evidence/public-staging/00-public-staging-preflight.json",
+        "docs/evidence/public-staging/infra-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": [
+        "preflight tls not ok"
+      ]
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/04-render-services.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/infra-evidence-summary.json"
+        }
+      ],
+      "key": "secret_management",
+      "label": "Secure secret management",
+      "missing": [
+        "docs/evidence/public-staging/04-render-services.md",
+        "docs/evidence/public-staging/infra-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/04-render-services.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/05-migration-version.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/infra-evidence-summary.json"
+        }
+      ],
+      "key": "managed_postgres",
+      "label": "Managed PostgreSQL",
+      "missing": [
+        "docs/evidence/public-staging/04-render-services.md",
+        "docs/evidence/public-staging/05-migration-version.md",
+        "docs/evidence/public-staging/infra-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/04-render-services.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/12-backup-restore.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/19-object-storage.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/21-failure-exercises.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/ops-evidence-summary.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/storage-summary.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/failure-exercises-summary.json"
+        }
+      ],
+      "key": "persistent_storage",
+      "label": "Persistent object and database storage",
+      "missing": [
+        "docs/evidence/public-staging/04-render-services.md",
+        "docs/evidence/public-staging/12-backup-restore.md",
+        "docs/evidence/public-staging/19-object-storage.md",
+        "docs/evidence/public-staging/21-failure-exercises.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/storage-summary.json",
+        "docs/evidence/public-staging/failure-exercises-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/00-public-staging-preflight.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/02-dns-tls-edge.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/infra-evidence-summary.json"
+        }
+      ],
+      "key": "reverse_proxy",
+      "label": "Public reverse-proxy behavior",
+      "missing": [
+        "docs/evidence/public-staging/00-public-staging-preflight.json",
+        "docs/evidence/public-staging/02-dns-tls-edge.md",
+        "docs/evidence/public-staging/infra-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/06-auth-email.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/20-email-delivery.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/auth-email-summary.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/email-delivery-summary.json"
+        }
+      ],
+      "key": "email_delivery",
+      "label": "Authentication email delivery",
+      "missing": [
+        "docs/evidence/public-staging/06-auth-email.md",
+        "docs/evidence/public-staging/20-email-delivery.md",
+        "docs/evidence/public-staging/auth-email-summary.json",
+        "docs/evidence/public-staging/email-delivery-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/02-render-deploy.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/10-worker-jobs.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/ops-evidence-summary.json"
+        }
+      ],
+      "key": "api_worker_separation",
+      "label": "API and worker separation",
+      "missing": [
+        "docs/evidence/public-staging/02-render-deploy.json",
+        "docs/evidence/public-staging/10-worker-jobs.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/03-cloudflare-access.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/09-route-security.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/route-security-summary.json"
+        }
+      ],
+      "key": "attack_surface",
+      "label": "External attack-surface controls",
+      "missing": [
+        "docs/evidence/public-staging/03-cloudflare-access.md",
+        "docs/evidence/public-staging/09-route-security.md",
+        "docs/evidence/public-staging/route-security-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/09-route-security.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/18-rate-limiting.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/rate-limit-summary.json"
+        }
+      ],
+      "key": "rate_limiting",
+      "label": "Rate limiting",
+      "missing": [
+        "docs/evidence/public-staging/09-route-security.md",
+        "docs/evidence/public-staging/18-rate-limiting.md",
+        "docs/evidence/public-staging/rate-limit-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/07-browser-matrix.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/browser-map-summary.json"
+        }
+      ],
+      "key": "browser_compatibility",
+      "label": "Remote browser compatibility",
+      "missing": [
+        "docs/evidence/public-staging/07-browser-matrix.md",
+        "docs/evidence/public-staging/browser-map-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/01-image-manifest.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/02-render-deploy.json"
+        },
+        {
+          "bytes": 4147,
+          "exists": true,
+          "generated_report_marker": true,
+          "markdown_schema_weak": [],
+          "markdown_verdict": "**investigate**",
+          "markdown_verdict_pass": false,
+          "path": "docs/evidence/public-staging/16-deployment-automation.md",
+          "secret_weak": []
+        },
+        {
+          "bytes": 8973,
+          "exists": true,
+          "json_failures": [
+            "run check is not true: run_identity_real",
+            "run check is not true: run_commit_full_sha",
+            "artifacts check is not true: image_manifest_pass",
+            "artifacts check is not true: render_deploy_pass",
+            "artifacts check is not true: preflight_pass",
+            "artifacts check is not true: public_preflight_target",
+            "artifacts check is not true: workflow_run_matches_manifest",
+            "artifacts check is not true: commit_consistent",
+            "artifacts check is not true: commit_full_sha",
+            "artifacts check is not true: image_digest_pinned",
+            "artifacts check is not true: render_image_matches_manifest",
+            "artifacts check is not true: api_worker_deployed",
+            "artifacts check is not true: preflight_version_matches_commit"
+          ],
+          "json_schema_weak": [
+            "deployment automation summary verdict is not pass",
+            "deployment automation summary has failures",
+            "deployment automation input captured timestamp is still the template value",
+            "deployment automation commit is not a full 40-character SHA",
+            "deployment automation run required check is not true: run_commit_full_sha",
+            "deployment automation run required check is not true: run_identity_real",
+            "deployment automation artifacts required check is not true: api_worker_deployed",
+            "deployment automation artifacts required check is not true: commit_consistent",
+            "deployment automation artifacts required check is not true: commit_full_sha",
+            "deployment automation artifacts required check is not true: image_digest_pinned",
+            "deployment automation artifacts required check is not true: image_manifest_pass",
+            "deployment automation artifacts required check is not true: preflight_pass",
+            "deployment automation artifacts required check is not true: preflight_version_matches_commit",
+            "deployment automation artifacts required check is not true: render_deploy_pass",
+            "deployment automation artifacts required check is not true: render_image_matches_manifest",
+            "deployment automation artifacts required check is not true: workflow_run_matches_manifest"
+          ],
+          "json_verdict": "investigate",
+          "parse_error": null,
+          "path": "docs/evidence/public-staging/deployment-automation-summary.json",
+          "secret_weak": []
+        }
+      ],
+      "key": "deployment_automation",
+      "label": "Deployment automation",
+      "missing": [
+        "docs/evidence/public-staging/01-image-manifest.json",
+        "docs/evidence/public-staging/02-render-deploy.json"
+      ],
+      "status": "missing",
+      "weak": [
+        "docs/evidence/public-staging/16-deployment-automation.md markdown verdict=**investigate**",
+        "docs/evidence/public-staging/deployment-automation-summary.json verdict=investigate",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation summary verdict is not pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation summary has failures",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation input captured timestamp is still the template value",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation commit is not a full 40-character SHA",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation run required check is not true: run_commit_full_sha",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation run required check is not true: run_identity_real",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: api_worker_deployed",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: commit_consistent",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: commit_full_sha",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: image_digest_pinned",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: image_manifest_pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: preflight_pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: preflight_version_matches_commit",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: render_deploy_pass",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: render_image_matches_manifest",
+        "docs/evidence/public-staging/deployment-automation-summary.json deployment automation artifacts required check is not true: workflow_run_matches_manifest"
+      ]
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/13-failure-rollback.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/21-failure-exercises.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/ops-evidence-summary.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/failure-exercises-summary.json"
+        }
+      ],
+      "key": "rollback",
+      "label": "Rollback",
+      "missing": [
+        "docs/evidence/public-staging/13-failure-rollback.md",
+        "docs/evidence/public-staging/21-failure-exercises.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/failure-exercises-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/13-failure-rollback.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/21-failure-exercises.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/ops-evidence-summary.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/failure-exercises-summary.json"
+        }
+      ],
+      "key": "failure_exercises",
+      "label": "Failure exercises",
+      "missing": [
+        "docs/evidence/public-staging/13-failure-rollback.md",
+        "docs/evidence/public-staging/21-failure-exercises.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json",
+        "docs/evidence/public-staging/failure-exercises-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/12-backup-restore.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/ops-evidence-summary.json"
+        }
+      ],
+      "key": "backup_restore",
+      "label": "Backup and restore",
+      "missing": [
+        "docs/evidence/public-staging/12-backup-restore.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/14-observability-alerts.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/ops-evidence-summary.json"
+        }
+      ],
+      "key": "monitoring_alerting",
+      "label": "Monitoring and alerting",
+      "missing": [
+        "docs/evidence/public-staging/14-observability-alerts.md",
+        "docs/evidence/public-staging/ops-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/03-cloudflare-access.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/06-auth-email.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/auth-email-summary.json"
+        }
+      ],
+      "key": "private_beta_access",
+      "label": "Private-beta access control",
+      "missing": [
+        "docs/evidence/public-staging/03-cloudflare-access.md",
+        "docs/evidence/public-staging/06-auth-email.md",
+        "docs/evidence/public-staging/auth-email-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "bytes": 549,
+          "exists": true,
+          "generated_report_marker": true,
+          "markdown_schema_weak": [],
+          "markdown_verdict": "**planned**",
+          "markdown_verdict_pass": false,
+          "path": "docs/evidence/public-staging/22-public-playwright.md",
+          "secret_weak": []
+        },
+        {
+          "bytes": 791,
+          "exists": true,
+          "json_failures": [],
+          "json_schema_weak": [
+            "public Playwright verdict is not pass",
+            "public Playwright base URL is a reserved documentation hostname",
+            "public Playwright expected pass count is zero",
+            "public Playwright project is missing: chromium",
+            "public Playwright project is missing: firefox",
+            "public Playwright project is missing: webkit",
+            "public Playwright evidence is a dry-run plan"
+          ],
+          "json_verdict": "planned",
+          "parse_error": null,
+          "path": "docs/evidence/public-staging/public-playwright-summary.json",
+          "secret_weak": []
+        }
+      ],
+      "key": "public_playwright",
+      "label": "Public Playwright browser tests",
+      "missing": [],
+      "status": "weak",
+      "weak": [
+        "docs/evidence/public-staging/22-public-playwright.md markdown verdict=**planned**",
+        "docs/evidence/public-staging/public-playwright-summary.json verdict=planned",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright verdict is not pass",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright base URL is a reserved documentation hostname",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright expected pass count is zero",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: chromium",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: firefox",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright project is missing: webkit",
+        "docs/evidence/public-staging/public-playwright-summary.json public Playwright evidence is a dry-run plan"
+      ]
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/15-performance.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/performance-evidence-summary.json"
+        }
+      ],
+      "key": "performance",
+      "label": "Public performance measurements",
+      "missing": [
+        "docs/evidence/public-staging/15-performance.md",
+        "docs/evidence/public-staging/performance-evidence-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    },
+    {
+      "files": [
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/08-map-provider-capture.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/browser-map-summary.json"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/17-licensing-gates.md"
+        },
+        {
+          "exists": false,
+          "path": "docs/evidence/public-staging/licensing-summary.json"
+        }
+      ],
+      "key": "licensing",
+      "label": "Licensing gates",
+      "missing": [
+        "docs/evidence/public-staging/08-map-provider-capture.md",
+        "docs/evidence/public-staging/browser-map-summary.json",
+        "docs/evidence/public-staging/17-licensing-gates.md",
+        "docs/evidence/public-staging/licensing-summary.json"
+      ],
+      "status": "missing",
+      "weak": []
+    }
+  ],
+  "verdict": "NOT APPROVED"
+}

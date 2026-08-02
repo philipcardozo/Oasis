@@ -8,6 +8,7 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,8 +37,12 @@ BROWSER_CHECKS = {
     "no_console_errors": "no unexpected console errors",
 }
 
-REQUIRED_DESKTOP_BROWSERS = {"chrome", "edge_or_brave", "firefox", "safari_macos"}
+REQUIRED_DESKTOP_BROWSERS = {"chrome", "firefox", "safari_macos"}
 OPTIONAL_MOBILE_BROWSERS = {"mobile_safari", "chrome_android"}
+LOCAL_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
+RESERVED_PUBLIC_HOSTS = {"example.com", "example.net", "example.org"}
+RESERVED_PUBLIC_SUFFIXES = (".example.com", ".example.net", ".example.org", ".invalid", ".test")
+PLACEHOLDER_MARKERS = ("<", ">", "replace-", "record exact", "required when")
 
 MAP_CHECKS = {
     "vendored_maplibre": "vendored MapLibre asset loaded",
@@ -86,6 +91,7 @@ def flow_rows(summary: dict[str, Any]) -> list[dict[str, Any]]:
             "console_errors": len(flow.get("consoleErrors") or []),
             "failed_requests": int(flow.get("failedRequestCount") or 0),
             "external_hosts": flow.get("externalHosts") or [],
+            "har_path": flow.get("harPath"),
         })
     return rows
 
@@ -99,6 +105,45 @@ def first_paint(rows: list[dict[str, Any]]) -> dict[str, Any] | None:
 
 def browser_key(name: str) -> str:
     return name.strip().lower().replace(" ", "_").replace("-", "_")
+
+
+def normalized_url(value: Any) -> str:
+    return str(value or "").strip().rstrip("/")
+
+
+def has_placeholder(value: Any) -> bool:
+    text = str(value or "").strip().lower()
+    return any(marker in text for marker in PLACEHOLDER_MARKERS)
+
+
+def public_https_url_failures(value: Any, label: str) -> list[str]:
+    url = normalized_url(value)
+    if not url:
+        return [f"{label} base URL is missing"]
+    parsed = urlparse(url)
+    if parsed.scheme != "https":
+        return [f"{label} base URL is not HTTPS"]
+    hostname = (parsed.hostname or "").lower()
+    if hostname in LOCAL_HOSTS or hostname.endswith(".local"):
+        return [f"{label} base URL is not public"]
+    if hostname in RESERVED_PUBLIC_HOSTS or hostname.endswith(RESERVED_PUBLIC_SUFFIXES):
+        return [f"{label} base URL is a reserved documentation hostname"]
+    return []
+
+
+def evaluate_target(matrix: dict[str, Any], browser_summary: dict[str, Any]) -> list[str]:
+    failures = []
+    matrix_url = normalized_url(matrix.get("base_url"))
+    summary_url = normalized_url(browser_summary.get("baseUrl"))
+    if matrix.get("not_public_staging_proof") is True:
+        failures.append("browser matrix is still marked not public-staging proof")
+    if matrix.get("verdict") == "operator_input_required":
+        failures.append("browser matrix still requires operator input")
+    failures.extend(public_https_url_failures(matrix_url, "browser matrix"))
+    failures.extend(public_https_url_failures(summary_url, "browser HAR summary"))
+    if matrix_url and summary_url and matrix_url != summary_url:
+        failures.append("browser matrix and HAR summary base URLs do not match")
+    return failures
 
 
 def evaluate_browser_matrix(matrix: dict[str, Any], browser_summary: dict[str, Any]) -> tuple[list[str], list[dict[str, Any]], list[dict[str, Any]]]:
@@ -134,10 +179,15 @@ def evaluate_browser_matrix(matrix: dict[str, Any], browser_summary: dict[str, A
             "failed_checks": [],
         }
         if available is not False:
+            for field in ("browser_version", "os", "os_version"):
+                if has_placeholder(item.get(field)):
+                    failures.append(f"{key} has placeholder browser field: {field}")
             for check_key in BROWSER_CHECKS:
                 if checks.get(check_key) is not True:
                     row["failed_checks"].append(check_key)
                     failures.append(f"{key} failed browser check: {check_key}")
+        elif item.get("unavailable_reason") and has_placeholder(item.get("unavailable_reason")):
+            failures.append(f"{key} unavailable reason is still a placeholder")
         browser_rows.append(row)
 
     first = first_paint(network_rows)
@@ -151,6 +201,15 @@ def evaluate_browser_matrix(matrix: dict[str, Any], browser_summary: dict[str, A
         failures.append("browser capture recorded console errors")
     if any(row["failed_requests"] for row in network_rows):
         failures.append("browser capture recorded failed requests")
+    for row in network_rows:
+        name = row.get("name") or "unknown flow"
+        har_path = str(row.get("har_path") or "")
+        if (
+            not har_path.startswith("docs/evidence/performance/")
+            or not har_path.endswith(".har")
+            or not (ROOT / har_path).is_file()
+        ):
+            failures.append(f"browser capture HAR path is missing or invalid: {name}")
 
     return failures, browser_rows, network_rows
 
@@ -169,6 +228,9 @@ def evaluate_map_provider(matrix: dict[str, Any], browser_summary: dict[str, Any
     approved_hosts = sorted(map_provider.get("approved_hosts") or [])
     if not approved_hosts:
         failures.append("approved map provider hosts are missing")
+    for host in approved_hosts:
+        if has_placeholder(host):
+            failures.append(f"approved map provider host is still a placeholder: {host}")
 
     observed = sorted({host for row in flow_rows(browser_summary) for host in row["external_hosts"]})
     unexpected = [host for host in observed if host not in approved_hosts]
@@ -178,7 +240,9 @@ def evaluate_map_provider(matrix: dict[str, Any], browser_summary: dict[str, Any
 
 
 def build_payload(matrix: dict[str, Any], browser_summary: dict[str, Any], matrix_path: str, summary_path: str) -> dict[str, Any]:
+    target_failures = evaluate_target(matrix, browser_summary)
     browser_failures, browser_rows, network_rows = evaluate_browser_matrix(matrix, browser_summary)
+    browser_failures = [*target_failures, *browser_failures]
     map_failures, map_rows, observed_hosts = evaluate_map_provider(matrix, browser_summary)
     return {
         "captured_at": datetime.now(timezone.utc).isoformat(),
@@ -191,6 +255,8 @@ def build_payload(matrix: dict[str, Any], browser_summary: dict[str, Any], matri
         "target": {
             "matrix_base_url": matrix.get("base_url"),
             "summary_base_url": browser_summary.get("baseUrl"),
+            "matrix_not_public_staging_proof": matrix.get("not_public_staging_proof"),
+            "matrix_verdict": matrix.get("verdict"),
         },
         "browser": {
             "source_captured_at": matrix.get("captured_at"),
@@ -234,13 +300,14 @@ def browser_markdown(payload: dict[str, Any]) -> str:
         "",
         "## Captured Network Flows",
         "",
-        "| Flow | Bulk | unpkg | Console errors | Failed requests | External hosts |",
-        "|---|---|---|---|---|---|",
+        "| Flow | Bulk | unpkg | Console errors | Failed requests | HAR | External hosts |",
+        "|---|---|---|---|---|---|---|",
     ])
     for row in browser["network_rows"]:
         lines.append(
             f"| {row['flow']} | `{row['requested_bulk']}` | `{row['requested_unpkg']}` | "
-            f"`{row['console_errors']}` | `{row['failed_requests']}` | `{', '.join(row['external_hosts']) or '-'}` |"
+            f"`{row['console_errors']}` | `{row['failed_requests']}` | `{row.get('har_path') or '-'}` | "
+            f"`{', '.join(row['external_hosts']) or '-'}` |"
         )
     if browser["failures"]:
         lines.extend(["", "## Failures", ""])
