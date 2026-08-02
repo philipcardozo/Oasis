@@ -33,6 +33,6 @@ RUN mkdir -p /app/data /app/outputs && chown -R oasis:oasis /app/data /app/outpu
 USER oasis
 EXPOSE 8788
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-    CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8788/healthz',timeout=3).status==200 else 1)"
+    CMD-SHELL python -c "import os,urllib.request,sys; port=os.environ.get('PORT','8788'); sys.exit(0 if urllib.request.urlopen(f'http://127.0.0.1:{port}/healthz',timeout=3).status==200 else 1)"
 # Production: no reload. Graceful shutdown via uvicorn's default SIGTERM handling.
-CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "8788", "--workers", "2", "--timeout-graceful-shutdown", "20"]
+CMD ["sh", "-c", "uvicorn server.app:app --host 0.0.0.0 --port ${PORT:-8788} --workers 2 --timeout-graceful-shutdown 20"]

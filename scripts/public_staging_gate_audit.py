@@ -82,6 +82,7 @@ SENSITIVE_KEY_RE = re.compile(
     re.IGNORECASE,
 )
 READINESS_REQUIRED_LOCAL_ENV = {
+    "OASIS_DEPLOY_PROVIDER",
     "STAGING_URL",
     "OASIS_CF_ACCESS_CLIENT_ID",
     "OASIS_CF_ACCESS_CLIENT_SECRET",
@@ -100,12 +101,45 @@ READINESS_REQUIRED_LOCAL_ENV = {
     "OASIS_PUBLIC_LIFECYCLE_PASSWORD",
     "OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD",
 }
+GCP_READINESS_REQUIRED_LOCAL_ENV = {
+    "OASIS_DEPLOY_PROVIDER",
+    "STAGING_URL",
+    "GCP_PROJECT_ID",
+    "GCP_REGION",
+    "GCP_ARTIFACT_REPOSITORY",
+    "GCP_CLOUD_RUN_SERVICE",
+    "GCP_CLOUD_RUN_WORKER_POOL",
+    "GCP_CLOUD_SQL_INSTANCE",
+    "GCP_STORAGE_BUCKET",
+    "OASIS_PUBLIC_TESTER_A_EMAIL",
+    "OASIS_PUBLIC_TESTER_A_PASSWORD",
+    "OASIS_PUBLIC_TESTER_A_RESET_PASSWORD",
+    "OASIS_PUBLIC_TESTER_B_EMAIL",
+    "OASIS_PUBLIC_TESTER_B_PASSWORD",
+    "OASIS_PUBLIC_LIFECYCLE_EMAIL",
+    "OASIS_PUBLIC_LIFECYCLE_PASSWORD",
+    "OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD",
+}
 READINESS_REQUIRED_GITHUB_SECRETS = {
     "RENDER_API_KEY",
     "RENDER_API_SERVICE_ID",
     "RENDER_WORKER_SERVICE_ID",
     "OASIS_CF_ACCESS_CLIENT_ID",
     "OASIS_CF_ACCESS_CLIENT_SECRET",
+}
+GCP_READINESS_REQUIRED_GITHUB_SECRETS: set[str] = set()
+GCP_READINESS_REQUIRED_GITHUB_VARIABLES = {
+    "OASIS_DEPLOY_PROVIDER",
+    "GCP_PROJECT_ID",
+    "GCP_REGION",
+    "GCP_ARTIFACT_REPOSITORY",
+    "GCP_CLOUD_RUN_SERVICE",
+    "GCP_CLOUD_RUN_WORKER_POOL",
+    "GCP_CLOUD_SQL_INSTANCE",
+    "GCP_STORAGE_BUCKET",
+    "STAGING_URL",
+    "GCP_WORKLOAD_IDENTITY_PROVIDER",
+    "GCP_DEPLOY_SERVICE_ACCOUNT",
 }
 CONFIG_COMPOSE_REQUIRED_ENV_KEYS = {
     "OASIS_SESSION_SECRET",
@@ -123,7 +157,19 @@ CONFIG_COMPOSE_REQUIRED_ENV_KEYS = {
     "AWS_ACCESS_KEY_ID",
     "AWS_SECRET_ACCESS_KEY",
 }
-CONFIG_CONTRACT_REQUIRED_ROWS = {
+CONFIG_COMPOSE_REQUIRED_ROWS = {
+    "compose_api_env_OASIS_API_BASE_URL",
+    "compose_api_env_OASIS_STORAGE_BACKEND",
+    "compose_worker_env_OASIS_API_BASE_URL",
+    "compose_worker_env_OASIS_STORAGE_BACKEND",
+    "compose_migrate_env_OASIS_API_BASE_URL",
+    "compose_migrate_env_OASIS_STORAGE_BACKEND",
+} | {
+    f"compose_{role}_env_required_{key}"
+    for role in ("api", "worker", "migrate")
+    for key in CONFIG_COMPOSE_REQUIRED_ENV_KEYS
+}
+RENDER_CONFIG_CONTRACT_REQUIRED_ROWS = {
     "render_session_secret_generated",
     "render_sync_false_OASIS_PUBLIC_BASE_URL",
     "render_sync_false_OASIS_API_BASE_URL",
@@ -143,17 +189,30 @@ CONFIG_CONTRACT_REQUIRED_ROWS = {
     "render_postgres_ip_allowlist_empty",
     "render_api_OASIS_DATABASE_URL_from_postgres",
     "render_worker_OASIS_DATABASE_URL_from_postgres",
-    "compose_api_env_OASIS_API_BASE_URL",
-    "compose_api_env_OASIS_STORAGE_BACKEND",
-    "compose_worker_env_OASIS_API_BASE_URL",
-    "compose_worker_env_OASIS_STORAGE_BACKEND",
-    "compose_migrate_env_OASIS_API_BASE_URL",
-    "compose_migrate_env_OASIS_STORAGE_BACKEND",
-} | {
-    f"compose_{role}_env_required_{key}"
-    for role in ("api", "worker", "migrate")
-    for key in CONFIG_COMPOSE_REQUIRED_ENV_KEYS
+} | CONFIG_COMPOSE_REQUIRED_ROWS
+GCP_CONFIG_REQUIRED_ENV = {
+    "GCP_PROJECT_ID",
+    "GCP_REGION",
+    "GCP_ARTIFACT_REPOSITORY",
+    "GCP_CLOUD_RUN_SERVICE",
+    "GCP_CLOUD_RUN_WORKER_POOL",
+    "GCP_CLOUD_SQL_INSTANCE",
+    "GCP_STORAGE_BUCKET",
+    "STAGING_URL",
 }
+GCP_CONFIG_CONTRACT_REQUIRED_ROWS = {
+    f"gcp_env_{key}" for key in GCP_CONFIG_REQUIRED_ENV
+} | {
+    "gcp_provider_selected",
+    "gcp_region_us_east1",
+    "gcp_staging_url_public_https",
+    "gcp_artifact_repository_named",
+    "gcp_cloud_storage_bucket_named",
+    "gcp_cloud_sql_instance_named",
+    "gcp_cloud_run_api_named",
+    "gcp_cloud_run_worker_pool_named",
+} | CONFIG_COMPOSE_REQUIRED_ROWS
+CONFIG_CONTRACT_REQUIRED_ROWS = RENDER_CONFIG_CONTRACT_REQUIRED_ROWS
 FULL_VERIFICATION_REQUIRED_STEPS = {
     "setup_checklist",
     "browser_matrix_template",
@@ -911,11 +970,15 @@ def performance_summary_weaknesses(data: dict[str, Any]) -> list[str]:
 
 def config_contract_weaknesses(data: dict[str, Any]) -> list[str]:
     weak: list[str] = []
+    provider = str(data.get("deploy_provider") or "render").lower()
+    if provider not in {"render", "gcp"}:
+        weak.append(f"config contract deploy provider is unsupported: {provider}")
     if data.get("verdict") != "pass":
         weak.append("config contract verdict is not pass")
     if data.get("failures"):
         weak.append("config contract has failures")
-    for section in ("render", "compose"):
+    sections = ("render", "compose") if provider == "render" else ("gcp", "compose")
+    for section in sections:
         payload = data.get(section) or {}
         if payload.get("verdict") != "pass":
             weak.append(f"config contract {section} verdict is not pass")
@@ -926,10 +989,11 @@ def config_contract_weaknesses(data: dict[str, Any]) -> list[str]:
                 weak.append(f"config contract row is not ok: {row.get('key')}")
     rows = {
         row.get("key")
-        for section in ("render", "compose")
+        for section in sections
         for row in (data.get(section) or {}).get("rows") or []
     }
-    for key in sorted(CONFIG_CONTRACT_REQUIRED_ROWS - rows):
+    required_rows = GCP_CONFIG_CONTRACT_REQUIRED_ROWS if provider == "gcp" else RENDER_CONFIG_CONTRACT_REQUIRED_ROWS
+    for key in sorted(required_rows - rows):
         weak.append(f"config contract required row is missing: {key}")
     if data.get("not_public_staging_proof") is not True:
         weak.append("config contract not_public_staging_proof marker is missing")
@@ -938,6 +1002,9 @@ def config_contract_weaknesses(data: dict[str, Any]) -> list[str]:
 
 def readiness_status_weaknesses(data: dict[str, Any]) -> list[str]:
     weak: list[str] = []
+    provider = str(data.get("deploy_provider") or "render").lower()
+    if provider not in {"render", "gcp"}:
+        weak.append(f"readiness deploy provider is unsupported: {provider}")
     if data.get("verdict") != "ready":
         weak.append("readiness verdict is not ready")
     if data.get("blocking_external_inputs"):
@@ -945,7 +1012,8 @@ def readiness_status_weaknesses(data: dict[str, Any]) -> list[str]:
     if data.get("mode") != "local":
         weak.append("readiness mode is not local")
     local = data.get("local_environment") or {}
-    for name in sorted(READINESS_REQUIRED_LOCAL_ENV):
+    required_local = GCP_READINESS_REQUIRED_LOCAL_ENV if provider == "gcp" else READINESS_REQUIRED_LOCAL_ENV
+    for name in sorted(required_local):
         if local.get(name) != "set":
             weak.append(f"readiness local env is not set: {name}")
     staging_url = data.get("staging_url") or {}
@@ -965,11 +1033,14 @@ def readiness_status_weaknesses(data: dict[str, Any]) -> list[str]:
         weak.append("readiness GitHub staging environment does not require custom branch policies")
     if "main" not in set(github.get("staging_branch_policies_configured") or []):
         weak.append("readiness GitHub staging main branch policy is missing")
-    for name in sorted(READINESS_REQUIRED_GITHUB_SECRETS):
+    required_secrets = GCP_READINESS_REQUIRED_GITHUB_SECRETS if provider == "gcp" else READINESS_REQUIRED_GITHUB_SECRETS
+    for name in sorted(required_secrets):
         if name not in set(github.get("staging_secret_names_configured") or []):
             weak.append(f"readiness GitHub staging secret is missing: {name}")
-    if "STAGING_URL" not in set(github.get("staging_variable_names_configured") or []):
-        weak.append("readiness GitHub staging STAGING_URL variable is missing")
+    required_vars = GCP_READINESS_REQUIRED_GITHUB_VARIABLES if provider == "gcp" else {"STAGING_URL"}
+    for name in sorted(required_vars):
+        if name not in set(github.get("staging_variable_names_configured") or []):
+            weak.append(f"readiness GitHub staging variable is missing: {name}")
     browsers = data.get("local_browser_availability") or {}
     for name in ("chrome", "firefox", "safari"):
         if browsers.get(name) is not True:
@@ -1667,7 +1738,7 @@ def infra_summary_weaknesses(data: dict[str, Any]) -> list[str]:
 DEPLOYMENT_REQUIRED = {
     "workflow": {
         "workflow_dispatch_staging",
-        "push_main_only",
+        "manual_only",
         "protected_environment_declared",
         "deployment_concurrency",
         "permissions_minimal_for_release",

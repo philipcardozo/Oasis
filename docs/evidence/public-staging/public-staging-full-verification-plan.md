@@ -1,9 +1,10 @@
 # Public Staging Full Verification Plan
 
-Captured: 2026-07-30T07:49:07Z
-Branch: `phase1.75/public-staging`
-Commit: `788dc9b22bb932a6ff035d567cb67622650d4b40`
-Base URL: `https://staging.example.com`
+Captured: 2026-08-02T07:56:11Z
+Branch: `deploy/gcp-staging`
+Commit: `e5e75b9d979d3a1352b622eb49498e0f53aad00f`
+Provider: `gcp`
+Base URL: `https://oasis-staging-placeholder.a.run.app`
 Proxyman proxy: `http://127.0.0.1:9090`
 Verdict: **planned**
 
@@ -19,7 +20,7 @@ This file is an execution plan/run log. It is not approval proof unless the fina
 - Produces: `docs/evidence/public-staging/public-staging-setup-checklist.md, docs/evidence/public-staging/public-staging-setup-checklist.json`
 
 ```bash
-python3 scripts/public_staging_setup_checklist.py
+python3 scripts/public_staging_setup_checklist.py --provider=gcp
 ```
 
 ### 2. Generate manual browser matrix template
@@ -30,25 +31,25 @@ python3 scripts/public_staging_setup_checklist.py
 - Produces: `docs/evidence/public-staging/browser-matrix.template.json, docs/evidence/public-staging/browser-matrix-template.md`
 
 ```bash
-python3 scripts/public_staging_browser_matrix_template.py --base-url=https://staging.example.com
+python3 scripts/public_staging_browser_matrix_template.py --base-url=https://oasis-staging-placeholder.a.run.app
 ```
 
-### 3. Validate Render and Compose production-style staging value contract
+### 3. Validate provider and Compose production-style staging value contract
 
 - Key: `config_contract`
 - Manual input required: `False`
-- Requires: `render.yaml, compose.yaml`
+- Requires: `GCP staging env vars, compose.yaml`
 - Produces: `docs/evidence/public-staging/public-staging-config-contract.json`
 
 ```bash
-python3 scripts/public_staging_config_contract.py
+python3 scripts/public_staging_config_contract.py --provider=gcp
 ```
 
 ### 4. Verify external staging prerequisites are present
 
 - Key: `readiness`
 - Manual input required: `False`
-- Requires: `GitHub staging env vars/secrets, Render service IDs, Cloudflare/Access credentials, tester emails`
+- Requires: `GitHub staging GCP variables, GCP project resources, tester emails`
 - Produces: `docs/evidence/public-staging/public-staging-readiness-status.json`
 
 ```bash
@@ -59,22 +60,22 @@ python3 scripts/public_staging_readiness.py
 
 - Key: `preflight`
 - Manual input required: `False`
-- Requires: `STAGING_URL, Cloudflare Access service-token env vars`
+- Requires: `STAGING_URL`
 - Produces: `docs/evidence/public-staging/00-public-staging-preflight.json`
 
 ```bash
-python3 scripts/public_staging_preflight.py --base-url=https://staging.example.com --header=CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header=CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET
+python3 scripts/public_staging_preflight.py --base-url=https://oasis-staging-placeholder.a.run.app
 ```
 
 ### 6. Probe public route families through the staging edge
 
 - Key: `route_family_probe`
 - Manual input required: `False`
-- Requires: `public URL reachable, Cloudflare Access service-token env vars`
+- Requires: `public URL reachable`
 - Produces: `docs/evidence/performance/25-public-route-family-probe.json`
 
 ```bash
-python3 scripts/compose_route_family_probe.py --base-url=https://staging.example.com --samples=3 --output-file=25-public-route-family-probe.json --verify-tls --header=CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header=CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET --proxy-server=http://127.0.0.1:9090
+python3 scripts/compose_route_family_probe.py --base-url=https://oasis-staging-placeholder.a.run.app --samples=3 --output-file=25-public-route-family-probe.json --verify-tls --proxy-server=http://127.0.0.1:9090
 ```
 
 ### 7. Exercise registration, verification, login, cookies, slots, CSRF, stale 409, cross-user denial, reset
@@ -85,7 +86,7 @@ python3 scripts/compose_route_family_probe.py --base-url=https://staging.example
 - Produces: `docs/evidence/performance/27-public-auth-map-slots.json`
 
 ```bash
-python3 scripts/public_staging_auth_map_slots_probe.py --base-url=https://staging.example.com --samples=3 --enforce-app-targets '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/27-public-auth-map-slots.json' --header=CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header=CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET --proxy-server=http://127.0.0.1:9090
+python3 scripts/public_staging_auth_map_slots_probe.py --base-url=https://oasis-staging-placeholder.a.run.app --samples=3 --enforce-app-targets '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/27-public-auth-map-slots.json' --proxy-server=http://127.0.0.1:9090
 ```
 
 ### 8. Generate authentication/email evidence report
@@ -118,7 +119,7 @@ python3 scripts/public_staging_route_security_report.py '--route-probe=/Users/fe
 - Produces: `docs/evidence/public-staging/public-playwright-summary.json, docs/evidence/public-staging/22-public-playwright.md`
 
 ```bash
-python3 scripts/public_staging_playwright_report.py --base-url=https://staging.example.com '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/public-playwright-summary.json' '--markdown-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/22-public-playwright.md'
+python3 scripts/public_staging_playwright_report.py --base-url=https://oasis-staging-placeholder.a.run.app '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/public-playwright-summary.json' '--markdown-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/22-public-playwright.md'
 ```
 
 ### 11. Capture Chrome public flows through Proxyman
@@ -129,7 +130,7 @@ python3 scripts/public_staging_playwright_report.py --base-url=https://staging.e
 - Produces: `docs/evidence/performance/26-public-staging-browser-har-summary.json`
 
 ```bash
-node scripts/browser_performance_capture.js --base-url=https://staging.example.com --no-start-server=true --proxy-server=http://127.0.0.1:9090 --flow-prefix=26-public-staging --summary-file=26-public-staging-browser-har-summary.json
+node scripts/browser_performance_capture.js --base-url=https://oasis-staging-placeholder.a.run.app --no-start-server=true --proxy-server=http://127.0.0.1:9090 --flow-prefix=26-public-staging --summary-file=26-public-staging-browser-har-summary.json
 ```
 
 ### 12. Capture direct Chrome comparison without Proxyman
@@ -140,7 +141,7 @@ node scripts/browser_performance_capture.js --base-url=https://staging.example.c
 - Produces: `docs/evidence/performance/26-public-staging-direct-browser-har-summary.json`
 
 ```bash
-node scripts/browser_performance_capture.js --base-url=https://staging.example.com --no-start-server=true --flow-prefix=26-public-staging-direct --summary-file=26-public-staging-direct-browser-har-summary.json
+node scripts/browser_performance_capture.js --base-url=https://oasis-staging-placeholder.a.run.app --no-start-server=true --flow-prefix=26-public-staging-direct --summary-file=26-public-staging-direct-browser-har-summary.json
 ```
 
 ### 13. Generate browser matrix and map-provider reports

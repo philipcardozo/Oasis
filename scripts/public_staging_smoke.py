@@ -22,6 +22,18 @@ ACCESS_HEADERS = [
     "CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID",
     "CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET",
 ]
+DEPLOY_PROVIDERS = {"render", "gcp"}
+
+
+def normalize_provider(value: str | None) -> str:
+    provider = (value or "render").strip().lower()
+    return provider if provider in DEPLOY_PROVIDERS else "render"
+
+
+def header_args(provider: str) -> list[str]:
+    if normalize_provider(provider) == "gcp":
+        return []
+    return [f"--header={item}" for item in ACCESS_HEADERS]
 
 
 def run(cmd: list[str]) -> dict[str, Any]:
@@ -53,12 +65,13 @@ def public_base_url_failures(url: str) -> list[str]:
     return failures
 
 
-def build_commands(*, base_url: str, proxy_server: str, expect_commit: str, samples: int) -> list[list[str]]:
+def build_commands(*, base_url: str, proxy_server: str, expect_commit: str, samples: int, provider: str = "render") -> list[list[str]]:
+    provider = normalize_provider(provider)
     preflight = [
         "python3",
         "scripts/public_staging_preflight.py",
         f"--base-url={base_url}",
-        *[f"--header={item}" for item in ACCESS_HEADERS],
+        *header_args(provider),
     ]
     if expect_commit:
         preflight.append(f"--expect-commit={expect_commit}")
@@ -70,7 +83,7 @@ def build_commands(*, base_url: str, proxy_server: str, expect_commit: str, samp
         f"--samples={samples}",
         "--output-file=25-public-route-family-probe.json",
         "--verify-tls",
-        *[f"--header={item}" for item in ACCESS_HEADERS],
+        *header_args(provider),
     ]
     if proxy_server:
         route.append(f"--proxy-server={proxy_server}")
@@ -83,10 +96,11 @@ def build_commands(*, base_url: str, proxy_server: str, expect_commit: str, samp
     ]
 
 
-def payload(*, commands: list[list[str]], results: list[dict[str, Any]], dry_run: bool) -> dict[str, Any]:
+def payload(*, commands: list[list[str]], results: list[dict[str, Any]], dry_run: bool, provider: str = "render") -> dict[str, Any]:
     failures = [item for item in results if item.get("returncode") not in {0, None}]
     return {
         "captured_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+        "deploy_provider": normalize_provider(provider),
         "not_public_staging_proof": bool(dry_run),
         "dry_run": dry_run,
         "commands": [redact_command(command) for command in commands],
@@ -101,6 +115,7 @@ def main() -> int:
     parser.add_argument("--base-url", default=os.environ.get("STAGING_URL", ""))
     parser.add_argument("--proxy-server", default="")
     parser.add_argument("--expect-commit", default="")
+    parser.add_argument("--provider", choices=["gcp", "render"], default=os.environ.get("OASIS_DEPLOY_PROVIDER", "render"))
     parser.add_argument("--samples", type=int, default=3)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--output", default=str(EVIDENCE / "public-staging-smoke-run.json"))
@@ -117,9 +132,10 @@ def main() -> int:
         proxy_server=args.proxy_server,
         expect_commit=args.expect_commit,
         samples=max(1, args.samples),
+        provider=args.provider,
     )
     results = [] if args.dry_run else [run(command) for command in commands]
-    data = payload(commands=commands, results=results, dry_run=args.dry_run)
+    data = payload(commands=commands, results=results, dry_run=args.dry_run, provider=args.provider)
 
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)

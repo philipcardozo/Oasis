@@ -1,9 +1,9 @@
 # Public Staging Playwright Evidence
 
-Captured: 2026-07-30T07:49:07Z
-Commit: `788dc9b22bb932a6ff035d567cb67622650d4b40`
-Branch: `phase1.75/public-staging`
-Base URL: `https://staging.example.com`
+Captured: 2026-08-02T07:56:22Z
+Commit: `e5e75b9d979d3a1352b622eb49498e0f53aad00f`
+Branch: `deploy/gcp-staging`
+Base URL: `https://oasis-staging-placeholder.a.run.app`
 Config: `playwright.public.config.js`
 Verdict: **planned**
 

@@ -15,9 +15,50 @@ def test_config_contract_passes_current_render_and_compose_contract():
     payload = build_payload(captured_at="2026-07-30T00:00:00Z")
 
     assert payload["verdict"] == "pass"
+    assert payload["deploy_provider"] == "render"
     assert payload["render"]["verdict"] == "pass"
+    assert payload["gcp"]["verdict"] == "not_applicable"
     assert payload["compose"]["verdict"] == "pass"
     assert payload["not_public_staging_proof"] is True
+
+
+def test_config_contract_passes_gcp_contract_when_required_env_is_present():
+    env = {
+        "OASIS_DEPLOY_PROVIDER": "gcp",
+        "GCP_PROJECT_ID": "oasis-staging-123",
+        "GCP_REGION": "us-east1",
+        "GCP_ARTIFACT_REPOSITORY": "oasis",
+        "GCP_CLOUD_RUN_SERVICE": "oasis-staging",
+        "GCP_CLOUD_RUN_WORKER_POOL": "oasis-staging-worker",
+        "GCP_CLOUD_SQL_INSTANCE": "oasis-staging-postgres",
+        "GCP_STORAGE_BUCKET": "oasis-staging-123-oasis-staging",
+        "STAGING_URL": "https://oasis-staging-abc-ue.a.run.app",
+    }
+
+    payload = build_payload(env=env, provider="gcp", captured_at="2026-08-02T00:00:00Z")
+
+    assert payload["verdict"] == "pass"
+    assert payload["deploy_provider"] == "gcp"
+    assert payload["render"]["verdict"] == "not_applicable"
+    assert payload["gcp"]["verdict"] == "pass"
+    assert payload["gcp"]["failures"] == []
+
+
+def test_config_contract_rejects_gcp_missing_env_and_wrong_region():
+    payload = build_payload(
+        env={
+            "OASIS_DEPLOY_PROVIDER": "gcp",
+            "GCP_REGION": "us-west1",
+            "STAGING_URL": "https://staging.example.com",
+        },
+        provider="gcp",
+        captured_at="2026-08-02T00:00:00Z",
+    )
+
+    assert payload["verdict"] == "investigate"
+    assert "gcp_env_GCP_PROJECT_ID" in payload["failures"]
+    assert "gcp_region_us_east1" in payload["failures"]
+    assert "gcp_staging_url_public_https" in payload["failures"]
 
 
 def test_config_contract_rejects_committed_base_url_value(tmp_path):

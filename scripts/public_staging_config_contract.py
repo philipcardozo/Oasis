@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
+from urllib.parse import urlparse
 
 import yaml
 
@@ -15,6 +17,20 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
 DEFAULT_OUTPUT = PUBLIC_EVIDENCE / "public-staging-config-contract.json"
+DEPLOY_PROVIDERS = {"render", "gcp"}
+GCP_REQUIRED_ENV = {
+    "GCP_PROJECT_ID",
+    "GCP_REGION",
+    "GCP_ARTIFACT_REPOSITORY",
+    "GCP_CLOUD_RUN_SERVICE",
+    "GCP_CLOUD_RUN_WORKER_POOL",
+    "GCP_CLOUD_SQL_INSTANCE",
+    "GCP_STORAGE_BUCKET",
+    "STAGING_URL",
+}
+LOCAL_PUBLIC_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
+RESERVED_PUBLIC_HOSTS = {"example.com", "example.net", "example.org"}
+RESERVED_PUBLIC_SUFFIXES = (".example.com", ".example.net", ".example.org", ".invalid", ".test")
 
 RENDER_SYNC_FALSE = {
     "OASIS_PUBLIC_BASE_URL",
@@ -129,8 +145,47 @@ def row(key: str, ok: bool, detail: str) -> dict[str, Any]:
     return {"key": key, "ok": bool(ok), "detail": detail}
 
 
+def normalize_provider(value: str | None) -> str:
+    provider = (value or "render").strip().lower()
+    if provider not in DEPLOY_PROVIDERS:
+        return provider
+    return provider
+
+
 def required_env_reference(value: Any, key: str) -> bool:
     return isinstance(value, str) and value.strip() == f"${{{key}}}"
+
+
+def public_https_url(value: str | None) -> bool:
+    parsed = urlparse(str(value or ""))
+    hostname = (parsed.hostname or "").lower()
+    if parsed.scheme != "https" or not hostname:
+        return False
+    if hostname in LOCAL_PUBLIC_HOSTS or hostname.endswith(".local"):
+        return False
+    if hostname in RESERVED_PUBLIC_HOSTS or hostname.endswith(RESERVED_PUBLIC_SUFFIXES):
+        return False
+    return True
+
+
+def evaluate_gcp(env: Mapping[str, str | None]) -> tuple[list[dict[str, Any]], list[str]]:
+    rows: list[dict[str, Any]] = []
+    failures: list[str] = []
+    for key in sorted(GCP_REQUIRED_ENV):
+        rows.append(row(f"gcp_env_{key}", bool(env.get(key)), f"{key} is supplied outside Git"))
+    rows.append(row("gcp_provider_selected", normalize_provider(env.get("OASIS_DEPLOY_PROVIDER")) == "gcp", "OASIS_DEPLOY_PROVIDER=gcp"))
+    rows.append(row("gcp_region_us_east1", env.get("GCP_REGION") == "us-east1", "GCP_REGION=us-east1"))
+    rows.append(row("gcp_staging_url_public_https", public_https_url(env.get("STAGING_URL")), "STAGING_URL is a real public HTTPS URL"))
+    rows.append(row("gcp_artifact_repository_named", bool(env.get("GCP_ARTIFACT_REPOSITORY")), "Artifact Registry repository is named"))
+    rows.append(row("gcp_cloud_storage_bucket_named", bool(env.get("GCP_STORAGE_BUCKET")), "Cloud Storage bucket is named"))
+    rows.append(row("gcp_cloud_sql_instance_named", bool(env.get("GCP_CLOUD_SQL_INSTANCE")), "Cloud SQL PostgreSQL instance is named"))
+    rows.append(row("gcp_cloud_run_api_named", bool(env.get("GCP_CLOUD_RUN_SERVICE")), "Cloud Run API service is named"))
+    rows.append(row("gcp_cloud_run_worker_pool_named", bool(env.get("GCP_CLOUD_RUN_WORKER_POOL")), "Cloud Run worker pool is named"))
+
+    for item in rows:
+        if not item["ok"]:
+            failures.append(item["key"])
+    return rows, failures
 
 
 def evaluate_render(render_config: dict[str, Any]) -> tuple[list[dict[str, Any]], list[str]]:
@@ -200,21 +255,43 @@ def build_payload(
     *,
     render_path: Path = ROOT / "render.yaml",
     compose_path: Path = ROOT / "compose.yaml",
+    env: Mapping[str, str | None] | None = None,
+    provider: str | None = None,
     captured_at: str | None = None,
 ) -> dict[str, Any]:
-    render_rows, render_failures = evaluate_render(load_yaml(render_path))
+    env = env or os.environ
+    provider = normalize_provider(provider or env.get("OASIS_DEPLOY_PROVIDER"))
+    render_rows: list[dict[str, Any]] = []
+    render_failures: list[str] = []
+    gcp_rows: list[dict[str, Any]] = []
+    gcp_failures: list[str] = []
+    if provider == "render":
+        render_rows, render_failures = evaluate_render(load_yaml(render_path))
+        gcp_verdict = "not_applicable"
+    elif provider == "gcp":
+        gcp_rows, gcp_failures = evaluate_gcp(env)
+        gcp_verdict = "pass" if not gcp_failures else "investigate"
+    else:
+        gcp_failures = [f"unsupported_provider_{provider}"]
+        gcp_verdict = "investigate"
     compose_rows, compose_failures = evaluate_compose(load_yaml(compose_path))
-    failures = [*render_failures, *compose_failures]
+    failures = [*render_failures, *gcp_failures, *compose_failures]
     return {
         "captured_at": captured_at or utc_now(),
         "branch": git_value("branch", "--show-current"),
         "commit": git_value("rev-parse", "HEAD"),
+        "deploy_provider": provider,
         "not_public_staging_proof": True,
         "inputs": {
             "render": str(render_path.relative_to(ROOT)) if render_path.is_relative_to(ROOT) else str(render_path),
             "compose": str(compose_path.relative_to(ROOT)) if compose_path.is_relative_to(ROOT) else str(compose_path),
         },
-        "render": {"rows": render_rows, "failures": render_failures, "verdict": "pass" if not render_failures else "investigate"},
+        "render": {
+            "rows": render_rows,
+            "failures": render_failures,
+            "verdict": "pass" if provider == "render" and not render_failures else ("investigate" if provider == "render" else "not_applicable"),
+        },
+        "gcp": {"rows": gcp_rows, "failures": gcp_failures, "verdict": gcp_verdict},
         "compose": {"rows": compose_rows, "failures": compose_failures, "verdict": "pass" if not compose_failures else "investigate"},
         "failures": failures,
         "verdict": "pass" if not failures else "investigate",
@@ -225,10 +302,11 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--render", default=str(ROOT / "render.yaml"))
     parser.add_argument("--compose", default=str(ROOT / "compose.yaml"))
+    parser.add_argument("--provider", choices=sorted(DEPLOY_PROVIDERS), default=os.environ.get("OASIS_DEPLOY_PROVIDER", "render"))
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
     args = parser.parse_args()
 
-    payload = build_payload(render_path=Path(args.render), compose_path=Path(args.compose))
+    payload = build_payload(render_path=Path(args.render), compose_path=Path(args.compose), provider=args.provider)
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")

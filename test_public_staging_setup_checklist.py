@@ -6,6 +6,7 @@ import subprocess
 import sys
 
 from scripts.public_staging_readiness import GITHUB_STAGING_SECRETS, GITHUB_STAGING_VARIABLES
+from scripts.public_staging_readiness import GCP_GITHUB_STAGING_SECRETS, GCP_GITHUB_STAGING_VARIABLES
 from scripts.public_staging_setup_checklist import build_payload, markdown
 
 
@@ -43,6 +44,21 @@ def test_setup_checklist_markdown_is_generated_and_secret_free():
     assert "OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD" in text
     assert "Chrome, Firefox, and Safari" in text
     assert "password123" not in text
+
+
+def test_setup_checklist_gcp_mode_uses_gcp_variables_without_render_secrets():
+    payload = build_payload(provider="gcp", captured_at="2026-08-02T00:00:00Z")
+    text = markdown(payload)
+
+    assert payload["deploy_provider"] == "gcp"
+    assert payload["github_environment"]["required_variables"] == GCP_GITHUB_STAGING_VARIABLES
+    assert payload["github_environment"]["required_secrets"] == GCP_GITHUB_STAGING_SECRETS
+    assert "GCP_PROJECT_ID" in text
+    assert "GCP_CLOUD_RUN_WORKER_POOL" in text
+    assert "Workload Identity Federation" in text
+    assert "Cloud Storage bucket" in text
+    assert "RENDER_API_KEY" not in text
+    assert "CF-Access-Client-Id" not in text
 
 
 def test_setup_checklist_cli_writes_markdown_and_json(tmp_path):

@@ -45,6 +45,22 @@ def test_full_verification_plan_covers_required_public_gates():
     assert "public_staging_ops_reports.py" in command_text
 
 
+def test_full_verification_gcp_plan_omits_cloudflare_access_headers():
+    steps = build_steps(
+        base_url="https://oasis-staging-abc-ue.a.run.app",
+        proxy_server="http://127.0.0.1:9090",
+        expect_commit="abc123",
+        samples=3,
+        provider="gcp",
+    )
+    command_text = "\n".join(" ".join(step.command) for step in steps)
+
+    assert "public_staging_config_contract.py --provider=gcp" in command_text
+    assert "public_staging_setup_checklist.py --provider=gcp" in command_text
+    assert "CF-Access-Client-Id" not in command_text
+    assert "OASIS_CF_ACCESS_CLIENT_SECRET" not in command_text
+
+
 def test_full_verification_dry_run_writes_secret_free_plan(tmp_path):
     output = tmp_path / "run.json"
     markdown = tmp_path / "run.md"

@@ -38,11 +38,27 @@ def test_smoke_dry_run_commands_include_access_headers_without_values():
     assert "--proxy-server=http://localhost:9090" in text
 
 
+def test_smoke_gcp_commands_omit_access_headers():
+    commands = build_commands(
+        base_url="https://oasis-staging-abc-ue.a.run.app",
+        proxy_server="http://localhost:9090",
+        expect_commit="abc123",
+        samples=2,
+        provider="gcp",
+    )
+    text = json.dumps(commands)
+
+    assert "scripts/public_staging_preflight.py" in text
+    assert "CF-Access-Client-Id" not in text
+    assert "OASIS_CF_ACCESS_CLIENT_SECRET" not in text
+
+
 def test_smoke_payload_dry_run_is_planned_not_public_proof():
     commands = build_commands(base_url=PUBLIC_BASE_URL, proxy_server="", expect_commit="", samples=1)
     data = payload(commands=commands, results=[], dry_run=True)
 
     assert data["verdict"] == "planned"
+    assert data["deploy_provider"] == "render"
     assert data["not_public_staging_proof"] is True
     assert data["failures"] == []
 

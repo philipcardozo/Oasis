@@ -1,7 +1,7 @@
 {
-  "branch": "phase1.75/public-staging",
-  "captured_at": "2026-07-30T09:03:34Z",
-  "commit": "788dc9b22bb932a6ff035d567cb67622650d4b40",
+  "branch": "deploy/gcp-staging",
+  "captured_at": "2026-08-02T07:56:22Z",
+  "commit": "e5e75b9d979d3a1352b622eb49498e0f53aad00f",
   "compose": {
     "failures": [],
     "rows": [
@@ -513,7 +513,126 @@
     ],
     "verdict": "pass"
   },
-  "failures": [],
+  "deploy_provider": "gcp",
+  "failures": [
+    "gcp_env_GCP_ARTIFACT_REPOSITORY",
+    "gcp_env_GCP_CLOUD_RUN_SERVICE",
+    "gcp_env_GCP_CLOUD_RUN_WORKER_POOL",
+    "gcp_env_GCP_CLOUD_SQL_INSTANCE",
+    "gcp_env_GCP_PROJECT_ID",
+    "gcp_env_GCP_REGION",
+    "gcp_env_GCP_STORAGE_BUCKET",
+    "gcp_env_STAGING_URL",
+    "gcp_region_us_east1",
+    "gcp_staging_url_public_https",
+    "gcp_artifact_repository_named",
+    "gcp_cloud_storage_bucket_named",
+    "gcp_cloud_sql_instance_named",
+    "gcp_cloud_run_api_named",
+    "gcp_cloud_run_worker_pool_named"
+  ],
+  "gcp": {
+    "failures": [
+      "gcp_env_GCP_ARTIFACT_REPOSITORY",
+      "gcp_env_GCP_CLOUD_RUN_SERVICE",
+      "gcp_env_GCP_CLOUD_RUN_WORKER_POOL",
+      "gcp_env_GCP_CLOUD_SQL_INSTANCE",
+      "gcp_env_GCP_PROJECT_ID",
+      "gcp_env_GCP_REGION",
+      "gcp_env_GCP_STORAGE_BUCKET",
+      "gcp_env_STAGING_URL",
+      "gcp_region_us_east1",
+      "gcp_staging_url_public_https",
+      "gcp_artifact_repository_named",
+      "gcp_cloud_storage_bucket_named",
+      "gcp_cloud_sql_instance_named",
+      "gcp_cloud_run_api_named",
+      "gcp_cloud_run_worker_pool_named"
+    ],
+    "rows": [
+      {
+        "detail": "GCP_ARTIFACT_REPOSITORY is supplied outside Git",
+        "key": "gcp_env_GCP_ARTIFACT_REPOSITORY",
+        "ok": false
+      },
+      {
+        "detail": "GCP_CLOUD_RUN_SERVICE is supplied outside Git",
+        "key": "gcp_env_GCP_CLOUD_RUN_SERVICE",
+        "ok": false
+      },
+      {
+        "detail": "GCP_CLOUD_RUN_WORKER_POOL is supplied outside Git",
+        "key": "gcp_env_GCP_CLOUD_RUN_WORKER_POOL",
+        "ok": false
+      },
+      {
+        "detail": "GCP_CLOUD_SQL_INSTANCE is supplied outside Git",
+        "key": "gcp_env_GCP_CLOUD_SQL_INSTANCE",
+        "ok": false
+      },
+      {
+        "detail": "GCP_PROJECT_ID is supplied outside Git",
+        "key": "gcp_env_GCP_PROJECT_ID",
+        "ok": false
+      },
+      {
+        "detail": "GCP_REGION is supplied outside Git",
+        "key": "gcp_env_GCP_REGION",
+        "ok": false
+      },
+      {
+        "detail": "GCP_STORAGE_BUCKET is supplied outside Git",
+        "key": "gcp_env_GCP_STORAGE_BUCKET",
+        "ok": false
+      },
+      {
+        "detail": "STAGING_URL is supplied outside Git",
+        "key": "gcp_env_STAGING_URL",
+        "ok": false
+      },
+      {
+        "detail": "OASIS_DEPLOY_PROVIDER=gcp",
+        "key": "gcp_provider_selected",
+        "ok": true
+      },
+      {
+        "detail": "GCP_REGION=us-east1",
+        "key": "gcp_region_us_east1",
+        "ok": false
+      },
+      {
+        "detail": "STAGING_URL is a real public HTTPS URL",
+        "key": "gcp_staging_url_public_https",
+        "ok": false
+      },
+      {
+        "detail": "Artifact Registry repository is named",
+        "key": "gcp_artifact_repository_named",
+        "ok": false
+      },
+      {
+        "detail": "Cloud Storage bucket is named",
+        "key": "gcp_cloud_storage_bucket_named",
+        "ok": false
+      },
+      {
+        "detail": "Cloud SQL PostgreSQL instance is named",
+        "key": "gcp_cloud_sql_instance_named",
+        "ok": false
+      },
+      {
+        "detail": "Cloud Run API service is named",
+        "key": "gcp_cloud_run_api_named",
+        "ok": false
+      },
+      {
+        "detail": "Cloud Run worker pool is named",
+        "key": "gcp_cloud_run_worker_pool_named",
+        "ok": false
+      }
+    ],
+    "verdict": "investigate"
+  },
   "inputs": {
     "compose": "compose.yaml",
     "render": "render.yaml"
@@ -521,189 +640,8 @@
   "not_public_staging_proof": true,
   "render": {
     "failures": [],
-    "rows": [
-      {
-        "detail": "OASIS_SESSION_SECRET uses generateValue and no committed value",
-        "key": "render_session_secret_generated",
-        "ok": true
-      },
-      {
-        "detail": "AWS_ACCESS_KEY_ID is sync:false outside Git",
-        "key": "render_sync_false_AWS_ACCESS_KEY_ID",
-        "ok": true
-      },
-      {
-        "detail": "AWS_SECRET_ACCESS_KEY is sync:false outside Git",
-        "key": "render_sync_false_AWS_SECRET_ACCESS_KEY",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_ALLOWED_ORIGINS is sync:false outside Git",
-        "key": "render_sync_false_OASIS_ALLOWED_ORIGINS",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_API_BASE_URL is sync:false outside Git",
-        "key": "render_sync_false_OASIS_API_BASE_URL",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_EMAIL_FROM is sync:false outside Git",
-        "key": "render_sync_false_OASIS_EMAIL_FROM",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_PUBLIC_BASE_URL is sync:false outside Git",
-        "key": "render_sync_false_OASIS_PUBLIC_BASE_URL",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_REGISTRATION_ALLOWED_EMAILS is sync:false outside Git",
-        "key": "render_sync_false_OASIS_REGISTRATION_ALLOWED_EMAILS",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_S3_BUCKET is sync:false outside Git",
-        "key": "render_sync_false_OASIS_S3_BUCKET",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_S3_ENDPOINT is sync:false outside Git",
-        "key": "render_sync_false_OASIS_S3_ENDPOINT",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_SMTP_HOST is sync:false outside Git",
-        "key": "render_sync_false_OASIS_SMTP_HOST",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_SMTP_PASSWORD is sync:false outside Git",
-        "key": "render_sync_false_OASIS_SMTP_PASSWORD",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_SMTP_USER is sync:false outside Git",
-        "key": "render_sync_false_OASIS_SMTP_USER",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_TRUSTED_HOSTS is sync:false outside Git",
-        "key": "render_sync_false_OASIS_TRUSTED_HOSTS",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_COOKIE_SAMESITE=lax",
-        "key": "render_value_OASIS_COOKIE_SAMESITE",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_COOKIE_SECURE=true",
-        "key": "render_value_OASIS_COOKIE_SECURE",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_EMAIL_BACKEND=smtp",
-        "key": "render_value_OASIS_EMAIL_BACKEND",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_ENV=staging",
-        "key": "render_value_OASIS_ENV",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_FEATURE_LOGOS=false",
-        "key": "render_value_OASIS_FEATURE_LOGOS",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_FEATURE_PRICES=false",
-        "key": "render_value_OASIS_FEATURE_PRICES",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_FEATURE_SATELLITE=false",
-        "key": "render_value_OASIS_FEATURE_SATELLITE",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_LOG_JSON=true",
-        "key": "render_value_OASIS_LOG_JSON",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_MODE=staging",
-        "key": "render_value_OASIS_MODE",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_S3_REGION=auto",
-        "key": "render_value_OASIS_S3_REGION",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_SMTP_PORT=587",
-        "key": "render_value_OASIS_SMTP_PORT",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_SMTP_STARTTLS=true",
-        "key": "render_value_OASIS_SMTP_STARTTLS",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_STORAGE_BACKEND=s3",
-        "key": "render_value_OASIS_STORAGE_BACKEND",
-        "ok": true
-      },
-      {
-        "detail": "OASIS_TRUST_PROXY=true",
-        "key": "render_value_OASIS_TRUST_PROXY",
-        "ok": true
-      },
-      {
-        "detail": "oasis-postgres-staging database exists",
-        "key": "render_postgres_exists",
-        "ok": true
-      },
-      {
-        "detail": "managed Postgres has no public IP allow list",
-        "key": "render_postgres_ip_allowlist_empty",
-        "ok": true
-      },
-      {
-        "detail": "API predeploy runs migration check",
-        "key": "render_api_predeploy_migration_check",
-        "ok": true
-      },
-      {
-        "detail": "worker uses same image with worker command",
-        "key": "render_worker_is_worker",
-        "ok": true
-      },
-      {
-        "detail": "api OASIS_DATABASE_URL comes from managed Postgres",
-        "key": "render_api_OASIS_DATABASE_URL_from_postgres",
-        "ok": true
-      },
-      {
-        "detail": "api DATABASE_URL comes from managed Postgres",
-        "key": "render_api_DATABASE_URL_from_postgres",
-        "ok": true
-      },
-      {
-        "detail": "worker OASIS_DATABASE_URL comes from managed Postgres",
-        "key": "render_worker_OASIS_DATABASE_URL_from_postgres",
-        "ok": true
-      },
-      {
-        "detail": "worker DATABASE_URL comes from managed Postgres",
-        "key": "render_worker_DATABASE_URL_from_postgres",
-        "ok": true
-      }
-    ],
-    "verdict": "pass"
+    "rows": [],
+    "verdict": "not_applicable"
   },
-  "verdict": "pass"
+  "verdict": "investigate"
 }

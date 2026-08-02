@@ -1184,7 +1184,7 @@ def test_provider_readiness_rejects_missing_external_inputs(tmp_path, monkeypatc
     assert result["status"] == "weak"
     assert any("readiness verdict is not ready" in item for item in result["weak"])
     assert any("readiness local env is not set: STAGING_URL" in item for item in result["weak"])
-    assert any("readiness GitHub staging STAGING_URL variable is missing" in item for item in result["weak"])
+    assert any("readiness GitHub staging variable is missing: STAGING_URL" in item for item in result["weak"])
 
 
 def test_provider_readiness_rejects_reserved_staging_url_metadata(tmp_path, monkeypatch):
@@ -1225,6 +1225,52 @@ def test_config_contract_rejects_missing_outside_git_row(tmp_path, monkeypatch):
 
     assert result["status"] == "weak"
     assert any("config contract required row is missing: render_sync_false_OASIS_SMTP_PASSWORD" in item for item in result["weak"])
+
+
+def test_gcp_config_contract_does_not_require_render_rows(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    contract = _gcp_config_contract()
+    (evidence / "public-staging-config-contract.json").write_text(json.dumps(contract))
+
+    result = audit.evaluate("config", "Config", ["public-staging-config-contract.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_gcp_readiness_does_not_require_render_or_cloudflare_secrets(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    readiness = _gcp_readiness_status()
+    (evidence / "public-staging-readiness-status.json").write_text(json.dumps(readiness))
+    (evidence / "public-staging-config-contract.json").write_text(json.dumps(_gcp_config_contract()))
+
+    result = audit.evaluate(
+        "provider_readiness",
+        "Provider readiness",
+        ["public-staging-readiness-status.json", "public-staging-config-contract.json"],
+    )
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_gcp_readiness_requires_gcp_project_variable(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    readiness = _gcp_readiness_status()
+    readiness["local_environment"]["GCP_PROJECT_ID"] = "missing"
+    readiness["github"]["staging_variable_names_configured"].remove("GCP_PROJECT_ID")
+    (evidence / "public-staging-readiness-status.json").write_text(json.dumps(readiness))
+    (evidence / "public-staging-config-contract.json").write_text(json.dumps(_gcp_config_contract()))
+
+    result = audit.evaluate(
+        "provider_readiness",
+        "Provider readiness",
+        ["public-staging-readiness-status.json", "public-staging-config-contract.json"],
+    )
+
+    assert result["status"] == "weak"
+    assert any("readiness local env is not set: GCP_PROJECT_ID" in item for item in result["weak"])
+    assert any("readiness GitHub staging variable is missing: GCP_PROJECT_ID" in item for item in result["weak"])
 
 
 def test_public_playwright_summary_rejects_dry_run_and_missing_webkit(tmp_path, monkeypatch):
@@ -1628,8 +1674,31 @@ def _config_contract() -> dict:
     return {
         "verdict": "pass",
         "failures": [],
+        "deploy_provider": "render",
         "not_public_staging_proof": True,
         "render": {"verdict": "pass", "failures": [], "rows": render_rows},
+        "compose": {"verdict": "pass", "failures": [], "rows": compose_rows},
+    }
+
+
+def _gcp_config_contract() -> dict:
+    gcp_rows = [
+        {"key": key, "ok": True, "detail": key}
+        for key in sorted(audit.GCP_CONFIG_CONTRACT_REQUIRED_ROWS)
+        if key.startswith("gcp_")
+    ]
+    compose_rows = [
+        {"key": key, "ok": True, "detail": key}
+        for key in sorted(audit.GCP_CONFIG_CONTRACT_REQUIRED_ROWS)
+        if key.startswith("compose_")
+    ]
+    return {
+        "verdict": "pass",
+        "failures": [],
+        "deploy_provider": "gcp",
+        "not_public_staging_proof": True,
+        "render": {"verdict": "not_applicable", "failures": [], "rows": []},
+        "gcp": {"verdict": "pass", "failures": [], "rows": gcp_rows},
         "compose": {"verdict": "pass", "failures": [], "rows": compose_rows},
     }
 
@@ -1665,6 +1734,7 @@ def _readiness_status() -> dict:
     return {
         "verdict": "ready",
         "mode": "local",
+        "deploy_provider": "render",
         "not_public_staging_proof": True,
         "blocking_external_inputs": [],
         "local_environment": {name: "set" for name in audit.READINESS_REQUIRED_LOCAL_ENV},
@@ -1684,6 +1754,36 @@ def _readiness_status() -> dict:
             "staging_branch_policies_configured": ["main"],
             "staging_secret_names_configured": sorted(audit.READINESS_REQUIRED_GITHUB_SECRETS),
             "staging_variable_names_configured": ["STAGING_URL"],
+        },
+        "local_browser_availability": {"chrome": True, "firefox": True, "safari": True},
+        "public_staging_config_contract": {"verdict": "pass", "failures": []},
+    }
+
+
+def _gcp_readiness_status() -> dict:
+    return {
+        "verdict": "ready",
+        "mode": "local",
+        "deploy_provider": "gcp",
+        "not_public_staging_proof": True,
+        "blocking_external_inputs": [],
+        "local_environment": {name: "set" for name in audit.GCP_READINESS_REQUIRED_LOCAL_ENV},
+        "staging_url": {
+            "present": True,
+            "https": True,
+            "hostname_present": True,
+            "non_local_hostname": True,
+            "reserved_documentation_hostname": False,
+            "public_https": True,
+        },
+        "github": {
+            "gh_authenticated": True,
+            "staging_environment_exists": True,
+            "staging_environment_protection_rule_count": 1,
+            "staging_environment_deployment_branch_policy": {"custom_branch_policies": True, "protected_branches": False},
+            "staging_branch_policies_configured": ["main"],
+            "staging_secret_names_configured": [],
+            "staging_variable_names_configured": sorted(audit.GCP_READINESS_REQUIRED_GITHUB_VARIABLES),
         },
         "local_browser_availability": {"chrome": True, "firefox": True, "safari": True},
         "public_staging_config_contract": {"verdict": "pass", "failures": []},

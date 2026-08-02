@@ -22,19 +22,13 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.public_staging_config_contract import build_payload as build_config_contract
+from scripts.public_staging_config_contract import normalize_provider
 
 EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
 
-LOCAL_ENV_REQUIRED = [
+BASE_LOCAL_ENV_REQUIRED = [
+    "OASIS_DEPLOY_PROVIDER",
     "STAGING_URL",
-    "OASIS_CF_ACCESS_CLIENT_ID",
-    "OASIS_CF_ACCESS_CLIENT_SECRET",
-    "CLOUDFLARE_API_TOKEN",
-    "CLOUDFLARE_ACCOUNT_ID",
-    "CLOUDFLARE_ZONE_ID",
-    "RENDER_API_KEY",
-    "RENDER_API_SERVICE_ID",
-    "RENDER_WORKER_SERVICE_ID",
     "OASIS_PUBLIC_TESTER_A_EMAIL",
     "OASIS_PUBLIC_TESTER_A_PASSWORD",
     "OASIS_PUBLIC_TESTER_A_RESET_PASSWORD",
@@ -45,8 +39,58 @@ LOCAL_ENV_REQUIRED = [
     "OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD",
 ]
 
+RENDER_LOCAL_ENV_REQUIRED = [
+    "OASIS_CF_ACCESS_CLIENT_ID",
+    "OASIS_CF_ACCESS_CLIENT_SECRET",
+    "CLOUDFLARE_API_TOKEN",
+    "CLOUDFLARE_ACCOUNT_ID",
+    "CLOUDFLARE_ZONE_ID",
+    "RENDER_API_KEY",
+    "RENDER_API_SERVICE_ID",
+    "RENDER_WORKER_SERVICE_ID",
+]
+
+GCP_LOCAL_ENV_REQUIRED = [
+    "GCP_PROJECT_ID",
+    "GCP_REGION",
+    "GCP_ARTIFACT_REPOSITORY",
+    "GCP_CLOUD_RUN_SERVICE",
+    "GCP_CLOUD_RUN_WORKER_POOL",
+    "GCP_CLOUD_SQL_INSTANCE",
+    "GCP_STORAGE_BUCKET",
+]
+
+LOCAL_ENV_REQUIRED = [
+    *BASE_LOCAL_ENV_REQUIRED,
+    *RENDER_LOCAL_ENV_REQUIRED,
+]
+
+RENDER_GITHUB_ACTIONS_ENV_REQUIRED = [
+    "RENDER_API_KEY",
+    "RENDER_API_SERVICE_ID",
+    "RENDER_WORKER_SERVICE_ID",
+    "OASIS_CF_ACCESS_CLIENT_ID",
+    "OASIS_CF_ACCESS_CLIENT_SECRET",
+]
+
+GCP_GITHUB_ACTIONS_ENV_REQUIRED = [
+    "OASIS_DEPLOY_PROVIDER",
+    "GCP_PROJECT_ID",
+    "GCP_REGION",
+    "GCP_ARTIFACT_REPOSITORY",
+    "GCP_CLOUD_RUN_SERVICE",
+    "GCP_CLOUD_RUN_WORKER_POOL",
+    "GCP_CLOUD_SQL_INSTANCE",
+    "GCP_STORAGE_BUCKET",
+    "STAGING_URL",
+]
+
 GITHUB_ACTIONS_ENV_REQUIRED = [
     "STAGING_URL",
+    *RENDER_GITHUB_ACTIONS_ENV_REQUIRED,
+]
+
+RENDER_GITHUB_STAGING_SECRETS = [
     "RENDER_API_KEY",
     "RENDER_API_SERVICE_ID",
     "RENDER_WORKER_SERVICE_ID",
@@ -54,15 +98,25 @@ GITHUB_ACTIONS_ENV_REQUIRED = [
     "OASIS_CF_ACCESS_CLIENT_SECRET",
 ]
 
-GITHUB_STAGING_SECRETS = [
-    "RENDER_API_KEY",
-    "RENDER_API_SERVICE_ID",
-    "RENDER_WORKER_SERVICE_ID",
-    "OASIS_CF_ACCESS_CLIENT_ID",
-    "OASIS_CF_ACCESS_CLIENT_SECRET",
-]
+GCP_GITHUB_STAGING_SECRETS: list[str] = []
 
-GITHUB_STAGING_VARIABLES = ["STAGING_URL"]
+GITHUB_STAGING_SECRETS = RENDER_GITHUB_STAGING_SECRETS
+
+RENDER_GITHUB_STAGING_VARIABLES = ["STAGING_URL"]
+GCP_GITHUB_STAGING_VARIABLES = [
+    "OASIS_DEPLOY_PROVIDER",
+    "GCP_PROJECT_ID",
+    "GCP_REGION",
+    "GCP_ARTIFACT_REPOSITORY",
+    "GCP_CLOUD_RUN_SERVICE",
+    "GCP_CLOUD_RUN_WORKER_POOL",
+    "GCP_CLOUD_SQL_INSTANCE",
+    "GCP_STORAGE_BUCKET",
+    "STAGING_URL",
+    "GCP_WORKLOAD_IDENTITY_PROVIDER",
+    "GCP_DEPLOY_SERVICE_ACCOUNT",
+]
+GITHUB_STAGING_VARIABLES = RENDER_GITHUB_STAGING_VARIABLES
 GITHUB_STAGING_BRANCH_POLICIES = ["main"]
 LOCAL_PUBLIC_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "::1"}
 RESERVED_PUBLIC_HOSTS = {"example.com", "example.net", "example.org"}
@@ -100,7 +154,31 @@ def list_names(output: str) -> list[str]:
     return names
 
 
-def github_context() -> dict[str, Any]:
+def local_env_required(provider: str) -> list[str]:
+    if provider == "gcp":
+        return [*BASE_LOCAL_ENV_REQUIRED, *GCP_LOCAL_ENV_REQUIRED]
+    return [*BASE_LOCAL_ENV_REQUIRED, *RENDER_LOCAL_ENV_REQUIRED]
+
+
+def github_actions_env_required(provider: str) -> list[str]:
+    if provider == "gcp":
+        return GCP_GITHUB_ACTIONS_ENV_REQUIRED
+    return ["STAGING_URL", *RENDER_GITHUB_ACTIONS_ENV_REQUIRED]
+
+
+def github_staging_secrets(provider: str) -> list[str]:
+    if provider == "gcp":
+        return GCP_GITHUB_STAGING_SECRETS
+    return RENDER_GITHUB_STAGING_SECRETS
+
+
+def github_staging_variables(provider: str) -> list[str]:
+    if provider == "gcp":
+        return GCP_GITHUB_STAGING_VARIABLES
+    return RENDER_GITHUB_STAGING_VARIABLES
+
+
+def github_context(*, provider: str = "render") -> dict[str, Any]:
     auth_code, auth_output = run(["gh", "auth", "status"])
     env_code, env_output = run(["gh", "api", "repos/:owner/:repo/environments"])
     secret_code, secret_output = run(["gh", "secret", "list", "--env", "staging"])
@@ -128,6 +206,8 @@ def github_context() -> dict[str, Any]:
             branch_policies = sorted(item.get("name", "") for item in branch_payload.get("branch_policies", []) if item.get("name"))
         except json.JSONDecodeError:
             branch_policies = []
+    required_secrets = github_staging_secrets(provider)
+    required_variables = github_staging_variables(provider)
     return {
         "gh_authenticated": auth_code == 0,
         "gh_auth_error": None if auth_code == 0 else auth_output[:500],
@@ -138,8 +218,8 @@ def github_context() -> dict[str, Any]:
         "staging_secret_names_configured": secrets,
         "staging_variable_names_configured": variables,
         "staging_branch_policies_configured": branch_policies,
-        "required_staging_secrets_missing": [name for name in GITHUB_STAGING_SECRETS if name not in secrets],
-        "required_staging_vars_missing": [name for name in GITHUB_STAGING_VARIABLES if name not in variables],
+        "required_staging_secrets_missing": [name for name in required_secrets if name not in secrets],
+        "required_staging_vars_missing": [name for name in required_variables if name not in variables],
         "required_staging_branch_policies_missing": [name for name in GITHUB_STAGING_BRANCH_POLICIES if name not in branch_policies],
     }
 
@@ -197,6 +277,7 @@ def build_payload(
     config_contract: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     local = env_presence(env, required_env_names or LOCAL_ENV_REQUIRED)
+    provider = normalize_provider(env.get("OASIS_DEPLOY_PROVIDER"))
     staging_url = staging_url_metadata(env.get("STAGING_URL"))
     contract = dict(config_contract or {"verdict": "pass", "failures": []})
     blockers: list[str] = []
@@ -237,6 +318,7 @@ def build_payload(
         "branch": branch,
         "commit": commit,
         "verdict": "ready" if not blockers else "not_ready",
+        "deploy_provider": provider,
         "not_public_staging_proof": True,
         "local_environment": local,
         "staging_url": staging_url,
@@ -246,8 +328,8 @@ def build_payload(
         "blocking_external_inputs": blockers,
         "safe_next_commands_after_ready": [
             "python3 scripts/public_staging_config_contract.py",
-            "gh workflow run Deploy --ref main -f target=staging",
-            "python3 scripts/public_staging_preflight.py --base-url=\"$STAGING_URL\" --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET",
+            'gh workflow run "Deploy GCP" --ref deploy/gcp-staging -f target=staging' if provider == "gcp" else "gh workflow run Deploy --ref main -f target=staging",
+            "python3 scripts/public_staging_preflight.py --base-url=\"$STAGING_URL\"" if provider == "gcp" else "python3 scripts/public_staging_preflight.py --base-url=\"$STAGING_URL\" --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET",
             "python3 scripts/public_staging_gate_audit.py",
         ],
     }
@@ -264,10 +346,11 @@ def main() -> int:
         help="local checks operator/provider readiness; github-actions checks env injected into the deploy job",
     )
     args = parser.parse_args()
-    github = github_context() if args.mode == "local" else {"context": "github-actions-env-only"}
+    provider = normalize_provider(os.environ.get("OASIS_DEPLOY_PROVIDER"))
+    github = github_context(provider=provider) if args.mode == "local" else {"context": "github-actions-env-only"}
     browsers = browser_presence() if args.mode == "local" else {}
-    required_env = LOCAL_ENV_REQUIRED if args.mode == "local" else GITHUB_ACTIONS_ENV_REQUIRED
-    contract = build_config_contract()
+    required_env = local_env_required(provider) if args.mode == "local" else github_actions_env_required(provider)
+    contract = build_config_contract(provider=provider)
 
     payload = build_payload(
         env=os.environ,

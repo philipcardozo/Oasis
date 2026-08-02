@@ -5,6 +5,11 @@ Date: 2026-07-30
 Compose staging ran at `https://localhost:8443` with Chromium routed through
 Proxyman at `http://localhost:9090`.
 
+GCP public-staging Proxyman evidence is still pending. Once the Cloud Run
+`run.app` URL exists, repeat the browser/HAR, route-family, and map/auth probes
+through Proxyman against that public URL and store the evidence separately from
+the compose-local capture.
+
 ## Result
 
 The compose stack started successfully after local-staging deployment-config

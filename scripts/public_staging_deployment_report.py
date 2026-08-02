@@ -36,9 +36,9 @@ WORKFLOW_CHECKS = {
         "workflow_dispatch is limited to the staging target",
         ("workflow_dispatch:", "options: [staging]"),
     ),
-    "push_main_only": (
-        "push deployment is scoped to main",
-        ("push:", "branches: [main]"),
+    "manual_only": (
+        "Render deployment workflow is manual-only",
+        ("workflow_dispatch:", "options: [staging]"),
     ),
     "protected_environment_declared": (
         "GitHub staging environment is declared",

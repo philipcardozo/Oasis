@@ -1,5 +1,11 @@
 # Public Staging Runbook
 
+This runbook keeps the original Render/Cloudflare path available. The active
+GCP staging path is documented in `docs/GCP-STAGING-DEPLOYMENT.md`; set
+`OASIS_DEPLOY_PROVIDER=gcp` to make readiness/config gates require GCP project,
+Cloud Run, Cloud SQL, Artifact Registry, Cloud Storage, and `run.app` URL inputs
+instead of Render service IDs or Cloudflare Access service-token secrets.
+
 ## Provision
 
 1. Create Cloudflare hostname `staging.<approved-domain>`.

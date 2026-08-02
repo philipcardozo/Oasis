@@ -6,6 +6,15 @@ This index summarizes the current latency/performance evidence gathered for OASI
 Local development evidence is still kept under `docs/evidence/performance/`; the
 compose staging target is `https://localhost:8443`.
 
+## GCP Public Staging
+
+GCP public-staging performance evidence is not captured yet. The next public
+run must target the generated Cloud Run `run.app` URL from
+`docs/GCP-STAGING-DEPLOYMENT.md`, not `localhost`, and must refresh public
+Playwright, route-family, browser/HAR, Proxyman, auth/map-slot, backup/restore,
+storage, security-header, and failure-exercise evidence before the private-beta
+verdict can change.
+
 ## Compose Staging
 
 - Docker: `Docker version 29.6.2, build dfc4efb`

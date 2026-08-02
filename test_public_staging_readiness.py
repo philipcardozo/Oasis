@@ -7,6 +7,9 @@ import sys
 from pathlib import Path
 
 from scripts.public_staging_readiness import (
+    GCP_GITHUB_ACTIONS_ENV_REQUIRED,
+    GCP_GITHUB_STAGING_SECRETS,
+    GCP_GITHUB_STAGING_VARIABLES,
     GITHUB_ACTIONS_ENV_REQUIRED,
     GITHUB_STAGING_BRANCH_POLICIES,
     GITHUB_STAGING_SECRETS,
@@ -20,7 +23,7 @@ PUBLIC_BASE_URL = "https://staging.oasis-private-beta.com"
 
 def test_readiness_passes_when_all_prerequisites_are_present():
     payload = build_payload(
-        env={**{name: "present" for name in LOCAL_ENV_REQUIRED}, "STAGING_URL": PUBLIC_BASE_URL},
+        env={**{name: "present" for name in LOCAL_ENV_REQUIRED}, "OASIS_DEPLOY_PROVIDER": "render", "STAGING_URL": PUBLIC_BASE_URL},
         github={
             "gh_authenticated": True,
             "staging_environment_exists": True,
@@ -40,6 +43,7 @@ def test_readiness_passes_when_all_prerequisites_are_present():
     )
 
     assert payload["verdict"] == "ready"
+    assert payload["deploy_provider"] == "render"
     assert payload["blocking_external_inputs"] == []
     assert payload["not_public_staging_proof"] is True
     assert payload["staging_url"]["public_https"] is True
@@ -83,6 +87,7 @@ def test_readiness_reports_missing_external_prerequisites_without_secret_values(
 
 def test_readiness_rejects_reserved_or_local_staging_url():
     base_env = {name: "present" for name in LOCAL_ENV_REQUIRED}
+    base_env["OASIS_DEPLOY_PROVIDER"] = "render"
     for url, expected in (
         ("https://staging.example.com", "local environment variables STAGING_URL is a reserved documentation hostname"),
         ("https://localhost:8443", "local environment variables STAGING_URL is not a non-local public hostname"),
@@ -136,7 +141,7 @@ def test_readiness_cli_writes_not_ready_evidence_with_allow_not_ready(tmp_path):
 
 def test_github_actions_mode_checks_injected_env_without_provider_metadata():
     payload = build_payload(
-        env={**{name: "set" for name in GITHUB_ACTIONS_ENV_REQUIRED if name != "RENDER_API_KEY"}, "STAGING_URL": PUBLIC_BASE_URL},
+        env={**{name: "set" for name in GITHUB_ACTIONS_ENV_REQUIRED if name != "RENDER_API_KEY"}, "OASIS_DEPLOY_PROVIDER": "render", "STAGING_URL": PUBLIC_BASE_URL},
         github={"context": "github-actions-env-only"},
         browsers={},
         branch="main",
@@ -154,4 +159,83 @@ def test_github_actions_mode_checks_injected_env_without_provider_metadata():
     assert payload["local_browser_availability"] == {}
     assert payload["blocking_external_inputs"] == [
         "GitHub Actions deployment environment variables missing: RENDER_API_KEY"
+    ]
+
+
+def test_gcp_readiness_does_not_require_render_or_cloudflare_secrets():
+    env = {
+        name: "set"
+        for name in (
+            "OASIS_DEPLOY_PROVIDER",
+            "STAGING_URL",
+            "GCP_PROJECT_ID",
+            "GCP_REGION",
+            "GCP_ARTIFACT_REPOSITORY",
+            "GCP_CLOUD_RUN_SERVICE",
+            "GCP_CLOUD_RUN_WORKER_POOL",
+            "GCP_CLOUD_SQL_INSTANCE",
+            "GCP_STORAGE_BUCKET",
+            "OASIS_PUBLIC_TESTER_A_EMAIL",
+            "OASIS_PUBLIC_TESTER_A_PASSWORD",
+            "OASIS_PUBLIC_TESTER_A_RESET_PASSWORD",
+            "OASIS_PUBLIC_TESTER_B_EMAIL",
+            "OASIS_PUBLIC_TESTER_B_PASSWORD",
+            "OASIS_PUBLIC_LIFECYCLE_EMAIL",
+            "OASIS_PUBLIC_LIFECYCLE_PASSWORD",
+            "OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD",
+        )
+    }
+    env["OASIS_DEPLOY_PROVIDER"] = "gcp"
+    env["GCP_REGION"] = "us-east1"
+    env["STAGING_URL"] = "https://oasis-staging-abc-ue.a.run.app"
+    payload = build_payload(
+        env=env,
+        github={
+            "gh_authenticated": True,
+            "staging_environment_exists": True,
+            "staging_environment_protection_rule_count": 1,
+            "staging_environment_deployment_branch_policy": {"custom_branch_policies": True, "protected_branches": False},
+            "required_staging_branch_policies_missing": [],
+            "staging_branch_policies_configured": GITHUB_STAGING_BRANCH_POLICIES,
+            "required_staging_secrets_missing": [],
+            "required_staging_vars_missing": [],
+            "staging_secret_names_configured": GCP_GITHUB_STAGING_SECRETS,
+            "staging_variable_names_configured": GCP_GITHUB_STAGING_VARIABLES,
+        },
+        browsers={"chrome": True, "firefox": True, "safari": True},
+        branch="main",
+        commit="abc1234",
+        captured_at="2026-08-02T00:00:00Z",
+        required_env_names=list(env),
+    )
+
+    assert payload["verdict"] == "ready"
+    assert payload["deploy_provider"] == "gcp"
+    assert "RENDER_API_KEY" not in payload["local_environment"]
+    assert "OASIS_CF_ACCESS_CLIENT_ID" not in payload["local_environment"]
+
+
+def test_gcp_github_actions_mode_requires_gcp_env_only():
+    payload = build_payload(
+        env={
+            **{name: "set" for name in GCP_GITHUB_ACTIONS_ENV_REQUIRED if name != "GCP_PROJECT_ID"},
+            "OASIS_DEPLOY_PROVIDER": "gcp",
+            "STAGING_URL": "https://oasis-staging-abc-ue.a.run.app",
+        },
+        github={"context": "github-actions-env-only"},
+        browsers={},
+        branch="main",
+        commit="abc1234",
+        captured_at="2026-08-02T00:00:00Z",
+        required_env_names=GCP_GITHUB_ACTIONS_ENV_REQUIRED,
+        require_github_provider_metadata=False,
+        require_browsers=False,
+        env_label="GitHub Actions deployment environment variables",
+    )
+
+    assert payload["verdict"] == "not_ready"
+    assert payload["local_environment"]["GCP_PROJECT_ID"] == "missing"
+    assert "RENDER_API_KEY" not in payload["local_environment"]
+    assert payload["blocking_external_inputs"] == [
+        "GitHub Actions deployment environment variables missing: GCP_PROJECT_ID"
     ]

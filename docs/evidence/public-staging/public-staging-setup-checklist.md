@@ -1,8 +1,9 @@
 # Public Staging Setup Checklist
 
-Captured: 2026-07-30T07:15:51Z
-Branch: `phase1.75/public-staging`
-Commit: `788dc9b22bb932a6ff035d567cb67622650d4b40`
+Captured: 2026-08-02T07:56:11Z
+Branch: `deploy/gcp-staging`
+Commit: `e5e75b9d979d3a1352b622eb49498e0f53aad00f`
+Provider: `gcp`
 Verdict: **operator_setup_required**
 
 This generated checklist is not public-staging proof and contains no secret values.
@@ -11,35 +12,55 @@ This generated checklist is not public-staging proof and contains no secret valu
 
 Required variable:
 
+- `OASIS_DEPLOY_PROVIDER`
+- `GCP_PROJECT_ID`
+- `GCP_REGION`
+- `GCP_ARTIFACT_REPOSITORY`
+- `GCP_CLOUD_RUN_SERVICE`
+- `GCP_CLOUD_RUN_WORKER_POOL`
+- `GCP_CLOUD_SQL_INSTANCE`
+- `GCP_STORAGE_BUCKET`
 - `STAGING_URL`
+- `GCP_WORKLOAD_IDENTITY_PROVIDER`
+- `GCP_DEPLOY_SERVICE_ACCOUNT`
 
 Required secrets:
 
-- `RENDER_API_KEY`
-- `RENDER_API_SERVICE_ID`
-- `RENDER_WORKER_SERVICE_ID`
-- `OASIS_CF_ACCESS_CLIENT_ID`
-- `OASIS_CF_ACCESS_CLIENT_SECRET`
 
 Secret-free command skeletons:
 
 ```bash
-gh variable set STAGING_URL --env staging --body "https://staging.<approved-domain>"
+gh variable set STAGING_URL --env staging --body "https://<generated-run-app-url>"
 ```
 ```bash
-gh secret set RENDER_API_KEY --env staging --body "<render_api_key>"
+gh variable set OASIS_DEPLOY_PROVIDER --env staging --body "<oasis_deploy_provider>"
 ```
 ```bash
-gh secret set RENDER_API_SERVICE_ID --env staging --body "<render_api_service_id>"
+gh variable set GCP_PROJECT_ID --env staging --body "<gcp_project_id>"
 ```
 ```bash
-gh secret set RENDER_WORKER_SERVICE_ID --env staging --body "<render_worker_service_id>"
+gh variable set GCP_REGION --env staging --body "<gcp_region>"
 ```
 ```bash
-gh secret set OASIS_CF_ACCESS_CLIENT_ID --env staging --body "<oasis_cf_access_client_id>"
+gh variable set GCP_ARTIFACT_REPOSITORY --env staging --body "<gcp_artifact_repository>"
 ```
 ```bash
-gh secret set OASIS_CF_ACCESS_CLIENT_SECRET --env staging --body "<oasis_cf_access_client_secret>"
+gh variable set GCP_CLOUD_RUN_SERVICE --env staging --body "<gcp_cloud_run_service>"
+```
+```bash
+gh variable set GCP_CLOUD_RUN_WORKER_POOL --env staging --body "<gcp_cloud_run_worker_pool>"
+```
+```bash
+gh variable set GCP_CLOUD_SQL_INSTANCE --env staging --body "<gcp_cloud_sql_instance>"
+```
+```bash
+gh variable set GCP_STORAGE_BUCKET --env staging --body "<gcp_storage_bucket>"
+```
+```bash
+gh variable set GCP_WORKLOAD_IDENTITY_PROVIDER --env staging --body "<gcp_workload_identity_provider>"
+```
+```bash
+gh variable set GCP_DEPLOY_SERVICE_ACCOUNT --env staging --body "<gcp_deploy_service_account>"
 ```
 
 Manual requirements:
@@ -47,39 +68,17 @@ Manual requirements:
 - Run python3 scripts/public_staging_github_environment.py to enforce required reviewer and main branch deployment policy.
 - Keep production deployment absent from this workflow.
 
-## Cloudflare
+## GCP
 
-- Create DNS hostname staging.<approved-domain> pointing to the Render web service target.
-- Enable HTTPS/TLS for the hostname and verify HSTS policy stays staging-safe.
-- Protect the hostname with Cloudflare Access and create service-token credentials for probes.
-- Configure WAF/rate controls for the controlled private-beta boundary.
-- Create a private Cloudflare R2 bucket and least-privilege S3-compatible credentials.
-
-## Render
-
-- Sync render.yaml or equivalent Render Blueprint.
-- Create registry credential ghcr-oasis with GHCR package read access.
-- Create oasis-api-staging web service and oasis-worker-staging worker service.
-- Create oasis-postgres-staging managed PostgreSQL with private networking.
-- Fill Render oasis-staging-shared values marked sync: false outside Git.
-
-## Render Environment Group Values
-
-- `OASIS_PUBLIC_BASE_URL=https://staging.<approved-domain>`
-- `OASIS_API_BASE_URL=https://staging.<approved-domain>`
-- `OASIS_ALLOWED_ORIGINS=https://staging.<approved-domain>`
-- `OASIS_TRUSTED_HOSTS=staging.<approved-domain>`
-- `OASIS_EMAIL_FROM=OASIS Staging <no-reply@<approved-domain>>`
-- `OASIS_SMTP_HOST=<smtp-host>`
-- `OASIS_SMTP_USER=<smtp-user-if-required>`
-- `OASIS_SMTP_PASSWORD=<smtp-password-if-required>`
-- `OASIS_STORAGE_BACKEND=s3`
-- `OASIS_S3_BUCKET=<private-r2-bucket>`
-- `OASIS_S3_REGION=auto`
-- `OASIS_S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com`
-- `AWS_ACCESS_KEY_ID=<least-privilege-r2-access-key>`
-- `AWS_SECRET_ACCESS_KEY=<least-privilege-r2-secret-key>`
-- `OASIS_REGISTRATION_ALLOWED_EMAILS=<comma-separated-private-beta-testers>`
+- Use project-scoped staging resources in us-east1.
+- Create Artifact Registry repository oasis in us-east1.
+- Create Cloud SQL PostgreSQL instance oasis-staging-postgres in us-east1.
+- Create Secret Manager secrets for OASIS_SESSION_SECRET, DATABASE_URL, and SMTP credentials.
+- Create Cloud Storage bucket for exports and mount it into Cloud Run at /app/outputs.
+- Deploy Cloud Run service oasis-staging with min=0 and max=3.
+- Deploy Cloud Run worker pool oasis-staging-worker with instances=1 while testing and 0 when idle.
+- Run migrations through a Cloud Run Job using python -m alembic upgrade head.
+- Use Workload Identity Federation for GitHub Actions; do not create a JSON service-account key.
 
 ## Tester Requirements
 
@@ -95,10 +94,10 @@ Manual requirements:
 
 - python3 scripts/public_staging_config_contract.py
 - python3 scripts/public_staging_readiness.py
-- gh workflow run Deploy --ref main -f target=staging
+- gh workflow run "Deploy GCP" --ref deploy/gcp-staging -f target=staging
 - python3 scripts/public_staging_full_verification.py --base-url="$STAGING_URL" --dry-run
 - python3 scripts/public_staging_smoke.py --base-url="$STAGING_URL"
-- python3 scripts/public_staging_preflight.py --base-url="$STAGING_URL" --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET
+- python3 scripts/public_staging_preflight.py --base-url="$STAGING_URL"
 - python3 scripts/public_staging_playwright_report.py --base-url="$STAGING_URL"
 - python3 scripts/public_staging_full_verification.py --base-url="$STAGING_URL" --proxy-server=http://127.0.0.1:9090
 - Run public browser, auth, route, performance, infra, ops, storage, email, licensing, and failure report generators from docs/PUBLIC-STAGING-RUNBOOK.md.

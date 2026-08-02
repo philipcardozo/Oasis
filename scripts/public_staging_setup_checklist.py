@@ -17,7 +17,14 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.public_staging_readiness import GITHUB_STAGING_SECRETS, GITHUB_STAGING_VARIABLES, git_value
+from scripts.public_staging_config_contract import normalize_provider
+from scripts.public_staging_readiness import (
+    GCP_GITHUB_STAGING_SECRETS,
+    GCP_GITHUB_STAGING_VARIABLES,
+    GITHUB_STAGING_SECRETS,
+    GITHUB_STAGING_VARIABLES,
+    git_value,
+)
 
 
 EVIDENCE = ROOT / "docs" / "evidence" / "public-staging"
@@ -58,11 +65,32 @@ RENDER_ITEMS = [
     "Fill Render oasis-staging-shared values marked sync: false outside Git.",
 ]
 
+GCP_ITEMS = [
+    "Use project-scoped staging resources in us-east1.",
+    "Create Artifact Registry repository oasis in us-east1.",
+    "Create Cloud SQL PostgreSQL instance oasis-staging-postgres in us-east1.",
+    "Create Secret Manager secrets for OASIS_SESSION_SECRET, DATABASE_URL, and SMTP credentials.",
+    "Create Cloud Storage bucket for exports and mount it into Cloud Run at /app/outputs.",
+    "Deploy Cloud Run service oasis-staging with min=0 and max=3.",
+    "Deploy Cloud Run worker pool oasis-staging-worker with instances=1 while testing and 0 when idle.",
+    "Run migrations through a Cloud Run Job using python -m alembic upgrade head.",
+    "Use Workload Identity Federation for GitHub Actions; do not create a JSON service-account key.",
+]
 
-def build_payload(*, captured_at: str | None = None) -> dict[str, Any]:
+
+def build_payload(*, provider: str = "render", captured_at: str | None = None) -> dict[str, Any]:
+    provider = normalize_provider(provider)
+    variables = GCP_GITHUB_STAGING_VARIABLES if provider == "gcp" else GITHUB_STAGING_VARIABLES
+    secrets = GCP_GITHUB_STAGING_SECRETS if provider == "gcp" else GITHUB_STAGING_SECRETS
+    staging_url_placeholder = "https://<generated-run-app-url>" if provider == "gcp" else "https://staging.<approved-domain>"
     github_commands = [
-        'gh variable set STAGING_URL --env staging --body "https://staging.<approved-domain>"',
-        *[f'gh secret set {name} --env staging --body "<{name.lower()}>"' for name in GITHUB_STAGING_SECRETS],
+        f'gh variable set STAGING_URL --env staging --body "{staging_url_placeholder}"',
+        *[
+            f'gh variable set {name} --env staging --body "<{name.lower()}>"'
+            for name in variables
+            if name != "STAGING_URL"
+        ],
+        *[f'gh secret set {name} --env staging --body "<{name.lower()}>"' for name in secrets],
     ]
     return {
         "captured_at": captured_at or datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
@@ -70,10 +98,11 @@ def build_payload(*, captured_at: str | None = None) -> dict[str, Any]:
         "commit": git_value("rev-parse", "HEAD"),
         "not_public_staging_proof": True,
         "verdict": "operator_setup_required",
+        "deploy_provider": provider,
         "github_environment": {
             "name": "staging",
-            "required_variables": GITHUB_STAGING_VARIABLES,
-            "required_secrets": GITHUB_STAGING_SECRETS,
+            "required_variables": variables,
+            "required_secrets": secrets,
             "commands": github_commands,
             "manual_requirements": [
                 "Run python3 scripts/public_staging_github_environment.py to enforce required reviewer and main branch deployment policy.",
@@ -82,6 +111,7 @@ def build_payload(*, captured_at: str | None = None) -> dict[str, Any]:
         },
         "cloudflare": CLOUDFLARE_ITEMS,
         "render": RENDER_ITEMS,
+        "gcp": GCP_ITEMS,
         "render_environment_group_values": RENDER_ENV_GROUP_VALUES,
         "tester_requirements": [
             "Create dedicated tester A, tester B, and lifecycle account email inboxes.",
@@ -95,10 +125,10 @@ def build_payload(*, captured_at: str | None = None) -> dict[str, Any]:
         "verification_order": [
             "python3 scripts/public_staging_config_contract.py",
             "python3 scripts/public_staging_readiness.py",
-            "gh workflow run Deploy --ref main -f target=staging",
+            'gh workflow run "Deploy GCP" --ref deploy/gcp-staging -f target=staging' if provider == "gcp" else "gh workflow run Deploy --ref main -f target=staging",
             "python3 scripts/public_staging_full_verification.py --base-url=\"$STAGING_URL\" --dry-run",
             "python3 scripts/public_staging_smoke.py --base-url=\"$STAGING_URL\"",
-            "python3 scripts/public_staging_preflight.py --base-url=\"$STAGING_URL\" --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET",
+            "python3 scripts/public_staging_preflight.py --base-url=\"$STAGING_URL\"" if provider == "gcp" else "python3 scripts/public_staging_preflight.py --base-url=\"$STAGING_URL\" --header CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET",
             "python3 scripts/public_staging_playwright_report.py --base-url=\"$STAGING_URL\"",
             "python3 scripts/public_staging_full_verification.py --base-url=\"$STAGING_URL\" --proxy-server=http://127.0.0.1:9090",
             "Run public browser, auth, route, performance, infra, ops, storage, email, licensing, and failure report generators from docs/PUBLIC-STAGING-RUNBOOK.md.",
@@ -114,6 +144,7 @@ def markdown(payload: dict[str, Any]) -> str:
         f"Captured: {payload['captured_at']}",
         f"Branch: `{payload['branch']}`",
         f"Commit: `{payload['commit']}`",
+        f"Provider: `{payload['deploy_provider']}`",
         "Verdict: **operator_setup_required**",
         "",
         "This generated checklist is not public-staging proof and contains no secret values.",
@@ -131,13 +162,21 @@ def markdown(payload: dict[str, Any]) -> str:
     lines.extend(["", "Manual requirements:", ""])
     lines.extend(f"- {item}" for item in payload["github_environment"]["manual_requirements"])
 
-    for title, key in (
-        ("Cloudflare", "cloudflare"),
-        ("Render", "render"),
-        ("Render Environment Group Values", "render_environment_group_values"),
+    sections = [
         ("Tester Requirements", "tester_requirements"),
         ("Verification Order", "verification_order"),
-    ):
+    ]
+    if payload["deploy_provider"] == "gcp":
+        sections = [("GCP", "gcp"), *sections]
+    else:
+        sections = [
+            ("Cloudflare", "cloudflare"),
+            ("Render", "render"),
+            ("Render Environment Group Values", "render_environment_group_values"),
+            *sections,
+        ]
+
+    for title, key in sections:
         lines.extend(["", f"## {title}", ""])
         lines.extend(f"- `{item}`" if "=" in item and key == "render_environment_group_values" else f"- {item}" for item in payload[key])
     lines.append("")
@@ -148,9 +187,10 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", default=str(DEFAULT_MARKDOWN))
     parser.add_argument("--json-output", default=str(DEFAULT_JSON))
+    parser.add_argument("--provider", choices=["gcp", "render"], default="render")
     args = parser.parse_args()
 
-    payload = build_payload()
+    payload = build_payload(provider=args.provider)
     output = Path(args.output)
     json_output = Path(args.json_output)
     output.parent.mkdir(parents=True, exist_ok=True)

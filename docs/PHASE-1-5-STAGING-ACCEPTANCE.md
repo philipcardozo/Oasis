@@ -8,6 +8,82 @@ This report records the Phase 1.5 private-beta gate evidence gathered locally.
 OASIS is not yet approved for controlled private beta because a public deployed
 staging URL and production-style deploy evidence are still pending.
 
+## 2026-08-02 GCP Staging Deployment Preparation
+
+GCP is now the active public-staging target for the next deployment attempt:
+
+```text
+Cloud Run service: API/web
+Cloud Run worker pool: continuous worker
+Cloud Run job: migrations
+Cloud SQL PostgreSQL
+Artifact Registry
+Secret Manager
+Cloud Storage mounted at /app/outputs
+region: us-east1
+```
+
+Prepared changes:
+
+```text
+branch: deploy/gcp-staging
+workflow: .github/workflows/deploy-gcp.yml
+runbook: docs/GCP-STAGING-DEPLOYMENT.md
+provider selector: OASIS_DEPLOY_PROVIDER=gcp
+```
+
+The existing Render workflow remains available as a manual workflow, but the
+GCP path is provider-aware: GCP readiness/config checks require
+`GCP_PROJECT_ID`, `GCP_REGION=us-east1`, `GCP_ARTIFACT_REPOSITORY`,
+`GCP_CLOUD_RUN_SERVICE`, `GCP_CLOUD_RUN_WORKER_POOL`,
+`GCP_CLOUD_SQL_INSTANCE`, `GCP_STORAGE_BUCKET`, and `STAGING_URL`; Render
+service IDs and Cloudflare Access service-token secrets are not required under
+`OASIS_DEPLOY_PROVIDER=gcp`.
+
+Actual Compose role commands recorded for GCP:
+
+```text
+migrate: python -m alembic upgrade head
+api: uvicorn server.app:app --host 0.0.0.0 --port ${PORT:-8788}
+worker: python -m server.worker
+```
+
+The Dockerfile now honors Cloud Run `PORT` while retaining local default port
+`8788`. The same image can run API, migrations, and worker roles. Cloud Storage
+is planned as a mounted bucket at `/app/outputs` with
+`OASIS_STORAGE_BACKEND=local` and `OASIS_STORAGE_DIR=/app/outputs/storage`, so
+exports persist outside the container filesystem without introducing a new
+storage SDK dependency.
+
+Current GCP blockers:
+
+```text
+GCP project/billing/budget: not created from this session
+GCP APIs and service accounts: not created
+Artifact Registry image: not built
+Cloud SQL PostgreSQL: not created
+Secret Manager credentials: not created
+Cloud Storage bucket: not created
+Cloud Run API/job/worker pool: not deployed
+public run.app URL: missing
+manual browser, Proxyman, backup/restore, Playwright, route/security evidence: missing
+```
+
+The verdict remains `NOT APPROVED`.
+
+Verification after GCP staging preparation:
+
+```text
+python3 -m pytest -q
+400 passed, 1 skipped, 1 warning
+
+python3 -m pytest -q test_public_staging_*.py test_gcp_staging_deployment.py
+260 passed
+
+python3 scripts/public_staging_gate_audit.py
+verdict: NOT APPROVED
+```
+
 ## 2026-07-30 Public Staging Readiness Check
 
 The accepted public staging architecture remains:
@@ -70,8 +146,8 @@ Chrome, Firefox, and Safari apps: present
 Latest local public-staging gate hardening run:
 
 ```text
-python3 -m pytest -q test_public_staging_*.py
-247 passed
+python3 -m pytest -q test_public_staging_*.py test_gcp_staging_deployment.py
+260 passed
 
 python3 scripts/public_staging_gate_audit.py
 verdict: NOT APPROVED

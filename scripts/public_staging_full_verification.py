@@ -27,6 +27,7 @@ ACCESS_HEADERS = [
     "CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID",
     "CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET",
 ]
+DEPLOY_PROVIDERS = {"render", "gcp"}
 
 
 @dataclass(frozen=True)
@@ -50,7 +51,14 @@ def git_value(*args: str) -> str:
         return f"unavailable: {exc}"
 
 
-def header_args() -> list[str]:
+def normalize_provider(value: str | None) -> str:
+    provider = (value or "render").strip().lower()
+    return provider if provider in DEPLOY_PROVIDERS else "render"
+
+
+def header_args(provider: str) -> list[str]:
+    if normalize_provider(provider) == "gcp":
+        return []
     return [f"--header={item}" for item in ACCESS_HEADERS]
 
 
@@ -91,12 +99,13 @@ def redact_text(value: str) -> str:
     return redacted
 
 
-def build_steps(*, base_url: str, proxy_server: str, expect_commit: str, samples: int) -> list[Step]:
+def build_steps(*, base_url: str, proxy_server: str, expect_commit: str, samples: int, provider: str = "render") -> list[Step]:
+    provider = normalize_provider(provider)
     preflight = [
         "python3",
         "scripts/public_staging_preflight.py",
         f"--base-url={base_url}",
-        *header_args(),
+        *header_args(provider),
     ]
     if expect_commit:
         preflight.append(f"--expect-commit={expect_commit}")
@@ -108,7 +117,7 @@ def build_steps(*, base_url: str, proxy_server: str, expect_commit: str, samples
         f"--samples={samples}",
         "--output-file=25-public-route-family-probe.json",
         "--verify-tls",
-        *header_args(),
+        *header_args(provider),
     ]
     if proxy_server:
         route_probe.append(f"--proxy-server={proxy_server}")
@@ -120,7 +129,7 @@ def build_steps(*, base_url: str, proxy_server: str, expect_commit: str, samples
         f"--samples={samples}",
         "--enforce-app-targets",
         f"--output={PERF_EVIDENCE / '27-public-auth-map-slots.json'}",
-        *header_args(),
+        *header_args(provider),
     ]
     if proxy_server:
         auth_probe.append(f"--proxy-server={proxy_server}")
@@ -148,7 +157,7 @@ def build_steps(*, base_url: str, proxy_server: str, expect_commit: str, samples
         Step(
             "setup_checklist",
             "Generate secret-free setup checklist",
-            ["python3", "scripts/public_staging_setup_checklist.py"],
+            ["python3", "scripts/public_staging_setup_checklist.py", f"--provider={provider}"],
             [
                 "docs/evidence/public-staging/public-staging-setup-checklist.md",
                 "docs/evidence/public-staging/public-staging-setup-checklist.json",
@@ -168,31 +177,31 @@ def build_steps(*, base_url: str, proxy_server: str, expect_commit: str, samples
         ),
         Step(
             "config_contract",
-            "Validate Render and Compose production-style staging value contract",
-            ["python3", "scripts/public_staging_config_contract.py"],
+            "Validate provider and Compose production-style staging value contract",
+            ["python3", "scripts/public_staging_config_contract.py", f"--provider={provider}"],
             ["docs/evidence/public-staging/public-staging-config-contract.json"],
-            ["render.yaml", "compose.yaml"],
+            ["render.yaml", "compose.yaml"] if provider == "render" else ["GCP staging env vars", "compose.yaml"],
         ),
         Step(
             "readiness",
             "Verify external staging prerequisites are present",
             ["python3", "scripts/public_staging_readiness.py"],
             ["docs/evidence/public-staging/public-staging-readiness-status.json"],
-            ["GitHub staging env vars/secrets", "Render service IDs", "Cloudflare/Access credentials", "tester emails"],
+            ["GitHub staging env vars/secrets", "Render service IDs", "Cloudflare/Access credentials", "tester emails"] if provider == "render" else ["GitHub staging GCP variables", "GCP project resources", "tester emails"],
         ),
         Step(
             "preflight",
             "Check public DNS, TLS, headers, health, readiness, version",
             preflight,
             ["docs/evidence/public-staging/00-public-staging-preflight.json"],
-            ["STAGING_URL", "Cloudflare Access service-token env vars"],
+            ["STAGING_URL", "Cloudflare Access service-token env vars"] if provider == "render" else ["STAGING_URL"],
         ),
         Step(
             "route_family_probe",
             "Probe public route families through the staging edge",
             route_probe,
             ["docs/evidence/performance/25-public-route-family-probe.json"],
-            ["public URL reachable", "Cloudflare Access service-token env vars"],
+            ["public URL reachable", "Cloudflare Access service-token env vars"] if provider == "render" else ["public URL reachable"],
         ),
         Step(
             "auth_map_slots_probe",
@@ -463,6 +472,7 @@ def build_payload(*, args: argparse.Namespace, steps: list[Step], results: list[
         "branch": git_value("branch", "--show-current"),
         "commit": git_value("rev-parse", "HEAD"),
         "base_url": args.base_url,
+        "deploy_provider": args.provider,
         "proxy_server": args.proxy_server,
         "samples": args.samples,
         "dry_run": dry_run,
@@ -481,6 +491,7 @@ def markdown(payload: dict[str, Any]) -> str:
         f"Captured: {payload['captured_at']}",
         f"Branch: `{payload['branch']}`",
         f"Commit: `{payload['commit']}`",
+        f"Provider: `{payload['deploy_provider']}`",
         f"Base URL: `{payload['base_url']}`",
         f"Proxyman proxy: `{payload['proxy_server']}`",
         f"Verdict: **{payload['verdict']}**",
@@ -522,6 +533,7 @@ def main() -> int:
     parser.add_argument("--base-url", default=os.environ.get("STAGING_URL", ""))
     parser.add_argument("--proxy-server", default=os.environ.get("OASIS_PUBLIC_PROXYMAN_PROXY", "http://127.0.0.1:9090"))
     parser.add_argument("--expect-commit", default="")
+    parser.add_argument("--provider", choices=["gcp", "render"], default=os.environ.get("OASIS_DEPLOY_PROVIDER", "render"))
     parser.add_argument("--samples", type=int, default=3)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--continue-on-error", action="store_true")
@@ -543,6 +555,7 @@ def main() -> int:
         proxy_server=args.proxy_server,
         expect_commit=args.expect_commit,
         samples=max(1, args.samples),
+        provider=args.provider,
     )
     results: list[dict[str, Any]] = []
     if not args.dry_run:

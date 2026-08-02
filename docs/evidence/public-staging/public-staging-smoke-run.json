@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-07-30T06:31:53Z",
+  "captured_at": "2026-08-02T07:56:22Z",
   "commands": [
     [
       "python3",
@@ -8,27 +8,22 @@
     [
       "python3",
       "scripts/public_staging_preflight.py",
-      "--base-url=https://staging.example.com",
-      "--header=CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID",
-      "<redacted>",
-      "--expect-commit=abc123"
+      "--base-url=https://oasis-staging-placeholder.a.run.app"
     ],
     [
       "python3",
       "scripts/compose_route_family_probe.py",
-      "--base-url=https://staging.example.com",
+      "--base-url=https://oasis-staging-placeholder.a.run.app",
       "--samples=3",
       "--output-file=25-public-route-family-probe.json",
-      "--verify-tls",
-      "--header=CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID",
-      "<redacted>",
-      "--proxy-server=http://localhost:9090"
+      "--verify-tls"
     ],
     [
       "python3",
       "scripts/public_staging_gate_audit.py"
     ]
   ],
+  "deploy_provider": "gcp",
   "dry_run": true,
   "failures": [],
   "not_public_staging_proof": true,

@@ -1,8 +1,9 @@
 {
-  "base_url": "https://staging.example.com",
-  "branch": "phase1.75/public-staging",
-  "captured_at": "2026-07-30T07:49:07Z",
-  "commit": "788dc9b22bb932a6ff035d567cb67622650d4b40",
+  "base_url": "https://oasis-staging-placeholder.a.run.app",
+  "branch": "deploy/gcp-staging",
+  "captured_at": "2026-08-02T07:56:11Z",
+  "commit": "e5e75b9d979d3a1352b622eb49498e0f53aad00f",
+  "deploy_provider": "gcp",
   "dry_run": true,
   "failures": [],
   "not_public_staging_proof": true,
@@ -11,7 +12,7 @@
   "samples": 3,
   "steps": [
     {
-      "command": "python3 scripts/public_staging_setup_checklist.py",
+      "command": "python3 scripts/public_staging_setup_checklist.py --provider=gcp",
       "key": "setup_checklist",
       "label": "Generate secret-free setup checklist",
       "manual_input": false,
@@ -22,7 +23,7 @@
       "requires": []
     },
     {
-      "command": "python3 scripts/public_staging_browser_matrix_template.py --base-url=https://staging.example.com",
+      "command": "python3 scripts/public_staging_browser_matrix_template.py --base-url=https://oasis-staging-placeholder.a.run.app",
       "key": "browser_matrix_template",
       "label": "Generate manual browser matrix template",
       "manual_input": true,
@@ -33,15 +34,15 @@
       "requires": []
     },
     {
-      "command": "python3 scripts/public_staging_config_contract.py",
+      "command": "python3 scripts/public_staging_config_contract.py --provider=gcp",
       "key": "config_contract",
-      "label": "Validate Render and Compose production-style staging value contract",
+      "label": "Validate provider and Compose production-style staging value contract",
       "manual_input": false,
       "produces": [
         "docs/evidence/public-staging/public-staging-config-contract.json"
       ],
       "requires": [
-        "render.yaml",
+        "GCP staging env vars",
         "compose.yaml"
       ]
     },
@@ -54,14 +55,13 @@
         "docs/evidence/public-staging/public-staging-readiness-status.json"
       ],
       "requires": [
-        "GitHub staging env vars/secrets",
-        "Render service IDs",
-        "Cloudflare/Access credentials",
+        "GitHub staging GCP variables",
+        "GCP project resources",
         "tester emails"
       ]
     },
     {
-      "command": "python3 scripts/public_staging_preflight.py --base-url=https://staging.example.com --header=CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header=CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET",
+      "command": "python3 scripts/public_staging_preflight.py --base-url=https://oasis-staging-placeholder.a.run.app",
       "key": "preflight",
       "label": "Check public DNS, TLS, headers, health, readiness, version",
       "manual_input": false,
@@ -69,12 +69,11 @@
         "docs/evidence/public-staging/00-public-staging-preflight.json"
       ],
       "requires": [
-        "STAGING_URL",
-        "Cloudflare Access service-token env vars"
+        "STAGING_URL"
       ]
     },
     {
-      "command": "python3 scripts/compose_route_family_probe.py --base-url=https://staging.example.com --samples=3 --output-file=25-public-route-family-probe.json --verify-tls --header=CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header=CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET --proxy-server=http://127.0.0.1:9090",
+      "command": "python3 scripts/compose_route_family_probe.py --base-url=https://oasis-staging-placeholder.a.run.app --samples=3 --output-file=25-public-route-family-probe.json --verify-tls --proxy-server=http://127.0.0.1:9090",
       "key": "route_family_probe",
       "label": "Probe public route families through the staging edge",
       "manual_input": false,
@@ -82,12 +81,11 @@
         "docs/evidence/performance/25-public-route-family-probe.json"
       ],
       "requires": [
-        "public URL reachable",
-        "Cloudflare Access service-token env vars"
+        "public URL reachable"
       ]
     },
     {
-      "command": "python3 scripts/public_staging_auth_map_slots_probe.py --base-url=https://staging.example.com --samples=3 --enforce-app-targets '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/27-public-auth-map-slots.json' --header=CF-Access-Client-Id=OASIS_CF_ACCESS_CLIENT_ID --header=CF-Access-Client-Secret=OASIS_CF_ACCESS_CLIENT_SECRET --proxy-server=http://127.0.0.1:9090",
+      "command": "python3 scripts/public_staging_auth_map_slots_probe.py --base-url=https://oasis-staging-placeholder.a.run.app --samples=3 --enforce-app-targets '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/performance/27-public-auth-map-slots.json' --proxy-server=http://127.0.0.1:9090",
       "key": "auth_map_slots_probe",
       "label": "Exercise registration, verification, login, cookies, slots, CSRF, stale 409, cross-user denial, reset",
       "manual_input": false,
@@ -127,7 +125,7 @@
       ]
     },
     {
-      "command": "python3 scripts/public_staging_playwright_report.py --base-url=https://staging.example.com '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/public-playwright-summary.json' '--markdown-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/22-public-playwright.md'",
+      "command": "python3 scripts/public_staging_playwright_report.py --base-url=https://oasis-staging-placeholder.a.run.app '--output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/public-playwright-summary.json' '--markdown-output=/Users/felipecardozo/Desktop/coding/Quant Learn/Oasis/docs/evidence/public-staging/22-public-playwright.md'",
       "key": "public_playwright",
       "label": "Run Playwright tests against the public staging URL with Chromium, Firefox, and WebKit",
       "manual_input": false,
@@ -141,7 +139,7 @@
       ]
     },
     {
-      "command": "node scripts/browser_performance_capture.js --base-url=https://staging.example.com --no-start-server=true --proxy-server=http://127.0.0.1:9090 --flow-prefix=26-public-staging --summary-file=26-public-staging-browser-har-summary.json",
+      "command": "node scripts/browser_performance_capture.js --base-url=https://oasis-staging-placeholder.a.run.app --no-start-server=true --proxy-server=http://127.0.0.1:9090 --flow-prefix=26-public-staging --summary-file=26-public-staging-browser-har-summary.json",
       "key": "proxyman_browser_capture",
       "label": "Capture Chrome public flows through Proxyman",
       "manual_input": false,
@@ -155,7 +153,7 @@
       ]
     },
     {
-      "command": "node scripts/browser_performance_capture.js --base-url=https://staging.example.com --no-start-server=true --flow-prefix=26-public-staging-direct --summary-file=26-public-staging-direct-browser-har-summary.json",
+      "command": "node scripts/browser_performance_capture.js --base-url=https://oasis-staging-placeholder.a.run.app --no-start-server=true --flow-prefix=26-public-staging-direct --summary-file=26-public-staging-direct-browser-har-summary.json",
       "key": "direct_browser_capture",
       "label": "Capture direct Chrome comparison without Proxyman",
       "manual_input": false,
