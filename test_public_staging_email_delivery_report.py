@@ -5,11 +5,13 @@ import json
 import subprocess
 import sys
 
-from scripts.public_staging_email_delivery_report import build_payload, template
+from scripts.public_staging_email_delivery_report import build_payload, public_base_url_failures, template
 from scripts.public_staging_auth_email_report import build_payload as build_auth_payload
 from test_public_staging_auth_email_report import _auth
 from test_public_staging_infra_reports import _image_manifest, _infra, _preflight, _render_deploy
 from test_public_staging_ops_reports import _evidence as ops_evidence
+
+PUBLIC_BASE_URL = "https://staging.oasis-private-beta.com"
 
 
 def test_email_delivery_report_passes_with_complete_structured_evidence():
@@ -46,6 +48,63 @@ def test_email_delivery_report_rejects_sender_domain_gap():
 
     assert "email provider_configuration check is not true: dkim_configured" in payload["failures"]
     assert "email provider_configuration check is not true: sender_domain_verified" in payload["failures"]
+
+
+def test_email_delivery_report_rejects_local_public_target():
+    evidence = _evidence()
+    evidence["base_url"] = "https://localhost:8443"
+
+    payload = build_payload(
+        evidence,
+        _auth_summary(),
+        _infra_summary(),
+        _ops_summary(),
+        input_path="email-delivery-evidence.json",
+        auth_path="auth-email-summary.json",
+        infra_path="infra-evidence-summary.json",
+        ops_path="ops-evidence-summary.json",
+    )
+
+    assert public_base_url_failures(PUBLIC_BASE_URL) == []
+    assert "email base URL is not a non-local public hostname" in payload["failures"]
+
+
+def test_email_delivery_report_rejects_reserved_documentation_target():
+    evidence = _evidence()
+    evidence["base_url"] = "https://staging.example.com"
+
+    payload = build_payload(
+        evidence,
+        _auth_summary(),
+        _infra_summary(),
+        _ops_summary(),
+        input_path="email-delivery-evidence.json",
+        auth_path="auth-email-summary.json",
+        infra_path="infra-evidence-summary.json",
+        ops_path="ops-evidence-summary.json",
+    )
+
+    assert "email base URL is a reserved documentation hostname" in payload["failures"]
+
+
+def test_email_delivery_report_rejects_placeholder_identity_fields():
+    evidence = _evidence()
+    evidence["provider"] = "transactional email sandbox"
+    evidence["sender_domain_alias"] = "staging sender domain"
+
+    payload = build_payload(
+        evidence,
+        _auth_summary(),
+        _infra_summary(),
+        _ops_summary(),
+        input_path="email-delivery-evidence.json",
+        auth_path="auth-email-summary.json",
+        infra_path="infra-evidence-summary.json",
+        ops_path="ops-evidence-summary.json",
+    )
+
+    assert "email provider is still a placeholder" in payload["failures"]
+    assert "email sender domain alias is still a placeholder" in payload["failures"]
 
 
 def test_email_delivery_report_rejects_missing_failure_retry():
@@ -119,7 +178,9 @@ def test_email_delivery_report_cli_writes_pass_artifacts(tmp_path):
 
 def _evidence() -> dict:
     data = template()
-    data["base_url"] = "https://staging.example.com"
+    data["base_url"] = PUBLIC_BASE_URL
+    data["provider"] = "Postmark staging stream"
+    data["sender_domain_alias"] = "mail-staging-oasis"
     return data
 
 

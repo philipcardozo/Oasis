@@ -5,7 +5,10 @@ import json
 import subprocess
 import sys
 
-from scripts.public_staging_auth_email_report import evaluate
+from scripts.public_staging_auth_email_report import evaluate, public_base_url_failures
+
+
+PUBLIC_BASE_URL = "https://staging.oasis-private-beta.com"
 
 
 def test_auth_email_report_passes_with_complete_sanitized_evidence():
@@ -81,6 +84,22 @@ def test_auth_email_report_rejects_complete_emails_and_secret_values():
     assert any("secret-like string values" in item for item in failures)
 
 
+def test_auth_email_report_rejects_non_public_or_reserved_auth_base_url():
+    assert public_base_url_failures(PUBLIC_BASE_URL) == []
+    assert "auth/map-slot base URL is not HTTPS" in public_base_url_failures("http://staging.example.com")
+    assert "auth/map-slot base URL is not public" in public_base_url_failures("https://localhost:8443")
+    assert "auth/map-slot base URL is a reserved documentation hostname" in public_base_url_failures(
+        "https://staging.example.com"
+    )
+
+    auth = _auth()
+    auth["base_url"] = "https://staging.example.com"
+
+    failures, _ = evaluate(auth)
+
+    assert "auth/map-slot base URL is a reserved documentation hostname" in failures
+
+
 def test_auth_email_report_cli_writes_pass_markdown(tmp_path):
     source = tmp_path / "27-public-auth-map-slots.json"
     output = tmp_path / "06-auth-email.md"
@@ -112,7 +131,7 @@ def test_auth_email_report_cli_writes_pass_markdown(tmp_path):
 def _auth() -> dict:
     return {
         "captured_at": "2026-07-25T00:00:00Z",
-        "base_url": "https://staging.example.com",
+        "base_url": PUBLIC_BASE_URL,
         "verdict": "pass",
         "users": {
             "user_a": {

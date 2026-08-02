@@ -5,10 +5,17 @@ import json
 import subprocess
 import sys
 
-from scripts.public_staging_infra_reports import build_payload, evaluate_cloudflare_access, evaluate_migration_version
+from scripts.public_staging_infra_reports import (
+    build_payload,
+    evaluate_cloudflare_access,
+    evaluate_migration_version,
+    public_base_url_failures,
+)
 
 
 DIGEST = "sha256:" + "a" * 64
+PUBLIC_BASE_URL = "https://staging.oasis-private-beta.com"
+PUBLIC_HOSTNAME = "staging.oasis-private-beta.com"
 
 
 def test_infra_reports_pass_with_complete_structured_evidence():
@@ -32,6 +39,42 @@ def test_dns_tls_report_rejects_failed_preflight():
     result = payload["results"]["dns_tls_edge"]
     assert result["verdict"] == "investigate"
     assert "TLS probe is not ok" in result["failures"]
+
+
+def test_dns_tls_report_rejects_local_preflight_target():
+    preflight = _preflight()
+    preflight["base_url"] = "https://localhost:8443"
+    preflight["url"]["hostname"] = "localhost"
+
+    payload = build_payload(_infra(), preflight, _render_deploy(), _image_manifest())
+
+    result = payload["results"]["dns_tls_edge"]
+    assert public_base_url_failures(_preflight()) == []
+    assert result["verdict"] == "investigate"
+    assert "preflight base URL is not a non-local public hostname" in result["failures"]
+
+
+def test_dns_tls_report_rejects_reserved_documentation_preflight_target():
+    preflight = _preflight()
+    preflight["base_url"] = "https://staging.example.com"
+    preflight["url"]["hostname"] = "staging.example.com"
+
+    payload = build_payload(_infra(), preflight, _render_deploy(), _image_manifest())
+
+    result = payload["results"]["dns_tls_edge"]
+    assert result["verdict"] == "investigate"
+    assert "preflight base URL is a reserved documentation hostname" in result["failures"]
+
+
+def test_dns_tls_report_rejects_preflight_hostname_mismatch():
+    preflight = _preflight()
+    preflight["url"]["hostname"] = "other-staging.example.com"
+
+    payload = build_payload(_infra(), preflight, _render_deploy(), _image_manifest())
+
+    result = payload["results"]["dns_tls_edge"]
+    assert result["verdict"] == "investigate"
+    assert "preflight parsed hostname does not match base URL hostname" in result["failures"]
 
 
 def test_cloudflare_report_rejects_missing_outer_boundary():
@@ -63,6 +106,17 @@ def test_infra_reports_reject_secret_like_values():
 
     assert all(result["verdict"] == "investigate" for result in payload["results"].values())
     assert any("secret-like values" in item for item in payload["results"]["cloudflare_access"]["failures"])
+
+
+def test_infra_reports_reject_placeholder_capture_metadata():
+    infra = _infra()
+    infra["dns_tls_edge"]["captured_at"] = "replace-with-capture-time"
+
+    payload = build_payload(infra, _preflight(), _render_deploy(), _image_manifest())
+
+    result = payload["results"]["dns_tls_edge"]
+    assert result["verdict"] == "investigate"
+    assert "dns_tls_edge captured_at is still a placeholder" in result["failures"]
 
 
 def test_infra_template_is_not_self_approving():
@@ -200,8 +254,8 @@ def _preflight() -> dict:
     return {
         "captured_at": "2026-07-25T00:00:00Z",
         "verdict": "pass",
-        "base_url": "https://staging.example.com",
-        "url": {"scheme": "https", "hostname": "staging.example.com", "port": 443},
+        "base_url": PUBLIC_BASE_URL,
+        "url": {"scheme": "https", "hostname": PUBLIC_HOSTNAME, "port": 443},
         "auth_header_names_sent": ["CF-Access-Client-Id", "CF-Access-Client-Secret"],
         "dns": {"ok": True, "addresses": ["203.0.113.10"]},
         "tls": {"ok": True, "issuer_common_name": "WE1"},

@@ -2,6 +2,6 @@
   "name": "oasis-tests",
   "private": true,
   "description": "Browser smoke tests only. OASIS itself is Python + vanilla ES modules.",
-  "scripts": { "test:e2e": "playwright test" },
+  "scripts": { "test:e2e": "playwright test", "test:e2e:public": "playwright test --config=playwright.public.config.js" },
   "devDependencies": { "@playwright/test": "^1.61.1" }
 }

@@ -1,7 +1,14 @@
 """Public-staging auth/map-slot probe regressions."""
 from __future__ import annotations
 
-from scripts.public_staging_auth_map_slots_probe import email_domain, evaluate
+from argparse import Namespace
+
+import pytest
+
+from scripts.public_staging_auth_map_slots_probe import build_payload, email_domain, evaluate, public_base_url_failures
+
+
+PUBLIC_BASE_URL = "https://staging.oasis-private-beta.com"
 
 
 def test_public_auth_map_slot_probe_passes_with_complete_evidence():
@@ -68,6 +75,41 @@ def test_public_auth_map_slot_probe_requires_fourth_slot_denial():
 def test_email_domain_avoids_recording_complete_address():
     assert email_domain("beta.tester+probe@example.com") == "example.com"
     assert email_domain("not-an-email") == "<invalid>"
+
+
+def test_public_auth_map_slot_probe_rejects_local_or_non_https_base_url():
+    assert public_base_url_failures(PUBLIC_BASE_URL) == []
+    assert "base URL is not HTTPS" in public_base_url_failures("http://staging.example.com")
+    assert "base URL is not public" in public_base_url_failures("https://localhost:8443")
+    assert "base URL is a reserved documentation hostname" in public_base_url_failures("https://staging.example.com")
+
+
+def test_public_auth_map_slot_probe_build_payload_aborts_before_network_for_local_url():
+    args = Namespace(
+        base_url="https://127.0.0.1:8443",
+        header=[],
+        user_a_email_env="OASIS_PUBLIC_TESTER_A_EMAIL",
+        user_a_password_env="OASIS_PUBLIC_TESTER_A_PASSWORD",
+        user_a_verification_token_env="OASIS_PUBLIC_TESTER_A_VERIFY_TOKEN",
+        user_a_reset_token_env="OASIS_PUBLIC_TESTER_A_RESET_TOKEN",
+        user_a_reset_password_env="OASIS_PUBLIC_TESTER_A_RESET_PASSWORD",
+        unknown_reset_email_env="OASIS_PUBLIC_UNKNOWN_RESET_EMAIL",
+        user_b_email_env="OASIS_PUBLIC_TESTER_B_EMAIL",
+        user_b_password_env="OASIS_PUBLIC_TESTER_B_PASSWORD",
+        user_b_verification_token_env="OASIS_PUBLIC_TESTER_B_VERIFY_TOKEN",
+        lifecycle_email_env="OASIS_PUBLIC_LIFECYCLE_EMAIL",
+        lifecycle_password_env="OASIS_PUBLIC_LIFECYCLE_PASSWORD",
+        lifecycle_verification_token_env="OASIS_PUBLIC_LIFECYCLE_VERIFY_TOKEN",
+        lifecycle_changed_password_env="OASIS_PUBLIC_LIFECYCLE_CHANGED_PASSWORD",
+        proxy_server="",
+        insecure=False,
+        timeout=1,
+        samples=1,
+        enforce_app_targets=False,
+    )
+
+    with pytest.raises(SystemExit, match="base URL is not public"):
+        build_payload(args)
 
 
 def _payload() -> dict:

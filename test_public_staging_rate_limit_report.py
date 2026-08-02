@@ -5,7 +5,9 @@ import json
 import subprocess
 import sys
 
-from scripts.public_staging_rate_limit_report import build_payload, template
+from scripts.public_staging_rate_limit_report import build_payload, public_base_url_failures, template
+
+PUBLIC_BASE_URL = "https://staging.oasis-private-beta.com"
 
 
 def test_rate_limit_report_passes_for_single_replica_with_edge_controls():
@@ -38,6 +40,56 @@ def test_rate_limit_report_requires_shared_store_for_multiple_replicas():
 
     assert "deployment rate-limit shape check is not true: multi_replica_shared_store" in payload["failures"]
     assert "deployment rate-limit shape check is not true: no_unbounded_public_replica" in payload["failures"]
+
+
+def test_rate_limit_report_rejects_local_public_target():
+    evidence = _evidence()
+    evidence["base_url"] = "https://127.0.0.1:8443"
+
+    payload = build_payload(
+        evidence,
+        _route_security(),
+        _preflight(),
+        input_path="rate-limit.json",
+        route_security_path="route-security.json",
+        preflight_path="preflight.json",
+    )
+
+    assert public_base_url_failures(PUBLIC_BASE_URL) == []
+    assert "rate-limit base URL is not a non-local public hostname" in payload["failures"]
+
+
+def test_rate_limit_report_rejects_reserved_documentation_target():
+    evidence = _evidence()
+    evidence["base_url"] = "https://staging.example.com"
+
+    payload = build_payload(
+        evidence,
+        _route_security(),
+        _preflight(),
+        input_path="rate-limit.json",
+        route_security_path="route-security.json",
+        preflight_path="preflight.json",
+    )
+
+    assert "rate-limit base URL is a reserved documentation hostname" in payload["failures"]
+
+
+def test_rate_limit_report_rejects_local_preflight_cross_check():
+    preflight = _preflight()
+    preflight["base_url"] = "https://localhost:8443"
+    preflight["url"]["hostname"] = "localhost"
+
+    payload = build_payload(
+        _evidence(),
+        _route_security(),
+        preflight,
+        input_path="rate-limit.json",
+        route_security_path="route-security.json",
+        preflight_path="preflight.json",
+    )
+
+    assert "rate-limit cross-check is not true: preflight_https_pass" in payload["failures"]
 
 
 def test_rate_limit_report_accepts_multiple_replicas_with_shared_store():
@@ -124,7 +176,7 @@ def test_rate_limit_report_cli_writes_pass_artifacts(tmp_path):
 
 def _evidence() -> dict:
     data = template()
-    data["base_url"] = "https://staging.example.com"
+    data["base_url"] = PUBLIC_BASE_URL
     return data
 
 
@@ -142,5 +194,6 @@ def _route_security() -> dict:
 def _preflight() -> dict:
     return {
         "verdict": "pass",
-        "url": {"scheme": "https"},
+        "base_url": PUBLIC_BASE_URL,
+        "url": {"scheme": "https", "hostname": "staging.oasis-private-beta.com"},
     }

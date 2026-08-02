@@ -5,7 +5,7 @@ import json
 import subprocess
 import sys
 
-from scripts.public_staging_failure_exercises_report import build_payload, template
+from scripts.public_staging_failure_exercises_report import build_payload, public_base_url_failures, template
 from test_public_staging_browser_reports import _matrix as browser_matrix, _summary as browser_summary
 from test_public_staging_email_delivery_report import (
     _auth_summary as email_auth_summary,
@@ -19,6 +19,8 @@ from test_public_staging_storage_report import (
     _infra_summary as storage_infra_summary,
     _ops_summary as storage_ops_summary,
 )
+
+PUBLIC_BASE_URL = "https://staging.oasis-private-beta.com"
 
 
 def test_failure_exercises_report_passes_with_complete_structured_evidence():
@@ -37,6 +39,46 @@ def test_failure_exercises_report_rejects_database_recovery_gaps():
 
     assert "failure exercise database_interruption check is not true: readiness_fails" in payload["failures"]
     assert "failure exercise database_interruption check is not true: no_data_corruption" in payload["failures"]
+
+
+def test_failure_exercises_report_rejects_local_public_target():
+    evidence = _evidence()
+    evidence["base_url"] = "https://localhost:8443"
+
+    payload = _payload(evidence)
+
+    assert public_base_url_failures(PUBLIC_BASE_URL) == []
+    assert "failure exercise base URL is not a non-local public hostname" in payload["failures"]
+
+
+def test_failure_exercises_report_rejects_reserved_documentation_target():
+    evidence = _evidence()
+    evidence["base_url"] = "https://staging.example.com"
+
+    payload = _payload(evidence)
+
+    assert "failure exercise base URL is a reserved documentation hostname" in payload["failures"]
+
+
+def test_failure_exercises_report_rejects_reserved_browser_map_cross_check():
+    browser_map = _browser_map_summary()
+    browser_map["target"]["matrix_base_url"] = "https://staging.example.com"
+    browser_map["target"]["summary_base_url"] = "https://staging.example.com"
+
+    payload = build_payload(
+        _evidence(),
+        _ops_summary(),
+        browser_map,
+        _storage_summary(),
+        _email_summary(),
+        input_path="failure-exercises-evidence.json",
+        ops_path="ops-evidence-summary.json",
+        browser_map_path="browser-map-summary.json",
+        storage_path="storage-summary.json",
+        email_path="email-delivery-summary.json",
+    )
+
+    assert "failure exercise cross-check is not true: browser_map_failure_pass" in payload["failures"]
 
 
 def test_failure_exercises_report_rejects_map_outage_gaps():
@@ -122,7 +164,7 @@ def _payload(evidence: dict | None = None) -> dict:
 
 def _evidence() -> dict:
     data = template()
-    data["base_url"] = "https://staging.example.com"
+    data["base_url"] = PUBLIC_BASE_URL
     return data
 
 
@@ -135,7 +177,11 @@ def _ops_summary() -> dict:
 def _browser_map_summary() -> dict:
     from scripts.public_staging_browser_reports import build_payload as build_browser_payload
 
-    return build_browser_payload(browser_matrix(), browser_summary(), "browser-matrix.json", "browser-summary.json")
+    matrix = browser_matrix()
+    summary = browser_summary()
+    matrix["base_url"] = PUBLIC_BASE_URL
+    summary["base_url"] = PUBLIC_BASE_URL
+    return build_browser_payload(matrix, summary, "browser-matrix.json", "browser-summary.json")
 
 
 def _storage_summary() -> dict:

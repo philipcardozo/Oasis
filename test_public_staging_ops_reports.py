@@ -50,6 +50,32 @@ def test_backup_report_rejects_primary_database_restore():
     assert "restore database is missing or not separate" in result["failures"]
 
 
+def test_ops_reports_reject_placeholder_structured_fields():
+    worker = _evidence()["worker_jobs"]
+    worker["job"]["final_status"] = "replace-with-final-status"
+    assert "worker job final_status is still a placeholder" in evaluate_section("worker_jobs", worker)["failures"]
+
+    backup = _evidence()["backup_restore"]
+    backup["backup"]["restore_database"] = "replace-with-separate-restore-database-name"
+    assert "restore database is still a placeholder" in evaluate_section("backup_restore", backup)["failures"]
+
+    rollback = _evidence()["failure_rollback"]
+    rollback["rollback"]["to_revision"] = "replace-with-rollback-target"
+    assert "rollback revision is still a placeholder" in evaluate_section("failure_rollback", rollback)["failures"]
+
+
+def test_rollback_report_requires_api_restart_persistence():
+    section = _evidence()["failure_rollback"]
+    section["checks"]["api_restart_session_persistence"] = False
+    section["checks"]["api_restart_map_slots_persisted"] = False
+
+    result = evaluate_section("failure_rollback", section)
+
+    assert result["verdict"] == "investigate"
+    assert "api_restart_session_persistence is not true" in result["failures"]
+    assert "api_restart_map_slots_persisted is not true" in result["failures"]
+
+
 def test_ops_report_cli_writes_markdown_verdicts(tmp_path):
     input_path = tmp_path / "ops-evidence.json"
     output_dir = tmp_path / "public-staging"
@@ -184,6 +210,9 @@ def _evidence() -> dict:
                 "version": True,
                 "login_session_persistence": True,
                 "map_slots_persisted": True,
+                "post_restart_readyz": True,
+                "api_restart_session_persistence": True,
+                "api_restart_map_slots_persisted": True,
                 "worker_job_recovery": True,
                 "failed_health_no_traffic_shift": True,
                 "previous_revision_available": True,

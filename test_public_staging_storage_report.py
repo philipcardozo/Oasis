@@ -5,9 +5,11 @@ import json
 import subprocess
 import sys
 
-from scripts.public_staging_storage_report import build_payload, template
+from scripts.public_staging_storage_report import build_payload, public_base_url_failures, template
 from test_public_staging_infra_reports import _image_manifest, _infra, _preflight, _render_deploy
 from test_public_staging_ops_reports import _evidence as ops_evidence
+
+PUBLIC_BASE_URL = "https://staging.oasis-private-beta.com"
 
 
 def test_storage_report_passes_with_complete_structured_evidence():
@@ -38,6 +40,39 @@ def test_storage_report_rejects_public_bucket_listing():
     )
 
     assert "storage access_controls check is not true: public_bucket_listing_disabled" in payload["failures"]
+
+
+def test_storage_report_rejects_local_public_target():
+    evidence = _evidence()
+    evidence["base_url"] = "https://oasis.local"
+
+    payload = build_payload(
+        evidence,
+        _infra_summary(),
+        _ops_summary(),
+        input_path="storage-evidence.json",
+        infra_path="infra-evidence-summary.json",
+        ops_path="ops-evidence-summary.json",
+    )
+
+    assert public_base_url_failures(PUBLIC_BASE_URL) == []
+    assert "storage base URL is not a non-local public hostname" in payload["failures"]
+
+
+def test_storage_report_rejects_reserved_documentation_target():
+    evidence = _evidence()
+    evidence["base_url"] = "https://staging.example.com"
+
+    payload = build_payload(
+        evidence,
+        _infra_summary(),
+        _ops_summary(),
+        input_path="storage-evidence.json",
+        infra_path="infra-evidence-summary.json",
+        ops_path="ops-evidence-summary.json",
+    )
+
+    assert "storage base URL is a reserved documentation hostname" in payload["failures"]
 
 
 def test_storage_report_rejects_missing_content_type_validation():
@@ -119,7 +154,7 @@ def test_storage_report_cli_writes_pass_artifacts(tmp_path):
 
 def _evidence() -> dict:
     data = template()
-    data["base_url"] = "https://staging.example.com"
+    data["base_url"] = PUBLIC_BASE_URL
     return data
 
 

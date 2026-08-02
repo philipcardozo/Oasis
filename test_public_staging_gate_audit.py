@@ -57,6 +57,7 @@ from test_public_staging_storage_report import (
 
 
 DIGEST = "sha256:" + "a" * 64
+PUBLIC_BASE_URL = "https://staging.oasis-private-beta.com"
 
 
 def test_markdown_evidence_without_pass_verdict_is_weak(tmp_path, monkeypatch):
@@ -264,6 +265,34 @@ def test_preflight_json_pass_with_unsafe_hsts_is_weak(tmp_path, monkeypatch):
     assert any("HSTS includeSubDomains is not allowed" in item for item in result["weak"])
 
 
+def test_preflight_json_rejects_local_public_url(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    preflight = _preflight()
+    preflight["base_url"] = "https://localhost:8443"
+    preflight["url"]["hostname"] = "localhost"
+    (evidence / "00-public-staging-preflight.json").write_text(json.dumps(preflight))
+
+    result = audit.evaluate("preflight", "Preflight", ["00-public-staging-preflight.json"])
+
+    assert result["status"] == "weak"
+    assert any("preflight base URL is not public" in item for item in result["weak"])
+    assert any("preflight parsed URL host is not public" in item for item in result["weak"])
+
+
+def test_preflight_json_rejects_reserved_documentation_target(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    preflight = _preflight()
+    preflight["base_url"] = "https://staging.example.com"
+    preflight["url"]["hostname"] = "staging.example.com"
+    (evidence / "00-public-staging-preflight.json").write_text(json.dumps(preflight))
+
+    result = audit.evaluate("preflight", "Preflight", ["00-public-staging-preflight.json"])
+
+    assert result["status"] == "weak"
+    assert any("preflight base URL is a reserved documentation hostname" in item for item in result["weak"])
+    assert any("preflight parsed URL host is a reserved documentation hostname" in item for item in result["weak"])
+
+
 def test_preflight_version_must_match_image_manifest_commit(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     preflight = _preflight()
@@ -352,6 +381,18 @@ def test_auth_email_summary_requires_single_use_and_enumeration_evidence(tmp_pat
     assert any("password_reset_token_reuse_status is not 400" in item for item in result["weak"])
 
 
+def test_auth_email_summary_rejects_reserved_documentation_target(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _auth_email_summary()
+    summary["auth_base_url"] = "https://staging.example.com"
+    (evidence / "auth-email-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("auth", "Auth email", ["auth-email-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("auth-email base URL is a reserved documentation hostname" in item for item in result["weak"])
+
+
 def test_valid_email_delivery_summary_json_evidence_is_proven(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     summary = build_email_delivery_payload(
@@ -397,9 +438,32 @@ def test_email_delivery_summary_requires_sender_retry_and_cross_checks(tmp_path,
     assert any("cross_checks required check is not true: ops_worker_retry_summary_pass" in item for item in result["weak"])
 
 
+def test_email_delivery_summary_rejects_reserved_documentation_target(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_email_delivery_payload(
+        email_delivery_evidence(),
+        email_delivery_auth_summary(),
+        email_delivery_infra_summary(),
+        email_delivery_ops_summary(),
+        input_path="email-delivery-evidence.json",
+        auth_path="auth-email-summary.json",
+        infra_path="infra-evidence-summary.json",
+        ops_path="ops-evidence-summary.json",
+    )
+    summary["base_url"] = "https://staging.example.com"
+    (evidence / "email-delivery-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("email", "Email delivery", ["email-delivery-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("email-delivery base URL is a reserved documentation hostname" in item for item in result["weak"])
+
+
 def test_valid_browser_map_summary_json_evidence_is_proven(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
-    (evidence / "browser-map-summary.json").write_text(json.dumps(_browser_map_summary()))
+    summary = _browser_map_summary()
+    _write_browser_map_hars(tmp_path, summary)
+    (evidence / "browser-map-summary.json").write_text(json.dumps(summary))
 
     result = audit.evaluate("browser", "Browser map", ["browser-map-summary.json"])
 
@@ -410,6 +474,7 @@ def test_valid_browser_map_summary_json_evidence_is_proven(tmp_path, monkeypatch
 def test_browser_map_summary_requires_browser_and_provider_checks(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     summary = _browser_map_summary()
+    _write_browser_map_hars(tmp_path, summary)
     summary["browser"]["rows"][0]["failed_checks"] = ["three_map_slots"]
     summary["browser"]["network_rows"][0]["requested_bulk"] = True
     summary["map_provider"]["observed_external_hosts"].append("unexpected.example")
@@ -425,9 +490,99 @@ def test_browser_map_summary_requires_browser_and_provider_checks(tmp_path, monk
     assert any("provider check is not true: vendored_maplibre" in item for item in result["weak"])
 
 
+def test_browser_map_summary_requires_matching_public_urls(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _browser_map_summary()
+    _write_browser_map_hars(tmp_path, summary)
+    summary["target"]["matrix_base_url"] = "https://localhost:8443"
+    summary["target"]["summary_base_url"] = "https://staging.example.com"
+    (evidence / "browser-map-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("browser", "Browser map", ["browser-map-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("matrix base URL is not public" in item for item in result["weak"])
+    assert any("matrix and summary base URLs do not match" in item for item in result["weak"])
+
+
+def test_browser_map_summary_rejects_reserved_documentation_targets(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _browser_map_summary()
+    _write_browser_map_hars(tmp_path, summary)
+    summary["target"]["matrix_base_url"] = "https://staging.example.com"
+    summary["target"]["summary_base_url"] = "https://staging.example.com"
+    (evidence / "browser-map-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("browser", "Browser map", ["browser-map-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("browser-map matrix base URL is a reserved documentation hostname" in item for item in result["weak"])
+    assert any("browser-map summary base URL is a reserved documentation hostname" in item for item in result["weak"])
+
+
+def test_browser_map_summary_rejects_template_marker_matrix(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _browser_map_summary()
+    _write_browser_map_hars(tmp_path, summary)
+    summary["target"]["matrix_not_public_staging_proof"] = True
+    summary["target"]["matrix_verdict"] = "operator_input_required"
+    (evidence / "browser-map-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("browser", "Browser map", ["browser-map-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("matrix is still marked not public-staging proof" in item for item in result["weak"])
+    assert any("matrix still requires operator input" in item for item in result["weak"])
+
+
+def test_browser_map_summary_rejects_placeholder_values(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _browser_map_summary()
+    _write_browser_map_hars(tmp_path, summary)
+    summary["browser"]["rows"][0]["browser_version"] = "<record exact browser version>"
+    summary["browser"]["rows"][0]["os"] = "<record OS>"
+    summary["browser"]["rows"][4]["unavailable_reason"] = "<required when available is false>"
+    summary["map_provider"]["approved_hosts"] = ["<record approved public map tile/style host>"]
+    (evidence / "browser-map-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("browser", "Browser map", ["browser-map-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("browser version is still a placeholder: chrome" in item for item in result["weak"])
+    assert any("OS is still a placeholder: chrome" in item for item in result["weak"])
+    assert any("mobile unavailable reason is still a placeholder: mobile_safari" in item for item in result["weak"])
+    assert any("approved provider host is still a placeholder" in item for item in result["weak"])
+
+
+def test_browser_map_summary_does_not_require_edge_or_brave(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _browser_map_summary()
+    _write_browser_map_hars(tmp_path, summary)
+    summary["browser"]["rows"] = [row for row in summary["browser"]["rows"] if row["key"] != "edge_or_brave"]
+    (evidence / "browser-map-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("browser", "Browser map", ["browser-map-summary.json"])
+
+    assert result["status"] == "proven"
+    assert not any("edge_or_brave" in item for item in result["weak"])
+
+
+def test_browser_map_summary_requires_har_files(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _browser_map_summary()
+    (evidence / "browser-map-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("browser", "Browser map", ["browser-map-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("HAR path is missing or invalid: cold first paint" in item for item in result["weak"])
+
+
 def test_valid_performance_summary_json_evidence_is_proven(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
-    (evidence / "performance-evidence-summary.json").write_text(json.dumps(_performance_summary()))
+    summary = _performance_summary()
+    _write_performance_hars(tmp_path, summary)
+    (evidence / "performance-evidence-summary.json").write_text(json.dumps(summary))
 
     result = audit.evaluate("performance", "Performance", ["performance-evidence-summary.json"])
 
@@ -452,6 +607,21 @@ def test_performance_summary_requires_proxyman_and_app_layer_rows(tmp_path, monk
     assert any("direct network comparison is missing" in item for item in result["weak"])
     assert any("missing map-slot read app-layer latency" in item for item in result["weak"])
     assert any("missing map-slot write app-layer latency" in item for item in result["weak"])
+
+
+def test_performance_summary_rejects_reserved_documentation_targets(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _performance_summary()
+    _write_performance_hars(tmp_path, summary)
+    summary["target"]["base_url"] = "https://staging.example.com"
+    summary["target"]["direct_base_url"] = "https://staging.example.com"
+    (evidence / "performance-evidence-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("performance", "Performance", ["performance-evidence-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("performance summary base URL is a reserved documentation hostname" in item for item in result["weak"])
+    assert any("performance summary direct base URL is a reserved documentation hostname" in item for item in result["weak"])
 
 
 def test_performance_summary_requires_clean_direct_flows(tmp_path, monkeypatch):
@@ -488,6 +658,7 @@ def test_performance_summary_requires_all_public_browser_flows(tmp_path, monkeyp
 def test_performance_summary_requires_har_paths(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     summary = _performance_summary()
+    _write_performance_hars(tmp_path, summary)
     summary["browser"]["flows"][0]["har_path"] = ""
     summary["browser"]["direct_flows"][1]["har_path"] = "tmp/reload.json"
     (evidence / "performance-evidence-summary.json").write_text(json.dumps(summary))
@@ -497,6 +668,17 @@ def test_performance_summary_requires_har_paths(tmp_path, monkeypatch):
     assert result["status"] == "weak"
     assert any("HAR path is missing or invalid: 26-public-staging-03-local-first-paint" in item for item in result["weak"])
     assert any("direct HAR path is missing or invalid: 26-public-staging-04-local-reload" in item for item in result["weak"])
+
+
+def test_performance_summary_requires_har_files_to_exist(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _performance_summary()
+    (evidence / "performance-evidence-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("performance", "Performance", ["performance-evidence-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("HAR path is missing or invalid: 26-public-staging-03-local-first-paint" in item for item in result["weak"])
 
 
 def test_performance_summary_rejects_sensitive_urls(tmp_path, monkeypatch):
@@ -527,6 +709,20 @@ def test_performance_summary_requires_external_locations_and_runtime_resources(t
     assert any("fewer than two external locations" in item for item in result["weak"])
     assert any("supplemental app-layer target is not met: search" in item for item in result["weak"])
     assert any("runtime resource metric is missing: worker_memory_mb" in item for item in result["weak"])
+
+
+def test_performance_summary_rejects_placeholder_external_location_identity(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _performance_summary()
+    _write_performance_hars(tmp_path, summary)
+    summary["supplemental"]["external_locations"][0]["name"] = "replace-with-location-1"
+    summary["supplemental"]["external_locations"][0]["region"] = "replace-with-region-1"
+    (evidence / "performance-evidence-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("performance", "Performance", ["performance-evidence-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("external location identity is still a placeholder: replace-with-location-1" in item for item in result["weak"])
 
 
 def test_performance_summary_requires_good_web_vitals(tmp_path, monkeypatch):
@@ -577,6 +773,38 @@ def test_route_security_summary_requires_auth_inventory_and_headers(tmp_path, mo
     assert any("fourth map-slot import attempt was not rejected with 422" in item for item in result["weak"])
 
 
+def test_route_security_summary_requires_matching_public_urls(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _route_security_summary()
+    summary["route_probe"]["base_url"] = "https://localhost:8443"
+    summary["preflight"]["base_url"] = "https://staging.example.com"
+    summary["auth_security"]["base_url"] = "https://other-staging.example.com"
+    (evidence / "route-security-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("route", "Route security", ["route-security-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("route-security route probe base URL is not public" in item for item in result["weak"])
+    assert any("route-security preflight base URL does not match route probe" in item for item in result["weak"])
+    assert any("route-security auth/security base URL does not match route probe" in item for item in result["weak"])
+
+
+def test_route_security_summary_rejects_reserved_documentation_targets(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _route_security_summary()
+    summary["route_probe"]["base_url"] = "https://staging.example.com"
+    summary["preflight"]["base_url"] = "https://staging.example.com"
+    summary["auth_security"]["base_url"] = "https://staging.example.com"
+    (evidence / "route-security-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("route", "Route security", ["route-security-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("route-security route probe base URL is a reserved documentation hostname" in item for item in result["weak"])
+    assert any("route-security preflight base URL is a reserved documentation hostname" in item for item in result["weak"])
+    assert any("route-security auth/security base URL is a reserved documentation hostname" in item for item in result["weak"])
+
+
 def test_valid_ops_summary_json_evidence_is_proven(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     (evidence / "ops-evidence-summary.json").write_text(json.dumps(build_ops_payload(ops_evidence())))
@@ -605,6 +833,22 @@ def test_ops_summary_requires_worker_network_restore_rollback_and_alerts(tmp_pat
     assert any("backup_restore required check is not true: restore_separate_database" in item for item in result["weak"])
     assert any("failure_rollback required check is not true: api_rollback" in item for item in result["weak"])
     assert any("observability_alerts required check is not true: alert.api_readiness_failure" in item for item in result["weak"])
+
+
+def test_ops_summary_rejects_placeholder_structured_rows(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_ops_payload(ops_evidence())
+    _set_ops_row(summary, "worker_jobs", "job.final_status", "replace-with-final-status")
+    _set_ops_row(summary, "backup_restore", "backup.restore_database", "replace-with-separate-restore-database-name")
+    _set_ops_row(summary, "failure_rollback", "rollback.to_revision", "replace-with-rollback-target")
+    (evidence / "ops-evidence-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("ops", "Operations", ["ops-evidence-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("worker_jobs row is still a placeholder: job.final_status" in item for item in result["weak"])
+    assert any("backup_restore row is still a placeholder: backup.restore_database" in item for item in result["weak"])
+    assert any("failure_rollback row is still a placeholder: rollback.to_revision" in item for item in result["weak"])
 
 
 def test_valid_infra_summary_json_evidence_is_proven(tmp_path, monkeypatch):
@@ -648,6 +892,20 @@ def test_infra_summary_requires_dns_access_render_and_migration_sections(tmp_pat
     assert any("migration_version current revision is not 29995ef61d8e" in item for item in result["weak"])
 
 
+def test_infra_summary_rejects_placeholder_rows(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_infra_payload(infra_evidence(), infra_preflight(), infra_render_deploy(), infra_image_manifest())
+    _set_infra_row(summary, "dns_tls_edge", "dns_tls_edge source captured", "replace-with-capture-time")
+    _set_infra_row(summary, "cloudflare_access", "cloudflare_access source captured", "replace-with-capture-time")
+    (evidence / "infra-evidence-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("infra", "Infrastructure", ["infra-evidence-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("dns_tls_edge row is still a placeholder: dns_tls_edge source captured" in item for item in result["weak"])
+    assert any("cloudflare_access row is still a placeholder: cloudflare_access source captured" in item for item in result["weak"])
+
+
 def test_valid_deployment_automation_summary_json_evidence_is_proven(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     summary = build_deployment_payload(
@@ -689,6 +947,29 @@ def test_deployment_automation_summary_requires_run_and_artifact_checks(tmp_path
     assert any("deployment automation summary has warnings" in item for item in result["weak"])
     assert any("run required check is not true: manual_approval" in item for item in result["weak"])
     assert any("artifacts required check is not true: render_image_matches_manifest" in item for item in result["weak"])
+
+
+def test_deployment_automation_summary_rejects_template_identity_even_with_green_rows(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_deployment_payload(
+        workflow_text=deployment_workflow_text(),
+        run=deployment_run(),
+        image_manifest=deployment_image_manifest(),
+        render_deploy=deployment_render_deploy(),
+        preflight=deployment_preflight(),
+        workflow_path=".github/workflows/deploy.yml",
+    )
+    summary["input_captured_at"] = "2026-07-25T00:00:00Z"
+    summary["target"]["run_id"] = "not-a-run-id"
+    summary["target"]["commit"] = "abcdef123456"
+    (evidence / "deployment-automation-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("deployment", "Deployment automation", ["deployment-automation-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("input captured timestamp is still the template value" in item for item in result["weak"])
+    assert any("deployment automation run id is not numeric" in item for item in result["weak"])
+    assert any("deployment automation commit is not a full 40-character SHA" in item for item in result["weak"])
 
 
 def test_valid_licensing_summary_json_evidence_is_proven(tmp_path, monkeypatch):
@@ -769,6 +1050,25 @@ def test_rate_limit_summary_requires_edge_client_ip_and_route_family_checks(tmp_
     assert any("route_families required check is not true: exports" in item for item in result["weak"])
 
 
+def test_rate_limit_summary_rejects_reserved_documentation_target(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_rate_limit_payload(
+        rate_limit_evidence(),
+        rate_limit_route_security(),
+        rate_limit_preflight(),
+        input_path="rate-limit-evidence.json",
+        route_security_path="route-security-summary.json",
+        preflight_path="00-public-staging-preflight.json",
+    )
+    summary["base_url"] = "https://staging.example.com"
+    (evidence / "rate-limit-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("rate-limit", "Rate limiting", ["rate-limit-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("rate-limit base URL is a reserved documentation hostname" in item for item in result["weak"])
+
+
 def test_valid_storage_summary_json_evidence_is_proven(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     summary = build_storage_payload(
@@ -785,6 +1085,175 @@ def test_valid_storage_summary_json_evidence_is_proven(tmp_path, monkeypatch):
 
     assert result["status"] == "proven"
     assert result["weak"] == []
+
+
+def test_valid_public_playwright_evidence_is_proven(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    (evidence / "public-playwright-summary.json").write_text(json.dumps(_public_playwright_summary()))
+    (evidence / "22-public-playwright.md").write_text(
+        "# Public Staging Playwright Evidence\n\n"
+        "Verdict: **pass**\n\n"
+        "## Test Summary\n\n"
+        "## Failed Tests\n\n"
+        "This generated report contains no cookies, tokens, authorization values, or Cloudflare Access secret values.\n"
+    )
+
+    result = audit.evaluate("public_playwright", "Public Playwright", ["22-public-playwright.md", "public-playwright-summary.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_valid_provider_readiness_and_config_contract_are_proven(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    (evidence / "public-staging-config-contract.json").write_text(json.dumps(_config_contract()))
+    (evidence / "public-staging-readiness-status.json").write_text(json.dumps(_readiness_status()))
+
+    result = audit.evaluate(
+        "provider_readiness",
+        "Provider readiness",
+        ["public-staging-readiness-status.json", "public-staging-config-contract.json"],
+    )
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_valid_full_verification_run_is_proven(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    (evidence / "public-staging-full-verification-run.json").write_text(json.dumps(_full_verification_run()))
+
+    result = audit.evaluate("full_verification_run", "Full verification", ["public-staging-full-verification-run.json"])
+
+    assert result["status"] == "proven"
+    assert result["weak"] == []
+
+
+def test_full_verification_run_rejects_dry_run_and_missing_results(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    run = _full_verification_run()
+    run["verdict"] = "planned"
+    run["dry_run"] = True
+    run["not_public_staging_proof"] = True
+    run["results"] = []
+    (evidence / "public-staging-full-verification-run.json").write_text(json.dumps(run))
+
+    result = audit.evaluate("full_verification_run", "Full verification", ["public-staging-full-verification-run.json"])
+
+    assert result["status"] == "weak"
+    assert any("full verification verdict is not pass" in item for item in result["weak"])
+    assert any("full verification run is a dry-run plan" in item for item in result["weak"])
+    assert any("full verification result is missing: preflight" in item for item in result["weak"])
+
+
+def test_full_verification_run_rejects_local_base_url(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    run = _full_verification_run()
+    run["base_url"] = "https://127.0.0.1:8443"
+    (evidence / "public-staging-full-verification-run.json").write_text(json.dumps(run))
+
+    result = audit.evaluate("full_verification_run", "Full verification", ["public-staging-full-verification-run.json"])
+
+    assert result["status"] == "weak"
+    assert any("full verification base URL is not public" in item for item in result["weak"])
+
+
+def test_full_verification_run_rejects_reserved_documentation_target(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    run = _full_verification_run()
+    run["base_url"] = "https://staging.example.com"
+    (evidence / "public-staging-full-verification-run.json").write_text(json.dumps(run))
+
+    result = audit.evaluate("full_verification_run", "Full verification", ["public-staging-full-verification-run.json"])
+
+    assert result["status"] == "weak"
+    assert any("full verification base URL is a reserved documentation hostname" in item for item in result["weak"])
+
+
+def test_provider_readiness_rejects_missing_external_inputs(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    readiness = _readiness_status()
+    readiness["verdict"] = "not_ready"
+    readiness["blocking_external_inputs"] = ["local environment variables missing: STAGING_URL"]
+    readiness["local_environment"]["STAGING_URL"] = "missing"
+    readiness["github"]["staging_variable_names_configured"] = []
+    (evidence / "public-staging-readiness-status.json").write_text(json.dumps(readiness))
+
+    result = audit.evaluate("provider_readiness", "Provider readiness", ["public-staging-readiness-status.json"])
+
+    assert result["status"] == "weak"
+    assert any("readiness verdict is not ready" in item for item in result["weak"])
+    assert any("readiness local env is not set: STAGING_URL" in item for item in result["weak"])
+    assert any("readiness GitHub staging STAGING_URL variable is missing" in item for item in result["weak"])
+
+
+def test_provider_readiness_rejects_reserved_staging_url_metadata(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    readiness = _readiness_status()
+    readiness["staging_url"] = {
+        "present": True,
+        "https": True,
+        "hostname_present": True,
+        "non_local_hostname": True,
+        "reserved_documentation_hostname": True,
+        "public_https": False,
+    }
+    (evidence / "public-staging-readiness-status.json").write_text(json.dumps(readiness))
+    (evidence / "public-staging-config-contract.json").write_text(json.dumps(_config_contract()))
+
+    result = audit.evaluate(
+        "provider_readiness",
+        "Provider readiness",
+        ["public-staging-readiness-status.json", "public-staging-config-contract.json"],
+    )
+
+    assert result["status"] == "weak"
+    assert any("readiness STAGING_URL is not a real public HTTPS hostname" in item for item in result["weak"])
+    assert any("readiness STAGING_URL is a reserved documentation hostname" in item for item in result["weak"])
+
+
+def test_config_contract_rejects_missing_outside_git_row(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    contract = _config_contract()
+    contract["render"]["rows"] = [
+        row for row in contract["render"]["rows"]
+        if row["key"] != "render_sync_false_OASIS_SMTP_PASSWORD"
+    ]
+    (evidence / "public-staging-config-contract.json").write_text(json.dumps(contract))
+
+    result = audit.evaluate("config", "Config", ["public-staging-config-contract.json"])
+
+    assert result["status"] == "weak"
+    assert any("config contract required row is missing: render_sync_false_OASIS_SMTP_PASSWORD" in item for item in result["weak"])
+
+
+def test_public_playwright_summary_rejects_dry_run_and_missing_webkit(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _public_playwright_summary()
+    summary["verdict"] = "planned"
+    summary["dry_run"] = True
+    summary["not_public_staging_proof"] = True
+    summary["summary"]["project_names"] = ["chromium", "firefox"]
+    (evidence / "public-playwright-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("public_playwright", "Public Playwright", ["public-playwright-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("public Playwright verdict is not pass" in item for item in result["weak"])
+    assert any("public Playwright project is missing: webkit" in item for item in result["weak"])
+    assert any("public Playwright evidence is a dry-run plan" in item for item in result["weak"])
+
+
+def test_public_playwright_summary_rejects_reserved_documentation_target(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = _public_playwright_summary()
+    summary["base_url"] = "https://staging.example.com"
+    (evidence / "public-playwright-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("public_playwright", "Public Playwright", ["public-playwright-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("public Playwright base URL is a reserved documentation hostname" in item for item in result["weak"])
 
 
 def test_storage_summary_requires_access_validation_failure_and_cross_checks(tmp_path, monkeypatch):
@@ -810,6 +1279,25 @@ def test_storage_summary_requires_access_validation_failure_and_cross_checks(tmp
     assert any("validation_limits required check is not true: content_type_validation" in item for item in result["weak"])
     assert any("failure_behavior required check is not true: partial_output_not_offered" in item for item in result["weak"])
     assert any("cross_checks required check is not true: ops_storage_summary_pass" in item for item in result["weak"])
+
+
+def test_storage_summary_rejects_reserved_documentation_target(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_storage_payload(
+        storage_evidence(),
+        storage_infra_summary(),
+        storage_ops_summary(),
+        input_path="storage-evidence.json",
+        infra_path="infra-evidence-summary.json",
+        ops_path="ops-evidence-summary.json",
+    )
+    summary["base_url"] = "https://staging.example.com"
+    (evidence / "storage-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("storage", "Object storage", ["storage-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("storage base URL is a reserved documentation hostname" in item for item in result["weak"])
 
 
 def test_valid_failure_exercises_summary_json_evidence_is_proven(tmp_path, monkeypatch):
@@ -861,6 +1349,29 @@ def test_failure_exercises_summary_requires_drills_and_cross_checks(tmp_path, mo
     assert any("cross_checks required check is not true: storage_failure_pass" in item for item in result["weak"])
 
 
+def test_failure_exercises_summary_rejects_reserved_documentation_target(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    summary = build_failure_exercises_payload(
+        failure_exercises_evidence(),
+        failure_ops_summary(),
+        failure_browser_map_summary(),
+        failure_storage_summary(),
+        failure_email_summary(),
+        input_path="failure-exercises-evidence.json",
+        ops_path="ops-evidence-summary.json",
+        browser_map_path="browser-map-summary.json",
+        storage_path="storage-summary.json",
+        email_path="email-delivery-summary.json",
+    )
+    summary["base_url"] = "https://staging.example.com"
+    (evidence / "failure-exercises-summary.json").write_text(json.dumps(summary))
+
+    result = audit.evaluate("failure-exercises", "Failure exercises", ["failure-exercises-summary.json"])
+
+    assert result["status"] == "weak"
+    assert any("failure-exercises base URL is a reserved documentation hostname" in item for item in result["weak"])
+
+
 def test_image_manifest_json_pass_with_latest_tag_is_weak(tmp_path, monkeypatch):
     evidence = _configure_tmp_audit(tmp_path, monkeypatch)
     manifest = _image_manifest()
@@ -908,6 +1419,27 @@ def _configure_tmp_audit(tmp_path: Path, monkeypatch) -> Path:
     monkeypatch.setattr(audit, "ROOT", tmp_path)
     monkeypatch.setattr(audit, "EVIDENCE", evidence)
     return evidence
+
+
+def _write_performance_hars(root: Path, summary: dict) -> None:
+    for section in ("flows", "direct_flows"):
+        for row in (summary.get("browser") or {}).get(section) or []:
+            path = str(row.get("har_path") or "")
+            if not path:
+                continue
+            har = root / path
+            har.parent.mkdir(parents=True, exist_ok=True)
+            har.write_text(json.dumps({"log": {"version": "1.2", "entries": []}}))
+
+
+def _write_browser_map_hars(root: Path, summary: dict) -> None:
+    for row in (summary.get("browser") or {}).get("network_rows") or []:
+        path = str(row.get("har_path") or "")
+        if not path.startswith("docs/evidence/performance/") or not path.endswith(".har"):
+            continue
+        har = root / path
+        har.parent.mkdir(parents=True, exist_ok=True)
+        har.write_text(json.dumps({"log": {"version": "1.2", "entries": []}}))
 
 
 def _set_ops_row(summary: dict, section: str, key: str, value: bool) -> None:
@@ -1004,7 +1536,7 @@ def _auth_email_summary() -> dict:
         "verdict": "pass",
         "failures": [],
         "auth_captured_at": "2026-07-25T00:00:00Z",
-        "auth_base_url": "https://staging.example.com",
+        "auth_base_url": "https://staging.oasis-private-beta.com",
         "rows": {
             "user_a_registration_status": 201,
             "user_a_verification_token_supplied": True,
@@ -1060,6 +1592,121 @@ def _auth_email_summary() -> dict:
     }
 
 
+def _public_playwright_summary() -> dict:
+    return {
+        "verdict": "pass",
+        "failures": [],
+        "base_url": "https://staging.oasis-private-beta.com",
+        "dry_run": False,
+        "not_public_staging_proof": False,
+        "summary": {
+            "stats": {
+                "expected": 21,
+                "unexpected": 0,
+                "flaky": 0,
+                "skipped": 0,
+            },
+            "project_names": ["chromium", "firefox", "webkit"],
+            "missing_projects": [],
+            "test_count": 21,
+            "failed_tests": [],
+        },
+    }
+
+
+def _config_contract() -> dict:
+    render_rows = [
+        {"key": key, "ok": True, "detail": key}
+        for key in sorted(audit.CONFIG_CONTRACT_REQUIRED_ROWS)
+        if key.startswith("render_")
+    ]
+    compose_rows = [
+        {"key": key, "ok": True, "detail": key}
+        for key in sorted(audit.CONFIG_CONTRACT_REQUIRED_ROWS)
+        if key.startswith("compose_")
+    ]
+    return {
+        "verdict": "pass",
+        "failures": [],
+        "not_public_staging_proof": True,
+        "render": {"verdict": "pass", "failures": [], "rows": render_rows},
+        "compose": {"verdict": "pass", "failures": [], "rows": compose_rows},
+    }
+
+
+def _full_verification_run() -> dict:
+    steps = [
+        {
+            "key": key,
+            "label": key,
+            "command": f"python3 scripts/{key}.py",
+            "produces": [],
+            "requires": [],
+            "manual_input": False,
+        }
+        for key in sorted(audit.FULL_VERIFICATION_REQUIRED_STEPS)
+    ]
+    return {
+        "verdict": "pass",
+        "failures": [],
+        "dry_run": False,
+        "not_public_staging_proof": False,
+        "base_url": "https://staging.oasis-private-beta.com",
+        "proxy_server": "http://127.0.0.1:9090",
+        "steps": steps,
+        "results": [
+            {"key": step["key"], "label": step["label"], "command": step["command"], "returncode": 0}
+            for step in steps
+        ],
+    }
+
+
+def _readiness_status() -> dict:
+    return {
+        "verdict": "ready",
+        "mode": "local",
+        "not_public_staging_proof": True,
+        "blocking_external_inputs": [],
+        "local_environment": {name: "set" for name in audit.READINESS_REQUIRED_LOCAL_ENV},
+        "staging_url": {
+            "present": True,
+            "https": True,
+            "hostname_present": True,
+            "non_local_hostname": True,
+            "reserved_documentation_hostname": False,
+            "public_https": True,
+        },
+        "github": {
+            "gh_authenticated": True,
+            "staging_environment_exists": True,
+            "staging_environment_protection_rule_count": 1,
+            "staging_environment_deployment_branch_policy": {"custom_branch_policies": True, "protected_branches": False},
+            "staging_branch_policies_configured": ["main"],
+            "staging_secret_names_configured": sorted(audit.READINESS_REQUIRED_GITHUB_SECRETS),
+            "staging_variable_names_configured": ["STAGING_URL"],
+        },
+        "local_browser_availability": {"chrome": True, "firefox": True, "safari": True},
+        "public_staging_config_contract": {"verdict": "pass", "failures": []},
+    }
+
+
+def test_provider_readiness_rejects_missing_tester_probe_passwords(tmp_path, monkeypatch):
+    evidence = _configure_tmp_audit(tmp_path, monkeypatch)
+    readiness = _readiness_status()
+    readiness["local_environment"]["OASIS_PUBLIC_TESTER_A_PASSWORD"] = "missing"
+    (evidence / "public-staging-readiness-status.json").write_text(json.dumps(readiness))
+    (evidence / "public-staging-config-contract.json").write_text(json.dumps(_config_contract()))
+
+    result = audit.evaluate(
+        "provider_readiness",
+        "Provider readiness",
+        ["public-staging-readiness-status.json", "public-staging-config-contract.json"],
+    )
+
+    assert result["status"] == "weak"
+    assert any("OASIS_PUBLIC_TESTER_A_PASSWORD" in failure for failure in result["weak"])
+
+
 def _browser_map_summary() -> dict:
     browser_checks = {
         "application_shell": True,
@@ -1105,8 +1752,10 @@ def _browser_map_summary() -> dict:
     ]
     return {
         "target": {
-            "matrix_base_url": "https://staging.example.com",
-            "summary_base_url": "https://staging.example.com",
+            "matrix_base_url": PUBLIC_BASE_URL,
+            "summary_base_url": PUBLIC_BASE_URL,
+            "matrix_not_public_staging_proof": False,
+            "matrix_verdict": "pass",
         },
         "browser": {
             "verdict": "pass",
@@ -1121,6 +1770,7 @@ def _browser_map_summary() -> dict:
                     "console_errors": 0,
                     "failed_requests": 0,
                     "external_hosts": [],
+                    "har_path": "docs/evidence/performance/26-public-staging-03-local-first-paint.har",
                 },
                 {
                     "name": "26-public-staging-06-map-interaction",
@@ -1130,6 +1780,7 @@ def _browser_map_summary() -> dict:
                     "console_errors": 0,
                     "failed_requests": 0,
                     "external_hosts": ["tiles.openfreemap.org"],
+                    "har_path": "docs/evidence/performance/26-public-staging-06-map-interaction.har",
                 },
             ],
         },
@@ -1189,9 +1840,9 @@ def _performance_summary() -> dict:
         "failures": [],
         "warnings": [],
         "target": {
-            "base_url": "https://staging.example.com",
+            "base_url": PUBLIC_BASE_URL,
             "proxy_server": "http://127.0.0.1:9090",
-            "direct_base_url": "https://staging.example.com",
+            "direct_base_url": PUBLIC_BASE_URL,
             "direct_proxy_server": None,
         },
         "browser": {
@@ -1280,6 +1931,7 @@ def _route_security_summary() -> dict:
         "failures": [],
         "warnings": [],
         "route_probe": {
+            "base_url": PUBLIC_BASE_URL,
             "verdict": "pass",
             "failure_count": 0,
             "summary": {
@@ -1308,6 +1960,7 @@ def _route_security_summary() -> dict:
             },
         },
         "preflight": {
+            "base_url": PUBLIC_BASE_URL,
             "verdict": "pass",
             "index_headers": [
                 "content-security-policy",
@@ -1326,6 +1979,7 @@ def _route_security_summary() -> dict:
             },
         },
         "auth_security": {
+            "base_url": PUBLIC_BASE_URL,
             "verdict": "pass",
             "csrf_rejection_status": 403,
             "cross_user_status": 404,
@@ -1341,8 +1995,8 @@ def _route_security_summary() -> dict:
 def _preflight() -> dict:
     return {
         "verdict": "pass",
-        "base_url": "https://staging.example.com",
-        "url": {"scheme": "https", "hostname": "staging.example.com"},
+        "base_url": "https://staging.oasis-private-beta.com",
+        "url": {"scheme": "https", "hostname": "staging.oasis-private-beta.com"},
         "dns": {"ok": True},
         "tls": {"ok": True},
         "http_to_https_redirect": {"status": 301},

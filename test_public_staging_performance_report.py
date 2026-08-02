@@ -7,6 +7,9 @@ import sys
 from pathlib import Path
 
 
+PUBLIC_BASE_URL = "https://staging.oasis-private-beta.com"
+
+
 def test_public_staging_performance_report_passes_with_required_evidence(tmp_path):
     browser = tmp_path / "browser.json"
     preflight = tmp_path / "preflight.json"
@@ -15,9 +18,13 @@ def test_public_staging_performance_report_passes_with_required_evidence(tmp_pat
     supplemental = tmp_path / "performance-supplemental.json"
     output = tmp_path / "15-performance.md"
     summary = tmp_path / "performance-evidence-summary.json"
-    browser.write_text(json.dumps(_browser_summary(bulk=False)))
+    browser_data = _browser_summary(bulk=False)
+    direct_data = _browser_summary(bulk=False, proxy_server=None)
+    _write_hars(browser_data)
+    _write_hars(direct_data)
+    browser.write_text(json.dumps(browser_data))
     direct = tmp_path / "direct-browser.json"
-    direct.write_text(json.dumps(_browser_summary(bulk=False, proxy_server=None)))
+    direct.write_text(json.dumps(direct_data))
     preflight.write_text(json.dumps({"verdict": "pass", "dns": {"duration_ms": 12.3}, "tls": {"duration_ms": 44.5}}))
     auth.write_text(json.dumps({
         "captured_at": "2026-07-25T00:00:00Z",
@@ -57,7 +64,9 @@ def test_public_staging_performance_report_passes_with_required_evidence(tmp_pat
 def test_public_staging_performance_report_fails_when_first_paint_loads_bulk(tmp_path):
     browser = tmp_path / "browser.json"
     output = tmp_path / "15-performance.md"
-    browser.write_text(json.dumps(_browser_summary(bulk=True)))
+    data = _browser_summary(bulk=True)
+    _write_hars(data)
+    browser.write_text(json.dumps(data))
 
     result = _run_report(browser, output)
 
@@ -69,8 +78,12 @@ def test_public_staging_performance_report_requires_clean_direct_capture(tmp_pat
     browser = tmp_path / "browser.json"
     direct = tmp_path / "direct-browser.json"
     output = tmp_path / "15-performance.md"
-    browser.write_text(json.dumps(_browser_summary(bulk=False)))
-    direct.write_text(json.dumps(_browser_summary(bulk=True, proxy_server="http://127.0.0.1:9090")))
+    browser_data = _browser_summary(bulk=False)
+    direct_data = _browser_summary(bulk=True, proxy_server="http://127.0.0.1:9090")
+    _write_hars(browser_data)
+    _write_hars(direct_data)
+    browser.write_text(json.dumps(browser_data))
+    direct.write_text(json.dumps(direct_data))
 
     result = _run_report(browser, output, direct=direct)
 
@@ -83,14 +96,59 @@ def test_public_staging_performance_report_requires_clean_direct_capture(tmp_pat
 def test_public_staging_performance_report_requires_local_proxyman_proxy(tmp_path):
     browser = tmp_path / "browser.json"
     output = tmp_path / "15-performance.md"
-    browser.write_text(json.dumps(
-        _browser_summary(bulk=False, proxy_server="https://proxy.example.com:9090")
-    ))
+    data = _browser_summary(bulk=False, proxy_server="https://proxy.example.com:9090")
+    _write_hars(data)
+    browser.write_text(json.dumps(data))
 
     result = _run_report(browser, output)
 
     assert result.returncode == 1
     assert "browser Proxyman proxy is not a local explicit proxy URL" in output.read_text()
+
+
+def test_public_staging_performance_report_rejects_local_or_mismatched_public_targets(tmp_path):
+    browser = tmp_path / "browser.json"
+    direct = tmp_path / "direct-browser.json"
+    supplemental = tmp_path / "performance-supplemental.json"
+    output = tmp_path / "15-performance.md"
+    browser_data = _browser_summary(bulk=False, base_url="https://localhost:8443")
+    direct_data = _browser_summary(bulk=False, proxy_server=None, base_url="https://staging.example.com")
+    _write_hars(browser_data)
+    _write_hars(direct_data)
+    browser.write_text(json.dumps(browser_data))
+    direct.write_text(json.dumps(direct_data))
+    supplemental.write_text(json.dumps(_supplemental(base_url="https://127.0.0.1:8443")))
+
+    result = _run_report(browser, output, direct=direct, supplemental=supplemental)
+
+    assert result.returncode == 1
+    text = output.read_text()
+    assert "browser base URL is not public" in text
+    assert "direct browser comparison base URL does not match proxied capture" in text
+    assert "supplemental performance base URL is not public" in text
+    assert "supplemental performance base URL does not match browser capture" in text
+
+
+def test_public_staging_performance_report_rejects_reserved_documentation_targets(tmp_path):
+    browser = tmp_path / "browser.json"
+    direct = tmp_path / "direct-browser.json"
+    supplemental = tmp_path / "performance-supplemental.json"
+    output = tmp_path / "15-performance.md"
+    browser_data = _browser_summary(bulk=False, base_url="https://staging.example.com")
+    direct_data = _browser_summary(bulk=False, proxy_server=None, base_url="https://staging.example.com")
+    _write_hars(browser_data)
+    _write_hars(direct_data)
+    browser.write_text(json.dumps(browser_data))
+    direct.write_text(json.dumps(direct_data))
+    supplemental.write_text(json.dumps(_supplemental(base_url="https://staging.example.com")))
+
+    result = _run_report(browser, output, direct=direct, supplemental=supplemental)
+
+    assert result.returncode == 1
+    text = output.read_text()
+    assert "browser base URL is a reserved documentation hostname" in text
+    assert "direct browser base URL is a reserved documentation hostname" in text
+    assert "supplemental performance base URL is a reserved documentation hostname" in text
 
 
 def test_public_staging_performance_report_requires_all_public_browser_flows(tmp_path):
@@ -101,6 +159,8 @@ def test_public_staging_performance_report_requires_all_public_browser_flows(tmp
     del proxied["flows"]["26-public-staging-14-local-report-preview"]
     direct_data = _browser_summary(bulk=False, proxy_server=None)
     del direct_data["flows"]["26-public-staging-13-local-data-quality-panel"]
+    _write_hars(proxied)
+    _write_hars(direct_data)
     browser.write_text(json.dumps(proxied))
     direct.write_text(json.dumps(direct_data))
 
@@ -120,6 +180,8 @@ def test_public_staging_performance_report_requires_har_paths(tmp_path):
     proxied["flows"]["26-public-staging-03-local-first-paint"]["harPath"] = ""
     direct_data = _browser_summary(bulk=False, proxy_server=None)
     direct_data["flows"]["26-public-staging-04-local-reload"]["harPath"] = "tmp/reload.json"
+    _write_hars(proxied)
+    _write_hars(direct_data)
     browser.write_text(json.dumps(proxied))
     direct.write_text(json.dumps(direct_data))
 
@@ -131,6 +193,19 @@ def test_public_staging_performance_report_requires_har_paths(tmp_path):
     assert "direct browser capture HAR path is missing or invalid: 26-public-staging-04-local-reload" in text
 
 
+def test_public_staging_performance_report_requires_har_files_to_exist(tmp_path):
+    browser = tmp_path / "browser.json"
+    output = tmp_path / "15-performance.md"
+    data = _browser_summary(bulk=False)
+    data["flows"]["26-public-staging-03-local-first-paint"]["harPath"] = "docs/evidence/performance/26-public-staging-missing-fixture.har"
+    browser.write_text(json.dumps(data))
+
+    result = _run_report(browser, output)
+
+    assert result.returncode == 1
+    assert "browser capture HAR path is missing or invalid: 26-public-staging-03-local-first-paint" in output.read_text()
+
+
 def test_public_staging_performance_report_rejects_sensitive_urls(tmp_path):
     browser = tmp_path / "browser.json"
     direct = tmp_path / "direct-browser.json"
@@ -139,6 +214,8 @@ def test_public_staging_performance_report_rejects_sensitive_urls(tmp_path):
     proxied["flows"]["26-public-staging-03-local-first-paint"]["sensitiveUrlCount"] = 1
     direct_data = _browser_summary(bulk=False, proxy_server=None)
     direct_data["flows"]["26-public-staging-04-local-reload"]["sensitiveUrlCount"] = 2
+    _write_hars(proxied)
+    _write_hars(direct_data)
     browser.write_text(json.dumps(proxied))
     direct.write_text(json.dumps(direct_data))
 
@@ -154,7 +231,9 @@ def test_public_staging_performance_report_requires_two_external_locations(tmp_p
     browser = tmp_path / "browser.json"
     supplemental = tmp_path / "performance-supplemental.json"
     output = tmp_path / "15-performance.md"
-    browser.write_text(json.dumps(_browser_summary(bulk=False)))
+    browser_data = _browser_summary(bulk=False)
+    _write_hars(browser_data)
+    browser.write_text(json.dumps(browser_data))
     data = _supplemental()
     data["external_locations"] = data["external_locations"][:1]
     supplemental.write_text(json.dumps(data))
@@ -165,11 +244,31 @@ def test_public_staging_performance_report_requires_two_external_locations(tmp_p
     assert "fewer than two external performance locations are recorded" in output.read_text()
 
 
+def test_public_staging_performance_report_rejects_placeholder_external_location_identity(tmp_path):
+    browser = tmp_path / "browser.json"
+    supplemental = tmp_path / "performance-supplemental.json"
+    output = tmp_path / "15-performance.md"
+    browser_data = _browser_summary(bulk=False)
+    _write_hars(browser_data)
+    browser.write_text(json.dumps(browser_data))
+    data = _supplemental()
+    data["external_locations"][0]["name"] = "replace-with-location-1"
+    data["external_locations"][0]["region"] = "replace-with-region-1"
+    supplemental.write_text(json.dumps(data))
+
+    result = _run_report(browser, output, supplemental=supplemental)
+
+    assert result.returncode == 1
+    assert "external performance location identity is still a placeholder: replace-with-location-1" in output.read_text()
+
+
 def test_public_staging_performance_report_requires_runtime_resources(tmp_path):
     browser = tmp_path / "browser.json"
     supplemental = tmp_path / "performance-supplemental.json"
     output = tmp_path / "15-performance.md"
-    browser.write_text(json.dumps(_browser_summary(bulk=False)))
+    browser_data = _browser_summary(bulk=False)
+    _write_hars(browser_data)
+    browser.write_text(json.dumps(browser_data))
     data = _supplemental()
     data["runtime_resources"]["worker_memory_mb"] = None
     supplemental.write_text(json.dumps(data))
@@ -184,7 +283,9 @@ def test_public_staging_performance_report_requires_good_web_vitals(tmp_path):
     browser = tmp_path / "browser.json"
     supplemental = tmp_path / "performance-supplemental.json"
     output = tmp_path / "15-performance.md"
-    browser.write_text(json.dumps(_browser_summary(bulk=False)))
+    browser_data = _browser_summary(bulk=False)
+    _write_hars(browser_data)
+    browser.write_text(json.dumps(browser_data))
     data = _supplemental()
     data["web_vitals"]["lcp_ms"] = 2501
     data["web_vitals"]["inp_ms"] = 0
@@ -233,7 +334,22 @@ def _run_report(
     return subprocess.run(cmd, capture_output=True, text=True)
 
 
-def _browser_summary(*, bulk: bool, proxy_server: str | None = "http://127.0.0.1:9090") -> dict:
+def _write_hars(summary: dict) -> None:
+    for flow in (summary.get("flows") or {}).values():
+        path = str(flow.get("harPath") or "")
+        if not path.startswith("docs/evidence/performance/") or not path.endswith(".har"):
+            continue
+        har = Path(path)
+        har.parent.mkdir(parents=True, exist_ok=True)
+        har.write_text(json.dumps({"log": {"version": "1.2", "entries": []}}))
+
+
+def _browser_summary(
+    *,
+    bulk: bool,
+    proxy_server: str | None = "http://127.0.0.1:9090",
+    base_url: str = PUBLIC_BASE_URL,
+) -> dict:
     flow_defs = [
         ("03-local-first-paint", "cold first paint", bulk),
         ("04-local-reload", "warm reload", False),
@@ -246,7 +362,7 @@ def _browser_summary(*, bulk: bool, proxy_server: str | None = "http://127.0.0.1
     ]
     return {
         "capturedAt": "2026-07-25T00:00:00Z",
-        "baseUrl": "https://staging.example.com",
+        "baseUrl": base_url,
         "proxyServer": proxy_server,
         "flows": {
             f"26-public-staging-{suffix}": {
@@ -267,10 +383,10 @@ def _browser_summary(*, bulk: bool, proxy_server: str | None = "http://127.0.0.1
     }
 
 
-def _supplemental() -> dict:
+def _supplemental(*, base_url: str = PUBLIC_BASE_URL) -> dict:
     return {
         "input_captured_at": "2026-07-25T00:00:00Z",
-        "base_url": "https://staging.example.com",
+        "base_url": base_url,
         "secret_free_evidence": True,
         "external_locations": [
             {

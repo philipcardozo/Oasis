@@ -6,12 +6,14 @@ import subprocess
 import sys
 from pathlib import Path
 
-from scripts.public_staging_deployment_report import build_payload, template
+from scripts.public_staging_deployment_report import build_payload, public_base_url_failures, template
 
 
 DIGEST = "sha256:" + "d" * 64
 IMAGE = f"ghcr.io/example/oasis@{DIGEST}"
-COMMIT = "abcdef123456"
+COMMIT = "abcdef1234567890abcdef1234567890abcdef12"
+PUBLIC_BASE_URL = "https://staging.oasis-private-beta.com"
+RUN_ID = "9876543210"
 
 
 def test_deployment_automation_report_passes_for_protected_successful_run():
@@ -69,6 +71,58 @@ def test_deployment_automation_report_rejects_artifact_mismatch():
     assert "artifacts check is not true: preflight_version_matches_commit" in payload["failures"]
 
 
+def test_deployment_automation_report_rejects_local_preflight_target():
+    preflight = _preflight()
+    preflight["base_url"] = "https://127.0.0.1:8443"
+    preflight["url"]["hostname"] = "127.0.0.1"
+
+    payload = build_payload(
+        workflow_text=_workflow_text(),
+        run=_run(),
+        image_manifest=_image_manifest(),
+        render_deploy=_render_deploy(),
+        preflight=preflight,
+        workflow_path=".github/workflows/deploy.yml",
+    )
+
+    assert public_base_url_failures(_preflight()) == []
+    assert "public preflight base URL is not a non-local public hostname" in public_base_url_failures(preflight)
+    assert "artifacts check is not true: public_preflight_target" in payload["failures"]
+
+
+def test_deployment_automation_report_rejects_reserved_preflight_target():
+    preflight = _preflight()
+    preflight["base_url"] = "https://staging.example.com"
+    preflight["url"]["hostname"] = "staging.example.com"
+
+    payload = build_payload(
+        workflow_text=_workflow_text(),
+        run=_run(),
+        image_manifest=_image_manifest(),
+        render_deploy=_render_deploy(),
+        preflight=preflight,
+        workflow_path=".github/workflows/deploy.yml",
+    )
+
+    assert "public preflight base URL is a reserved documentation hostname" in public_base_url_failures(preflight)
+    assert "artifacts check is not true: public_preflight_target" in payload["failures"]
+
+
+def test_deployment_automation_report_rejects_template_run_identity():
+    payload = build_payload(
+        workflow_text=_workflow_text(),
+        run=template(),
+        image_manifest={**_image_manifest(), "commit": "abcdef123456"},
+        render_deploy={**_render_deploy(), "commit": "abcdef123456"},
+        preflight={**_preflight(), "commit": "abcdef123456"},
+        workflow_path=".github/workflows/deploy.yml",
+    )
+
+    assert "run check is not true: run_identity_real" in payload["failures"]
+    assert "run check is not true: run_commit_full_sha" in payload["failures"]
+    assert "artifacts check is not true: commit_full_sha" in payload["failures"]
+
+
 def test_deployment_automation_report_rejects_missing_workflow_controls():
     payload = build_payload(
         workflow_text="name: Deploy\n",
@@ -80,6 +134,37 @@ def test_deployment_automation_report_rejects_missing_workflow_controls():
     )
 
     assert any(item.startswith("workflow check is not true:") for item in payload["failures"])
+
+
+def test_deployment_automation_report_requires_config_contract_workflow_gate():
+    workflow_text = _workflow_text().replace("scripts/public_staging_config_contract.py", "scripts/removed_config_gate.py")
+
+    payload = build_payload(
+        workflow_text=workflow_text,
+        run=_run(),
+        image_manifest=_image_manifest(),
+        render_deploy=_render_deploy(),
+        preflight=_preflight(),
+        workflow_path=".github/workflows/deploy.yml",
+    )
+
+    assert "workflow check is not true: config_contract" in payload["failures"]
+
+
+def test_deployment_automation_report_requires_config_contract_run_step():
+    run = _run()
+    run["steps"]["Validate public staging config contract"] = "skipped"
+
+    payload = build_payload(
+        workflow_text=_workflow_text(),
+        run=run,
+        image_manifest=_image_manifest(),
+        render_deploy=_render_deploy(),
+        preflight=_preflight(),
+        workflow_path=".github/workflows/deploy.yml",
+    )
+
+    assert "run check is not true: config_contract" in payload["failures"]
 
 
 def test_deployment_automation_cli_writes_report_and_summary(tmp_path):
@@ -131,7 +216,8 @@ def _workflow_text() -> str:
 def _run() -> dict:
     run = template()
     run["commit"] = COMMIT
-    run["run_id"] = "123"
+    run["captured_at"] = "2026-07-30T12:34:56Z"
+    run["run_id"] = RUN_ID
     run["run_attempt"] = "1"
     return run
 
@@ -155,7 +241,7 @@ def _image_manifest() -> dict:
         },
         "ci": {
             "workflow": "Deploy",
-            "run_id": "123",
+            "run_id": RUN_ID,
             "run_attempt": "1",
         },
     }
@@ -177,6 +263,8 @@ def _preflight() -> dict:
     return {
         "verdict": "pass",
         "commit": COMMIT,
+        "base_url": PUBLIC_BASE_URL,
+        "url": {"scheme": "https", "hostname": "staging.oasis-private-beta.com", "port": 443},
         "endpoints": {
             "/version": {
                 "ok": True,
